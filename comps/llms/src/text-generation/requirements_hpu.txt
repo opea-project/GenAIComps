@@ -5,9 +5,8 @@ fastapi
 httpx==0.27.2
 huggingface_hub
 langchain_core
-# Omitted numpy to not overwrite what is in the Gaudi container.
-# transformers wants numpy>=1.17, but torch wants numpy<2 
-# numpy>=1.17,<2.0
+# transformers requires numpy>=1.17, but torch wants numpy<2 
+numpy>=1.17,<2.0
 openai==1.57.4
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -16,9 +15,8 @@ Pillow
 predictionguard
 prometheus-fastapi-instrumentator
 shortuuid
-# Omitted transformers to not overwrite what is in the container.
 # Docker.intel_hpu_phi4 uses Gaudi 1.20.1
 # Support matrix for Gaudi v1.20.1 requires transformers==4.45.2
 # https://docs.habana.ai/en/v1.20.1/Support_Matrix/Support_Matrix.html
-# transformers==4.45.2
+transformers==4.45.2
 uvicorn
