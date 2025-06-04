@@ -112,7 +112,7 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(res, "example test.")
 
     def test_token_generator(self):
-        start = time.time()
+        start = time.monotonic()
         sentence = "I write an example test.</s>"
         for i in self.service_builder.token_generator(
             sentence=sentence, token_start=start, is_first=True, is_last=False
