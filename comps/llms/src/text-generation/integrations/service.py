@@ -13,7 +13,11 @@ from openai import AsyncOpenAI
 
 from comps import CustomLogger, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
-from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.cores.proto.api_protocol import (
+    ALLOWED_CHATCOMPLETION_ARGS, 
+    ALLOWED_COMPLETION_ARGS, 
+    ChatCompletionRequest
+)
 
 from .template import ChatTemplate
 
@@ -62,42 +66,6 @@ class OpeaTextGenService(OpeaComponent):
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
     """
-
-    # Arguments allowed in chat completions API calls
-    ALLOWED_CHATCOMPLETION_ARGS = (
-        "model",
-        "messages",
-        "frequency_penalty",
-        "max_tokens",
-        "n",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "stream",
-        "stream_options",
-        "temperature",
-        "top_p",
-        "user",
-    )
-
-    # Arguments allowed in regular completions API calls
-    ALLOWED_COMPLETION_ARGS = (
-        "model",
-        "prompt",
-        "echo",
-        "frequency_penalty",
-        "max_tokens",
-        "n",
-        "presence_penalty",
-        "seed",
-        "stop",
-        "stream",
-        "suffix",
-        "temperature",
-        "top_p",
-        "user",
-    )
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
@@ -247,7 +215,7 @@ class OpeaTextGenService(OpeaComponent):
 
             # Create input params directly from input object attributes
             input_params = {**vars(input), "model": MODEL_NAME}
-            filtered_params = self._filter_api_params(input_params, self.ALLOWED_CHATCOMPLETION_ARGS)
+            filtered_params = self._filter_api_params(input_params, ALLOWED_CHATCOMPLETION_ARGS)
             logger.debug(f"Filtered chat completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.chat.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
@@ -261,7 +229,7 @@ class OpeaTextGenService(OpeaComponent):
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
             input_params = {**vars(input), "model": MODEL_NAME, "prompt": prompt}
-            filtered_params = self._filter_api_params(input_params, self.ALLOWED_COMPLETION_ARGS)
+            filtered_params = self._filter_api_params(input_params, ALLOWED_COMPLETION_ARGS)
             logger.debug(f"Filtered completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
@@ -287,7 +255,8 @@ class OpeaTextGenService(OpeaComponent):
     def _filter_api_params(self, input_params: dict, allowed_args: tuple) -> dict:
         """Filters input parameters to only include allowed non-None arguments.
 
-        Only allow allowed args, and also some open AI-like APIs e.g. OpenRouter.ai will disallow None parameters.
+        Only allow allowed args, and and filter non-None default arguments because
+        some open AI-like APIs e.g. OpenRouter.ai will disallow None parameters.
         Works for both chat completion and regular completion API calls.
 
         Args:

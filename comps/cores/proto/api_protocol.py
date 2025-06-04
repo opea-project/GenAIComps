@@ -1014,3 +1014,40 @@ class FineTuningJobCheckpoint(BaseModel):
 
     step_number: Optional[int] = None
     """The step number that the checkpoint was created at."""
+
+
+# Args allowed in openai-like chat completions API calls in OpeaTextGenService
+ALLOWED_CHATCOMPLETION_ARGS = (
+    "model",
+    "messages",
+    "frequency_penalty",
+    "max_tokens",
+    "n",
+    "presence_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "stream",
+    "stream_options",
+    "temperature",
+    "top_p",
+    "user",
+)
+
+# Args allowed in openai-like regular completion API calls in OpeaTextGenService
+ALLOWED_COMPLETION_ARGS = (
+    "model",
+    "prompt",
+    "echo",
+    "frequency_penalty",
+    "max_tokens",
+    "n",
+    "presence_penalty",
+    "seed",
+    "stop",
+    "stream",
+    "suffix",
+    "temperature",
+    "top_p",
+    "user",
+)
