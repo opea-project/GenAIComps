@@ -81,7 +81,7 @@ jobs:
         if: ${{ cancelled() || failure() }}
         run: |
           echo "Test was cancelled or failed, cleaning up..."
-          docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -fr /GenAIComps/.pytest_cache && echo "finish clean up." || true"
+          docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -fr /GenAIComps/.pytest_cache && echo 'finish clean up.' || true"
 
       - uses: codecov/codecov-action@v4
         with:
