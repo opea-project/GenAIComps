@@ -54,51 +54,51 @@ function start_service() {
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
     export DATA_PATH=${model_cache:-./data}
-    
+
     # Create log directory
     mkdir -p ${LOG_PATH}/llms
-    
+
     # Print important environment settings
     echo "Environment variables:"
     echo "  host_ip=${host_ip}"
     echo "  LLM_ENDPOINT=${LLM_ENDPOINT}"
-    echo "  LLM_MODEL_ID=${LLM_MODEL_ID}" 
+    echo "  LLM_MODEL_ID=${LLM_MODEL_ID}"
     echo "  DATA_PATH=${DATA_PATH}"
     echo "  HF_TOKEN is $(if [ -z "${HF_TOKEN}" ]; then echo "NOT "; fi)set"
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    
+
     # Display the compose file content for debugging
     echo "Docker compose configuration:"
     echo "=========================================================="
     cat compose_text-generation.yaml | tee ${LOG_PATH}/llms/compose_text-generation.yaml.log
     echo "=========================================================="
-    
+
     # Start services in the background but capture logs
     docker compose -f compose_text-generation.yaml up ${service_name} -d | tee ${LOG_PATH}/llms/start_services_with_compose.log
-    
+
     echo "Waiting for services to start..."
     # Immediately start capturing logs from the container to avoid missing early errors
     docker compose -f compose_text-generation.yaml logs -f vllm-gaudi-server > ${LOG_PATH}/llms/vllm-gaudi-server-startup.log 2>&1 &
     LOG_PID=$!
-    
+
     # Wait a bit for services to start
     sleep 30s
-    
+
     # Stop background log capture
     kill $LOG_PID || true
-    
+
     # Check if vllm-gaudi-server container is running
     if ! docker ps | grep -q "vllm-gaudi-server"; then
         echo "vllm-gaudi-server failed to start. Showing logs:"
-        
+
         # Get logs even from containers that have exited
         docker compose -f compose_text-generation.yaml logs vllm-gaudi-server | tee ${LOG_PATH}/llms/vllm-gaudi-server-error.log
-        
+
         # Try to get more details about the container's exit
         echo "Container exit details:"
         docker inspect vllm-gaudi-server --format='{{json .State}}' | jq . | tee ${LOG_PATH}/llms/vllm-gaudi-server-state.log
-        
+
         exit 1
     fi
 }
@@ -113,11 +113,11 @@ function validate_services() {
     echo "==========================================="
     echo "[ $SERVICE_NAME ] Testing endpoint: $URL"
     echo "[ $SERVICE_NAME ] Input data: $INPUT_DATA"
-    
+
     # Create log file for this test
     local LOG_FILE="${LOG_PATH}/llms/${SERVICE_NAME}-validation.log"
     echo "Validation started at $(date)" > $LOG_FILE
-    
+
     # First check if the container is still running
     if ! docker ps | grep -q "$DOCKER_NAME"; then
         echo "[ $SERVICE_NAME ] ERROR: Container $DOCKER_NAME is not running" | tee -a $LOG_FILE
@@ -134,7 +134,7 @@ function validate_services() {
     local HTTP_STATUS=$(curl -v -s -o $RESPONSE_FILE -w "%{http_code}" -X POST -d "$INPUT_DATA" \
                       -H 'Content-Type: application/json' --max-time 30 "$URL" 2>> $LOG_FILE)
     echo "Response status code: $HTTP_STATUS" | tee -a $LOG_FILE
-    
+
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..." | tee -a $LOG_FILE
 
@@ -154,12 +154,12 @@ function validate_services() {
         fi
     else
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS" | tee -a $LOG_FILE
-        
+
         if [ -f "$RESPONSE_FILE" ]; then
             echo "Response body:" | tee -a $LOG_FILE
             cat $RESPONSE_FILE | tee -a $LOG_FILE
         fi
-        
+
         echo "Container logs:" | tee -a $LOG_FILE
         docker logs $DOCKER_NAME &>> $LOG_FILE
         return 1
@@ -173,7 +173,7 @@ function validate_microservices() {
     # Check service health first
     echo "Checking if services are running and healthy..."
     docker ps | grep -E 'vllm-gaudi-server|textgen-service' | tee ${LOG_PATH}/llms/containers-running.log
-    
+
     # vllm
     echo "Validate vllm..."
     validate_services \
@@ -212,15 +212,15 @@ function validate_microservice_with_openai() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    
+
     # Capture logs before stopping in case there were issues
     echo "Capturing final logs before shutdown..."
     docker compose -f compose_text-generation.yaml logs vllm-gaudi-server > ${LOG_PATH}/llms/vllm-gaudi-server-final.log 2>&1
     docker compose -f compose_text-generation.yaml logs textgen-service-vllm-gaudi > ${LOG_PATH}/llms/textgen-service-final.log 2>&1
-    
+
     # Show container status
     docker ps -a | grep -E 'vllm|textgen' > ${LOG_PATH}/llms/container-status-final.log 2>&1
-    
+
     # Stop containers
     echo "Stopping all containers..."
     docker compose -f compose_text-generation.yaml down --remove-orphans
@@ -229,29 +229,29 @@ function stop_docker() {
 function main() {
     # Create log directory
     mkdir -p ${LOG_PATH}/llms
-    
+
     # Log system information
     echo "System information:" | tee ${LOG_PATH}/llms/system_info.log
     uname -a >> ${LOG_PATH}/llms/system_info.log
     free -h >> ${LOG_PATH}/llms/system_info.log
     lscpu >> ${LOG_PATH}/llms/system_info.log
-    
+
     # Check if HPUs are available (for Gaudi servers)
     if [ -x "$(command -v hlkd_admin)" ]; then
         echo "HPU information:" | tee -a ${LOG_PATH}/llms/system_info.log
         hlkd_admin status >> ${LOG_PATH}/llms/system_info.log 2>&1 || echo "Could not get HPU status" >> ${LOG_PATH}/llms/system_info.log
     fi
-    
+
     # Check Docker status
     docker info | tee ${LOG_PATH}/llms/docker_info.log
-    
+
     # Verify environment
     echo "Environment variables:" | tee ${LOG_PATH}/llms/environment.log
     env | grep -E 'HF_|TOKEN|LLM|MODEL|PATH|VLLM|TEXTGEN|proxy|REGISTRY|TAG' | sort >> ${LOG_PATH}/llms/environment.log
-    
+
     # Clean up any previous docker containers
     stop_docker
-    
+
     # Set up error handling
     set +e  # Continue on error, but track it
     ERROR=0
@@ -264,7 +264,7 @@ function main() {
     else
         pip install --no-cache-dir openai pydantic
         start_service
-        
+
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to start services" | tee -a ${LOG_PATH}/llms/error.log
             ERROR=1
@@ -283,11 +283,11 @@ function main() {
             fi
         fi
     fi
-    
+
     # Always try to stop and clean up
     stop_docker
     echo y | docker system prune
-    
+
     # Exit with the appropriate status
     echo "Test completed with status: $ERROR" | tee -a ${LOG_PATH}/llms/status.log
     return $ERROR
