@@ -21,7 +21,6 @@ import networkx as nx
 import openai
 import requests
 
-# No need to import huggingface_hub anymore
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
