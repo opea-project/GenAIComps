@@ -28,10 +28,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
 
-RUN git clone ${REPO} /root/optimum-habana
-WORKDIR /root/optimum-habana
-RUN git fetch --depth=1 origin ${REPO_VER} && \
-    git checkout ${REPO_VER}
+RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}
 
 WORKDIR /root/comps/text2cypher/src
 RUN pip install --no-cache-dir -r requirements.txt && \
