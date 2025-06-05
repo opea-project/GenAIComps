@@ -10,7 +10,7 @@ function call_curl() {
     local url=$1
     local header=$2
     shift 2
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -H "$header" "${url}" $@)
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -H "$header" "${url}" "$@")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
@@ -34,7 +34,7 @@ function _invoke_curl() {
 	;;
     esac
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "$header" "${url}" $@)
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "$header" "${url}" "$@")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
@@ -63,7 +63,7 @@ function ingest_file() {
     fi
 
     local extra_args=$(_add_db_params "$db")
-    _invoke_curl "$fqdn" "$port" ingest -F "files=@${SCRIPT_DIR}/${filename}" $extra_args "$@"
+    _invoke_curl "$fqdn" "$port" ingest -F "files=@${SCRIPT_DIR}/${filename}" "$extra_args" "$@"
 }
 
 function ingest_doc() {
@@ -99,7 +99,7 @@ function ingest_external_link() {
     local port=$2
     shift 2
     local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $extra_args $@
+    _invoke_curl "$fqdn" "$port" ingest -F 'link_list=["https://www.ces.tech/"]' "$extra_args" "$@"
 }
 
 function ingest_external_link_with_chunk_parameters() {
@@ -107,14 +107,14 @@ function ingest_external_link_with_chunk_parameters() {
     local port=$2
     local index_name=$3
     shift 3
-    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=1500" -F "chunk_overlap=100" -F "index_name=${index_name}" $@
+    _invoke_curl "$fqdn" "$port" ingest -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=1500" -F "chunk_overlap=100" -F "index_name=${index_name}" "$@"
 }
 
 function delete_all() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port delete -d '{"file_path":"all"}' $@
+    _invoke_curl "$fqdn" "$port" delete -d '{"file_path":"all"}' "$@"
 }
 
 function delete_all_in_index() {
@@ -122,7 +122,7 @@ function delete_all_in_index() {
     local port=$2
     local index_name=$3
     shift 3
-    _invoke_curl $fqdn $port delete -d '{"file_path":"all","index_name":"'${index_name}'"}' $@
+    _invoke_curl "$fqdn" "$port" delete -d '{"file_path":"all","index_name":"'${index_name}'"}' "$@"
 }
 
 function delete_item_in_index() {
@@ -131,28 +131,28 @@ function delete_item_in_index() {
     local index_name=$3
     local item=$4
     shift 4
-    _invoke_curl $fqdn $port delete -d '{"file_path":"'${item}'","index_name":"'${index_name}'"}' $@
+    _invoke_curl "$fqdn" "$port" delete -d '{"file_path":"'${item}'","index_name":"'${index_name}'"}' "$@"
 }
 
 function delete_single() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port delete -d '{"file_path":"ingest_dataprep.txt"}' $@
+    _invoke_curl "$fqdn" "$port" delete -d '{"file_path":"ingest_dataprep.txt"}' "$@"
 }
 
 function get_all() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port get $@
+    _invoke_curl "$fqdn" "$port" get "$@"
 }
 
 function get_all_in_index() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port get -d '{"index_name":"all"}' $@
+    _invoke_curl "$fqdn" "$port" get -d '{"index_name":"all"}' "$@"
 }
 
 function get_index() {
@@ -160,7 +160,7 @@ function get_index() {
     local port=$2
     local index_name=$3
     shift 3
-    _invoke_curl $fqdn $port get -d '{"index_name":"'${index_name}'"}' $@
+    _invoke_curl "$fqdn" "$port" get -d '{"index_name":"'${index_name}'"}' "$@"
 }
 
 function ingest_txt_with_index_name() {
@@ -168,14 +168,14 @@ function ingest_txt_with_index_name() {
     local port=$2
     local index_name=$3
     shift 3
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" -F "index_name=${index_name}" $@
+    _invoke_curl "$fqdn" "$port" ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" -F "index_name=${index_name}" "$@"
 }
 
 function indices() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port indices $@
+    _invoke_curl "$fqdn" "$port" indices "$@"
 }
 
 function check_result() {
