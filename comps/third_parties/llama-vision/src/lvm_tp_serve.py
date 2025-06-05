@@ -50,7 +50,7 @@ def print_rank0(*msg):
 
 
 def get_repo_root(model_name_or_path):
-    huggingface_token = os.getenv("HF_TOKEN")
+    huggingface_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
     if os.path.exists(model_name_or_path):
         # local path
         return model_name_or_path
@@ -130,7 +130,7 @@ def initialize():
     if logflag:
         logger.info("[lvm tp serve] start to initialize model and processor")
     initialized = True
-    huggingface_token = os.getenv("HF_TOKEN")
+    huggingface_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
     model = MllamaForConditionalGeneration.from_pretrained(
         model_id, torch_dtype=torch.bfloat16, device_map="auto", token=huggingface_token
     )

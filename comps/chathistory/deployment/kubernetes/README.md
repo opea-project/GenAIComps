@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install chathistory-usvc oci://ghcr.io/opea-project/charts/chathistory-usvc --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install chathistory-usvc oci://ghcr.io/opea-project/charts/chathistory-usvc --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```

@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install agent oci://ghcr.io/opea-project/charts/agent --set global.HF_TOKEN=${HFTOKEN} -f gaudi-values.yaml
+helm install agent oci://ghcr.io/opea-project/charts/agent --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f gaudi-values.yaml
 ```

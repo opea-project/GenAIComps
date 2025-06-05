@@ -45,7 +45,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
             model=f"{self.base_url}/embed",
-            token=os.getenv("compose"),
+            token=os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
 

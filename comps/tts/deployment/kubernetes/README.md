@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install tts oci://ghcr.io/opea-project/charts/tts --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install tts oci://ghcr.io/opea-project/charts/tts --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```

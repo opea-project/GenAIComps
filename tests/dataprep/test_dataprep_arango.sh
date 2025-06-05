@@ -51,7 +51,6 @@ function start_service() {
     export VLLM_MODEL_ID="${VLLM_MODEL_ID:-meta-llama/Meta-Llama-3-8B-Instruct}"
     export LLM_MODEL_ID="${LLM_MODEL_ID:-meta-llama/Meta-Llama-3-8B-Instruct}"
     export HF_TOKEN="${HF_TOKEN:-EMPTY}"
-    export HF_TOKEN="${HF_TOKEN:-EMPTY}"
 
     export LOGFLAG=true
 

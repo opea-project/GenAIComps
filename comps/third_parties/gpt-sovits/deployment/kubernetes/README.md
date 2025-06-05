@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install gpt-sovits oci://ghcr.io/opea-project/charts/gpt-sovits  --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install gpt-sovits oci://ghcr.io/opea-project/charts/gpt-sovits  --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```

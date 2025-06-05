@@ -44,7 +44,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HF_TOKEN: ${HF_TOKEN}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
       USE_SMALLER_PROMPT_GUARD_MODEL: ${USE_SMALLER_PROMPT_GUARD_MODEL:-false}
     restart: unless-stopped
@@ -83,7 +83,7 @@ services:
     extends: guardrails-server
     container_name: llamaguard-guardrails-server
     environment:
-      HF_TOKEN: ${HF_TOKEN}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:
@@ -94,7 +94,7 @@ services:
     container_name: wildguard-guardrails-server
     environment:
       GUARDRAILS_COMPONENT_NAME: "OPEA_WILD_GUARD"
-      HF_TOKEN: ${HF_TOKEN}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:

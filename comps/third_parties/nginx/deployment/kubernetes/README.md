@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install nginx oci://ghcr.io/opea-project/charts/nginx  --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install nginx oci://ghcr.io/opea-project/charts/nginx  --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```
