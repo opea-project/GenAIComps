@@ -425,7 +425,7 @@ class OpeaArangoRetriever(OpeaComponent):
             embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
                 task="feature-extraction",
-                HF_TOKEN=HF_TOKEN,
+                huggingfacehub_api_token=HF_TOKEN,
             )
         else:
             embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)

@@ -151,7 +151,6 @@ docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg ht
 export ip_address=$(hostname -I | awk '{print $1}')
 export model="meta-llama/Meta-Llama-3.1-70B-Instruct"
 export HF_TOKEN=${HF_TOKEN}
-export HF_TOKEN=${HF_TOKEN}
 export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
 
 # build vLLM image

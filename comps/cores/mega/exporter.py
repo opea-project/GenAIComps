@@ -217,7 +217,7 @@ def create_configmap_object(config_dict=None, config_name="qna-config"):
             "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
             "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
             "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
-            "HF_TOKEN": "${HF_TOKEN}",
+            "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
             "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
             "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
             "RERANK_SERVICE_HOST_IP": "reranking-svc",
@@ -466,7 +466,7 @@ def build_deployment_and_service(all_configs, output_file="E2E_manifest.yaml"):
             client.V1EnvVar(name="PT_HPU_ENABLE_LAZY_COLLECTIVES", value="true"),
             client.V1EnvVar(name="runtime", value="habana"),
             client.V1EnvVar(name="HABANA_VISIBLE_DEVICES", value="all"),
-            client.V1EnvVar(name="HF_TOKEN", value="${HF_TOKEN}"),
+            client.V1EnvVar(name="HUGGINGFACEHUB_API_TOKEN", value="${HF_TOKEN}"),
         ]
 
         deployment, service = create_deployment_and_service(

@@ -202,7 +202,7 @@ class OpeaArangoDataprep(OpeaComponent):
             self.embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
                 task="feature-extraction",
-                HF_TOKEN=HF_TOKEN,
+                huggingfacehub_api_token=HF_TOKEN,
             )
         elif TEI_EMBED_MODEL:
             self.embeddings = HuggingFaceEmbeddings(model_name=TEI_EMBED_MODEL)

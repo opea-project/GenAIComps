@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install web-retriever oci://ghcr.io/opea-project/charts/web-retriever --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install web-retriever oci://ghcr.io/opea-project/charts/web-retriever --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```
