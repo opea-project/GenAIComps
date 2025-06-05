@@ -5,6 +5,8 @@
 FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
 
 ENV LANG=en_US.UTF-8
+ARG REPO=https://github.com/huggingface/optimum-habana.git
+ARG REPO_VER=v1.17.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
@@ -20,20 +22,15 @@ RUN git lfs install
 
 COPY comps /home/user/comps
 
-
-# Install base dependencies first
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir pydantic
+    pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
+    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
-# Copy and install requirements
-COPY comps/llms/src/text-generation/requirements_hpu.txt /tmp/requirements_hpu.txt
-RUN pip install --no-cache-dir -r /tmp/requirements_hpu.txt
-
-# Install Habana-specific packages last to avoid conflicts
-# Gaudi 1.20.1 requires optimum[habana]==1.16.0 with transformers==4.45.2 per support matrix
-# https://docs.habana.ai/en/v1.20.1/Support_Matrix/Support_Matrix.html
-RUN pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0 && \
-    pip install --no-cache-dir optimum[habana]==1.16.0
+RUN git clone ${REPO} /home/user/optimum-habana && \
+    cd /home/user/optimum-habana && git checkout ${REPO_VER} && \
+    cd examples/text-generation && pip install --no-cache-dir -r requirements.txt && \
+    cd /home/user/comps/llms/src/text-generation/ && pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy==1.25
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs

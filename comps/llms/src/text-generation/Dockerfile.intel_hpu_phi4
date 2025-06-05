@@ -20,24 +20,13 @@ RUN git lfs install
 
 COPY comps /home/user/comps
 
-# Install base dependencies first
-RUN pip install --no-cache-dir --upgrade pip setuptools
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
+    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
-# Copy requirements file
-COPY comps/llms/src/text-generation/requirements_hpu.txt /tmp/requirements_hpu.txt
-
-# Install requirements first to ensure consistent dependency resolution
-RUN pip install --no-cache-dir -r /tmp/requirements_hpu.txt && \
-    pip install --no-cache-dir \
-    soundfile==0.12.1 \
-    peft==0.7.1 \
-    backoff==2.2.1
-
-# Install Habana-specific packages last to avoid conflicts
-# Gaudi 1.20.1 requires optimum[habana]==1.16.0 with transformers==4.45.2 per support matrix
-# https://docs.habana.ai/en/v1.20.1/Support_Matrix/Support_Matrix.html
-RUN pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0 && \
-    pip install --no-cache-dir optimum[habana]==1.16.0
+RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
+    cd /home/user/comps/llms/src/text-generation/ && pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir soundfile peft backoff
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
