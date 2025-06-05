@@ -16,12 +16,14 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("llm_faqgen")
 logflag = os.getenv("LOGFLAG", False)
 
 llm_component_name = os.getenv("FAQGen_COMPONENT_NAME", "OpeaFaqGenTgi")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen Component: {llm_component_name}")
 
@@ -32,6 +34,9 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen C
     endpoint="/v1/faqgen",
     host="0.0.0.0",
     port=9000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="FAQ generation with LLMs",
 )
 @register_statistics(names=["opea_service@llm_faqgen"])
 async def llm_generate(input: ChatCompletionRequest):

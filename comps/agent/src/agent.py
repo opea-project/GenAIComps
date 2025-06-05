@@ -19,6 +19,7 @@ from comps.agent.src.integrations.agent import instantiate_agent
 from comps.agent.src.integrations.global_var import assistants_global_kv, threads_global_kv
 from comps.agent.src.integrations.thread import instantiate_thread_memory, thread_completion_callback
 from comps.agent.src.integrations.utils import assemble_store_messages, get_args, get_latest_human_message_from_store
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import (
     AssistantsObject,
     ChatCompletionRequest,
@@ -34,6 +35,8 @@ from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
 
 logger = CustomLogger("comps-react-agent")
 logflag = os.getenv("LOGFLAG", False)
+
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 args, _ = get_args()
 
@@ -59,6 +62,9 @@ class AgentCompletionRequest(ChatCompletionRequest):
     host="0.0.0.0",
     port=args.port,
     methods=["GET"],
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 async def models():
 
@@ -91,6 +97,9 @@ async def models():
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 async def llm_generate(input: AgentCompletionRequest):
@@ -182,6 +191,9 @@ class CreateAssistant(CreateAssistantsRequest):
     endpoint="/v1/assistants",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 def create_assistants(input: CreateAssistant):
@@ -219,6 +231,9 @@ def create_assistants(input: CreateAssistant):
     endpoint="/v1/threads",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 def create_threads(input: CreateThreadsRequest):
@@ -241,6 +256,9 @@ def create_threads(input: CreateThreadsRequest):
     endpoint="/v1/threads/{thread_id}/messages",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 def create_messages(thread_id, input: CreateMessagesRequest):
@@ -286,6 +304,9 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     endpoint="/v1/threads/{thread_id}/runs",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 def create_run(thread_id, input: CreateRunResponse):
@@ -334,6 +355,9 @@ def create_run(thread_id, input: CreateRunResponse):
     endpoint="/v1/threads/{thread_id}/runs/cancel",
     host="0.0.0.0",
     port=args.port,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Agent microservice",
 )
 @opea_telemetry
 def cancel_run(thread_id):
