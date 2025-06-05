@@ -20,6 +20,7 @@ import nest_asyncio
 import networkx as nx
 import openai
 import requests
+
 # No need to import huggingface_hub anymore
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
@@ -83,17 +84,17 @@ MAX_OUTPUT_TOKENS = os.getenv("MAX_OUTPUT_TOKENS", "1024")
 
 
 def get_hf_tokenizer(model_name):
-    """
-    Attempt to load a HuggingFace tokenizer from string.
-    
+    """Attempt to load a HuggingFace tokenizer from string.
+
     Args:
         model_name (str): Name of the model to load tokenizer for
-        
+
     Returns:
         AutoTokenizer or None: The loaded tokenizer if successful, None otherwise
     """
     try:
         from transformers import AutoTokenizer
+
         return AutoTokenizer.from_pretrained(model_name)
     except Exception:
         return None
@@ -109,19 +110,19 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         super().__init__(username=username, password=password, url=url, refresh_schema=False)
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
-        
+
     async def generate_community_summary(self, text):
         """Generate summary of extracted entity/relationships using an LLM.
-        
+
         This method may trim the relationships if tokens exceed LLM context length with the following logic:
         1. For Hugging Face models: Uses AutoTokenizer to accurately count tokens
-        2. For other models: Uses character-based token estimation with a conservative ratio. If 
+        2. For other models: Uses character-based token estimation with a conservative ratio. If
         the the text is still longer than the max input tokens, it will just use first 5 relationships as
         a summary.
         """
         model_name = LLM_MODEL_ID
         max_input_tokens = int(MAX_INPUT_TOKENS)
-        
+
         # Define system prompt
         system_prompt = (
             "You are provided with a set of relationships from a knowledge graph, each represented as "
@@ -131,141 +132,146 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             "highlight the nature and significance of each relationship. Ensure that the summary is coherent and "
             "integrates the information in a way that emphasizes the key aspects of the relationships."
         )
-        
+
         messages = None
         was_trimmed = False
-        
+
         try:
-            tokenizer = get_hf_tokenizer(model_name)      
+            tokenizer = get_hf_tokenizer(model_name)
             if tokenizer:
-                logger.info(f"Using Hugging Face tokenizer to check context limit for model: {model_name}")                
+                logger.info(f"Using Hugging Face tokenizer to check context limit for model: {model_name}")
                 original_messages = [
                     ChatMessage(role="system", content=system_prompt),
                     ChatMessage(role="user", content=text),
                 ]
-            
+
                 messages = self.trim_messages_to_token_limit(tokenizer, original_messages, max_input_tokens)
-                was_trimmed = len(messages) < len(original_messages) or messages[-1].content != original_messages[-1].content
+                was_trimmed = (
+                    len(messages) < len(original_messages) or messages[-1].content != original_messages[-1].content
+                )
                 if was_trimmed:
-                    logger.info(f"Content trimmed using {model_name} tokenizer to fit within max {max_input_tokens} tokens.")
-                    messages[0].content += " Note: Due to token limits, only a subset of the relationships are summarized."
+                    logger.info(
+                        f"Content trimmed using {model_name} tokenizer to fit within max {max_input_tokens} tokens."
+                    )
+                    messages[
+                        0
+                    ].content += " Note: Due to token limits, only a subset of the relationships are summarized."
             else:
                 raise ValueError(
-                    f"Could not load Hugging Face tokenizer for model {model_name} for trimming - using character-based token estimation")
-                
+                    f"Could not load Hugging Face tokenizer for model {model_name} for trimming - using character-based token estimation"
+                )
+
         except Exception as e:
             logger.info(f"Using character-based token estimation and will trim if needed: {str(e)}")
             trimmed_text, was_trimmed = self.trim_messages_with_estimated_tokens(text, system_prompt, max_input_tokens)
-            
+
             system_content = system_prompt
             if was_trimmed:
                 system_content += " Note: Due to token limits, only a subset of the relationships are provided."
-                
+
             messages = [
                 ChatMessage(role="system", content=system_content),
                 ChatMessage(role="user", content=trimmed_text),
             ]
-            
+
         try:
             # Create the relationship summaries.
             if OPENAI_API_KEY:
                 response = await OpenAI().achat(messages)
             else:
                 response = await self.llm.achat(messages)
-                
+
             clean_response = re.sub(r"^assistant:\s*", "", str(response.message.content)).strip()
             return clean_response
-            
+
         except Exception as e:
             logger.error(f"Error generating community summary: {str(e)}")
             # Use a fallback summary by listing the first 5 relationships
             fallback_relationships = 5
             relationships = text.split("\n")
-            important_rels = relationships[:min(fallback_relationships, len(relationships))]
+            important_rels = relationships[: min(fallback_relationships, len(relationships))]
             fallback_summary = "Summary could not be generated. Key relationships include:\n\n"
             for rel in important_rels:
                 fallback_summary += f"- {rel}\n"
-                
+
             logger.warning("Returning fallback summary with important relationships due to LLM error")
             return fallback_summary
 
-
     def trim_messages_with_estimated_tokens(self, text, system_prompt, max_input_tokens):
-        """
-        Trim input text to fit within token limits (if needed) using character-based
+        """Trim input text to fit within token limits (if needed) using character-based
         token count estimation.
 
         A fall-back method can be used if there is an LLM error still i.e. this method
         should have trimmed more.
-        
+
         This method:
         1. Uses character count to approximate token count, with conservative buffer.
         2. Splits text by relationships (newlines)
         3. Keeps the first relationship lines before estimated tokens exceeds the token limit.
-        
+
         Args:
             text: The input text, typically containing relationship descriptions
             system_prompt: The system prompt text
             max_input_tokens: Maximum allowed input tokens
-            
+
         Returns:
             Tuple of (trimmed_text, was_trimmed)
         """
         # Character-based token estimation (conservative 4 chars per token)
         chars_per_token = 4
         estimated_system_tokens = len(system_prompt) // chars_per_token
-        
+
         # Reserve tokens for system prompt and safety buffer
         available_tokens = max_input_tokens - estimated_system_tokens - 100  # 100 token buffer
         available_chars = available_tokens * chars_per_token
-        
+
         # If text fits within limits, return as-is
         if len(text) <= available_chars:
             return text, False
-        
-        # Otherwise if text exceeds limit, need to trim. 
+
+        # Otherwise if text exceeds limit, need to trim.
         # Will trim by relationships (typically one per line)
         relationships = text.split("\n")
-        
+
         # Start with empty trimmed text and add relationships until we approach the limit
         trimmed_text = []
         current_chars = 0
-        
+
         for rel in relationships:
             # Add 1 for the newline character
-            rel_chars = len(rel) + 1    
+            rel_chars = len(rel) + 1
             if current_chars + rel_chars > available_chars:
                 # We've reached the limit
                 break
-                
+
             trimmed_text.append(rel)
             current_chars += rel_chars
-        
-        result = "\n".join(trimmed_text)        
+
+        result = "\n".join(trimmed_text)
         warning = "\n\n[NOTE: Some relationships were omitted due to estimated max token limits.]"
-        
+
         # Make sure adding the warning doesn't exceed the limit
         if len(result) + len(warning) <= available_chars:
             result += warning
-            
+
         percentage_kept = (len(result) / len(text)) * 100
-        logger.info(f"Text trimmed to fit token limits. Kept {percentage_kept:.1f}% of original content ({len(result)} chars of {len(text)}).")
-        
+        logger.info(
+            f"Text trimmed to fit token limits. Kept {percentage_kept:.1f}% of original content ({len(result)} chars of {len(text)})."
+        )
+
         return result, True
 
-
     def trim_messages_to_token_limit(self, tokenizer, messages, max_tokens):
-        """
-        Trim the messages to fit within the token limit using a HuggingFace tokenizer.
-        
+        """Trim the messages to fit within the token limit using a HuggingFace tokenizer.
+
         This method is used when a HuggingFace model is available, allowing for
         precise token counting and trimming based on the model's specific tokenizer.
-        
+
         Args:
             tokenizer: A HuggingFace tokenizer instance
             messages: List of ChatMessage objects
             max_tokens: Maximum allowed input tokens
-            
+
         Returns:
             List of trimmed ChatMessage objects
         """
@@ -292,7 +298,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 trimmed_messages.append(message)
 
         return trimmed_messages
-
 
     async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
