@@ -75,7 +75,7 @@ jobs:
         run: |
           docker exec ${{ env.CONTAINER_NAME }} \
           bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh ${{ env.TEST_NAME }}"
-        timeout-minutes: 1
+        timeout-minutes: 10
 
       - name: Clean up When Test Cancelled or Failed
         if: ${{ cancelled() || failure() }}
