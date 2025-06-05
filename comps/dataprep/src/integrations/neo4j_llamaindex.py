@@ -144,7 +144,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                     ChatMessage(role="user", content=text),
                 ]
             
-                messages = self.trim_messages_to_token_limit(tokenizer, original_messages, max_input_tokens)
+                messages = self._trim_messages_to_token_limit(tokenizer, original_messages, max_input_tokens)
                 was_trimmed = len(messages) < len(original_messages) or messages[-1].content != original_messages[-1].content
                 if was_trimmed:
                     logger.info(f"Content trimmed using {model_name} tokenizer to fit within max {max_input_tokens} tokens.")
@@ -155,7 +155,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 
         except Exception as e:
             logger.info(f"Using character-based token estimation and will trim if needed: {str(e)}")
-            trimmed_text, was_trimmed = self.trim_messages_with_estimated_tokens(text, system_prompt, max_input_tokens)
+            trimmed_text, was_trimmed = self._trim_messages_with_estimated_tokens(text, system_prompt, max_input_tokens)
             
             system_content = system_prompt
             if was_trimmed:
@@ -190,7 +190,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             return fallback_summary
 
 
-    def trim_messages_with_estimated_tokens(self, text, system_prompt, max_input_tokens):
+    def _trim_messages_with_estimated_tokens(self, text, system_prompt, max_input_tokens):
         """
         Trim input text to fit within token limits (if needed) using character-based
         token count estimation.
@@ -254,7 +254,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         return result, True
 
 
-    def trim_messages_to_token_limit(self, tokenizer, messages, max_tokens):
+    def _trim_messages_to_token_limit(self, tokenizer, messages, max_tokens):
         """
         Trim the messages to fit within the token limit using a HuggingFace tokenizer.
         
