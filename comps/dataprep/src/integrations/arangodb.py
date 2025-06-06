@@ -287,7 +287,7 @@ class OpeaArangoDataprep(OpeaComponent):
 
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            if isinstance(table_chunks, list):
+            if table_chunks and isinstance(table_chunks, list):
                 chunks = chunks + table_chunks
 
         if logflag:
@@ -370,18 +370,20 @@ class OpeaArangoDataprep(OpeaComponent):
         chunk_overlap = input.chunk_overlap
         process_table = input.process_table
         table_strategy = input.table_strategy
-        graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME)
-        insert_async = getattr(input, "insert_async", ARANGO_INSERT_ASYNC)
-        insert_batch_size = getattr(input, "insert_batch_size", ARANGO_BATCH_SIZE)
-        embed_nodes = getattr(input, "embed_nodes", EMBED_NODES)
-        embed_edges = getattr(input, "embed_edges", EMBED_EDGES)
-        embed_chunks = getattr(input, "embed_chunks", EMBED_CHUNKS)
-        allowed_node_types = getattr(input, "allowed_node_types", ALLOWED_NODE_TYPES)
-        allowed_edge_types = getattr(input, "allowed_edge_types", ALLOWED_EDGE_TYPES)
-        node_properties = getattr(input, "node_properties", NODE_PROPERTIES)
-        edge_properties = getattr(input, "edge_properties", EDGE_PROPERTIES)
-        text_capitalization_strategy = getattr(input, "text_capitalization_strategy", TEXT_CAPITALIZATION_STRATEGY)
-        include_chunks = getattr(input, "include_chunks", INCLUDE_CHUNKS)
+        graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME) or ARANGO_GRAPH_NAME
+        insert_async = getattr(input, "insert_async", ARANGO_INSERT_ASYNC) or ARANGO_INSERT_ASYNC
+        insert_batch_size = getattr(input, "insert_batch_size", ARANGO_BATCH_SIZE) or ARANGO_BATCH_SIZE
+        embed_nodes = getattr(input, "embed_nodes", EMBED_NODES) or EMBED_NODES
+        embed_edges = getattr(input, "embed_edges", EMBED_EDGES) or EMBED_EDGES
+        embed_chunks = getattr(input, "embed_chunks", EMBED_CHUNKS) or EMBED_CHUNKS
+        allowed_node_types = getattr(input, "allowed_node_types", ALLOWED_NODE_TYPES) or ALLOWED_NODE_TYPES
+        allowed_edge_types = getattr(input, "allowed_edge_types", ALLOWED_EDGE_TYPES) or ALLOWED_EDGE_TYPES
+        node_properties = getattr(input, "node_properties", NODE_PROPERTIES) or NODE_PROPERTIES
+        edge_properties = getattr(input, "edge_properties", EDGE_PROPERTIES) or EDGE_PROPERTIES
+        text_capitalization_strategy = (
+            getattr(input, "text_capitalization_strategy", TEXT_CAPITALIZATION_STRATEGY) or TEXT_CAPITALIZATION_STRATEGY
+        )
+        include_chunks = getattr(input, "include_chunks", INCLUDE_CHUNKS) or INCLUDE_CHUNKS
 
         self._initialize_llm(
             allowed_node_types=allowed_node_types,
