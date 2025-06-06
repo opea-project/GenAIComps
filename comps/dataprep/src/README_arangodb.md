@@ -24,7 +24,7 @@ export VLLM_ENDPOINT=${your_vllm_endpoint}
 export VLLM_MODEL_ID=${your_vllm_model_id}
 export VLLM_API_KEY=${your_vllm_api_key}
 export TEI_EMBEDDING_ENDPOINT=${your_tei_embedding_endpoint}
-export HUGGINGFACEHUB_API_TOKEN=${your_huggingface_api_token}
+export HF_TOKEN=${your_huggingface_api_token}
 ```
 
 ### Build Docker Image
@@ -126,7 +126,7 @@ Text Embeddings Inferencing Configuration
 
 - `TEI_EMBEDDING_ENDPOINT`: The endpoint for the TEI service.
 - `TEI_EMBED_MODEL`: The model to use for the TEI service. Defaults to `BAAI/bge-base-en-v1.5`.
-- `HUGGINGFACEHUB_API_TOKEN`: The API token for the Hugging Face Hub.
+- `HF_TOKEN`: The API token for the Hugging Face Hub.
 - `EMBED_CHUNKS`: If set to True, the microservice will embed the chunks. Defaults to `True`.
 - `EMBED_NODES`: If set to True, the microservice will embed the nodes extracted from the source documents. Defaults to `True`.
 - `EMBED_EDGES`: If set to True, the microservice will embed the edges extracted from the source documents. Defaults to `True`.

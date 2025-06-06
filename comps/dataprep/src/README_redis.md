@@ -13,7 +13,7 @@ Please refer to this [readme](../../third_parties/redis/src/README.md).
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 ```
 
 ### 1.3 Start Embedding Service
@@ -51,7 +51,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### 1.5 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep:latest
+docker run -d --name="dataprep-redis-server" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/dataprep:latest
 ```
 
 ### 1.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)

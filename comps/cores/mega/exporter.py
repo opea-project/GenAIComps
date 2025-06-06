@@ -466,7 +466,7 @@ def build_deployment_and_service(all_configs, output_file="E2E_manifest.yaml"):
             client.V1EnvVar(name="PT_HPU_ENABLE_LAZY_COLLECTIVES", value="true"),
             client.V1EnvVar(name="runtime", value="habana"),
             client.V1EnvVar(name="HABANA_VISIBLE_DEVICES", value="all"),
-            client.V1EnvVar(name="HF_TOKEN", value="${HF_TOKEN}"),
+            client.V1EnvVar(name="HUGGINGFACEHUB_API_TOKEN", value="${HF_TOKEN}"),
         ]
 
         deployment, service = create_deployment_and_service(

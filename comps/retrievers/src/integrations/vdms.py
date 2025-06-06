@@ -22,7 +22,7 @@ from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, 
 from .config import (
     DISTANCE_STRATEGY,
     EMBED_MODEL,
-    HUGGINGFACEHUB_API_TOKEN,
+    HF_TOKEN,
     SEARCH_ENGINE,
     TEI_EMBEDDING_ENDPOINT,
     VDMS_HOST,

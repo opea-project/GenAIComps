@@ -32,7 +32,7 @@ from .config import (
     ARANGO_URL,
     ARANGO_USE_APPROX_SEARCH,
     ARANGO_USERNAME,
-    HUGGINGFACEHUB_API_TOKEN,
+    HF_TOKEN,
     OPENAI_API_KEY,
     OPENAI_CHAT_ENABLED,
     OPENAI_CHAT_MAX_TOKENS,
@@ -436,11 +436,11 @@ class OpeaArangoRetriever(OpeaComponent):
 
         if OPENAI_API_KEY and OPENAI_EMBED_MODEL and OPENAI_EMBED_ENABLED:
             embeddings = OpenAIEmbeddings(model=OPENAI_EMBED_MODEL, dimensions=dimension)
-        elif TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
+        elif TEI_EMBEDDING_ENDPOINT and HF_TOKEN:
             embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
                 task="feature-extraction",
-                huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
+                huggingfacehub_api_token=HF_TOKEN,
             )
         else:
             embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)

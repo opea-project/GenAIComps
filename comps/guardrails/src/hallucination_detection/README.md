@@ -45,12 +45,12 @@ git clone https://github.com/opea-project/GenAIComps.git
 export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 export your_ip=<your ip>
 export port_number=9008
-export HUGGINGFACEHUB_API_TOKEN=<token>
+export HF_TOKEN=<token>
 export vLLM_ENDPOINT="http://${your_ip}:${port_number}"
 export LLM_MODEL="PatronusAI/Llama-3-Patronus-Lynx-8B-Instruct"
 ```
 
-For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
+For gated models such as `LLAMA-2`, you will have to pass the environment HF_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
 
 ### 1.2 Launch vLLM Service on Gaudi Accelerator
 
