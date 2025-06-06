@@ -39,6 +39,7 @@ markdown
 moviepy
 neo4j
 numpy
+# https://github.com/run-llama/llama_index/issues/18823
 openai==1.81.0
 openai-whisper
 opencv-python
