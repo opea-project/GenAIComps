@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
+from langchain_core.load import dumps as langchain_dumps
 from langchain_core.prompts import PromptTemplate
 
 from comps import CustomLogger, GeneratedDoc, OpeaComponent, ServiceType
@@ -105,11 +106,8 @@ class OpeaFaqGen(OpeaComponent):
         if input.stream:
 
             async def stream_generator():
-                from langserve.serialization import WellKnownLCSerializer
-
-                _serializer = WellKnownLCSerializer()
                 async for chunk in llm_chain.astream_log(docs):
-                    data = _serializer.dumps({"ops": chunk.ops}).decode("utf-8")
+                    data = langchain_dumps({"ops": chunk.ops})
                     if logflag:
                         logger.info(data)
                     yield f"data: {data}\n\n"

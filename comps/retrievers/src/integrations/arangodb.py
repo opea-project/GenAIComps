@@ -23,6 +23,7 @@ from .config import (
     ARANGO_NUM_CENTROIDS,
     ARANGO_PASSWORD,
     ARANGO_SEARCH_START,
+    ARANGO_SEARCH_TYPE,
     ARANGO_TRAVERSAL_ENABLED,
     ARANGO_TRAVERSAL_MAX_DEPTH,
     ARANGO_TRAVERSAL_MAX_RETURNED,
@@ -325,25 +326,34 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        query = getattr(input, "input", getattr(input, "text"))
+        input_dict = input.model_dump(exclude_none=True)
+        query = input_dict.get("input", input_dict.get("text"))
+
         if not query:
             if logflag:
-                logger.error("Query is empty.")
+                logger.error("Query is empty. Please provide a valid query.")
 
             return []
 
         embedding = input.embedding if isinstance(input.embedding, list) else None
-        graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME)
-        search_start = getattr(input, "search_start", ARANGO_SEARCH_START)
-        enable_traversal = getattr(input, "enable_traversal", ARANGO_TRAVERSAL_ENABLED)
-        enable_summarizer = getattr(input, "enable_summarizer", SUMMARIZER_ENABLED)
-        distance_strategy = getattr(input, "distance_strategy", ARANGO_DISTANCE_STRATEGY)
-        use_approx_search = getattr(input, "use_approx_search", ARANGO_USE_APPROX_SEARCH)
-        num_centroids = getattr(input, "num_centroids", ARANGO_NUM_CENTROIDS)
-        traversal_max_depth = getattr(input, "traversal_max_depth", ARANGO_TRAVERSAL_MAX_DEPTH)
-        traversal_max_returned = getattr(input, "traversal_max_returned", ARANGO_TRAVERSAL_MAX_RETURNED)
-        traversal_score_threshold = getattr(input, "traversal_score_threshold", ARANGO_TRAVERSAL_SCORE_THRESHOLD)
-        traversal_query = getattr(input, "traversal_query", ARANGO_TRAVERSAL_QUERY)
+        graph_name = input_dict.get("graph_name", ARANGO_GRAPH_NAME)
+        search_start = input_dict.get("search_start", ARANGO_SEARCH_START)
+        search_type = input_dict.get("search_type", ARANGO_SEARCH_TYPE)
+        enable_traversal = input_dict.get("enable_traversal", ARANGO_TRAVERSAL_ENABLED)
+        enable_summarizer = input_dict.get("enable_summarizer", SUMMARIZER_ENABLED)
+        distance_strategy = input_dict.get("distance_strategy", ARANGO_DISTANCE_STRATEGY)
+        use_approx_search = input_dict.get("use_approx_search", ARANGO_USE_APPROX_SEARCH)
+        num_centroids = input_dict.get("num_centroids", ARANGO_NUM_CENTROIDS)
+        traversal_max_depth = input_dict.get("traversal_max_depth", ARANGO_TRAVERSAL_MAX_DEPTH)
+        traversal_max_returned = input_dict.get("traversal_max_returned", ARANGO_TRAVERSAL_MAX_RETURNED)
+        traversal_score_threshold = input_dict.get("traversal_score_threshold", ARANGO_TRAVERSAL_SCORE_THRESHOLD)
+        traversal_query = input_dict.get("traversal_query", ARANGO_TRAVERSAL_QUERY)
+
+        if not graph_name:
+            raise HTTPException(
+                status_code=400,
+                detail="Graph name is empty. Please provide a valid graph name.",
+            )
 
         if search_start == "node":
             collection_name = f"{graph_name}_ENTITY"
@@ -375,7 +385,12 @@ class OpeaArangoRetriever(OpeaComponent):
 
         if not (v_col_exists or e_col_exists):
             if logflag:
-                collection_names = self.db.graph(graph_name).vertex_collections()
+                collection_names = set()
+                for e_d in self.db.graph(graph_name).edge_definitions():
+                    collection_names.add(e_d["edge_collection"])
+                    collection_names.update(e_d["from_vertex_collections"])
+                    collection_names.update(e_d["to_vertex_collections"])
+
                 m = f"Collection '{collection_name}' does not exist in graph '{graph_name}'. Collections: {collection_names}"
                 logger.error(m)
             return []
@@ -430,16 +445,23 @@ class OpeaArangoRetriever(OpeaComponent):
         else:
             embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
 
-        vector_db = ArangoVector(
-            embedding=embeddings,
-            embedding_dimension=dimension,
-            database=self.db,
-            collection_name=collection_name,
-            embedding_field=ARANGO_EMBEDDING_FIELD,
-            text_field=ARANGO_TEXT_FIELD,
-            distance_strategy=distance_strategy,
-            num_centroids=num_centroids,
-        )
+        try:
+            vector_db = ArangoVector(
+                embedding=embeddings,
+                embedding_dimension=dimension,
+                database=self.db,
+                collection_name=collection_name,
+                embedding_field=ARANGO_EMBEDDING_FIELD,
+                text_field=ARANGO_TEXT_FIELD,
+                distance_strategy=distance_strategy,
+                num_centroids=num_centroids,
+                search_type=search_type,
+            )
+        except Exception as e:
+            if logflag:
+                logger.error(f"Error during ArangoVector initialization: {e}")
+
+            return []
 
         ######################
         # Compute Similarity #

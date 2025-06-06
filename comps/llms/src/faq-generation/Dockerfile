@@ -30,4 +30,4 @@ USER user
 
 WORKDIR /home/user/comps/llms/src/faq-generation
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["python", "opea_faqgen_microservice.py"]
