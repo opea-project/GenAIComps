@@ -18,7 +18,9 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN mkdir -p /home/users/comps/text2kg/src/tmpddata && cd /home/users/comps/text2kg/src/tmpddata
+RUN mkdir -p /home/users/comps/text2kg/src/tmpddata
+
+WORKDIR /home/users/comps/text2kg/src/tmpddata
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
