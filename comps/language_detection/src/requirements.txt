@@ -1,6 +1,7 @@
 aiohttp
 docarray[full]
 fastapi
+fasttext-langdetect
 h11
 httpx
 jinja2
@@ -15,5 +16,4 @@ pydub
 pyyaml
 shortuuid
 starlette
-fasttext-langdetect
 uvicorn

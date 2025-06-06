@@ -3,24 +3,23 @@
 
 import os
 import time
-
-from fastapi import HTTPException
 from typing import Union
 
+from fastapi import HTTPException
+
 from comps import (
-    PromptTemplateInput,
-    OpeaComponentLoader,
-    GeneratedDoc,
-    TranslationInput,
-    ServiceType,
     CustomLogger,
+    GeneratedDoc,
+    OpeaComponentLoader,
+    PromptTemplateInput,
+    ServiceType,
+    TranslationInput,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
 from comps.language_detection.src.integrations.native import OPEALanguageDetector
-
 
 LANG_DETECT_STANDALONE = os.getenv("LANG_DETECT_STANDALONE", "False") == "True"
 
@@ -29,12 +28,13 @@ logger = CustomLogger("opea_language_detection")
 
 component_loader = None
 
+
 # Register the microservice with the specified configuration.
 @register_microservice(
     name="opea_service@language_detection",
     service_type=ServiceType.LANGUAGE_DETECTION,
     endpoint="/v1/language_detection",
-    host='0.0.0.0',
+    host="0.0.0.0",
     port=8069,
     input_datatype=Union[GeneratedDoc, TranslationInput],
     output_datatype=PromptTemplateInput,
@@ -43,8 +43,7 @@ component_loader = None
 # Define a function to handle processing of input for the microservice.
 # Its input and output data types must comply with the registered ones above.
 async def process(input: Union[GeneratedDoc, TranslationInput]) -> PromptTemplateInput:
-    """
-    Process the input document using the OPEALanguageDetector.
+    """Process the input document using the OPEALanguageDetector.
 
     Args:
         input (Union[GeneratedDoc, TranslationInput]): The input document to be processed.
@@ -58,14 +57,10 @@ async def process(input: Union[GeneratedDoc, TranslationInput]) -> PromptTemplat
         res = await component_loader.invoke(input)
     except ValueError as e:
         logger.exception(f"An internal error occurred while processing: {str(e)}")
-        raise HTTPException(status_code=400,
-                            detail=f"An internal error occurred while processing: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"An internal error occurred while processing: {str(e)}")
     except Exception as e:
-         logger.exception(f"An error occurred while processing: {str(e)}")
-         raise HTTPException(status_code=500,
-                             detail=f"An error occurred while processing: {str(e)}"
-    )
+        logger.exception(f"An error occurred while processing: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred while processing: {str(e)}")
     statistics_dict["opea_service@language_detection"].append_latency(time.time() - start, None)
     return res
 
