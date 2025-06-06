@@ -33,7 +33,7 @@ ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
 ARG VIDEO_LLAMA_COMMIT=0adb19e829254b46a442ee78cdcd609a988c5de7
 
 RUN git clone --depth=1 ${VIDEO_LLAMA_REPO} && \
-    cd /home/user/comps/third_parties/video-llama/src/Video-LLaMA && \
+    cd Video-LLaMA && \
     git fetch --depth=1 origin ${VIDEO_LLAMA_COMMIT} && \
     git checkout ${VIDEO_LLAMA_COMMIT} && \
     git apply --whitespace=fix ../video-llama.patch && \

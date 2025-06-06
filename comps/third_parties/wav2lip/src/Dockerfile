@@ -29,15 +29,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
 COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
-# hadolint ignore=DL3003
+
 # Install ffmpeg with x264 software codec
-RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/src/FFmpeg && \
-    cd /home/user/comps/animation/src/FFmpeg && rm -rf .git && \
+WORKDIR /home/user/comps/animation/src 
+RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git && \
+    cd FFmpeg && \
     ./configure --enable-gpl --enable-libx264 --enable-cross-compile --disable-debug --disable-doc -disable-ffprobe --disable-ffplay&& \
     make -j"$(nproc-1)" && \
     make install && \
-    hash -r
-RUN chmod +x "$(which ffmpeg)"
+    hash -r && chmod +x "$(which ffmpeg)" && \
+    rm -rf .git 
 
 # Upgrade pip
 RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools
