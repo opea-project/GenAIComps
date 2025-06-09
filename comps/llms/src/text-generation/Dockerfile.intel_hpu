@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
-RUN git clone ${REPO} --depth 1 --branch ${REPO_VER} && rm -rf */.git
+RUN git clone ${REPO} --depth 1 --branch ${REPO_VER} /home/user/optimum-habana && rm -rf /home/user/optimum-habana/.git
 
 WORKDIR /home/user/optimum-habana/examples/text-generation
 RUN pip install --no-cache-dir -r requirements.txt
