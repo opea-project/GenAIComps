@@ -41,14 +41,14 @@ _The service listens on http://localhost:6000 (host‑mapped from container port
 ## RouteLLM compatibility patch
 
 The upstream **RouteLLM** project is geared toward OpenAI embeddings and GPT-4–augmented
-checkpoints.  
+checkpoints.
 We include a small patch – `hf_compatibility.patch` – that:
 
 - adds a `hf_token` plumb-through,
 - switches the Matrix-Factorisation router to Hugging Face sentence embeddings,
 - removes hard-coded GPT-4 “golden-label” defaults.
 
-**Container users:**  
+**Container users:**
 The Dockerfile applies the patch automatically during `docker build`, so you don’t have to do anything.
 
 **Local development:**
