@@ -31,6 +31,7 @@ from .config import (
     INDEX_SCHEMA,
     REDIS_URL,
     TEI_EMBEDDING_ENDPOINT,
+    ENABLE_SCHEMA,
 )
 
 logger = CustomLogger("redis_retrievers")
@@ -100,7 +101,11 @@ class OpeaRedisRetriever(OpeaComponent):
                 client = Redis(
                     embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
                 )
+            elif ENABLE_SCHEMA:
+                logger.info(f"generate redis instance with index_schema:{INDEX_SCHEMA}")
+                client = Redis(embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL)
             else:
+                logger.info(f"generate redis instance with index_name:{INDEX_NAME}")
                 client = Redis(embedding=self.embeddings, index_name=index_name, redis_url=REDIS_URL)
             return client
         except Exception as e:
