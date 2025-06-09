@@ -6,9 +6,10 @@ import pathlib
 import sys
 
 from fastapi.exceptions import HTTPException
+from fastapi import status
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
-from comps.text2sql.src.integrations.opea import Input, OpeaText2SQL
+from comps.text2sql.src.integrations.opea import Input, DBConnectionInput, OpeaText2SQL
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
@@ -21,8 +22,37 @@ text2sql_component_name = os.getenv("TEXT2SQL_COMPONENT_NAME", "OPEA_TEXT2SQL")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     text2sql_component_name,
-    description=f"OPEA RERANK Component: {text2sql_component_name}",
+    description=f"OPEA TEXT2SQL Component: {text2sql_component_name}",
 )
+
+
+@register_microservice(
+    name="opea_service@text2sql",
+    endpoint="/v1/postgres/health",
+    host="0.0.0.0",
+    port=8080,
+)
+async def postgres_connection_check(input: DBConnectionInput):
+    """Check the connection to the PostgreSQL database.
+
+    This function takes an Input object containing the database connection information.
+    It uses the test_connection method of the PostgresConnection class to check if the connection is successful.
+
+    Args:
+        input (Input): An Input object with the database connection information.
+
+    Returns:
+        dict: A dictionary with a 'status' key indicating whether the connection was successful or failed.
+    """
+    logger.info(f"Received input for connection check: {input}")
+    if not isinstance(input, DBConnectionInput):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Input type mismatch: expected DBConnectionInput"
+        )
+    if input.conn_str.test_connection():
+        return {"status": "Connection successful"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to connect to PostgreSQL database")
 
 
 @register_microservice(

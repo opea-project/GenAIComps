@@ -122,6 +122,8 @@ export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
+export LLM_ENDPOINT_PORT=${TGI_PORT}
+export host_ip=${your_ip}
 ```
 
 ##### Start the services.
@@ -149,15 +151,15 @@ The Text-to-SQL microservice exposes the following API endpoints:
 - Test Database Connection
 
   ```bash
-  curl --location http://${your_ip}:9090/v1/postgres/health \
+  curl --location http://${your_ip}:8080/v1/postgres/health \
   --header 'Content-Type: application/json' \
-  --data '{"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}'
+  --data '{"conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}'
   ```
 
 - Execute SQL Query from input text
 
   ```bash
-  curl http://${your_ip}:9090/v1/text2sql\
+  curl http://${your_ip}:8080/v1/text2sql\
           -X POST \
           -d '{"input_text": "Find the total number of Albums.","conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}' \
           -H 'Content-Type: application/json'
