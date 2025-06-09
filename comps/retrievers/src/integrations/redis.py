@@ -26,12 +26,12 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingRespo
 from .config import (
     BRIDGE_TOWER_EMBEDDING,
     EMBED_MODEL,
+    ENABLE_SCHEMA,
     HUGGINGFACEHUB_API_TOKEN,
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
     TEI_EMBEDDING_ENDPOINT,
-    ENABLE_SCHEMA,
 )
 
 logger = CustomLogger("redis_retrievers")
@@ -103,7 +103,9 @@ class OpeaRedisRetriever(OpeaComponent):
                 )
             elif ENABLE_SCHEMA:
                 logger.info(f"generate redis instance with index_schema:{INDEX_SCHEMA}")
-                client = Redis(embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL)
+                client = Redis(
+                    embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
+                )
             else:
                 logger.info(f"generate redis instance with index_name:{INDEX_NAME}")
                 client = Redis(embedding=self.embeddings, index_name=index_name, redis_url=REDIS_URL)
