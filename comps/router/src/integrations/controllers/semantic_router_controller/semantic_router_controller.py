@@ -28,7 +28,7 @@ class SemanticRouterController(BaseController):
         self.config = config
         self.model_map = model_map or {}
 
-        # 1) grab provider + model mapping
+        # grab provider + model mapping
         provider = config.get("embedding_provider", "").lower()
         models = config.get("embedding_models", {})
 
@@ -53,7 +53,7 @@ class SemanticRouterController(BaseController):
             os.environ["OPENAI_API_KEY"] = api_key
             self.encoder = OpenAIEncoder(model=model_name)
 
-        # 4) build your routing layer
+        # build your routing layer
         self._build_route_layer()
 
     def _build_route_layer(self):

@@ -2,33 +2,22 @@ aiofiles
 aiohttp
 docarray[full]
 docx2txt
-# Basic web and async
 fastapi
-
 httpx
-
-# K8s, images, misc
 kubernetes
 langchain
 langchain-community
-
-# Observability and telemetry
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pillow
 prometheus-fastapi-instrumentator
-
-# Data handling and parsing
 pydantic
 pypdf
 python-dotenv
 python-multipart
 pyyaml
 requests
-
-# Larger frameworks and libs
 semantic-router
 shortuuid
 uvicorn[standard]
-

@@ -27,7 +27,7 @@ services:
       CONTROLLER_TYPE: ${CONTROLLER_TYPE:-routellm}
 
     ports:
-      - "6000:6000"
+      - "${ROUTER_PORT:-6000}:6000"
     restart: unless-stopped
 
 networks:

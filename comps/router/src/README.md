@@ -11,7 +11,7 @@ The router is stateless; it inspects the prompt, consults the configured control
 
 ## Build
 
-```
+```bash
 # From repo root 📂
 # Build the container image directly
 $ docker build -t opea/router:latest -f comps/router/src/Dockerfile .
@@ -19,7 +19,7 @@ $ docker build -t opea/router:latest -f comps/router/src/Dockerfile .
 
 Alternatively, the Docker Compose workflow below will build the image for you.
 
-```
+```bash
 # Navigate to the compose bundle
 $ cd comps/router/deployment/docker_compose
 

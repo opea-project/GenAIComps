@@ -10,5 +10,5 @@ model_map:
     model_id: "${STRONG_MODEL_ID}"
 
 controller_config_paths:
-  routellm:        "/app/configs/routellm_config.yaml"
+  routellm: "/app/configs/routellm_config.yaml"
   semantic_router: "/app/configs/semantic_router_config.yaml"

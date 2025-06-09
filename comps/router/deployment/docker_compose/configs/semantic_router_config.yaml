@@ -5,7 +5,7 @@ embedding_provider: "huggingface"
 
 embedding_models:
   huggingface: "BAAI/bge-base-en-v1.5"
-  openai:     "text-embedding-ada-002"
+  openai: "text-embedding-ada-002"
 
 routes:
   - name: "strong"

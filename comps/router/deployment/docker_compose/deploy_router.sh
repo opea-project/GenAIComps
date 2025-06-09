@@ -47,6 +47,6 @@ docker compose -f compose.yaml up --build
 
 # Wait a moment then check status
 sleep 2
-docker ps --filter "name=opea_router"
+docker ps --filter "name=opea-router"
 
 echo "[SUCCESS] Router service deployed and running on http://localhost:6000"
