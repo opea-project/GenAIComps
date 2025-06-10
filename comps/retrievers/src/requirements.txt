@@ -10,7 +10,7 @@ fastapi
 future
 graspologic
 haystack-ai==2.3.1
-langchain-arangodb
+langchain-arangodb==0.0.6
 langchain-elasticsearch
 langchain-mariadb
 langchain-openai
@@ -19,7 +19,7 @@ langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
 langchain_milvus
-llama-index-core==0.12.19
+llama-index-core
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
 llama-index-llms-openai

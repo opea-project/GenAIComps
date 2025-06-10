@@ -9,6 +9,7 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 pydantic==2.7.2
 pydub
+sentencepiece
 shortuuid
 torch
 transformers

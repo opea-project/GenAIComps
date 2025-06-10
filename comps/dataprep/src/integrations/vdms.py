@@ -124,7 +124,11 @@ class OpeaVdmsDataprep(OpeaComponent):
         chunks = text_splitter.split_text(content)
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            chunks = chunks + table_chunks
+            logger.info(f"table chunks: {table_chunks}")
+            if table_chunks:
+                chunks = chunks + table_chunks
+            else:
+                logger.info(f"No table chunks found in {path}.")
 
         logger.info(f"Done preprocessing. Created {len(chunks)} chunks of the original pdf")
 

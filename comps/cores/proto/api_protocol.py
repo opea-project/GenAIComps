@@ -232,6 +232,7 @@ class RetrievalRequest(BaseModel):
 class RetrievalRequestArangoDB(RetrievalRequest):
     graph_name: str | None = None
     search_start: str | None = None  # "node", "edge", "chunk"
+    search_type: str | None = None  # "vector", "hybrid"
     num_centroids: int | None = None
     distance_strategy: str | None = None  #  # "COSINE", "EUCLIDEAN_DISTANCE"
     use_approx_search: bool | None = None
@@ -1013,3 +1014,7 @@ class FineTuningJobCheckpoint(BaseModel):
 
     step_number: Optional[int] = None
     """The step number that the checkpoint was created at."""
+
+
+class RouteEndpointDoc(BaseModel):
+    url: str = Field(..., description="URL of the chosen inference endpoint")

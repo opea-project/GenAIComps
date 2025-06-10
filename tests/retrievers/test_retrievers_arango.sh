@@ -16,7 +16,6 @@ export ARANGO_URL=${ARANGO_URL:-"http://${host_ip}:8529"}
 export ARANGO_USERNAME=${ARANGO_USERNAME:-"root"}
 export ARANGO_PASSWORD=${ARANGO_PASSWORD:-"test"}
 export ARANGO_DB_NAME=${ARANGO_DB_NAME:-"_system"}
-export ARANGO_COLLECTION_NAME=${ARANGO_COLLECTION_NAME:-"test"}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -43,27 +42,34 @@ function validate_microservice() {
     source activate
     URL="http://${host_ip}:7000/v1/retrieval"
 
-     # Create ARANGO_COLLECTION_NAME
+    # Create vertex collection GRAPH_ENTITY
     curl -X POST --header 'accept: application/json' \
     --header 'Content-Type: application/json' \
-    --data '{"name": "'${ARANGO_COLLECTION_NAME}'", "type": 2, "waitForSync": true}' \
+    --data '{"name": "GRAPH_ENTITY", "type": 2, "waitForSync": true}' \
     "${ARANGO_URL}/_db/${ARANGO_DB_NAME}/_api/collection" \
+    -u ${ARANGO_USERNAME}:${ARANGO_PASSWORD}
+
+    # Create graph GRAPH with GRAPH_ENTITY as vertex collection
+    curl -X POST --header 'accept: application/json' \
+    --header 'Content-Type: application/json' \
+    --data '{"name": "GRAPH", "edgeDefinitions": [], "orphanCollections": ["GRAPH_ENTITY"]}' \
+    "${ARANGO_URL}/_db/${ARANGO_DB_NAME}/_api/gharial" \
     -u ${ARANGO_USERNAME}:${ARANGO_PASSWORD}
 
     # Insert data into arango: {text: "test", embedding: [0.1, 0.2, 0.3, 0.4, 0.5]}
     curl -X POST --header 'accept: application/json' \
     --header 'Content-Type: application/json' \
     --data '{"text": "test", "embedding": [0.1, 0.2, 0.3, 0.4, 0.5]}' \
-    "${ARANGO_URL}/_db/${ARANGO_DB_NAME}/_api/document/${ARANGO_COLLECTION_NAME}" \
+    "${ARANGO_URL}/_db/${ARANGO_DB_NAME}/_api/document/GRAPH_ENTITY" \
     -u ${ARANGO_USERNAME}:${ARANGO_PASSWORD}
 
     sleep 1m
 
     test_embedding="[0.1, 0.2, 0.3, 0.4, 0.5]"
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"input\":\"test\",\"embedding\":${test_embedding},\"graph_name\":\"GRAPH\"}" -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ retriever ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+        local CONTENT=$(curl -s -X POST -d "{\"input\":\"test\",\"embedding\":${test_embedding},\"graph_name\":\"GRAPH\"}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
 
         if echo "$CONTENT" | grep -q "retrieved_docs"; then
             echo "[ retriever ] Content is as expected."
