@@ -29,6 +29,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import (
     ArangoDBDataprepRequest,
     DataprepRequest,
@@ -42,6 +43,7 @@ logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 
 dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_REDIS")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaDataprepLoader(
     dataprep_component_name,
@@ -99,6 +101,9 @@ async def resolve_dataprep_request(request: Request):
     endpoint="/v1/dataprep/ingest",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation service",
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
@@ -145,6 +150,9 @@ async def ingest_files(
     endpoint="/v1/dataprep/get",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation service",
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def get_files(index_name: str = Body(None, embed=True)):
@@ -182,6 +190,9 @@ async def get_files(index_name: str = Body(None, embed=True)):
     endpoint="/v1/dataprep/delete",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation service",
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def delete_files(file_path: str = Body(..., embed=True), index_name: str = Body(None, embed=True)):
@@ -219,6 +230,9 @@ async def delete_files(file_path: str = Body(..., embed=True), index_name: str =
     endpoint="/v1/dataprep/indices",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation service",
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def get_list_of_indices():
