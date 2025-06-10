@@ -1,18 +1,19 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
 import asyncio
-from unittest.mock import MagicMock, AsyncMock, patch
+import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from comps.cores.mcp.tool import OpeaMCPClientTool
+from comps.cores.mcp.client import OpeaMCPClient
 from comps.cores.mcp.config import (
     OpeaMCPConfig,
     OpeaMCPSSEServerConfig,
     OpeaMCPStdioServerConfig,
 )
-from comps.cores.mcp.client import OpeaMCPClient
 from comps.cores.mcp.manager import OpeaMCPToolsManager
+from comps.cores.mcp.tool import OpeaMCPClientTool
+
 
 class TestOpeaMCPClientTool(unittest.TestCase):
     def test_to_param(self):
@@ -26,6 +27,7 @@ class TestOpeaMCPClientTool(unittest.TestCase):
         self.assertEqual(param["function"]["description"], "desc")
         self.assertEqual(param["function"]["parameters"], {"type": "object"})
 
+
 class TestOpeaMCPConfig(unittest.TestCase):
     def test_config_init(self):
         sse = OpeaMCPSSEServerConfig(url="http://a", api_key="k")
@@ -33,6 +35,7 @@ class TestOpeaMCPConfig(unittest.TestCase):
         config = OpeaMCPConfig(sse_servers=[sse], stdio_servers=[stdio])
         self.assertEqual(config.sse_servers[0].url, "http://a")
         self.assertEqual(config.stdio_servers[0].name, "n")
+
 
 class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
@@ -76,6 +79,7 @@ class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
         await self.client._initialize_tools()
         self.assertEqual(len(self.client.tools), 2)
 
+
 class TestOpeaMCPToolsManager(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.sse = OpeaMCPSSEServerConfig(url="http://a", api_key="k")
@@ -109,9 +113,7 @@ class TestOpeaMCPToolsManager(unittest.IsolatedAsyncioTestCase):
 
     async def test_register_tools(self):
         self.manager.clients = []
-        self.manager._extract_tools_from_clients = MagicMock(return_value=[
-            {"function": {"name": "t"}}
-        ])
+        self.manager._extract_tools_from_clients = MagicMock(return_value=[{"function": {"name": "t"}}])
         self.manager.execute_tool = AsyncMock(return_value="ok")
         await self.manager._register_tools()
         self.assertTrue(hasattr(self.manager, "t"))
@@ -154,6 +156,7 @@ class TestOpeaMCPToolsManager(unittest.IsolatedAsyncioTestCase):
         self.manager.clients = [dummy_client]
         with self.assertLogs("comps-mcp-manager", level="ERROR"):
             await self.manager.__aexit__(None, None, None)
+
 
 if __name__ == "__main__":
     unittest.main()
