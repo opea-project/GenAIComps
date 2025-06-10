@@ -1052,5 +1052,6 @@ ALLOWED_COMPLETION_ARGS = (
     "user",
 )
 
+
 class RouteEndpointDoc(BaseModel):
     url: str = Field(..., description="URL of the chosen inference endpoint")
