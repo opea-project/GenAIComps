@@ -5,11 +5,11 @@ import os
 import pathlib
 import sys
 
-from fastapi.exceptions import HTTPException
 from fastapi import status
+from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
-from comps.text2sql.src.integrations.opea import Input, DBConnectionInput, OpeaText2SQL
+from comps.text2sql.src.integrations.opea import DBConnectionInput, Input, OpeaText2SQL
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
