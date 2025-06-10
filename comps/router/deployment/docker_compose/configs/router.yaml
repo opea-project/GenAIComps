@@ -1,0 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+model_map:
+  weak:
+    endpoint: "${WEAK_ENDPOINT:-http://opea_router:8000/weak}"
+    model_id: "${WEAK_MODEL_ID}"
+  strong:
+    endpoint: "${STRONG_ENDPOINT:-http://opea_router:8000/strong}"
+    model_id: "${STRONG_MODEL_ID}"
+
+controller_config_paths:
+  routellm: "/app/configs/routellm_config.yaml"
+  semantic_router: "/app/configs/semantic_router_config.yaml"
