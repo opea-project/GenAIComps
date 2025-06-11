@@ -7,7 +7,6 @@ WORKDIR /home/graph_extract
 
 FROM python:3.11-slim
 ENV LANG=C.UTF-8
-ARG ARCH=cpu
 
 RUN apt-get update -y && apt-get install vim -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential
@@ -18,12 +17,8 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/struct2graph/src/requirements.txt; \
-    else \
-        pip install --no-cache-dir -r /home/user/comps/struct2graph/src/requirements.txt; \
-    fi
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    uv pip install --no-cache-dir -r /home/user/comps/struct2graph/src/requirements.txt
 
 ENV https_proxy=${https_proxy}
 ENV http_proxy=${http_proxy}

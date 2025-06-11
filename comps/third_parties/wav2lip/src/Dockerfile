@@ -56,10 +56,11 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.11/site-packages/gfpgan"
 WORKDIR /usr/local/lib/python3.11/site-packages
 
 # Install pip dependencies
-RUN if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/animation/src/requirements.txt; \
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    if [ ${ARCH} = "cpu" ]; then \
+      uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-cpu.txt; \
     else \
-      pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt; \
+      uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-gpu.txt; \
     fi
 
 # Custom patches

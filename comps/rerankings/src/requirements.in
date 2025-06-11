@@ -10,3 +10,10 @@ prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
 uvicorn
+datasets
+haystack-ai
+langchain
+langchain-community
+openai
+Pillow
+pydub

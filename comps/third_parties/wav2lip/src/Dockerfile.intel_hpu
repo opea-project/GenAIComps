@@ -31,7 +31,7 @@ RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.gi
     rm -rf .git
 
 # Upgrade pip
-RUN python3 -m pip install --no-cache-dir --upgrade pip
+RUN python3 -m pip install --no-cache-dir --upgrade pip uv
 
 # Install Wav2Lip from pip
 RUN pip install --no-cache-dir --no-deps Wav2Lipy
@@ -47,7 +47,7 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 WORKDIR /usr/local/lib/python3.10/dist-packages
 
 # Install pip dependencies
-RUN pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt
+RUN uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-cpu.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional

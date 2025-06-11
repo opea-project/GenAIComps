@@ -17,8 +17,13 @@ WORKDIR /app
 
 COPY comps/third_parties/pathway/src/requirements.txt /app/
 
-RUN if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    if [ ${ARCH} = "cpu" ]; then \
+      uv pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu;
+      uv pip install --no-cache-dir -r requirements-cpu.txt; \
+    else \
+      uv pip install --no-cache-dir -r requirements-gpu.txt; \
+    fi
 
 COPY comps/third_parties/pathway/src/vectorstore_pathway.py /app/
 

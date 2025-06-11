@@ -19,14 +19,13 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        PIP_EXTRA_INDEX_URL="--extra-index-url https://download.pytorch.org/whl/cpu"; \
+      uv pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; \
+      uv pip install --no-cache-dir -r /home/user/comps/retrievers/src/requirements-cpu.txt; \
     else \
-        PIP_EXTRA_INDEX_URL=""; \
-    fi && \
-    pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
-    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/retrievers/src/requirements.txt
+      uv pip install --no-cache-dir -r /home/user/comps/retrievers/src/requirements-gpu.txt; \
+    fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
