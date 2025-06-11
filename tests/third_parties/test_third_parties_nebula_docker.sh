@@ -89,4 +89,3 @@ validate_database
 stop_services
 
 echo "Test script completed successfully."
-

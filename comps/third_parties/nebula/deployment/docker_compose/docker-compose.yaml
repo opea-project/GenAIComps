@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 version: '3.4'
 services:
   metad0:
@@ -251,11 +254,11 @@ services:
     restart: on-failure
     cap_add:
       - SYS_PTRACE
-  
+
   console:
     image: docker.io/vesoft/nebula-console:v3.5
     entrypoint: ""
-    command: 
+    command:
       - sh
       - -c
       - |
