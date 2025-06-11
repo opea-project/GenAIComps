@@ -17,11 +17,11 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/text2sql/src/requirements.txt; \
+      uv pip install --no-cache-dir -r /home/user/comps/text2sql/src/requirements-cpu.txt; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/text2sql/src/requirements.txt; \
+      uv pip install --no-cache-dir -r /home/user/comps/text2sql/src/requirements-gpu.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

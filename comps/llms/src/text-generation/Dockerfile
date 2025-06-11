@@ -13,8 +13,8 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps/llms/src/text-generation/requirements.txt /home/user/comps/llms/src/text-generation/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/llms/src/text-generation/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    uv pip install --no-cache-dir -r /home/user/comps/llms/src/text-generation/requirements.txt
 
 COPY comps /home/user/comps
 ENV PYTHONPATH=$PYTHONPATH:/home/user

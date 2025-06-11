@@ -12,12 +12,11 @@ ARG ARCH=cpu
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ "${ARCH}" = "cpu" ]; then \
-        pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/src/requirements.txt ; \
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    if [ ${ARCH} = "cpu" ]; then \
+      uv pip install --no-cache-dir -r /home/user/comps/asr/src/requirements-cpu.txt; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt ; \
+      uv pip install --no-cache-dir -r /home/user/comps/asr/src/requirements-gpu.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

@@ -18,9 +18,9 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/guardrails/src/bias_detection/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    if [ ${ARCH} = "cpu" ]; then uv pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    uv pip install --no-cache-dir -r /home/user/comps/guardrails/src/bias_detection/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

@@ -22,11 +22,11 @@ RUN mkdir -p /home/users/comps/text2kg/src/tmpddata
 
 WORKDIR /home/users/comps/text2kg/src/tmpddata
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/text2kg/src/requirements.txt; \
+      uv pip install --no-cache-dir -r /home/user/comps/text2kg/src/requirements-cpu.txt; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/text2kg/src/requirements.txt; \
+      uv pip install --no-cache-dir -r /home/user/comps/text2kg/src/requirements-gpu.txt; \
     fi
 
 ENV https_proxy=${https_proxy}
