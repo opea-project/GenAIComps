@@ -339,3 +339,21 @@ class ImagesPath(BaseDoc):
 
 class VideoPath(BaseDoc):
     video_path: str
+
+
+class PrevQuestionDetails(BaseDoc):
+    question: str
+    answer: str
+
+
+class PromptTemplateInput(BaseDoc):
+    data: Dict[str, Any]
+    conversation_history: Optional[List[PrevQuestionDetails]] = None
+    conversation_history_parse_type: str = "naive"
+    system_prompt_template: Optional[str] = None
+    user_prompt_template: Optional[str] = None
+
+
+class TranslationInput(BaseDoc):
+    text: str
+    target_language: str

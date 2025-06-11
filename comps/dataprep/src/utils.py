@@ -736,13 +736,13 @@ def parse_html_new(input, chunk_size, chunk_overlap):
 
 def get_tables_result(pdf_path, table_strategy):
     """Extract tables information from pdf file."""
+    tables_result = []
     if table_strategy == "fast":
-        return None
+        return tables_result
 
     from unstructured.documents.elements import FigureCaption
     from unstructured.partition.pdf import partition_pdf
 
-    tables_result = []
     raw_pdf_elements = partition_pdf(
         filename=pdf_path,
         infer_table_structure=True,

@@ -37,4 +37,4 @@ RUN echo PKGPATH=$(python3 -c "import pkg_resources; print(pkg_resources.get_dis
     echo export RAY_ADDRESS=http://localhost:8265 >> run.sh && \
     echo python opea_finetuning_microservice.py >> run.sh
 
-CMD bash run.sh
+CMD ["bash", "run.sh"]

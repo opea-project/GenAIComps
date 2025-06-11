@@ -15,6 +15,8 @@ export host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 service_name="vllm-openvino-arc"
 
+# workaround to fix optimum at 1.25.0
+
 function build_container() {
     cd $WORKPATH
     docker build --no-cache -t  ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}  -f comps/third_parties/vllm/src/Dockerfile.intel_gpu  .  --build-arg https_proxy=$https_proxy  --build-arg http_proxy=$http_proxy

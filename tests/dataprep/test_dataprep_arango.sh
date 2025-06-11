@@ -60,7 +60,7 @@ function start_service() {
     docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # Debug time
-    sleep 1m
+    sleep 2m
 
     check_healthy "dataprep-arangodb" || exit 1
 }
