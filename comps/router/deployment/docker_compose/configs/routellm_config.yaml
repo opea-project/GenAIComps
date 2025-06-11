@@ -1,0 +1,29 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# which embedder backend to use ("huggingface" or "openai")
+embedding_provider: "huggingface"
+
+embedding_model_name: "intfloat/e5-base-v2"
+
+routing_algorithm: "mf"
+threshold: 0.3
+
+config:
+  sw_ranking:
+    arena_battle_datasets:
+      - "lmsys/lmsys-arena-human-preference-55k"
+      - "routellm/gpt4_judge_battles"
+    arena_embedding_datasets:
+      - "routellm/arena_battles_embeddings"
+      - "routellm/gpt4_judge_battles_embeddings"
+
+  causal_llm:
+    checkpoint_path: "routellm/causal_llm_gpt4_augmented"
+
+  bert:
+    checkpoint_path: "routellm/bert_gpt4_augmented"
+
+  mf:
+    checkpoint_path: "OPEA/routellm-e5-base-v2"
+    use_openai_embeddings: false

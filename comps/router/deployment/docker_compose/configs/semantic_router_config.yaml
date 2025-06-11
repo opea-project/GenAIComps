@@ -1,0 +1,20 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+embedding_provider: "huggingface"
+
+embedding_models:
+  huggingface: "BAAI/bge-base-en-v1.5"
+  openai: "text-embedding-ada-002"
+
+routes:
+  - name: "strong"
+    utterances:
+      - "Prove the Pythagorean theorem using geometric arguments..."
+      - "Explain the Calvin cycle..."
+      - "Discuss the ethical implications of deploying AI..."
+  - name: "weak"
+    utterances:
+      - "Hello, how are you?"
+      - "What's 2 + 2?"
+      - "Can you tell me a funny joke?"
