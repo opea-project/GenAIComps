@@ -1,0 +1,8 @@
+langchain
+langchain-community
+langchain-huggingface
+openai
+pathway[xpack-llm]
+sentence-transformers
+tiktoken
+unstructured[all-docs] >= 0.16
