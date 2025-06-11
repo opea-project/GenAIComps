@@ -7,24 +7,29 @@ set -euo pipefail
 set -x
 
 WORKPATH=$(dirname "$PWD")
-COMPOSE_FILE="$WORKPATH/../../GenAIComps/comps/third_parties/nebula/deployment/docker_compose/docker-compose.yaml"
 
 stop_services() {
   echo "Stopping and cleaning up any existing Nebula services..."
-  docker compose -f "$COMPOSE_FILE" down -v || true
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  docker compose -f docker-compose.yaml down -v || true
   echo "Cleanup complete."
 }
 
 start_services() {
   echo "Starting Nebula services..."
-  docker compose -f "$COMPOSE_FILE" up -d
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  docker compose -f docker-compose.yaml up -d
 
   echo "Waiting for services to become healthy..."
   local services=("metad0" "metad1" "metad2" "storaged0" "storaged1" "storaged2" "graphd")
 
   for svc in "${services[@]}"; do
     local container_id
-    container_id=$(docker compose -f "$COMPOSE_FILE" ps -q "$svc")
+    cd $WORKPATH
+    cd comps/third_parties/nebula/deployment/docker_compose
+    container_id=$(docker compose -f docker-compose.yaml ps -q "$svc")
     echo -n "Waiting for $svc to be healthy"
     until [ "$(docker inspect -f '{{.State.Health.Status}}' "$container_id")" == "healthy" ]; do
       echo -n "."
@@ -49,7 +54,9 @@ validate_database() {
 
   # Get network name from graphd container
   local container_id
-  container_id=$(docker compose -f "$COMPOSE_FILE" ps -q graphd)
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  container_id=$(docker compose -f docker-compose.yaml ps -q graphd)
   local network_name
   network_name=$(docker inspect "$container_id" \
     --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}')
@@ -89,3 +96,4 @@ validate_database
 stop_services
 
 echo "Test script completed successfully."
+
