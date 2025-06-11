@@ -1,0 +1,16 @@
+docarray[full]
+fastapi
+huggingface_hub==0.27.1
+langchain
+langchain-core
+langchain-huggingface
+langchain-openai
+langchain_community
+langchainhub
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+shortuuid
+transformers
+uvicorn
