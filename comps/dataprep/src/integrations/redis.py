@@ -44,7 +44,7 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN", ""    )
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
