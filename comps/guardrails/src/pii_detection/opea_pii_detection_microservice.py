@@ -5,14 +5,13 @@ import os
 import time
 from typing import Union
 
-
 from comps import (
     CustomLogger,
     OpeaComponentLoader,
-    TextDoc,
     PIIRequestDoc,
     PIIResponseDoc,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -52,7 +51,7 @@ loader = OpeaComponentLoader(
     output_datatype=Union[TextDoc, PIIResponseDoc],
 )
 @register_statistics(names=["opea_service@pii_detection"])
-async def pii_guard(input: Union[TextDoc, PIIRequestDoc]) ->  Union[TextDoc, PIIResponseDoc]:
+async def pii_guard(input: Union[TextDoc, PIIRequestDoc]) -> Union[TextDoc, PIIResponseDoc]:
     start = time.time()
 
     # Log the input if logging is enabled

@@ -1,10 +1,13 @@
 # PII Detection Microservice
-## Introduction
-In today's digital landscape, safeguarding personal information has become paramount, necessitating robust mechanisms to detect and protect personally identifiable information (PII). PII detection guardrails serve as essential tools in this endeavor, providing automated systems and protocols designed to identify, manage, and secure sensitive data. These guardrails leverage classical machine learning, LLMs, natural language processing (NLP) algorithms, and pattern recognition to accurately pinpoint PII ensuring compliance with privacy regulations and minimizing the risk of data breaches. By implementing PII detection guardrails, organizations can enhance their data protection strategies, foster trust with stakeholders, and uphold the integrity of personal information. 
 
-This component currently supports two microservices: an OPEA native (free, local, open-source) microservice and a Prediction Guard (API Key required)  microservice. Please choose one of the two microservices for PII detection based on your specific use case. If you wish to run both for experimental or comparison purposes, make sure to modify the port configuration of one service to avoid conflicts, as they are configured to use the same port by default.
+## Introduction
+
+In today's digital landscape, safeguarding personal information has become paramount, necessitating robust mechanisms to detect and protect personally identifiable information (PII). PII detection guardrails serve as essential tools in this endeavor, providing automated systems and protocols designed to identify, manage, and secure sensitive data. These guardrails leverage classical machine learning, LLMs, natural language processing (NLP) algorithms, and pattern recognition to accurately pinpoint PII ensuring compliance with privacy regulations and minimizing the risk of data breaches. By implementing PII detection guardrails, organizations can enhance their data protection strategies, foster trust with stakeholders, and uphold the integrity of personal information.
+
+This component currently supports two microservices: an OPEA native (free, local, open-source) microservice and a Prediction Guard (API Key required) microservice. Please choose one of the two microservices for PII detection based on your specific use case. If you wish to run both for experimental or comparison purposes, make sure to modify the port configuration of one service to avoid conflicts, as they are configured to use the same port by default.
 
 ### PII Detection Microservice
+
 This service uses a [SpaCy](https://spacy.io/) pipeline that is built by a [Microsoft Presidio](https://microsoft.github.io/presidio/) Transformers Nlp Engine. The pipeline contains standard NLP and regex-based recognizers that detect the entities listed [here](https://microsoft.github.io/presidio/supported_entities/) as well as a BERT-based model ([`StanfordAIMI/stanford-deidentifier-base`](https://huggingface.co/StanfordAIMI/stanford-deidentifier-base)) that additionally detects the following PII entities:
 
 - Person
@@ -19,8 +22,9 @@ This service uses a [SpaCy](https://spacy.io/) pipeline that is built by a [Micr
 
 The service takes text as input (TextDoc) and returns either the original text (TextDoc) if no PII is detected, or a list of detected entities (PIIResponseDoc) with the detection details including detection score (probability), detection method and start/end string indices of detection.
 
-Stay tuned for the following future work: 
-- Entity configurability 
+Stay tuned for the following future work:
+
+- Entity configurability
 - PII replacement
 
 ### Prediction Guard PII Detection Microservice
@@ -33,8 +37,8 @@ Detecting Personal Identifiable Information (PII) is important in ensuring that 
 2. Replace PII (with "faked" information)
 3. Mask PII (with placeholders)
 
-
 ## Environment Setup
+
 ### Clone OPEA GenAIComps and Setup Environment
 
 Clone this repository at your desired location and set an environment variable for easy setup and usage throughout the instructions.
@@ -61,7 +65,6 @@ export PII_DETECTION_COMPONENT_NAME="PREDICTIONGUARD_PII_DETECTION"
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
-
 ## 🚀1. Start Microservice with Python（Option 1）
 
 ### 1.1 Install Requirements
@@ -80,6 +83,7 @@ python opea_pii_detection_microservice.py
 ## 🚀2. Start Microservice with Docker (Option 2)
 
 ### For native OPEA Microservice
+
 #### 2.1 Build Docker Image
 
 ```bash
@@ -145,10 +149,13 @@ docker run -d \
 ## 🚀3. Get Status of Microservice
 
 ### For native OPEA Microservice
+
 ```bash
 docker container logs -f guardrails-pii-detection-server
 ```
+
 ### For Prediction Guard Microservice
+
 ```bash
 docker container logs -f  pii-predictionguard-server
 ```
@@ -194,36 +201,37 @@ except requests.exceptions.RequestException as e:
 
 ```json
 {
-    "id": "4631406f5f91728e45ad27eba062bb4b",
-    "detected_pii": [
-        {
-            "entity_type": "PHONE_NUMBER",
-            "start": 44,
-            "end": 58,
-            "score": 0.9992861151695251,
-            "analysis_explanation": null,
-            "recognition_metadata": {
-                "recognizer_name": "TransformersRecognizer",
-                "recognizer_identifier": "TransformersRecognizer_140427422846672"
-            }
-        },
-        {
-            "entity_type": "PERSON",
-            "start": 12,
-            "end": 20,
-            "score": 0.8511614799499512,
-            "analysis_explanation": null,
-            "recognition_metadata": {
-                "recognizer_name": "TransformersRecognizer",
-                "recognizer_identifier": "TransformersRecognizer_140427422846672"
-            }
-        }
-    ],
-    "new_prompt": null
+  "id": "4631406f5f91728e45ad27eba062bb4b",
+  "detected_pii": [
+    {
+      "entity_type": "PHONE_NUMBER",
+      "start": 44,
+      "end": 58,
+      "score": 0.9992861151695251,
+      "analysis_explanation": null,
+      "recognition_metadata": {
+        "recognizer_name": "TransformersRecognizer",
+        "recognizer_identifier": "TransformersRecognizer_140427422846672"
+      }
+    },
+    {
+      "entity_type": "PERSON",
+      "start": 12,
+      "end": 20,
+      "score": 0.8511614799499512,
+      "analysis_explanation": null,
+      "recognition_metadata": {
+        "recognizer_name": "TransformersRecognizer",
+        "recognizer_identifier": "TransformersRecognizer_140427422846672"
+      }
+    }
+  ],
+  "new_prompt": null
 }
 ```
 
 ### For Prediction Guard Microservice
+
 ```bash
 curl -X POST http://localhost:9080/v1/pii \
     -H 'Content-Type: application/json' \
