@@ -17,7 +17,6 @@ from comps import (
     TextDoc,
 )
 
-
 logger = CustomLogger("opea_pii_native")
 logflag = os.getenv("LOGFLAG", False)
 
