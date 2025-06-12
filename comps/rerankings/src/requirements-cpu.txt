@@ -67,7 +67,6 @@ filelock==3.18.0
     # via
     #   datasets
     #   huggingface-hub
-    #   torch
     #   transformers
 filetype==1.2.0
     # via haystack-experimental
@@ -79,7 +78,6 @@ fsspec==2025.3.0
     # via
     #   datasets
     #   huggingface-hub
-    #   torch
 googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -130,7 +128,6 @@ jaxlib==0.6.1
 jinja2==3.1.6
     # via
     #   haystack-ai
-    #   torch
 jiter==0.10.0
     # via openai
 joblib==1.5.1
@@ -200,7 +197,6 @@ mypy-extensions==1.1.0
 networkx==3.5
     # via
     #   haystack-ai
-    #   torch
     #   trimesh
 numpy==2.3.0
     # via
@@ -380,8 +376,6 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via -r comps/rerankings/src/requirements.in
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shapely==2.1.1
     # via trimesh
 shortuuid==1.0.13
@@ -404,8 +398,6 @@ starlette==0.46.2
     #   prometheus-fastapi-instrumentator
 svg-path==6.3
     # via trimesh
-sympy==1.14.0
-    # via torch
 tenacity==9.1.2
     # via
     #   haystack-ai
@@ -415,10 +407,6 @@ threadpoolctl==3.6.0
     # via scikit-learn
 tokenizers==0.21.1
     # via transformers
-torch==2.7.1 ; sys_platform == 'darwin'
-    # via sentence-transformers
-torch==2.7.1+cpu ; sys_platform != 'darwin'
-    # via sentence-transformers
 tqdm==4.67.1
     # via
     #   datasets
@@ -453,7 +441,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0

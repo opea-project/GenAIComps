@@ -38,7 +38,7 @@ WORKDIR /home/user/comps/finetuning/src/integrations/xtune
 RUN git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft uv && \
-    python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements-cpu.txt
+    python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

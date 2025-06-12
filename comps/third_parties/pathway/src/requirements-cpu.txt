@@ -141,7 +141,6 @@ fastavro==1.11.1
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 filetype==1.2.0
     # via unstructured
@@ -159,7 +158,6 @@ fsspec==2025.5.1
     # via
     #   huggingface-hub
     #   llama-index-core
-    #   torch
 geographiclib==2.0
     # via geopy
 geopy==2.4.1
@@ -289,7 +287,6 @@ jinja2==3.1.6
     # via
     #   bokeh
     #   litellm
-    #   torch
 jiter==0.10.0
     # via openai
 jmespath==1.0.1
@@ -403,7 +400,6 @@ networkx==3.5
     # via
     #   llama-index-core
     #   pathway
-    #   torch
     #   unstructured
 nltk==3.9.1
     # via
@@ -427,7 +423,6 @@ numpy==1.26.4
     #   scikit-learn
     #   scipy
     #   shapely
-    #   torchvision
     #   transformers
     #   unstructured
     #   unstructured-inference
@@ -531,7 +526,6 @@ pillow==11.2.1
     #   pikepdf
     #   python-pptx
     #   sentence-transformers
-    #   torchvision
     #   unstructured-pytesseract
 prompt-toolkit==3.0.51
     # via ipython
@@ -729,7 +723,6 @@ sentence-transformers==4.1.0
 setuptools==80.9.0
     # via
     #   fs
-    #   torch
 shapely==2.1.1
     # via pathway
 shellingham==1.5.4
@@ -761,7 +754,6 @@ stack-data==0.6.3
 sympy==1.14.0
     # via
     #   onnxruntime
-    #   torch
 tenacity==8.5.0
     # via
     #   instructor
@@ -787,30 +779,6 @@ tokenizers==0.21.1
     #   langchain-huggingface
     #   litellm
     #   transformers
-torch==2.7.1 ; sys_platform == 'darwin'
-    # via
-    #   accelerate
-    #   effdet
-    #   sentence-transformers
-    #   timm
-    #   torchvision
-    #   unstructured-inference
-torch==2.7.1+cpu ; sys_platform != 'darwin'
-    # via
-    #   accelerate
-    #   effdet
-    #   sentence-transformers
-    #   timm
-    #   torchvision
-    #   unstructured-inference
-torchvision==0.22.1 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via
-    #   effdet
-    #   timm
-torchvision==0.22.1+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via
-    #   effdet
-    #   timm
 tornado==6.5.1 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
@@ -865,7 +833,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typer
     #   typing-inspect
     #   unstructured

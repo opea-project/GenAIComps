@@ -83,7 +83,6 @@ filelock==3.18.0
     #   datasets
     #   huggingface-hub
     #   ray
-    #   torch
     #   transformers
     #   virtualenv
 frozenlist==1.7.0
@@ -95,7 +94,6 @@ fsspec==2025.3.0
     #   datasets
     #   huggingface-hub
     #   ray
-    #   torch
 google-api-core==2.25.0
     # via opencensus
 google-auth==2.40.3
@@ -141,7 +139,6 @@ importlib-metadata==8.7.0
 jinja2==3.1.6
     # via
     #   memray
-    #   torch
 jsonschema==4.24.0
     # via ray
 jsonschema-specifications==2025.4.1
@@ -175,8 +172,6 @@ multiprocess==0.70.16
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
-    # via torch
 numpy==2.2.6 ; sys_platform != 'darwin'
     # via
     #   accelerate
@@ -376,8 +371,6 @@ safetensors==0.5.3
     #   transformers
 scipy==1.15.3
     # via ray
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shortuuid==1.0.13
     # via -r comps/finetuning/src/requirements.in
 six==1.17.0
@@ -393,22 +386,12 @@ starlette==0.46.2
     #   fastapi
     #   prometheus-fastapi-instrumentator
     #   ray
-sympy==1.14.0
-    # via torch
 tensorboardx==2.6.4
     # via ray
 textual==3.3.0 ; sys_platform != 'win32'
     # via memray
 tokenizers==0.21.1
     # via transformers
-torch==2.7.1 ; platform_machine != 'x86_64' and sys_platform == 'darwin'
-    # via
-    #   accelerate
-    #   peft
-torch==2.7.1+cpu ; platform_machine == 'x86_64' or sys_platform != 'darwin'
-    # via
-    #   accelerate
-    #   peft
 tqdm==4.67.1
     # via
     #   datasets
@@ -438,7 +421,6 @@ typing-extensions==4.14.0
     #   pyopenssl
     #   referencing
     #   textual
-    #   torch
     #   typing-inspect
 typing-inspect==0.9.0
     # via docarray

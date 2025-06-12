@@ -84,7 +84,6 @@ fastapi==0.115.9
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 flatbuffers==25.2.10
     # via onnxruntime
@@ -95,7 +94,6 @@ frozenlist==1.7.0
 fsspec==2025.5.1
     # via
     #   huggingface-hub
-    #   torch
 google-api-core==2.25.0
     # via
     #   google-api-python-client
@@ -175,8 +173,6 @@ jax==0.6.1
     # via docarray
 jaxlib==0.6.1
     # via jax
-jinja2==3.1.6
-    # via torch
 joblib==1.5.1
     # via scikit-learn
 jsonpatch==1.33
@@ -252,7 +248,6 @@ mypy-extensions==1.1.0
     # via typing-inspect
 networkx==3.5
     # via
-    #   torch
     #   trimesh
 numpy==2.3.0
     # via
@@ -492,8 +487,6 @@ sentence-transformers==4.1.0
     # via
     #   -r comps/web_retrievers/src/requirements.in
     #   langchain-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shapely==2.1.1
     # via trimesh
 shellingham==1.5.4
@@ -525,7 +518,6 @@ svg-path==6.3
 sympy==1.14.0
     # via
     #   onnxruntime
-    #   torch
 tenacity==9.1.2
     # via
     #   chromadb
@@ -538,10 +530,6 @@ tokenizers==0.21.1
     #   chromadb
     #   langchain-huggingface
     #   transformers
-torch==2.7.1 ; sys_platform == 'darwin'
-    # via sentence-transformers
-torch==2.7.1+cpu ; sys_platform != 'darwin'
-    # via sentence-transformers
 tqdm==4.67.1
     # via
     #   chromadb
@@ -578,7 +566,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typer
     #   typing-inspect
     #   typing-inspection

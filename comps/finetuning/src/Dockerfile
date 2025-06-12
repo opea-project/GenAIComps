@@ -22,7 +22,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools uv && \
     python -m uv pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
     python -m uv pip install --no-cache-dir intel-extension-for-pytorch && \
     python -m uv pip install --no-cache-dir oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/ && \
-    python -m uv pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/finetuning/src/requirements-cpu.txt
+    python -m uv pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
