@@ -102,9 +102,7 @@ class ReActAgentwithLanggraph(BaseAgent):
         print("REACT_SYS_MESSAGE: ", REACT_SYS_MESSAGE)
 
         if with_memory:
-            self.app = create_react_agent(
-                self.llm, tools=tools, prompt=REACT_SYS_MESSAGE, checkpointer=MemorySaver()
-            )
+            self.app = create_react_agent(self.llm, tools=tools, prompt=REACT_SYS_MESSAGE, checkpointer=MemorySaver())
         else:
             self.app = create_react_agent(self.llm, tools=tools, prompt=REACT_SYS_MESSAGE)
 
