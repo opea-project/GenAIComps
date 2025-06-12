@@ -11,6 +11,7 @@ import time
 # GenAIComps
 from comps import CustomLogger, OpeaComponentLoader
 from comps.animation.src.integrations.wav2lip import OpeaAnimation
+from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_animation")
 logflag = os.getenv("LOGFLAG", False)
@@ -25,6 +26,8 @@ from comps import (
 )
 
 animation_component_name = os.getenv("ANIMATION_COMPONENT_NAME", "OPEA_ANIMATION")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     animation_component_name,
@@ -41,6 +44,9 @@ loader = OpeaComponentLoader(
     port=9066,
     input_datatype=Base64ByteStrDoc,
     output_datatype=VideoPath,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="This function takes an audio piece and a low-quality face image/video as input, fuses mel-spectrogram from the audio with frame(s) from the image/video, and generates a high-quality video of the face with lip movements synchronized with the audio",
 )
 @register_statistics(names=["opea_service@animation"])
 async def animate(audio: Base64ByteStrDoc):
