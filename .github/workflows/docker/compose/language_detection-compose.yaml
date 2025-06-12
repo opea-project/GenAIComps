@@ -1,0 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  language-detection:
+    build:
+      dockerfile: comps/language_detection/src/Dockerfile
+    image: ${REGISTRY:-opea}/language-detection:${TAG:-latest}

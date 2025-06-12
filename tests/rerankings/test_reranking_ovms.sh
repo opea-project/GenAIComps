@@ -14,7 +14,6 @@ function build_docker_images() {
           -t opea/reranking:comps \
           --build-arg https_proxy=$https_proxy \
           --build-arg http_proxy=$http_proxy \
-          --build-arg SERVICE=ovms \
           -f comps/rerankings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/reranking built fail"
@@ -69,7 +68,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
     cd $WORKPATH
 }
 
