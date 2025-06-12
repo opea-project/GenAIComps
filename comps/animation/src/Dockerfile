@@ -13,11 +13,12 @@ ARG ARCH=cpu
 
 COPY comps /home/user/comps
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-cpu.txt; \
+      $uvpip -r /home/user/comps/animation/src/requirements-cpu.txt; \
     else \
-      uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-gpu.txt; \
+      $uvpip -r /home/user/comps/animation/src/requirements-gpu.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

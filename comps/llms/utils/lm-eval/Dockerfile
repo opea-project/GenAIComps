@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 COPY comps /home/user/comps
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements.txt  \
         --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match; \

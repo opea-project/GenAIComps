@@ -22,10 +22,11 @@ COPY comps /home/user/comps
 
 WORKDIR /home/user/comps/third_parties/llama-vision/src
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    uv pip install --no-cache-dir -r requirements.txt && \
-    uv pip install --no-cache-dir --upgrade Pillow && \
-    uv pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.17.0
+    $uvpip -r requirements.txt && \
+    $uvpip --upgrade Pillow && \
+    $uvpip git+https://github.com/huggingface/optimum-habana@v1.17.0
 
 ENV PYTHONPATH=/root:/home/user
 

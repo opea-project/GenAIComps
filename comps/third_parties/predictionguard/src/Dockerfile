@@ -11,8 +11,9 @@ COPY comps /home/user/comps
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing curl
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    uv pip install --no-cache-dir -r /home/user/comps/third_parties/predictionguard/src/requirements.txt
+    $uvpip -r /home/user/comps/third_parties/predictionguard/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

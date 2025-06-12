@@ -19,8 +19,8 @@ RUN useradd -m -s /bin/bash user && \
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ ${ARCH} = "cpu" ]; then uv pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    uv pip install --no-cache-dir -r /home/user/comps/guardrails/src/prompt_injection/requirements.txt
+    if [ ${ARCH} = "cpu" ]; then $uvpip torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    $uvpip -r /home/user/comps/guardrails/src/prompt_injection/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

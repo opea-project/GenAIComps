@@ -18,12 +18,13 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps/rerankings/src/requirements* /home/user/comps/rerankings/src/
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      uv pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; \
-      uv pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements-cpu.txt; \
+      $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
+      $uvpip -r /home/user/comps/rerankings/src/requirements-cpu.txt; \
     else \
-      uv pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements-gpu.txt; \
+      $uvpip -r /home/user/comps/rerankings/src/requirements-gpu.txt; \
     fi
 
 COPY comps /home/user/comps

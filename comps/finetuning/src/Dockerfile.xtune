@@ -37,6 +37,7 @@ ENV PATH=$PATH:/home/user/.local/bin
 WORKDIR /home/user/comps/finetuning/src/integrations/xtune 
 RUN git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft uv && \
     python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt
 

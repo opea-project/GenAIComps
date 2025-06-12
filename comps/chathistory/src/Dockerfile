@@ -17,9 +17,10 @@ RUN useradd -m -s /bin/bash user && \
 COPY comps /home/user/comps
 COPY requirements.txt /home/user/
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    uv pip install --no-cache-dir -r /home/user/comps/chathistory/src/requirements.txt && \
-    uv pip install --no-cache-dir -r /home/user/requirements.txt
+    $uvpip -r /home/user/comps/chathistory/src/requirements.txt && \
+    $uvpip -r /home/user/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
