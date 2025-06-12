@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl, ImageUrl
-from pydantic import Field, conint, conlist, field_validator, PositiveInt, NonNegativeFloat
+from pydantic import Field, NonNegativeFloat, PositiveInt, conint, conlist, field_validator
 
 
 class TopologyInfo:
