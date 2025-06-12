@@ -60,23 +60,22 @@ class OpeaPiiDetectionNative(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.GUARDRAIL.name.lower(), description, config)
         self.model = os.getenv("PII_DETECTION_MODEL", "StanfordAIMI/stanford-deidentifier-base")
-        # self.pii_pipeline = pipeline("text-classification", model=self.model, tokenizer=self.model)
 
         # Transformer model config
         model_config = [
             {
                 "lang_code": "en",
                 "model_name": {
-                    "spacy": "en_core_web_sm",  # for tokenization, lemmatization
-                    "transformers": self.model,  # for NER
+                    "spacy": "en_core_web_sm", 
+                    "transformers": self.model,
                 },
             }
         ]
 
         self.ner_model_configuration = NerModelConfiguration(
             model_to_presidio_entity_mapping=MAPPING,
-            alignment_mode="expand",  # "strict", "contract", "expand"
-            aggregation_strategy="max",  # "simple", "first", "average", "max"
+            alignment_mode="expand",
+            aggregation_strategy="max",
             labels_to_ignore=LABELS_TO_IGNORE,
         )
 
@@ -102,8 +101,6 @@ class OpeaPiiDetectionNative(OpeaComponent):
         pii = await asyncio.to_thread(self.analyzer.analyze, input.text, "en")
 
         if pii:
-            # return TextDoc(text=f"PII INCLUDES: {pii[0]}")
-
             # convert AnalyzerResult to List[Dict]
             pii = [entity.to_dict() for entity in pii]
 

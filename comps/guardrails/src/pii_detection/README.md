@@ -233,12 +233,13 @@ except requests.exceptions.RequestException as e:
 ### For Prediction Guard Microservice
 
 ```bash
-curl -X POST http://localhost:9080/v1/pii \
+curl -X POST http://localhost:${PII_DETECTION_PORT}/v1/pii \
     -H 'Content-Type: application/json' \
     -d '{
       "prompt": "My name is John Doe and my phone number is (555) 555-5555.",
       "replace": true,
       "replace_method": "random"
+      }'
 ```
 
 API parameters for Prediction Guard microservice:
