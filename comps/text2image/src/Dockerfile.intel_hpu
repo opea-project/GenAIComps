@@ -20,10 +20,10 @@ ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/text2image/src/requirements.txt && \
-    pip install --no-cache-dir optimum[habana]
+    pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.17.0
 USER user
 WORKDIR /home/user/comps/text2image/src
 
 RUN echo python opea_text2image_microservice.py --device hpu --use_hpu_graphs --bf16 >> run.sh
 
-CMD bash run.sh
+CMD ["bash", "run.sh"]

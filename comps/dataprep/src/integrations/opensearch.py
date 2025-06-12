@@ -14,6 +14,7 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from opensearchpy import OpenSearch
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import DataprepRequest
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -107,6 +108,9 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         self.opensearch_client = OpenSearchVectorSearch(
             opensearch_url=OPENSEARCH_URL,
             index_name=Config.INDEX_NAME,
+            # Default engine for OpenSearch is "nmslib",
+            # but "nmslib" engine is deprecated in OpenSearch and cannot be used for new index creation in OpenSearch from 3.0.0.
+            engine="faiss",
             embedding_function=self.embeddings,
             http_auth=self.auth,
             use_ssl=True,
@@ -292,7 +296,11 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         ### Specially processing for the table content in PDFs
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            chunks = chunks + table_chunks
+            logger.info(f"[ ingest data ] table chunks: {table_chunks}")
+            if table_chunks:
+                chunks = chunks + table_chunks
+            else:
+                logger.info(f"[ ingest data ] No table chunks found in {path}.")
         if logflag:
             logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
@@ -322,26 +330,28 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
     async def ingest_files(
         self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
+        input: DataprepRequest,
     ):
         """Ingest files/links content into opensearch database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
-            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            input (DataprepRequest): Model containing the following parameters:
+                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
+                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
         """
+        files = input.files
+        link_list = input.link_list
+        chunk_size = input.chunk_size
+        chunk_overlap = input.chunk_overlap
+        process_table = input.process_table
+        table_strategy = input.table_strategy
+
         if logflag:
             logger.info(f"[ upload ] files:{files}")
             logger.info(f"[ upload ] link_list:{link_list}")

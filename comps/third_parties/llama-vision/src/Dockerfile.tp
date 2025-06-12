@@ -20,11 +20,11 @@ RUN git lfs install
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
-RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.13.2
+RUN pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
+RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.17.0
 
-RUN cd /home/user/comps/third_parties/llama-vision/src  \
-    pip install --no-cache-dir --upgrade pip setuptools && \
+WORKDIR /home/user/comps/third_parties/llama-vision/src
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     bash update && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/llama-vision/src/requirements_tp.txt
 

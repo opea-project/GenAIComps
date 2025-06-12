@@ -1,0 +1,19 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  language-detection:
+    image: ${REGISTRY:-opea}/language-detection:${TAG:-latest}
+    container_name: language-detection
+    ports:
+      - "8069:8069"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+    ipc: host
+    restart: always
+
+networks:
+  default:
+    driver: bridge
