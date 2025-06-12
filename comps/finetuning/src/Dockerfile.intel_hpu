@@ -17,7 +17,7 @@ RUN chown -R user /home/user/comps/finetuning
 ENV PATH=$PATH:/home/user/.local/bin
 
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools uv && \
-    python -m uv pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements-hpu.txt && \
+    python -m uv pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt && \
     python -m uv pip install --no-cache-dir optimum-habana
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements-cpu.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements.txt  \
+        --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match; \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

@@ -21,9 +21,9 @@ COPY --chown=user:user comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ "${ARCH}" = "cpu" ]; then \
         uv pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        uv pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/third_parties/speecht5/src/requirements.txt ; \
+        uv pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements-cpu.txt ; \
     else \
-        uv pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements.txt ; \
+        uv pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements-gpu.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
