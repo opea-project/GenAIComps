@@ -14,6 +14,8 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg && \
 echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy unified" | \
         tee /etc/apt/sources.list.d/intel-gpu-jammy.list &&\
@@ -32,7 +34,8 @@ COPY comps /home/user/comps
 RUN chown -R user /home/user/comps/finetuning
 
 ENV PATH=$PATH:/home/user/.local/bin
-RUN cd /home/user/comps/finetuning/src/integrations/xtune && git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
+WORKDIR /home/user/comps/finetuning/src/integrations/xtune 
+RUN git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft && \
     python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt && \
@@ -42,7 +45,7 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/finetuning/src
 
-RUN echo PKGPATH=$(python3 -c "import pkg_resources; print(pkg_resources.get_distribution('oneccl-bind-pt').location)") >> run.sh && \
+RUN echo 'PKGPATH=$(python3 -c "import pkg_resources; print(pkg_resources.get_distribution('\''oneccl-bind-pt'\'').location)")' >> run.sh && \
     echo 'export LD_LIBRARY_PATH=$PKGPATH/oneccl_bindings_for_pytorch/opt/mpi/lib/:$LD_LIBRARY_PATH' >> run.sh && \
     echo 'source $PKGPATH/oneccl_bindings_for_pytorch/env/setvars.sh' >> run.sh && \
     echo 'export FINETUNING_COMPONENT_NAME="XTUNE_FINETUNING"' >> run.sh && \
@@ -52,4 +55,4 @@ RUN echo PKGPATH=$(python3 -c "import pkg_resources; print(pkg_resources.get_dis
     echo 'export DATA=$DATA' >> run.sh && \
     echo 'ZE_AFFINITY_MASK=0 llamafactory-cli webui &' >> run.sh
 
-CMD bash run.sh
+CMD ["bash", "run.sh"]

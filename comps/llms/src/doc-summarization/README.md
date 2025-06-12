@@ -199,3 +199,19 @@ curl http://${your_ip}:9000/v1/docsum \
   -d '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000, "timeout":200}' \
   -H 'Content-Type: application/json'
 ```
+
+## Running in the air gapped environment
+
+The following steps are needed for running the `opea/llm-docsum` microservice in an air gapped environment (a.k.a. environment with no internet access).
+
+1. Pre download the following models, i.e. `huggingface-cli download --cache-dir <model data directory> <model>`
+
+- gpt2
+- the same model as the LLM inference backend
+
+2. Launch the `opea/llm-docsum` microservice with the following settings:
+
+- mount the host `<model data directory>` as the `/data` directory within the microservice container
+- leave environment as unset `HF_TOKEN` as unset
+
+e.g. `unset HF_TOKEN; docker run -v <model data directory>:/data ... ...`

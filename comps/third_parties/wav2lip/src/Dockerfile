@@ -6,7 +6,7 @@ FROM python:3.11-slim
 
 # Set this to "cpu" or "gpu" or etc
 ARG ARCH="cpu"
-
+ARG REPO_VER=n7.1.1
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/usr/local/lib/python3.11/site-packages:/home:/home/user
@@ -31,16 +31,16 @@ COPY comps /home/user/comps
 COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install ffmpeg with x264 software codec
-RUN git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/src/FFmpeg
-WORKDIR /home/user/comps/animation/src/FFmpeg
-RUN ./configure --enable-gpl --enable-libx264 --enable-cross-compile && \
-    make -j$(nproc-1) && \
+RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/src/FFmpeg && \
+    cd /home/user/comps/animation/src/FFmpeg  && \
+    ./configure --enable-gpl --enable-libx264 --enable-cross-compile --disable-debug --disable-doc --disable-ffprobe --disable-ffplay&& \
+    make -j"$(nproc-1)" && \
     make install && \
-    hash -r
-RUN chmod +x $(which ffmpeg)
+    hash -r && chmod +x "$(which ffmpeg)" && \
+    rm -rf .git 
 
 # Upgrade pip
-RUN python3 -m pip install --upgrade pip setuptools
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools
 
 # Install Wav2Lip from pip
 RUN pip install --no-cache-dir --no-deps Wav2Lipy
