@@ -26,8 +26,8 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingRespo
 from .config import (
     BRIDGE_TOWER_EMBEDDING,
     EMBED_MODEL,
-    HF_TOKEN,
     ENABLE_SCHEMA,
+    HF_TOKEN,
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
