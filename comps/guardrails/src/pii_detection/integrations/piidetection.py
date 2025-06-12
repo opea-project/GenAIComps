@@ -66,7 +66,7 @@ class OpeaPiiDetectionNative(OpeaComponent):
             {
                 "lang_code": "en",
                 "model_name": {
-                    "spacy": "en_core_web_sm", 
+                    "spacy": "en_core_web_sm",
                     "transformers": self.model,
                 },
             }
