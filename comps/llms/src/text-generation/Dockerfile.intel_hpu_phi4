@@ -30,7 +30,7 @@ WORKDIR /home/user/comps/llms/src/text-generation
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir soundfile peft backoff
 
-RUN pip install --no-cache-dir numpy<2.0
+RUN pip install --no-cache-dir "numpy<2.0"
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
