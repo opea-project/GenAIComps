@@ -47,7 +47,7 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 WORKDIR /usr/local/lib/python3.10/dist-packages
 
 # Install pip dependencies
-RUN uv pip install --no-cache-dir -r /home/user/comps/animation/src/requirements-cpu.txt
+RUN $uvpip -r /home/user/comps/animation/src/requirements-cpu.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional

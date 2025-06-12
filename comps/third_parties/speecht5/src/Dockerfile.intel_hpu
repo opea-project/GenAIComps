@@ -21,10 +21,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 COPY --chown=user:user comps /home/user/comps
 
 # Install requirements and optimum habana
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    uv pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements-cpu.txt && \
-    uv pip install --no-cache-dir --upgrade transformers && \
-    uv pip install --no-cache-dir optimum[habana]
+    $uvpip -r /home/user/comps/third_parties/speecht5/src/requirements-cpu.txt && \
+    $uvpip --upgrade transformers && \
+    $uvpip optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

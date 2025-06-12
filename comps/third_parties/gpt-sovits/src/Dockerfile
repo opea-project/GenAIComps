@@ -28,11 +28,12 @@ ENV LANG=C.UTF-8
 # Clone source repo
 RUN git clone --depth=1 --branch openai_compat --single-branch https://github.com/Spycsh/GPT-SoVITS.git
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      uv pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r GPT-SoVITS/requirements.txt; \
+      $uvpip --extra-index-url https://download.pytorch.org/whl/cpu -r GPT-SoVITS/requirements.txt; \
     else \
-      uv pip install --no-cache-dir -r GPT-SoVITS/requirements.txt; \
+      $uvpip -r GPT-SoVITS/requirements.txt; \
     fi
 
 RUN python -m nltk.downloader averaged_perceptron_tagger_eng cmudict && \

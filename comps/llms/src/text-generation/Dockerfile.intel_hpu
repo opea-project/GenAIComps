@@ -22,18 +22,19 @@ RUN git lfs install
 
 COPY comps /home/user/comps
 
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    uv pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
-    uv pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
+    $uvpip --upgrade-strategy eager optimum[habana] && \
+    $uvpip git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 RUN git clone ${REPO} --depth 1 --branch ${REPO_VER} /home/user/optimum-habana && rm -rf /home/user/optimum-habana/.git
 
 WORKDIR /home/user/optimum-habana/examples/text-generation
-RUN uv pip install --no-cache-dir -r requirements.txt
+RUN $uvpip -r requirements.txt
 
 WORKDIR /home/user/comps/llms/src/text-generation/
-RUN uv pip install --no-cache-dir -r requirements.txt && \
-    uv pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy==1.25
+RUN $uvpip -r requirements.txt && \
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.25
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
