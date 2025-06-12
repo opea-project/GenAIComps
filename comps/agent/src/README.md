@@ -150,8 +150,7 @@ docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg ht
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export model="meta-llama/Meta-Llama-3.1-70B-Instruct"
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
-export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
 
 # build vLLM image
@@ -168,7 +167,7 @@ docker run -d --runtime=habana --rm --name "comps-vllm-gaudi-service" -p 8080:80
 docker logs comps-vllm-gaudi-service
 
 # Agent
-docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 
 # check status
 docker logs comps-agent-endpoint
@@ -177,7 +176,7 @@ docker logs comps-agent-endpoint
 > debug mode
 >
 > ```bash
-> docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+> docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 > ```
 
 ## 🚀 3. Validate Microservice
@@ -294,7 +293,7 @@ def opea_rag_query(query):
 
 ```bash
 # Agent
-docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 ```
 
 - validate with my_tools

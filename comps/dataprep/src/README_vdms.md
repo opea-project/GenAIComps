@@ -20,7 +20,7 @@ export https_proxy=${your_http_proxy}
 export VDMS_HOST=${host_ip}
 export VDMS_PORT=55555
 export TEI_EMBEDDING_ENDPOINT=${your_tei_endpoint}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export COLLECTION_NAME=${your_collection_name}
 export SEARCH_ENGINE="FaissFlat"
 export DISTANCE_STRATEGY="L2"
@@ -41,7 +41,7 @@ Start single-process version (for 1-10 files processing)
 ```bash
 docker run -d --name="dataprep-vdms-server" -p 6007:6007 --runtime=runc --ipc=host \
 -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
--e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
+-e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HF_TOKEN=${HF_TOKEN} \
 -e COLLECTION_NAME=$COLLECTION_NAME -e VDMS_HOST=$VDMS_HOST -e VDMS_PORT=$VDMS_PORT \
 -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_VDMS" opea/dataprep:latest
 ```
