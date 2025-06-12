@@ -18,7 +18,7 @@ COPY comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      $uvpip -r /home/user/comps/guardrails/src/hallucination_detection/requirements-cpu.txt; \
+      $uvpip -r /home/user/comps/guardrails/src/hallucination_detection/requirements-cpu.txt \
       --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match; \
     else \
       $uvpip -r /home/user/comps/guardrails/src/hallucination_detection/requirements-gpu.txt; \
