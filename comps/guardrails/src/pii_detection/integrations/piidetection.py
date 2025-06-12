@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
@@ -16,8 +16,6 @@ from comps import (
     ServiceType,
     TextDoc,
 )
-
-# from transformers import pipeline
 
 
 logger = CustomLogger("opea_pii_native")
