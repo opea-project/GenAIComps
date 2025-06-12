@@ -38,6 +38,7 @@ class ServiceType(Enum):
     TEXT2CYPHER = 21
     TEXT2KG = 22
     STRUCT2GRAPH = 23
+    LANGUAGE_DETECTION = 24
 
 
 class MegaServiceEndpoint(Enum):
