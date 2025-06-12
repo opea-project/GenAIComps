@@ -21,7 +21,7 @@ export ARANGO_USERNAME=${your_arango_username} # e.g. root
 export ARANGO_PASSWORD=${your_arango_password} # e.g test
 export ARANGO_DB_NAME=${your_db_name} # e.g _system
 export TEI_EMBEDDING_ENDPOINT=${your_tei_embedding_endpoint}
-export HUGGINGFACEHUB_API_TOKEN=${your_huggingface_api_token}
+export HF_TOKEN=${your_huggingface_api_token}
 ```
 
 ### Build Docker Image
@@ -130,7 +130,7 @@ Embedding configuration
 
 - `TEI_EMBEDDING_ENDPOINT`: The endpoint for the TEI service.
 - `TEI_EMBED_MODEL`: The model to use for the TEI service. Defaults to `BAAI/bge-base-en-v1.5`.
-- `HUGGINGFACEHUB_API_TOKEN`: The API token for Hugging Face access.
+- `HF_TOKEN`: The API token for Hugging Face access.
 
 Summarizer Configuration
 
