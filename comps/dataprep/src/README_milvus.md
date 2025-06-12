@@ -15,7 +15,7 @@ export https_proxy=${your_http_proxy}
 export MILVUS_HOST=${your_host_ip}
 export MILVUS_PORT=19530
 export COLLECTION_NAME=${your_collection_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export EMBEDDING_MODEL_ID=${your_embedding_model_id}
 ```
 
@@ -41,7 +41,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### 1.5 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
+docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HF_TOKEN=${HF_TOKEN} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
 ```
 
 ### 1.5 Run with Docker Compose (Option B)
@@ -51,7 +51,7 @@ mkdir model
 cd model
 git clone https://huggingface.co/BAAI/bge-base-en-v1.5
 cd ../
-# Update `host_ip` and  `HUGGINGFACEHUB_API_TOKEN` in set_env.sh
+# Update `host_ip` and  `HF_TOKEN` in set_env.sh
 . set_env.sh
 docker compose -f compose_milvus.yaml up -d
 ```

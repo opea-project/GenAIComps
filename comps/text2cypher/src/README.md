@@ -61,7 +61,7 @@ docker run  --name="comps-langchain-text2cypher"  -p 9097:8080 --ipc=host opea/t
 
 ```bash
 ip_address=$(hostname -I | awk '{print $1}')
-export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export NEO4J_USER=neo4j
 export NEO4J_PASSWORD=neo4jtest
 export NEO4J_URL="bolt://${ip_address}:7687"
