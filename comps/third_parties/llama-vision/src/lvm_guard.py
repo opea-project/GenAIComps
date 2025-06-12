@@ -46,7 +46,7 @@ def initialize():
             adapt_transformers_to_gaudi()
 
             model_id = os.getenv("LLAMA_VISION_GUARD_MODEL_ID", "meta-llama/Llama-Guard-3-11B-Vision")
-            huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+            huggingface_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
             model = AutoModelForVision2Seq.from_pretrained(
                 model_id, device_map="hpu", torch_dtype=torch.bfloat16, token=huggingface_token
             )
