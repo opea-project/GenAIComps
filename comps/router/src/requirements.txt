@@ -113,7 +113,7 @@ httpx==0.28.1
     #   trimesh
 httpx-sse==0.4.0
     # via langchain-community
-huggingface-hub==0.32.5
+huggingface-hub==0.33.0
     # via tokenizers
 idna==3.10
     # via
@@ -163,7 +163,7 @@ langsmith==0.3.45
     #   langchain
     #   langchain-community
     #   langchain-core
-litellm==1.72.3
+litellm==1.72.4
     # via semantic-router
 lxml==5.4.0
     # via trimesh
@@ -422,7 +422,7 @@ tqdm==4.67.1
     # via
     #   huggingface-hub
     #   openai
-trimesh==4.6.11
+trimesh==4.6.12
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
@@ -432,6 +432,7 @@ types-urllib3==1.26.25.14
     # via types-requests
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   huggingface-hub
     #   langchain-core
@@ -443,6 +444,7 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   sqlalchemy
     #   typing-inspect
     #   typing-inspection

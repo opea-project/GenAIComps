@@ -145,6 +145,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc

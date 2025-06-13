@@ -296,7 +296,7 @@ scipy==1.15.3
     #   jax
     #   jaxlib
     #   trimesh
-setuptools==80.9.0
+setuptools==80.9.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.1
     # via trimesh
@@ -338,6 +338,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   huggingface-hub
     #   opentelemetry-api
@@ -347,6 +348,7 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   torch
     #   typing-inspect
     #   typing-inspection

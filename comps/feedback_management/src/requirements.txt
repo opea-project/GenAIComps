@@ -4,5 +4,5 @@ dnspython==2.7.0
     # via pymongo
 motor==3.7.1
     # via -r ./comps/feedback_management/src/requirements.in
-pymongo==4.13.0
+pymongo==4.13.1
     # via motor
