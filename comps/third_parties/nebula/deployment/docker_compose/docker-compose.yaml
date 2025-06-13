@@ -4,7 +4,7 @@
 version: '3.4'
 services:
   metad0:
-    image: docker.io/vesoft/nebula-metad:nightly
+    image: docker.io/vesoft/nebula-metad:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -38,7 +38,7 @@ services:
       - SYS_PTRACE
 
   metad1:
-    image: docker.io/vesoft/nebula-metad:nightly
+    image: docker.io/vesoft/nebula-metad:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -72,7 +72,7 @@ services:
       - SYS_PTRACE
 
   metad2:
-    image: docker.io/vesoft/nebula-metad:nightly
+    image: docker.io/vesoft/nebula-metad:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -106,7 +106,7 @@ services:
       - SYS_PTRACE
 
   storaged0:
-    image: docker.io/vesoft/nebula-storaged:nightly
+    image: docker.io/vesoft/nebula-storaged:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -144,7 +144,7 @@ services:
       - SYS_PTRACE
 
   storaged1:
-    image: docker.io/vesoft/nebula-storaged:nightly
+    image: docker.io/vesoft/nebula-storaged:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -182,7 +182,7 @@ services:
       - SYS_PTRACE
 
   storaged2:
-    image: docker.io/vesoft/nebula-storaged:nightly
+    image: docker.io/vesoft/nebula-storaged:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -220,7 +220,7 @@ services:
       - SYS_PTRACE
 
   graphd:
-    image: docker.io/vesoft/nebula-graphd:nightly
+    image: docker.io/vesoft/nebula-graphd:v3.6.0
     environment:
       USER: root
       TZ:   "${TZ}"
@@ -255,80 +255,8 @@ services:
     cap_add:
       - SYS_PTRACE
 
-  graphd1:
-    image: docker.io/vesoft/nebula-graphd:nightly
-    environment:
-      USER: root
-      TZ:   "${TZ}"
-    command:
-      - --meta_server_addrs=metad0:9559,metad1:9559,metad2:9559
-      - --port=9669
-      - --local_ip=graphd1
-      - --ws_ip=graphd1
-      - --ws_http_port=19669
-      - --log_dir=/logs
-      - --v=0
-      - --minloglevel=0
-    depends_on:
-      - storaged0
-      - storaged1
-      - storaged2
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://graphd1:19669/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
-    ports:
-      - 9669
-      - 19669
-      - 19670
-    volumes:
-      - ./logs/graph1:/logs
-    networks:
-      - nebula-net
-    restart: on-failure
-    cap_add:
-      - SYS_PTRACE
-
-  graphd2:
-    image: docker.io/vesoft/nebula-graphd:nightly
-    environment:
-      USER: root
-      TZ:   "${TZ}"
-    command:
-      - --meta_server_addrs=metad0:9559,metad1:9559,metad2:9559
-      - --port=9669
-      - --local_ip=graphd2
-      - --ws_ip=graphd2
-      - --ws_http_port=19669
-      - --log_dir=/logs
-      - --v=0
-      - --minloglevel=0
-    depends_on:
-      - storaged0
-      - storaged1
-      - storaged2
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://graphd2:19669/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
-    ports:
-      - 9669
-      - 19669
-      - 19670
-    volumes:
-      - ./logs/graph2:/logs
-    networks:
-      - nebula-net
-    restart: on-failure
-    cap_add:
-      - SYS_PTRACE
-
   console:
-    image: docker.io/vesoft/nebula-console:nightly
+    image: docker.io/vesoft/nebula-console:v3.5
     entrypoint: ""
     command:
       - sh

@@ -46,9 +46,14 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home/user/comps/dataprep/src/uploaded_files
+RUN mkdir -p /data && chown -R user /data
 
 USER user
 ENV NLTK_DATA=/home/user/nltk_data
+# air gapped support: predownload all needed nltk data
+RUN mkdir -p /home/user/nltk_data && python -m nltk.downloader -d /home/user/nltk_data punkt_tab averaged_perceptron_tagger_eng stopwords
+# air gapped support: set model cache dir
+ENV HF_HUB_CACHE=/data
 
 WORKDIR /home/user/comps/dataprep/src
 
