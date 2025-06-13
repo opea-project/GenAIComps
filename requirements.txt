@@ -113,7 +113,7 @@ markdown-it-py==3.0.0
     # via rich
 marshmallow==3.26.1
     # via dataclasses-json
-mcp==1.9.3
+mcp==1.9.4
     # via -r ./requirements.in
 mdurl==0.1.2
     # via markdown-it-py
@@ -280,6 +280,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   langchain-core
     #   opentelemetry-api

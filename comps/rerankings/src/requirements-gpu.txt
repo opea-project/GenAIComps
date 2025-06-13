@@ -316,7 +316,7 @@ pillow==11.2.1
     #   docarray
     #   sentence-transformers
     #   trimesh
-posthog==4.7.0
+posthog==4.8.0
     # via haystack-ai
 prometheus-client==0.22.1
     # via prometheus-fastapi-instrumentator
@@ -417,7 +417,7 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via -r ./comps/rerankings/src/requirements.in
-setuptools==80.9.0
+setuptools==80.9.0 ; (python_full_version >= '3.12' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and sys_platform != 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
     # via
     #   torch
     #   triton
@@ -476,6 +476,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   haystack-ai
     #   huggingface-hub
@@ -488,6 +489,7 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   sentence-transformers
     #   sqlalchemy
     #   torch

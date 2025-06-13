@@ -345,6 +345,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   huggingface-hub
     #   langchain-core
@@ -355,6 +356,7 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   sqlalchemy
     #   typing-inspect
     #   typing-inspection

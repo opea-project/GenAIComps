@@ -24,6 +24,8 @@ certifi==2025.4.26
     #   httpcore
     #   httpx
     #   requests
+cffi==1.17.1 ; python_full_version < '3.12.4' and platform_python_implementation == 'PyPy'
+    # via zstandard
 charset-normalizer==3.4.2
     # via
     #   requests
@@ -66,6 +68,7 @@ httpcore==1.0.9
 httpx==0.28.1
     # via
     #   -r ./comps/language_detection/src/requirements.in
+    #   langsmith
     #   trimesh
 idna==3.10
     # via
@@ -85,7 +88,9 @@ jsonschema==4.24.0
     # via trimesh
 jsonschema-specifications==2025.4.1
     # via jsonschema
-langsmith==0.1.81
+langsmith==0.1.81 ; python_full_version >= '3.12.4'
+    # via -r ./comps/language_detection/src/requirements.in
+langsmith==0.4.1 ; python_full_version < '3.12.4'
     # via -r ./comps/language_detection/src/requirements.in
 lxml==5.4.0
     # via trimesh
@@ -165,6 +170,8 @@ orjson==3.10.18
     # via
     #   docarray
     #   langsmith
+packaging==25.0 ; python_full_version < '3.12.4'
+    # via langsmith
 pandas==2.3.0
     # via docarray
 pillow==11.2.1
@@ -188,6 +195,8 @@ pybind11==2.13.6
     # via fasttext
 pycollada==0.9
     # via trimesh
+pycparser==2.22 ; python_full_version < '3.12.4' and platform_python_implementation == 'PyPy'
+    # via cffi
 pydantic==2.7.2
     # via
     #   -r ./comps/language_detection/src/requirements.in
@@ -219,6 +228,9 @@ requests==2.32.4
     #   fasttext-langdetect
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
+    #   requests-toolbelt
+requests-toolbelt==1.0.0 ; python_full_version < '3.12.4'
+    # via langsmith
 rich==14.0.0
     # via docarray
 rpds-py==0.25.1
@@ -249,7 +261,7 @@ starlette==0.46.2
     #   prometheus-fastapi-instrumentator
 svg-path==6.3
     # via trimesh
-trimesh==4.6.11
+trimesh==4.6.12
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
@@ -257,6 +269,7 @@ types-requests==2.32.4.20250611
     # via docarray
 typing-extensions==4.14.0
     # via
+    #   anyio
     #   fastapi
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -265,6 +278,7 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   typing-inspect
 typing-inspect==0.9.0
     # via docarray
@@ -284,3 +298,5 @@ yarl==1.20.1
     # via aiohttp
 zipp==3.23.0
     # via importlib-metadata
+zstandard==0.23.0 ; python_full_version < '3.12.4'
+    # via langsmith
