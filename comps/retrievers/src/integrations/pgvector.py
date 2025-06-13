@@ -11,7 +11,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import EMBED_MODEL, HUGGINGFACEHUB_API_TOKEN, PG_CONNECTION_STRING, PG_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
+from .config import EMBED_MODEL, HF_TOKEN, PG_CONNECTION_STRING, PG_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("pgvector_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -41,10 +41,10 @@ class OpeaPGVectorRetriever(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             import requests
 
@@ -55,7 +55,7 @@ class OpeaPGVectorRetriever(OpeaComponent):
                 )
             model_id = response.json()["model_id"]
             embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model
