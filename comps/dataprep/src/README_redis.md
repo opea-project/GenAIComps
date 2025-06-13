@@ -261,3 +261,7 @@ curl -X POST \
     -d '{"file_path": "all", "index_name": "test_redis_1"}' \
     http://localhost:6007/v1/dataprep/delete
 ```
+
+## Running in the air gapped environment
+
+Please follow the [common guide](../README.md#running-in-the-air-gapped-environment) to run dataprep microservice in the air gapped environment.
