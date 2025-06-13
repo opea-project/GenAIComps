@@ -17,8 +17,8 @@ service_name="vllm-openvino"
 
 function build_container() {
     cd $WORKPATH
-    git clone https://github.com/vllm-project/vllm.git vllm-openvino
-    cd ./vllm-openvino/ && git checkout v0.6.1 # something wrong with main branch image build
+    VLLM_VER="v0.6.1"
+    git clone -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git vllm-openvino && cd vllm-openvino
 
     docker build --no-cache -t ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest} \
       -f Dockerfile.openvino \

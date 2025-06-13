@@ -86,15 +86,12 @@ jobs:
             echo "file_exists=false" >> $GITHUB_ENV
             echo "docker_compose_path=${docker_compose_path} for this service does not exist, so skipping image build for this service!!!"
           fi
+          source ${{ github.workspace }}/.github/env/_build_image.sh
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_path}) != 0 ]]; then
-              git clone https://github.com/vllm-project/vllm.git vllm-openvino
-              cd ./vllm-openvino && git checkout v0.6.1 && git rev-parse HEAD && cd ../
+              git clone -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_path}) != 0 ]]; then
-              git clone https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
-              VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
-              echo "Check out vLLM tag ${VLLM_VER}"
-              git checkout ${VLLM_VER} &> /dev/null && cd ../
+              git clone -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git
           fi
 
       - name: Build Image
