@@ -50,7 +50,6 @@ fastapi==0.115.12
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 frozenlist==1.7.0
     # via
@@ -59,7 +58,6 @@ frozenlist==1.7.0
 fsspec==2025.5.1
     # via
     #   huggingface-hub
-    #   torch
 googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -100,8 +98,6 @@ jax==0.5.3
     # via docarray
 jaxlib==0.5.3
     # via jax
-jinja2==3.1.6
-    # via torch
 joblib==1.5.1
     # via scikit-learn
 jsonpatch==1.33
@@ -163,7 +159,6 @@ mypy-extensions==1.1.0
     # via typing-inspect
 networkx==3.5
     # via
-    #   torch
     #   trimesh
 numpy==1.26.4
     # via
@@ -319,8 +314,6 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via langchain-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shapely==2.1.1
     # via trimesh
 shortuuid==1.0.13
@@ -340,8 +333,6 @@ starlette==0.46.2
     #   prometheus-fastapi-instrumentator
 svg-path==6.3
     # via trimesh
-sympy==1.14.0
-    # via torch
 tenacity==8.5.0
     # via
     #   langchain
@@ -353,10 +344,6 @@ tokenizers==0.21.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.7.1 ; sys_platform == 'darwin'
-    # via sentence-transformers
-torch==2.7.1+cpu ; sys_platform != 'darwin'
-    # via sentence-transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
@@ -388,7 +375,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0

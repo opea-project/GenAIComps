@@ -74,7 +74,6 @@ fastapi==0.115.12
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 filetype==1.2.0
     # via llama-index-core
@@ -87,7 +86,6 @@ fsspec==2024.12.0
     #   huggingface-hub
     #   llama-index-core
     #   neo4j-graphrag
-    #   torch
 googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -136,7 +134,6 @@ jaxlib==0.6.1
 jinja2==3.1.6
     # via
     #   banks
-    #   torch
 jiter==0.10.0
     # via openai
 joblib==1.5.1
@@ -276,7 +273,6 @@ nest-asyncio==1.6.0
 networkx==3.5
     # via
     #   llama-index-core
-    #   torch
     #   trimesh
 nltk==3.9.1
     # via
@@ -472,8 +468,6 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via llama-index-embeddings-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shapely==2.1.1
     # via trimesh
 shortuuid==1.0.13
@@ -498,8 +492,6 @@ striprtf==0.0.26
     # via llama-index-readers-file
 svg-path==6.3
     # via trimesh
-sympy==1.13.1
-    # via torch
 tenacity==9.1.2
     # via
     #   langchain-core
@@ -511,18 +503,6 @@ tiktoken==0.9.0
 tokenizers==0.21.1
     # via
     #   langchain-huggingface
-    #   transformers
-torch==2.6.0 ; sys_platform == 'darwin'
-    # via
-    #   accelerate
-    #   llama-index-llms-huggingface
-    #   sentence-transformers
-    #   transformers
-torch==2.6.0+cpu ; sys_platform != 'darwin'
-    # via
-    #   accelerate
-    #   llama-index-llms-huggingface
-    #   sentence-transformers
     #   transformers
 tqdm==4.67.1
     # via
@@ -566,7 +546,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
