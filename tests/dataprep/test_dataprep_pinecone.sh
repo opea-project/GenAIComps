@@ -28,7 +28,7 @@ function build_docker_images() {
 function start_service() {
     export PINECONE_API_KEY=$PINECONE_KEY
     export PINECONE_INDEX_NAME="test-index"
-    export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
+    export HF_TOKEN=$HF_TOKEN
 
     service_name="dataprep-pinecone"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/

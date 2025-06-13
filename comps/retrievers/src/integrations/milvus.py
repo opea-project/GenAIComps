@@ -14,7 +14,7 @@ from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, 
 from .config import (
     BRIDGE_TOWER_EMBEDDING,
     COLLECTION_NAME,
-    HUGGINGFACEHUB_API_TOKEN,
+    HF_TOKEN,
     INDEX_PARAMS,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_URI,
@@ -46,10 +46,10 @@ class OpeaMilvusRetriever(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             import requests
 
@@ -60,7 +60,7 @@ class OpeaMilvusRetriever(OpeaComponent):
                 )
             model_id = response.json()["model_id"]
             embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         elif BRIDGE_TOWER_EMBEDDING:
             logger.info("use bridge tower embedding")

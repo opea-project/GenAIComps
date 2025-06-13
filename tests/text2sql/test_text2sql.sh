@@ -16,7 +16,7 @@ export LLM_ENDPOINT_PORT=11710
 
 
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook

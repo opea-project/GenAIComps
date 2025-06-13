@@ -38,11 +38,11 @@ def get_embedder():
     if TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
         # Huggingface API token for TEI embedding endpoint
-        HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-        if not HUGGINGFACEHUB_API_TOKEN:
+        HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+        if not HF_TOKEN:
             raise HTTPException(
                 status_code=400,
-                detail="You MUST provide the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                detail="You MUST provide the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
             )
         embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
     else:

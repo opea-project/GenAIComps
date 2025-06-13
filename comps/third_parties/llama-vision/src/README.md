@@ -33,8 +33,8 @@ docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$http
 #### Start Llama Vision Model Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
-docker run -it -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="meta-llama/Llama-3.2-11B-Vision-Instruct" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision:latest
+export HF_TOKEN=${your_hf_token}
+docker run -it -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="meta-llama/Llama-3.2-11B-Vision-Instruct" -e HF_TOKEN=$HF_TOKEN --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision:latest
 ```
 
 #### Start Llama Vision Model Service with deepspeed
@@ -42,17 +42,17 @@ docker run -it -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
 If you need to run the 90B models, use the following command:
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
+export HF_TOKEN=${your_hf_token}
 export WORLD_SIZE=4
 export no_proxy=localhost,127.0.0.1
-docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MODEL_ID="meta-llama/Llama-3.2-90B-Vision-Instruct" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e WORLD_SIZE=$WORLD_SIZE --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
+docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MODEL_ID="meta-llama/Llama-3.2-90B-Vision-Instruct" -e HF_TOKEN=$HF_TOKEN -e WORLD_SIZE=$WORLD_SIZE --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
 ```
 
 #### Start Llama Vision Guard Model Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
-docker run -it -p 9499:9499 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="meta-llama/Llama-Guard-3-11B-Vision" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-guard:latest
+export HF_TOKEN=${your_hf_token}
+docker run -it -p 9499:9499 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="meta-llama/Llama-Guard-3-11B-Vision" -e HF_TOKEN=$HF_TOKEN --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-guard:latest
 ```
 
 ### Test

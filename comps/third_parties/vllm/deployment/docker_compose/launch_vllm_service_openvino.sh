@@ -64,7 +64,7 @@ docker run -d --rm --name="vllm-openvino-server" \
   $docker_args \
   -e HTTPS_PROXY=$https_proxy \
   -e HTTP_PROXY=$https_proxy \
-  -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
+  -e HF_TOKEN=${HF_TOKEN} \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   $image /bin/bash -c "\
     cd / && \

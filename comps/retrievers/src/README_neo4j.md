@@ -29,7 +29,7 @@ export NEO4J_USERNAME=${your_neo4j_username}
 export NEO4J_PASSWORD=${your_neo4j_password}
 export PYTHONPATH=${path_to_comps}
 export OPENAI_KEY=${your_openai_api_key}  # optional, when not provided will use smaller models TGI/TEI
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
+export HF_TOKEN=${your_hf_token}
 export DATA_PATH=${host_path_to_volume_mnt}
 
 # set additional environment settings

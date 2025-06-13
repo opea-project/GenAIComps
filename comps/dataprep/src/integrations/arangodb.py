@@ -57,7 +57,7 @@ VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
 # TEI configuration
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
 TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
 EMBED_NODES = os.getenv("EMBED_NODES", "true").lower() == "true"
 EMBED_EDGES = os.getenv("EMBED_EDGES", "true").lower() == "true"
 EMBED_CHUNKS = os.getenv("EMBED_CHUNKS", "true").lower() == "true"
@@ -198,11 +198,11 @@ class OpeaArangoDataprep(OpeaComponent):
     def _initialize_embeddings(self):
         """Initialize the embeddings model."""
 
-        if TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
+        if TEI_EMBEDDING_ENDPOINT and HF_TOKEN:
             self.embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
                 task="feature-extraction",
-                huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
+                huggingfacehub_api_token=HF_TOKEN,
             )
         elif TEI_EMBED_MODEL:
             self.embeddings = HuggingFaceEmbeddings(model_name=TEI_EMBED_MODEL)

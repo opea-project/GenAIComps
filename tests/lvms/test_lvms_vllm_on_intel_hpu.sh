@@ -11,7 +11,7 @@ export TAG=comps
 export VLLM_PORT=11510
 export LVM_PORT=11511
 export LLM_MODEL_ID="llava-hf/llava-1.5-7b-hf"
-export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
+export HF_TOKEN=$HF_TOKEN
 export VLLM_SKIP_WARMUP=true
 
 function build_docker_images() {
