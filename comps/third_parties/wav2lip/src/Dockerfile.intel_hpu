@@ -31,6 +31,7 @@ RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.gi
     rm -rf .git
 
 # Upgrade pip
+ARG uvpip='uv pip install --system --no-cache-dir'
 RUN python3 -m pip install --no-cache-dir --upgrade pip uv
 
 # Install Wav2Lip from pip
