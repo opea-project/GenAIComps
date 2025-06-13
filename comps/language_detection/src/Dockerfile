@@ -20,8 +20,9 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/comps/language_detection/src/requirements.txt
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    $uvpip -r /home/comps/language_detection/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 

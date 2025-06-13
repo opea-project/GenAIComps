@@ -18,11 +18,13 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/text2graph/src/requirements.txt; \
+      $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
+      $uvpip -r /home/user/comps/text2graph/src/requirements-cpu.txt; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/text2graph/src/requirements.txt; \
+      $uvpip -r /home/user/comps/text2graph/src/requirements-gpu.txt; \
     fi
 
 ENV LLM_ID=${LLM_ID:-"Babelscape/rebel-large"}
