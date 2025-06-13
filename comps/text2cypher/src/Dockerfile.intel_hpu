@@ -32,7 +32,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
 RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}
 
 WORKDIR /root/comps/text2cypher/src
-RUN $uvpip -r requirements.txt && \
+RUN $uvpip -r requirements-cpu.txt && \
     $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3
 
 # Set environment variables

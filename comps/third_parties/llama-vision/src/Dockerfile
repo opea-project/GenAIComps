@@ -24,7 +24,7 @@ WORKDIR /home/user/comps/third_parties/llama-vision/src
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    $uvpip -r requirements.txt && \
+    $uvpip -r requirements-cpu.txt && \
     $uvpip --upgrade Pillow && \
     $uvpip git+https://github.com/huggingface/optimum-habana@v1.17.0
 
