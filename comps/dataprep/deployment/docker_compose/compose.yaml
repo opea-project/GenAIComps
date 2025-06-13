@@ -75,6 +75,26 @@ services:
       minio:
         condition: service_healthy
 
+  dataprep-milvus-offline:
+    extends: dataprep-milvus
+    depends_on:
+      tei-embedding-serving:
+        condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+
   dataprep-multimodal-milvus:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-multimodal-milvus-server
@@ -242,6 +262,22 @@ services:
       retries: 10
     restart: unless-stopped
 
+  dataprep-qdrant-offline:
+    extends: dataprep-qdrant
+    depends_on:
+      qdrant-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+
   dataprep-redis:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-redis-server
@@ -270,6 +306,22 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+  dataprep-redis-offline:
+    extends: dataprep-redis
+    depends_on:
+      redis-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
 
   dataprep-multimodal-redis:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}

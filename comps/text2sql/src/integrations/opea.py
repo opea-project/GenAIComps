@@ -69,6 +69,10 @@ class Input(BaseModel):
     conn_str: Optional[PostgresConnection] = None
 
 
+class DBConnectionInput(BaseModel):
+    conn_str: PostgresConnection
+
+
 @OpeaComponentRegistry.register("OPEA_TEXT2SQL")
 class OpeaText2SQL(OpeaComponent):
     """A specialized text to sql component derived from OpeaComponent for interacting with TGI services and Database.
