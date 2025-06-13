@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     git \
     python3 \
-    python3-dev \
-    python3-distutils \
     python3-pip \
     wget
 
