@@ -39,7 +39,7 @@ RUN git config --global user.name "test" && git config --global user.email "test
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft uv && \
-    python -m $uvpip -r /home/user/comps/finetuning/src/requirements.txt
+    python -m $uvpip -r /home/user/comps/finetuning/src/requirements-cpu.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
