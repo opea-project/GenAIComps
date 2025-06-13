@@ -41,7 +41,7 @@ function start_service() {
 function validate_microservice() {
     echo "Validate microservice started"
     echo "test 1 - violated policies"
-    result=$(http_proxy= curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
     if [[ $result == *"Violated"* ]]; then
         echo "Result correct."
     else
@@ -51,7 +51,7 @@ function validate_microservice() {
         exit 1
     fi
     echo "test 2 - safe"
-    result=$(http_proxy= curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
         if [[ $result == *"car"* ]]; then
         echo "Result correct."
     else
