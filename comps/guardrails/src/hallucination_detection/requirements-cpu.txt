@@ -99,7 +99,6 @@ filelock==3.18.0
     # via
     #   huggingface-hub
     #   ray
-    #   torch
     #   transformers
     #   vllm
 frozenlist==1.7.0
@@ -109,7 +108,6 @@ frozenlist==1.7.0
 fsspec==2025.5.1
     # via
     #   huggingface-hub
-    #   torch
 gguf==0.17.0
     # via vllm
 googleapis-common-protos==1.70.0
@@ -167,7 +165,6 @@ jinja2==3.1.6
     # via
     #   fastapi
     #   outlines
-    #   torch
 jiter==0.10.0
     # via openai
 jsonpatch==1.33
@@ -257,7 +254,6 @@ nest-asyncio==1.6.0
     # via outlines
 networkx==3.5
     # via
-    #   torch
     #   trimesh
 ninja==1.11.1.4
     # via
@@ -285,7 +281,6 @@ numpy==2.2.6
     #   pycollada
     #   scipy
     #   shapely
-    #   torchvision
     #   transformers
     #   trimesh
     #   vhacdx
@@ -362,7 +357,6 @@ pillow==11.2.1
     # via
     #   docarray
     #   mistral-common
-    #   torchvision
     #   trimesh
     #   vllm
 prometheus-client==0.22.1
@@ -503,7 +497,6 @@ sentencepiece==0.2.0
     #   xgrammar
 setuptools==79.0.1 ; (python_full_version >= '3.12' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and sys_platform != 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
     # via
-    #   torch
     #   triton
     #   vllm
 shapely==2.1.1
@@ -530,8 +523,6 @@ starlette==0.46.2
     #   prometheus-fastapi-instrumentator
 svg-path==6.3
     # via trimesh
-sympy==1.14.0
-    # via torch
 tenacity==9.1.2
     # via
     #   langchain-community
@@ -547,32 +538,6 @@ tokenizers==0.21.1
     #   langchain-huggingface
     #   transformers
     #   vllm
-torch==2.7.0 ; sys_platform == 'darwin'
-    # via
-    #   compressed-tensors
-    #   outlines
-    #   torchaudio
-    #   torchvision
-    #   vllm
-    #   xformers
-    #   xgrammar
-torch==2.7.0+cpu ; sys_platform != 'darwin'
-    # via
-    #   compressed-tensors
-    #   outlines
-    #   torchaudio
-    #   torchvision
-    #   vllm
-    #   xformers
-    #   xgrammar
-torchaudio==2.7.0 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via vllm
-torchaudio==2.7.0+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via vllm
-torchvision==0.22.0 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via vllm
-torchvision==0.22.0+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via vllm
 tqdm==4.67.1
     # via
     #   gguf
@@ -618,7 +583,6 @@ typing-extensions==4.14.0
     #   referencing
     #   rich-toolkit
     #   sqlalchemy
-    #   torch
     #   typer
     #   typing-inspect
     #   typing-inspection

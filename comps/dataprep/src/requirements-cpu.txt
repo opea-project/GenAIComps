@@ -190,7 +190,6 @@ fastapi==0.115.12
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 filetype==1.2.0
     # via
@@ -209,7 +208,6 @@ fsspec==2025.5.1
     # via
     #   huggingface-hub
     #   llama-index-core
-    #   torch
 future==1.0.0
     # via
     #   -r ./comps/dataprep/src/requirements.in
@@ -330,7 +328,6 @@ jinja2==3.1.6
     # via
     #   banks
     #   langchain-redis
-    #   torch
 jiter==0.10.0
     # via openai
 joblib==1.5.1
@@ -569,7 +566,6 @@ networkx==3.5
     #   graspologic
     #   llama-index-core
     #   scikit-image
-    #   torch
     #   trimesh
     #   unstructured
 ninja==1.11.1.4
@@ -637,7 +633,6 @@ numpy==1.26.4
     #   shapely
     #   statsmodels
     #   tifffile
-    #   torchvision
     #   transformers
     #   trimesh
     #   umap-learn
@@ -788,7 +783,6 @@ pillow==11.2.1
     #   python-pptx
     #   scikit-image
     #   sentence-transformers
-    #   torchvision
     #   trimesh
     #   unstructured-pytesseract
 pinecone==7.0.2
@@ -1114,7 +1108,6 @@ setuptools==80.9.0
     #   grpcio-tools
     #   pymilvus
     #   python-arango
-    #   torch
     #   triton
 shapely==2.1.1
     # via
@@ -1162,7 +1155,6 @@ svg-path==6.3
 sympy==1.14.0
     # via
     #   onnxruntime
-    #   torch
 syrupy==4.9.1
     # via langchain-tests
 tabulate==0.9.0
@@ -1198,42 +1190,6 @@ tokenizers==0.21.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.7.1 ; sys_platform == 'darwin'
-    # via
-    #   accelerate
-    #   docling-ibm-models
-    #   easyocr
-    #   effdet
-    #   openai-whisper
-    #   safetensors
-    #   sentence-transformers
-    #   timm
-    #   torchvision
-    #   unstructured-inference
-torch==2.7.1+cpu ; sys_platform != 'darwin'
-    # via
-    #   accelerate
-    #   docling-ibm-models
-    #   easyocr
-    #   effdet
-    #   openai-whisper
-    #   safetensors
-    #   sentence-transformers
-    #   timm
-    #   torchvision
-    #   unstructured-inference
-torchvision==0.22.1 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via
-    #   docling-ibm-models
-    #   easyocr
-    #   effdet
-    #   timm
-torchvision==0.22.1+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via
-    #   docling-ibm-models
-    #   easyocr
-    #   effdet
-    #   timm
 tqdm==4.67.1
     # via
     #   -r ./comps/dataprep/src/requirements.in
@@ -1302,7 +1258,6 @@ typing-extensions==4.14.0
     #   referencing
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typer
     #   typing-inspect
     #   typing-inspection

@@ -17,7 +17,6 @@ anyio==4.9.0
 attrs==25.3.0
     # via aiohttp
 av==14.4.0
-    # via pytorchvideo
 beautifulsoup4==4.13.4
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 braceexpand==0.1.7
@@ -52,7 +51,6 @@ fastapi==0.115.12
 filelock==3.18.0
     # via
     #   huggingface-hub
-    #   torch
     #   transformers
 frozenlist==1.7.0
     # via
@@ -61,11 +59,9 @@ frozenlist==1.7.0
 fsspec==2025.5.1
     # via
     #   huggingface-hub
-    #   torch
 ftfy==6.3.1
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 fvcore==0.1.5.post20221221
-    # via pytorchvideo
 googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -104,9 +100,6 @@ iopath==0.1.10
     # via
     #   -r ./comps/third_parties/video-llama/src/requirements.in
     #   fvcore
-    #   pytorchvideo
-jinja2==3.1.6
-    # via torch
 joblib==1.5.1
     # via scikit-learn
 jsonpatch==1.33
@@ -152,8 +145,6 @@ mypy-extensions==1.1.0
     # via typing-inspect
 networkx==3.5
     # via
-    #   pytorchvideo
-    #   torch
 numpy==2.3.0
     # via
     #   -r ./comps/third_parties/video-llama/src/requirements.in
@@ -166,7 +157,6 @@ numpy==2.3.0
     #   pandas
     #   scikit-learn
     #   scipy
-    #   torchvision
     #   transformers
     #   webdataset
 omegaconf==2.3.0
@@ -217,13 +207,11 @@ packaging==24.2
 pandas==2.3.0
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 parameterized==0.9.0
-    # via pytorchvideo
 pillow==11.2.1
     # via
     #   -r ./comps/third_parties/video-llama/src/requirements.in
     #   fvcore
     #   sentence-transformers
-    #   torchvision
 portalocker==3.1.1
     # via iopath
 prometheus-client==0.22.1
@@ -258,7 +246,6 @@ python-dateutil==2.9.0.post0
     # via pandas
 python-dotenv==1.1.0
     # via pydantic-settings
-pytorchvideo==0.1.5
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 pytz==2025.2
     # via pandas
@@ -305,8 +292,6 @@ sentence-transformers==4.1.0
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 sentencepiece==0.2.0
     # via -r ./comps/third_parties/video-llama/src/requirements.in
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shortuuid==1.0.13
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 six==1.17.0
@@ -323,8 +308,6 @@ starlette==0.46.2
     # via
     #   fastapi
     #   prometheus-fastapi-instrumentator
-sympy==1.13.1
-    # via torch
 tabulate==0.9.0
     # via fvcore
 tenacity==9.1.2
@@ -339,32 +322,6 @@ timm==1.0.15
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 tokenizers==0.21.1
     # via transformers
-torch==2.5.1 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via
-    #   -r ./comps/third_parties/video-llama/src/requirements.in
-    #   sentence-transformers
-    #   timm
-    #   torchaudio
-    #   torchvision
-torch==2.5.1+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via
-    #   -r ./comps/third_parties/video-llama/src/requirements.in
-    #   sentence-transformers
-    #   timm
-    #   torchaudio
-    #   torchvision
-torchaudio==2.5.1 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via -r ./comps/third_parties/video-llama/src/requirements.in
-torchaudio==2.5.1+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via -r ./comps/third_parties/video-llama/src/requirements.in
-torchvision==0.20.1 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin'
-    # via
-    #   -r ./comps/third_parties/video-llama/src/requirements.in
-    #   timm
-torchvision==0.20.1+cpu ; (platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')
-    # via
-    #   -r ./comps/third_parties/video-llama/src/requirements.in
-    #   timm
 tqdm==4.67.1
     # via
     #   fvcore
@@ -395,7 +352,6 @@ typing-extensions==4.14.0
     #   pydantic-core
     #   sentence-transformers
     #   sqlalchemy
-    #   torch
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
