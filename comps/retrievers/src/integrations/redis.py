@@ -26,7 +26,8 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingRespo
 from .config import (
     BRIDGE_TOWER_EMBEDDING,
     EMBED_MODEL,
-    HUGGINGFACEHUB_API_TOKEN,
+    ENABLE_SCHEMA,
+    HF_TOKEN,
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
@@ -62,10 +63,10 @@ class OpeaRedisRetriever(OpeaComponent):
     async def _initialize_embedder(self):
         if TEI_EMBEDDING_ENDPOINT:
             logger.info("use tei embedding")
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
 
             import httpx
@@ -79,7 +80,7 @@ class OpeaRedisRetriever(OpeaComponent):
                 model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
             embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         elif BRIDGE_TOWER_EMBEDDING:
             logger.info("use bridge tower embedding")
@@ -100,7 +101,13 @@ class OpeaRedisRetriever(OpeaComponent):
                 client = Redis(
                     embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
                 )
+            elif ENABLE_SCHEMA:
+                logger.info(f"generate redis instance with index_schema:{INDEX_SCHEMA}")
+                client = Redis(
+                    embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
+                )
             else:
+                logger.info(f"generate redis instance with index_name:{INDEX_NAME}")
                 client = Redis(embedding=self.embeddings, index_name=index_name, redis_url=REDIS_URL)
             return client
         except Exception as e:

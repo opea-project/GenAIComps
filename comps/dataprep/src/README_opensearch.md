@@ -16,7 +16,7 @@ export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
 export OPENSEARCH_URL="http://${your_ip}:9200"
 export INDEX_NAME=${your_index_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 ```
 
 ### 1.3 Start Embedding Service
@@ -60,7 +60,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 - option 1: Start single-process version (for processing up to 10 files)
 
 ```bash
-docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e EMBED_MODEL=${EMBED_MODEL} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_OPENSEARCH" opea/dataprep:latest
+docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e EMBED_MODEL=${EMBED_MODEL} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_OPENSEARCH" opea/dataprep:latest
 ```
 
 ### 1.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)

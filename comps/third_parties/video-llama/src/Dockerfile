@@ -30,12 +30,16 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
-ARG VIDEO_LLAMA_COMMIT=0adb19e
-RUN git clone ${VIDEO_LLAMA_REPO} Video-LLaMA && \
-    cd Video-LLaMA && git checkout ${VIDEO_LLAMA_COMMIT} && \
+ARG VIDEO_LLAMA_COMMIT=0adb19e829254b46a442ee78cdcd609a988c5de7
+
+RUN git clone --depth=1 ${VIDEO_LLAMA_REPO} && \
+    cd Video-LLaMA && \
+    git fetch --depth=1 origin ${VIDEO_LLAMA_COMMIT} && \
+    git checkout ${VIDEO_LLAMA_COMMIT} && \
     git apply --whitespace=fix ../video-llama.patch && \
     mv video_llama ../ && \
-    cd ../ && rm -rf Video-LLaMA
+    cd .. && \
+    rm -rf Video-LLaMA
 
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
 RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.11/site-packages/pytorchvideo/transforms/augmentations.py && \

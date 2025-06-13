@@ -33,7 +33,7 @@ export EMBEDDING_MODEL_ID="BridgeTower/bridgetower-large-itm-mlm-itc"
 export REDIS_URL="redis://${your_ip}:6379"
 export WHISPER_MODEL="base"
 export INDEX_NAME=${your_redis_index_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 ```
 
 ### 1.4 Build Docker Image
@@ -46,7 +46,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### 1.5 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-multimodal-redis" -p 6007:5000 --runtime=runc --ipc=host -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_HOST=$your_ip -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:latest
+docker run -d --name="dataprep-multimodal-redis" -p 6007:5000 --runtime=runc --ipc=host -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_HOST=$your_ip -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:latest
 ```
 
 ### 1.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)

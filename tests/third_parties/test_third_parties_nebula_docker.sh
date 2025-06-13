@@ -2,111 +2,97 @@
 # SPDX-License-Identifier: Apache-2.0
 
 #!/bin/bash
-set +e
+
+set -euo pipefail
 set -x
 
-# Constants
 WORKPATH=$(dirname "$PWD")
-LOG_PATH="$WORKPATH/tests"
-MAX_ATTEMPTS=30
-SLEEP_TIME=2
 
-# Function to start NebulaGraph services
-start_service() {
-    echo "Starting NebulaGraph services..."
-    cd $WORKPATH/comps/third_parties/nebula/deployment/docker_compose/
-    docker compose up -d
+stop_services() {
+  echo "Stopping and cleaning up any existing Nebula services..."
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  docker compose -f docker-compose.yaml down -v || true
+  echo "Cleanup complete."
+}
 
+start_services() {
+  echo "Starting Nebula services..."
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  docker compose -f docker-compose.yaml up -d
 
-    echo "Waiting for services to become healthy..."
-    for ((i=1; i<=MAX_ATTEMPTS; i++)); do
-        HEALTHY_COUNT=$(docker compose ps --filter "status=healthy" | wc -l)
-        TOTAL_COUNT=$(docker compose ps | wc -l)
+  echo "Waiting for services to become healthy..."
+  local services=("metad0" "metad1" "metad2" "storaged0" "storaged1" "storaged2" "graphd")
 
-        echo "Attempt $i/$MAX_ATTEMPTS: $HEALTHY_COUNT out of $TOTAL_COUNT services are healthy"
-
-        if [ $HEALTHY_COUNT -eq $TOTAL_COUNT ]; then
-            echo "All services are healthy!"
-            break
-        fi
-
-        sleep $SLEEP_TIME
-        echo "Still waiting... ($i/$MAX_ATTEMPTS attempts)"
+  for svc in "${services[@]}"; do
+    local container_id
+    cd $WORKPATH
+    cd comps/third_parties/nebula/deployment/docker_compose
+    container_id=$(docker compose -f docker-compose.yaml ps -q "$svc")
+    echo -n "Waiting for $svc to be healthy"
+    until [ "$(docker inspect -f '{{.State.Health.Status}}' "$container_id")" == "healthy" ]; do
+      echo -n "."
+      sleep 2
     done
+    echo "Start services complete"
+  done
 
-    if [ $i -eq $MAX_ATTEMPTS ]; then
-        echo "Services did not become healthy within timeout period"
-        echo "Current service statuses:"
-        docker compose ps
-        exit 1
-    fi
+  echo "All services are healthy."
 }
 
-# Function to validate database operations
+run_query() {
+  local query="$1"
+  local network_name="$2"
+
+  docker run --rm --network "$network_name" docker.io/vesoft/nebula-console:v3.5 \
+    -addr graphd -port 9669 -u root -p nebula -e "$query"
+}
+
 validate_database() {
-    GRAPHD_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker compose ps -q graphd))
+  echo "Running validation queries..."
 
-    if [ -z "$GRAPHD_IP" ]; then
-        echo "Could not determine graphd IP address"
-        exit 1
-    fi
+  # Get network name from graphd container
+  local container_id
+  cd $WORKPATH
+  cd comps/third_parties/nebula/deployment/docker_compose
+  container_id=$(docker compose -f docker-compose.yaml ps -q graphd)
+  local network_name
+  network_name=$(docker inspect "$container_id" \
+    --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}')
 
-    echo "Using graphd IP: $GRAPHD_IP"
+  if [ -z "$network_name" ]; then
+    echo "Could not detect the Docker network from container."
+    exit 1
+  fi
 
-    echo "[ test create ] creating space..."
-    query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type=FIXED_STRING(32)); USE my_space; CREATE TAG person(name string, age int);"
+  echo "[Step 1] Creating space..."
+  run_query "CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type=FIXED_STRING(32));" "$network_name"
+  echo "[Step 1] Space created successfully."
+  sleep 2
 
-    create_response=$(docker compose exec console nebula-console -addr "$GRAPHD_IP" -port 9669 -u root -p nebula -e "$query" 2>&1)
+  echo "[Step 2] Creating tag..."
+  run_query "USE my_space; CREATE TAG person(name string, age int);" "$network_name"
+  echo "[Step 2] Tag created successfully."
+  sleep 2
 
-    if [[ $? -eq 0 ]]; then
-        echo "[ test create ] create space succeed"
-    else
-        echo "[ test create ] create space failed"
-        exit 1
-    fi
+  echo "[Step 3] Inserting data..."
+  run_query "USE my_space; INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30), 'person2':('Bob', 25);" "$network_name"
+  echo "[Step 3] Data inserted successfully."
+  sleep 2
 
-    sleep $SLEEP_TIME
+  echo "[Step 4] Querying data..."
+  run_query "USE my_space; MATCH (p:person) RETURN p;" "$network_name"
+  echo "[Step 4] Data queried successfully."
 
-    echo "[ test insert ] inserting data..."
-    query="USE my_space; INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);"
-
-    insert_response=$(docker compose exec console nebula-console -addr "$GRAPHD_IP" -port 9669 -u root -p nebula -e "$query" 2>&1)
-
-    if [[ $? -eq 0 ]]; then
-        echo "[ test insert ] insert data succeed"
-    else
-        echo "[ test insert ] insert data failed"
-        exit 1
-    fi
-
-    sleep $SLEEP_TIME
-
-    echo "[ test search ] searching data..."
-    query="USE my_space; MATCH (p:person) RETURN p;"
-
-    search_response=$(docker compose exec console nebula-console -addr "$GRAPHD_IP" -port 9669 -u root -p nebula -e "$query" 2>&1)
-
-    if [[ $? -eq 0 ]]; then
-        echo "[ test search ] search data succeed"
-    else
-        echo "[ test search ] search data failed"
-        exit 1
-    fi
+  echo "All tests successful."
 }
 
-# Function to stop services
-stop_service() {
-    echo "Stopping NebulaGraph services..."
-    docker compose down --remove-orphans
-}
+# Main flow
 
-# Main function
-main() {
-    stop_service
-    start_service
-    validate_database
-    stop_service
-}
+stop_services
+start_services
+validate_database
+stop_services
 
-# Run main function
-main "$@"
+echo "Test script completed successfully."

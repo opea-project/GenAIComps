@@ -16,7 +16,7 @@ services:
          - https_proxy=${https_proxy}
          - http_proxy=${http_proxy}
          - LLM_MODEL_ID=${LLM_MODEL_ID:-"HuggingFaceH4/zephyr-7b-alpha"}
-         - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+         - HF_TOKEN=${HF_TOKEN}
      depends_on:
          - tgi-server
          - neo4j-apoc

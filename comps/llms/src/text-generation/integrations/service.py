@@ -2,7 +2,9 @@
 # SPDX-License-Identified: Apache-2.0
 
 import asyncio
+import logging
 import os
+from pprint import pformat
 from typing import Union
 
 from fastapi.responses import StreamingResponse
@@ -11,12 +13,18 @@ from openai import AsyncOpenAI
 
 from comps import CustomLogger, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
-from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.cores.proto.api_protocol import ALLOWED_CHATCOMPLETION_ARGS, ALLOWED_COMPLETION_ARGS, ChatCompletionRequest
 
 from .template import ChatTemplate
 
 logger = CustomLogger("opea_llm")
-logflag = os.getenv("LOGFLAG", False)
+
+# Configure advanced logging based on LOGFLAG environment variable
+logflag = os.getenv("LOGFLAG", "False").lower() in ("true", "1", "yes")
+if logflag:
+    logger.logger.setLevel(logging.DEBUG)
+else:
+    logger.logger.setLevel(logging.INFO)
 
 # Environment variables
 MODEL_NAME = os.getenv("LLM_MODEL_ID")
@@ -96,27 +104,30 @@ class OpeaTextGenService(OpeaComponent):
     def align_input(
         self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, input_variables
     ):
+        """Aligns different input types to a standardized chat completion format.
+
+        Args:
+            input: SearchedDoc, LLMParamsDoc, or ChatCompletionRequest
+            prompt_template: Optional template for formatting prompts
+            input_variables: Variables expected by the prompt template
+        """
         if isinstance(input, SearchedDoc):
-            if logflag:
-                logger.info("[ SearchedDoc ] input from retriever microservice")
+            logger.debug(f"Processing SearchedDoc input from retriever microservice:\n{pformat(vars(input), indent=2)}")
             prompt = input.initial_query
             if input.retrieved_docs:
                 docs = [doc.text for doc in input.retrieved_docs]
-                if logflag:
-                    logger.info(f"[ SearchedDoc ] combined retrieved docs: {docs}")
+                logger.debug(f"Retrieved documents:\n{pformat(docs, indent=2)}")
                 prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, MODEL_NAME)
+                logger.debug(f"Generated RAG prompt:\n{prompt}")
 
-            ## use default ChatCompletionRequest parameters
-            new_input = ChatCompletionRequest(messages=prompt)
+                # Convert to ChatCompletionRequest with default parameters
+                new_input = ChatCompletionRequest(messages=prompt)
+                logger.debug(f"Final converted input:\n{pformat(vars(new_input), indent=2)}")
 
-            if logflag:
-                logger.info(f"[ SearchedDoc ] final input: {new_input}")
-
-            return prompt, new_input
+                return prompt, new_input
 
         elif isinstance(input, LLMParamsDoc):
-            if logflag:
-                logger.info("[ LLMParamsDoc ] input from rerank microservice")
+            logger.debug(f"Processing LLMParamsDoc input from rerank microservice:\n{pformat(vars(input), indent=2)}")
             prompt = input.query
             if prompt_template:
                 if sorted(input_variables) == ["context", "question"]:
@@ -124,8 +135,8 @@ class OpeaTextGenService(OpeaComponent):
                 elif input_variables == ["question"]:
                     prompt = prompt_template.format(question=input.query)
                 else:
-                    logger.info(
-                        f"[ LLMParamsDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                    logger.warning(
+                        f"Prompt template not used - unsupported variables. Template: {prompt_template}\nOnly ['question', 'context'] or ['question'] are supported"
                     )
             else:
                 if input.documents:
@@ -145,8 +156,7 @@ class OpeaTextGenService(OpeaComponent):
             return prompt, new_input
 
         else:
-            if logflag:
-                logger.info("[ ChatCompletionRequest ] input in opea format")
+            logger.debug(f"Processing ChatCompletionRequest input:\n{pformat(vars(input), indent=2)}")
 
             prompt = input.messages
             if prompt_template:
@@ -179,8 +189,7 @@ class OpeaTextGenService(OpeaComponent):
             input_variables = prompt_template.input_variables
 
         if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
-            if logflag:
-                logger.info("[ ChatCompletionRequest ] input in opea format")
+            logger.debug("[ ChatCompletionRequest ] input in opea format")
 
             if input.messages[0]["role"] == "system":
                 if "{context}" in input.messages[0]["content"]:
@@ -200,22 +209,11 @@ class OpeaTextGenService(OpeaComponent):
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
-            chat_completion = await self.client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=input.messages,
-                frequency_penalty=input.frequency_penalty,
-                max_tokens=input.max_tokens,
-                n=input.n,
-                presence_penalty=input.presence_penalty,
-                response_format=input.response_format,
-                seed=input.seed,
-                stop=input.stop,
-                stream=input.stream,
-                stream_options=input.stream_options,
-                temperature=input.temperature,
-                top_p=input.top_p,
-                user=input.user,
-            )
+            # Create input params directly from input object attributes
+            input_params = {**vars(input), "model": MODEL_NAME}
+            filtered_params = self._filter_api_params(input_params, ALLOWED_CHATCOMPLETION_ARGS)
+            logger.debug(f"Filtered chat completion parameters:\n{pformat(filtered_params, indent=2)}")
+            chat_completion = await self.client.chat.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
                 logit_bias=input.logit_bias,
                 logprobs=input.logprobs,
@@ -226,22 +224,10 @@ class OpeaTextGenService(OpeaComponent):
                 parallel_tool_calls=input.parallel_tool_calls,"""
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
-            chat_completion = await self.client.completions.create(
-                model=MODEL_NAME,
-                prompt=prompt,
-                echo=input.echo,
-                frequency_penalty=input.frequency_penalty,
-                max_tokens=input.max_tokens,
-                n=input.n,
-                presence_penalty=input.presence_penalty,
-                seed=input.seed,
-                stop=input.stop,
-                stream=input.stream,
-                suffix=input.suffix,
-                temperature=input.temperature,
-                top_p=input.top_p,
-                user=input.user,
-            )
+            input_params = {**vars(input), "model": MODEL_NAME, "prompt": prompt}
+            filtered_params = self._filter_api_params(input_params, ALLOWED_COMPLETION_ARGS)
+            logger.debug(f"Filtered completion parameters:\n{pformat(filtered_params, indent=2)}")
+            chat_completion = await self.client.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
                 best_of=input.best_of,
                 logit_bias=input.logit_bias,
@@ -251,8 +237,7 @@ class OpeaTextGenService(OpeaComponent):
 
             async def stream_generator():
                 async for c in chat_completion:
-                    if logflag:
-                        logger.info(c)
+                    logger.debug(c)
                     chunk = c.model_dump_json()
                     if chunk not in ["<|im_end|>", "<|endoftext|>"]:
                         yield f"data: {chunk}\n\n"
@@ -260,6 +245,21 @@ class OpeaTextGenService(OpeaComponent):
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
-            if logflag:
-                logger.info(chat_completion)
+            logger.debug(chat_completion)
             return chat_completion
+
+    def _filter_api_params(self, input_params: dict, allowed_args: tuple) -> dict:
+        """Filters input parameters to only include allowed non-None arguments.
+
+        Only allow allowed args, and and filter non-None default arguments because
+        some open AI-like APIs e.g. OpenRouter.ai will disallow None parameters.
+        Works for both chat completion and regular completion API calls.
+
+        Args:
+            input_params: Dictionary of input parameters
+            allowed_args: Tuple of allowed argument names
+
+        Returns:
+            Filtered dictionary containing only allowed non-None arguments
+        """
+        return {arg: input_params[arg] for arg in allowed_args if arg in input_params and input_params[arg] is not None}

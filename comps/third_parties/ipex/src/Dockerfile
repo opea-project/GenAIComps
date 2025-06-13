@@ -32,7 +32,7 @@ RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/re
 # --build-arg COMPILE=ON to compile from source
 FROM base AS dev
 ARG COMPILE
-RUN git clone https://github.com/intel/intel-extension-for-pytorch.git
+RUN git clone --depth 1 https://github.com/intel/intel-extension-for-pytorch.git
 RUN . ~/miniforge3/bin/activate && conda create -y -n compile_py310 python=3.10 && conda activate compile_py310 && \
     cd intel-extension-for-pytorch/examples/cpu/llm && \
     export CC=gcc && export CXX=g++ && \
