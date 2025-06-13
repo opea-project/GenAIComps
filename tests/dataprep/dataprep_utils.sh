@@ -224,3 +224,21 @@ function check_healthy() {
     echo "$container_name did not become healthy in time."
     return 1
 }
+
+DATAPREP_MODELS=(microsoft/table-transformer-structure-recognition timm/resnet18.a1_in1k unstructuredio/yolo_x_layout)
+
+function prepare_dataprep_models() {
+    local model_path=$1
+    mkdir -p ${model_path}
+    python3 -m pip install huggingface_hub[cli] --user
+    # Workaround for huggingface-cli reporting error when set --cache-dir to same as default
+    local extra_args=""
+    local default_model_dir=$(readlink -m ~/.cache/huggingface/hub)
+    local real_model_dir=$(echo ${model_path/#\~/$HOME} | xargs readlink -m )
+    if [[ "${default_model_dir}" != "${real_model_dir}" ]]; then
+        extra_args="--cache-dir ${model_path}"
+    fi
+    for m in ${DATAPREP_MODELS[@]}; do
+      PATH=~/.local/bin:$PATH huggingface-cli download ${extra_args} $m
+    done
+}

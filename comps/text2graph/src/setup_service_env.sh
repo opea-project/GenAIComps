@@ -16,7 +16,6 @@ export LLM_ID=${LLM_ID:-"Babelscape/rebel-large"}
 export SPAN_LENGTH=${SPAN_LENGTH:-"1024"}
 export OVERLAP=${OVERLAP:-"100"}
 export MAX_LENGTH=${MAX_NEW_TOKENS:-"256"}
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID=${LLM_ID}
 export TGI_PORT=8008
