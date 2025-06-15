@@ -5,8 +5,12 @@ import os
 import time
 from typing import Union
 
+from fastapi.responses import StreamingResponse
+from openai.types.chat import ChatCompletion
+
 from comps import (
     CustomLogger,
+    GeneratedDoc,
     LLMParamsDoc,
     OpeaComponentLoader,
     SearchedDoc,
@@ -48,6 +52,21 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Componen
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
+    responses={
+        200: {
+            "content": {
+                "text/event-stream": {},
+                "application/json": {
+                    "schema": {
+                        "oneOf": [
+                            ChatCompletion.model_json_schema(mode="serialization"),
+                            GeneratedDoc.model_json_schema(mode="serialization"),
+                        ]
+                    }
+                },
+            }
+        }
+    },
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@llm"])
