@@ -40,7 +40,7 @@ Alternatively, you can start the web retriever microservice with Docker Compose.
 
 ```bash
 export host_ip=$(hostname -I | awk '{print $1}')
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export GOOGLE_API_KEY=${GOOGLE_API_KEY}
 export GOOGLE_CSE_ID=${GOOGLE_CSE_ID}
 export TEI_PORT=6060

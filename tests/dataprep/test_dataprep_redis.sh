@@ -28,6 +28,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    local offline=${1:-false}
 
     export host_ip=${ip_address}
     export REDIS_HOST=$ip_address
@@ -38,7 +39,12 @@ function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag_redis"
-    service_name="redis-vector-db tei-embedding-serving dataprep-redis"
+    if [[ "$offline" == "true" ]]; then
+        service_name="redis-vector-db tei-embedding-serving dataprep-redis-offline"
+        export offline_no_proxy="${ip_address}"
+    else
+        service_name="redis-vector-db tei-embedding-serving dataprep-redis"
+    fi
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
 
@@ -46,6 +52,7 @@ function start_service() {
 }
 
 function validate_microservice() {
+    local offline=${1:-false}
 
     # test /v1/dataprep/delete
     delete_all ${ip_address} ${DATAPREP_PORT}
@@ -73,12 +80,14 @@ function validate_microservice() {
     ingest_xlsx ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-     # test /v1/dataprep/ingest upload link
-    ingest_external_link ${ip_address} ${DATAPREP_PORT}
-    check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
+    # test /v1/dataprep/ingest upload link
+    if [[ "$offline" != "true" ]]; then
+      ingest_external_link ${ip_address} ${DATAPREP_PORT}
+      check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_external_link_with_chunk_parameters ${ip_address} ${DATAPREP_PORT} "rag_redis_test_link_params"
-    check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
+      ingest_external_link_with_chunk_parameters ${ip_address} ${DATAPREP_PORT} "rag_redis_test_link_params"
+      check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
+    fi
 
     ingest_txt_with_index_name ${ip_address} ${DATAPREP_PORT} rag_redis_test
     check_result "dataprep - upload with index - txt" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
@@ -114,14 +123,30 @@ function stop_docker() {
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
+}
+
 function main() {
 
     stop_docker
 
     build_docker_images
-    start_service
+    trap stop_service EXIT
 
+    echo "Test normal env ..."
+    start_service
     validate_microservice
+    stop_service
+
+    if [[ -n "${DATA_PATH}" ]]; then
+        echo "Test air gapped env ..."
+        prepare_dataprep_models ${DATA_PATH}
+        start_service true
+        validate_microservice true
+        stop_service
+    fi
 
     stop_docker
     echo y | docker system prune

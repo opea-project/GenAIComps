@@ -33,7 +33,7 @@ services:
       ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
       INDEX_NAME: ${INDEX_NAME}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -57,7 +57,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MILVUS"
       MILVUS_HOST: ${MILVUS_HOST}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
@@ -74,6 +74,26 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
+  dataprep-milvus-offline:
+    extends: dataprep-milvus
+    depends_on:
+      tei-embedding-serving:
+        condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
 
   dataprep-multimodal-milvus:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
@@ -96,7 +116,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MULTIMODALMILVUS"
       MILVUS_HOST: ${MILVUS_HOST}
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -161,7 +181,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_OPENSEARCH"
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       INDEX_NAME: ${INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -206,7 +226,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_PINECONE"
       PINECONE_API_KEY: ${PINECONE_API_KEY}
       PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -234,13 +254,29 @@ services:
       QDRANT_PORT: ${QDRANT_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+  dataprep-qdrant-offline:
+    extends: dataprep-qdrant
+    depends_on:
+      qdrant-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
 
   dataprep-redis:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
@@ -263,13 +299,29 @@ services:
       REDIS_URL: ${REDIS_URL}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       INDEX_NAME: ${INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+  dataprep-redis-offline:
+    extends: dataprep-redis
+    depends_on:
+      redis-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    environment:
+      HF_HUB_OFFLINE: 1
+      # Use non-existing proxy to mimic air gapped environment
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+      http_proxy: http://localhost:7777
+      https_proxy: http://localhost:7777
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
 
   dataprep-multimodal-redis:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
@@ -291,7 +343,7 @@ services:
       REDIS_URL: ${REDIS_URL}
       INDEX_NAME: ${INDEX_NAME}
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -316,7 +368,7 @@ services:
       VDMS_HOST: ${VDMS_HOST}
       VDMS_PORT: ${VDMS_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -407,7 +459,7 @@ services:
       VLLM_ENDPOINT: ${VLLM_ENDPOINT}
       VLLM_MODEL_ID: ${VLLM_MODEL_ID}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
