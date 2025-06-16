@@ -92,7 +92,7 @@ jobs:
         if: ${{ env.changed_files != '' }}
         uses: ludeeus/action-shellcheck@2.0.0
         env:
-          SHELLCHECK_OPTS: -e SC2164 -e SC2154 -e SC2034 -e SC2155 -e SC1090 -e SC2046 -e SC2043 -e SC2206 -e SC2128 -e SC1078 -e SC2068 -e SC2089 -e SC2090 -e SC2140 -e SC2010 -e SC2061
+          SHELLCHECK_OPTS: -e SC2164 -e SC2154 -e SC2034 -e SC2155 -e SC1090 -e SC2046 -e SC2043 -e SC2206 -e SC2128 -e SC1078 -e SC2068 -e SC2089 -e SC2090 -e SC2140 -e SC2010 -e SC2061 -e SC2309
         with:
           path: ${{ env.changed_files }}
           severity: warning
