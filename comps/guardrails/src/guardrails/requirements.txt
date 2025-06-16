@@ -12,3 +12,4 @@ prometheus-fastapi-instrumentator
 sentencepiece
 shortuuid
 uvicorn
+llm_guard
