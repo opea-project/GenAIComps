@@ -52,6 +52,10 @@ KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
 
+# Vector Schema Configuration
+DEFAULT_VECTOR_SCHEMA = {"algorithm": "HNSW", "m": 16, "ef_construction": 200}
+VECTOR_SCHEMA = os.getenv("VECTOR_SCHEMA", json.dumps(DEFAULT_VECTOR_SCHEMA))
+
 # Redis Connection Information
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
@@ -200,6 +204,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
 
     # if data will be saved to a different index name than the default one
     ingest_index_name = index_name if index_name else INDEX_NAME
+    # Parse vector schema
+    try:
+        vector_schema = json.loads(VECTOR_SCHEMA)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid VECTOR_SCHEMA format: {e}")
+        vector_schema = DEFAULT_VECTOR_SCHEMA
 
     file_ids = []
     for i in range(0, num_chunks, batch_size):
@@ -214,6 +224,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
             embedding=embedder,
             index_name=ingest_index_name,
             redis_url=REDIS_URL,
+            vector_schema=vector_schema,
         )
         if logflag:
             logger.info(f"[ redis ingest chunks ] keys: {keys}")

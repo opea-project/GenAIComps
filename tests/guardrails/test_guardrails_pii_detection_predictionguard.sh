@@ -23,7 +23,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export PII_PREDICTIONGUARD_PORT=11306
+    export PII_DETECTION_PORT=11306
     export TAG=comps
     service_name="pii-predictionguard-server"
     cd $WORKPATH
