@@ -32,7 +32,7 @@ python bias_detection.py
 
 ### 2.1 Prepare bias detection model
 
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 
 ### 2.2 Build Docker Image
 
@@ -44,7 +44,7 @@ docker build -t opea/guardrails-bias-detection:latest --build-arg https_proxy=$h
 ### 2.3 Run Docker Container with Microservice
 
 ```bash
-docker run -d --rm --runtime=runc --name="guardrails-bias-detection" -p 9092:9092 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-bias-detection:latest
+docker run -d --rm --runtime=runc --name="guardrails-bias-detection" -p 9092:9092 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} opea/guardrails-bias-detection:latest
 ```
 
 ## 🚀3. Get Status of Microservice

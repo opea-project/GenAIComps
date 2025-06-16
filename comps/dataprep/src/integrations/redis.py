@@ -44,13 +44,17 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
 KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
+
+# Vector Schema Configuration
+DEFAULT_VECTOR_SCHEMA = {"algorithm": "HNSW", "m": 16, "ef_construction": 200}
+VECTOR_SCHEMA = os.getenv("VECTOR_SCHEMA", json.dumps(DEFAULT_VECTOR_SCHEMA))
 
 # Redis Connection Information
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
@@ -200,6 +204,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
 
     # if data will be saved to a different index name than the default one
     ingest_index_name = index_name if index_name else INDEX_NAME
+    # Parse vector schema
+    try:
+        vector_schema = json.loads(VECTOR_SCHEMA)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid VECTOR_SCHEMA format: {e}")
+        vector_schema = DEFAULT_VECTOR_SCHEMA
 
     file_ids = []
     for i in range(0, num_chunks, batch_size):
@@ -214,6 +224,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
             embedding=embedder,
             index_name=ingest_index_name,
             redis_url=REDIS_URL,
+            vector_schema=vector_schema,
         )
         if logflag:
             logger.info(f"[ redis ingest chunks ] keys: {keys}")
@@ -322,10 +333,10 @@ class OpeaRedisDataprep(OpeaComponent):
 
     async def _initialize_embedder(self):
         if TEI_EMBEDDING_ENDPOINT:
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
 
             import httpx
@@ -339,7 +350,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
             embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model

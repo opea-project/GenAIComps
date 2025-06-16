@@ -17,7 +17,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
   # toxicity detection service
@@ -26,6 +26,19 @@ services:
     container_name: guardrails-toxicity-detection-server
     ports:
       - "${TOXICITY_DETECTION_PORT:-9090}:9090"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+
+  # pii detection service
+  guardrails-pii-detection-server:
+    image: ${REGISTRY:-opea}/guardrails-pii-detection:${TAG:-latest}
+    container_name: guardrails-pii-detection-server
+    ports:
+      - "${PII_DETECTION_PORT:-9080}:9080"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -113,7 +126,7 @@ services:
       https_proxy: ${https_proxy}
       LLM_MODEL: $LLM_MODEL_ID
       vLLM_ENDPOINT: $vLLM_ENDPOINT
-      HUGGINGFACEHUB_API_TOKEN: $HF_TOKEN
+      HF_TOKEN: $HF_TOKEN
     restart: unless-stopped
     depends_on:
       vllm-gaudi-server:
@@ -124,13 +137,14 @@ services:
     image: ${REGISTRY:-opea}/pii-detection-predictionguard:${TAG:-latest}
     container_name: pii-predictionguard-server
     ports:
-      - "${PII_PREDICTIONGUARD_PORT:-9080}:9080"
+      - "${PII_DETECTION_PORT:-9080}:9080"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+      PII_DETECTION_COMPONENT_NAME: "PREDICTIONGUARD_PII_DETECTION"
     restart: unless-stopped
 
   # predictionguard injection service

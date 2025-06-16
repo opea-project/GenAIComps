@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 import shortuuid
 from fastapi import File, Form, UploadFile
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, NonNegativeFloat, PositiveInt
 
 
 class ServiceCard(BaseModel):
@@ -219,11 +219,11 @@ class RetrievalRequest(BaseModel):
     embedding: Union[EmbeddingResponse, List[float]] = None
     input: Optional[str] = None  # search_type maybe need, like "mmr"
     search_type: str = "similarity"
-    k: int = 4
+    k: PositiveInt = 4
     distance_threshold: Optional[float] = None
-    fetch_k: int = 20
-    lambda_mult: float = 0.5
-    score_threshold: float = 0.2
+    fetch_k: PositiveInt = 20
+    lambda_mult: NonNegativeFloat = 0.5
+    score_threshold: NonNegativeFloat = 0.2
 
     # define
     request_type: Literal["retrieval"] = "retrieval"
@@ -256,7 +256,7 @@ class RetrievalResponse(BaseModel):
 class RerankingRequest(BaseModel):
     input: str
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]], List[str]]
-    top_n: int = 1
+    top_n: PositiveInt = 1
 
     # define
     request_type: Literal["reranking"] = "reranking"
@@ -285,17 +285,19 @@ class ChatCompletionRequest(BaseModel):
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
     top_logprobs: Optional[int] = 0
-    max_tokens: Optional[int] = 1024  # use https://platform.openai.com/docs/api-reference/completions/create
-    n: Optional[int] = 1
+    max_tokens: Optional[PositiveInt] = 1024  # use https://platform.openai.com/docs/api-reference/completions/create
+    n: Optional[PositiveInt] = 1
     presence_penalty: Optional[float] = 0.0
     response_format: Optional[ResponseFormat] = None
-    seed: Optional[int] = None
+    seed: Optional[PositiveInt] = None
     service_tier: Optional[str] = None
     stop: Union[str, List[str], None] = Field(default_factory=list)
     stream: Optional[bool] = False
     stream_options: Optional[StreamOptions] = Field(default=None)
-    temperature: Optional[float] = 0.01  # vllm default 0.7
-    top_p: Optional[float] = None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
+    temperature: Optional[NonNegativeFloat] = 0.01  # vllm default 0.7
+    top_p: Optional[NonNegativeFloat] = (
+        None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
+    )
     tools: Optional[List[ChatCompletionToolsParam]] = None
     tool_choice: Optional[Union[Literal["none"], ChatCompletionNamedToolChoiceParam]] = "none"
     parallel_tool_calls: Optional[bool] = True
@@ -307,22 +309,22 @@ class ChatCompletionRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # default values are same with
     # https://platform.openai.com/docs/api-reference/completions/create
-    best_of: Optional[int] = 1
+    best_of: Optional[PositiveInt] = 1
     suffix: Optional[str] = None
 
     # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L130
-    repetition_penalty: Optional[float] = 1.0
+    repetition_penalty: Optional[NonNegativeFloat] = 1.0
 
     # tgi reference: https://huggingface.github.io/text-generation-inference/#/Text%20Generation%20Inference/generate
     # some tgi parameters in use
     # default values are same with
     # https://github.com/huggingface/text-generation-inference/blob/main/router/src/lib.rs#L190
     # max_new_tokens: Optional[int] = 100 # Priority use openai
-    top_k: Optional[int] = None
+    top_k: Optional[PositiveInt] = None
     # top_p: Optional[float] = None # Priority use openai
     typical_p: Optional[float] = None
     # repetition_penalty: Optional[float] = None
-    timeout: Optional[int] = None
+    timeout: Optional[PositiveInt] = None
 
     # doc: begin-chat-completion-extra-params
     echo: Optional[bool] = Field(
@@ -382,16 +384,16 @@ class ChatCompletionRequest(BaseModel):
 
     # retrieval
     search_type: str = "similarity"
-    k: int = 4
+    k: PositiveInt = 4
     distance_threshold: Optional[float] = None
-    fetch_k: int = 20
-    lambda_mult: float = 0.5
-    score_threshold: float = 0.2
+    fetch_k: PositiveInt = 20
+    lambda_mult: NonNegativeFloat = 0.5
+    score_threshold: NonNegativeFloat = 0.2
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
     index_name: Optional[str] = None
 
     # reranking
-    top_n: int = 1
+    top_n: PositiveInt = 1
     reranked_docs: Union[List[RerankingResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
 
     # define
@@ -416,16 +418,16 @@ class AudioChatCompletionRequest(BaseModel):
         ]
     ] = None
     model: Optional[str] = "Intel/neural-chat-7b-v3-3"
-    temperature: Optional[float] = 0.01
-    top_p: Optional[float] = 0.95
-    top_k: Optional[int] = 10
-    n: Optional[int] = 1
-    max_tokens: Optional[int] = 1024
+    temperature: Optional[NonNegativeFloat] = 0.01
+    top_p: Optional[NonNegativeFloat] = 0.95
+    top_k: Optional[PositiveInt] = 10
+    n: Optional[PositiveInt] = 1
+    max_tokens: Optional[PositiveInt] = 1024
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
-    presence_penalty: Optional[float] = 0.0
-    frequency_penalty: Optional[float] = 0.0
-    repetition_penalty: Optional[float] = 1.03
+    presence_penalty: Optional[NonNegativeFloat] = 0.0
+    frequency_penalty: Optional[NonNegativeFloat] = 0.0
+    repetition_penalty: Optional[NonNegativeFloat] = 1.03
     user: Optional[str] = None
 
 
@@ -458,7 +460,7 @@ class AudioSpeechRequest(BaseModel):
     model: Optional[str] = "microsoft/speecht5_tts"
     voice: Optional[str] = "default"
     response_format: Optional[str] = "mp3"
-    speed: Optional[float] = 1.0
+    speed: Optional[NonNegativeFloat] = 1.0
 
 
 class ChatMessage(BaseModel):
@@ -506,18 +508,18 @@ class CompletionRequest(BaseModel):
     model: str
     prompt: Union[str, List[Any]]
     suffix: Optional[str] = None
-    temperature: Optional[float] = 0.7
-    n: Optional[int] = 1
-    max_tokens: Optional[int] = 16
+    temperature: Optional[NonNegativeFloat] = 0.7
+    n: Optional[PositiveInt] = 1
+    max_tokens: Optional[PositiveInt] = 16
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
-    top_p: Optional[float] = 1.0
+    top_p: Optional[NonNegativeFloat] = 1.0
     top_k: Optional[int] = -1
     logprobs: Optional[int] = None
     echo: Optional[bool] = False
-    presence_penalty: Optional[float] = 0.0
-    frequency_penalty: Optional[float] = 0.0
-    repetition_penalty: Optional[float] = 1.03
+    presence_penalty: Optional[NonNegativeFloat] = 0.0
+    frequency_penalty: Optional[NonNegativeFloat] = 0.0
+    repetition_penalty: Optional[NonNegativeFloat] = 1.03
     user: Optional[str] = None
     use_beam_search: Optional[bool] = False
     best_of: Optional[int] = None
@@ -915,7 +917,7 @@ class FineTuningJobListRequest(BaseModel):
     after: Optional[str] = None
     """Identifier for the last job from the previous pagination request."""
 
-    limit: Optional[int] = 20
+    limit: Optional[PositiveInt] = 20
     """Number of fine-tuning jobs to retrieve."""
 
 
@@ -1014,3 +1016,44 @@ class FineTuningJobCheckpoint(BaseModel):
 
     step_number: Optional[int] = None
     """The step number that the checkpoint was created at."""
+
+
+# Args allowed in openai-like chat completions API calls in OpeaTextGenService
+ALLOWED_CHATCOMPLETION_ARGS = (
+    "model",
+    "messages",
+    "frequency_penalty",
+    "max_tokens",
+    "n",
+    "presence_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "stream",
+    "stream_options",
+    "temperature",
+    "top_p",
+    "user",
+)
+
+# Args allowed in openai-like regular completion API calls in OpeaTextGenService
+ALLOWED_COMPLETION_ARGS = (
+    "model",
+    "prompt",
+    "echo",
+    "frequency_penalty",
+    "max_tokens",
+    "n",
+    "presence_penalty",
+    "seed",
+    "stop",
+    "stream",
+    "suffix",
+    "temperature",
+    "top_p",
+    "user",
+)
+
+
+class RouteEndpointDoc(BaseModel):
+    url: str = Field(..., description="URL of the chosen inference endpoint")
