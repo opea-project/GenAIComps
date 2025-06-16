@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 import shortuuid
 from fastapi import File, Form, UploadFile
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, PositiveInt, NonNegativeFloat
+from pydantic import BaseModel, Field, NonNegativeFloat, PositiveInt
 
 
 class ServiceCard(BaseModel):
@@ -295,7 +295,9 @@ class ChatCompletionRequest(BaseModel):
     stream: Optional[bool] = False
     stream_options: Optional[StreamOptions] = Field(default=None)
     temperature: Optional[NonNegativeFloat] = 0.01  # vllm default 0.7
-    top_p: Optional[NonNegativeFloat] = None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
+    top_p: Optional[NonNegativeFloat] = (
+        None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
+    )
     tools: Optional[List[ChatCompletionToolsParam]] = None
     tool_choice: Optional[Union[Literal["none"], ChatCompletionNamedToolChoiceParam]] = "none"
     parallel_tool_calls: Optional[bool] = True
