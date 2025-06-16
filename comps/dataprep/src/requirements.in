@@ -10,7 +10,7 @@ einops
 elasticsearch
 fastapi
 future
-graspologic
+graspologic>=3.4.1
 html2text
 huggingface_hub
 ipython
