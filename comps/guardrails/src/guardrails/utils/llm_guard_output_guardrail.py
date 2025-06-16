@@ -1,17 +1,17 @@
 # Copyright (C) 2024-2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from llm_guard import scan_output
 from fastapi import HTTPException
-
+from llm_guard import scan_output
 from utils.llm_guard_output_scanners import OutputScannersConfig
-from comps import get_opea_logger, GeneratedDoc
+
+from comps import GeneratedDoc, get_opea_logger
 
 logger = get_opea_logger("opea_llm_guard_output_guardrail_microservice")
 
+
 class OPEALLMGuardOutputGuardrail:
-    """
-    OPEALLMGuardOutputGuardrail is responsible for scanning and sanitizing LLM output responses
+    """OPEALLMGuardOutputGuardrail is responsible for scanning and sanitizing LLM output responses
     using various output scanners provided by LLM Guard.
 
     This class initializes the output scanners based on the provided configuration and
@@ -29,8 +29,7 @@ class OPEALLMGuardOutputGuardrail:
     """
 
     def __init__(self, usv_config: list):
-        """
-        Initializes the OPEALLMGuardOutputGuardrail with the provided configuration.
+        """Initializes the OPEALLMGuardOutputGuardrail with the provided configuration.
 
         Args:
             usv_config (list): The configuration list for initializing the output scanners.
@@ -43,15 +42,13 @@ class OPEALLMGuardOutputGuardrail:
             self._scanners = self._scanners_config.create_enabled_output_scanners()
         except Exception as e:
             logger.exception(
-                f"An unexpected error occured during initializing \
+                f"An unexpected error occurred during initializing \
                     LLM Guard Output Guardrail scanners: {e}"
             )
             raise
 
-
     def scan_llm_output(self, output_doc: GeneratedDoc) -> str:
-        """
-        Scans the output from an LLM output document.
+        """Scans the output from an LLM output document.
 
         Args:
             output_doc (object): The output document containing the response to be scanned.
@@ -73,12 +70,15 @@ class OPEALLMGuardOutputGuardrail:
             if self._scanners:
                 sanitized_output, results_valid, results_score = scan_output(
                     self._scanners, output_doc.prompt, output_doc.text
-                    )
+                )
                 if False in results_valid.values():
                     msg = f"LLM Output {output_doc.text} is not valid, scores: {results_score}"
                     logger.error(msg)
                     usr_msg = "I'm sorry, but the model output is not valid according to the policies."
-                    redact_or_truncated = [c.get('redact', False) or c.get('truncate', False) for _, c in self._scanners_config._output_scanners_config.items()] # to see if sanitized output available
+                    redact_or_truncated = [
+                        c.get("redact", False) or c.get("truncate", False)
+                        for _, c in self._scanners_config._output_scanners_config.items()
+                    ]  # to see if sanitized output available
                     if any(redact_or_truncated):
                         usr_msg = f"We sanitized the answer due to the guardrails policies: {sanitized_output}"
                     raise HTTPException(status_code=466, detail=usr_msg)
@@ -89,10 +89,10 @@ class OPEALLMGuardOutputGuardrail:
         except HTTPException as e:
             raise e
         except ValueError as e:
-            error_msg = f"Validation Error occured while initializing LLM Guard Output Guardrail scanners: {e}"
+            error_msg = f"Validation Error occurred while initializing LLM Guard Output Guardrail scanners: {e}"
             logger.exception(error_msg)
             raise HTTPException(status_code=400, detail=error_msg)
         except Exception as e:
-            error_msg = f"An unexpected error occured during scanning prompt with LLM Guard Output Guardrail: {e}"
+            error_msg = f"An unexpected error occurred during scanning prompt with LLM Guard Output Guardrail: {e}"
             logger.exception(error_msg)
             raise HTTPException(status_code=500, detail=error_msg)

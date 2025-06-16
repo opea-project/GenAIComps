@@ -1,18 +1,17 @@
 # Copyright (C) 2024-2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from llm_guard import scan_prompt
 from fastapi import HTTPException
-
+from llm_guard import scan_prompt
 from utils.llm_guard_input_scanners import InputScannersConfig
-from comps import get_opea_logger, LLMParamsDoc
+
+from comps import LLMParamsDoc, get_opea_logger
 
 logger = get_opea_logger("opea_llm_guard_input_guardrail_microservice")
 
 
 class OPEALLMGuardInputGuardrail:
-    """
-    OPEALLMGuardInputGuardrail is responsible for scanning and sanitizing LLM input prompts
+    """OPEALLMGuardInputGuardrail is responsible for scanning and sanitizing LLM input prompts
     using various input scanners provided by LLM Guard.
 
     This class initializes the input scanners based on the provided configuration and
@@ -31,8 +30,7 @@ class OPEALLMGuardInputGuardrail:
     """
 
     def __init__(self, usv_config: dict):
-        """
-        Initializes the OPEALLMGuardInputGuardrail with the provided configuration.
+        """Initializes the OPEALLMGuardInputGuardrail with the provided configuration.
 
         Args:
             usv_config (dict): The configuration dictionary for initializing the input scanners.
@@ -44,11 +42,11 @@ class OPEALLMGuardInputGuardrail:
             self._scanners_config = InputScannersConfig(usv_config)
             self._scanners = self._scanners_config.create_enabled_input_scanners()
         except ValueError as e:
-            logger.exception(f"Value Error occured while initializing LLM Guard Input Guardrail scanners: {e}")
+            logger.exception(f"Value Error occurred while initializing LLM Guard Input Guardrail scanners: {e}")
             raise
         except Exception as e:
             logger.exception(
-                f"An unexpected error occured during initializing \
+                f"An unexpected error occurred during initializing \
                     LLM Guard Input Guardrail scanners: {e}"
             )
             raise
@@ -72,12 +70,16 @@ class OPEALLMGuardInputGuardrail:
 
         for key, value in results_valid.items():
             if_redacted = False
-            redacted_scanner = [item for item in self._scanners if type(item).__name__ in scanners_with_redact and type(item).__name__ == key]
+            redacted_scanner = [
+                item
+                for item in self._scanners
+                if type(item).__name__ in scanners_with_redact and type(item).__name__ == key
+            ]
 
             if len(redacted_scanner) > 0:
                 if_redacted = redacted_scanner[0]._redact
 
-            if key != 'Anonymize' and not if_redacted:
+            if key != "Anonymize" and not if_redacted:
                 filtered_results_valid_no_redacted[key] = value
 
         if False in filtered_results_valid_no_redacted.values():
@@ -87,8 +89,7 @@ class OPEALLMGuardInputGuardrail:
             raise HTTPException(status_code=466, detail=f"{usr_msg}")
 
     def scan_llm_input(self, input_doc: LLMParamsDoc) -> LLMParamsDoc:
-        """
-        Scan the prompt from an LLMParamsDoc object.
+        """Scan the prompt from an LLMParamsDoc object.
 
         Args:
             input_doc (LLMParamsDoc): The input document containing the prompt to be scanned.
@@ -117,16 +118,22 @@ class OPEALLMGuardInputGuardrail:
             # We want to block only user question with a TokenLimit Scanner
             scanners_without_token_limit = [item for item in self._scanners if type(item).__name__ != "TokenLimit"]
             if len(self._scanners) != scanners_without_token_limit:
-                sanitized_system_prompt, system_results_valid, system_results_score = scan_prompt(scanners_without_token_limit, system_prompt)
+                sanitized_system_prompt, system_results_valid, system_results_score = scan_prompt(
+                    scanners_without_token_limit, system_prompt
+                )
             else:
-                sanitized_system_prompt, system_results_valid, system_results_score = scan_prompt(self._scanners, system_prompt)
+                sanitized_system_prompt, system_results_valid, system_results_score = scan_prompt(
+                    self._scanners, system_prompt
+                )
 
             if "### Question:" in user_prompt:
                 # Default template is used
                 prefix = "### Question: "
                 suffix = " \n ### Answer:"
                 user_prompt_to_scan = user_prompt.split(prefix)[1].split(suffix)[0]
-                sanitized_user_prompt, user_results_valid, user_results_score = scan_prompt(self._scanners, user_prompt_to_scan)
+                sanitized_user_prompt, user_results_valid, user_results_score = scan_prompt(
+                    self._scanners, user_prompt_to_scan
+                )
                 sanitized_user_prompt = prefix + sanitized_user_prompt + suffix
             else:
                 sanitized_user_prompt, user_results_valid, user_results_score = scan_prompt(self._scanners, user_prompt)
@@ -136,9 +143,9 @@ class OPEALLMGuardInputGuardrail:
 
             input_doc.messages.system = sanitized_system_prompt
             input_doc.messages.user = sanitized_user_prompt
-            if input_doc.output_guardrail_params is not None and 'Anonymize' in user_results_valid:
+            if input_doc.output_guardrail_params is not None and "Anonymize" in user_results_valid:
                 input_doc.output_guardrail_params.anonymize_vault = self._get_anonymize_vault()
-            elif input_doc.output_guardrail_params is None and 'Anonymize' in user_results_valid:
+            elif input_doc.output_guardrail_params is None and "Anonymize" in user_results_valid:
                 logger.warning("No output guardrails params, could not append the vault for Anonymize scanner.")
             return input_doc
         else:
