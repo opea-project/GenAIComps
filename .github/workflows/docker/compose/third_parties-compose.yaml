@@ -6,6 +6,10 @@ services:
     build:
       dockerfile: comps/third_parties/nginx/src/Dockerfile
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
+  nginx-productivitysuite:
+    build:
+      dockerfile: comps/third_parties/nginx/src/Dockerfile.productivitysuite
+    image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
   embedding-multimodal-clip:
     build:
       dockerfile: comps/third_parties/clip/src/Dockerfile
