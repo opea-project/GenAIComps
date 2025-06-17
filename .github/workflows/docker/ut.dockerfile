@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     git \
     python3 \
+    python3-dev \
     python3-pip \
     wget
 
 RUN ln -sf $(which python3) /usr/bin/python
+RUN python -m venv /venv
+ENV PATH="/venv/bin:$PATH"
 RUN python -m pip install --no-cache-dir pytest pytest-cov uv
 
 WORKDIR /
