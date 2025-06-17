@@ -3,6 +3,7 @@ datasets
 diffusers
 docarray[full]
 fastapi
+mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -13,3 +14,4 @@ shortuuid
 torch
 transformers
 uvicorn
+

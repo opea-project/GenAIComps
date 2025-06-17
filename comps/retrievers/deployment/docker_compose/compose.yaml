@@ -30,6 +30,7 @@ services:
       INDEX_NAME: ${INDEX_NAME}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   retriever-elasticsearch:
@@ -38,6 +39,7 @@ services:
     environment:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_ELASTICSEARCH}
       ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       elasticsearch-vector-db:
         condition: service_healthy
@@ -49,6 +51,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       MILVUS_HOST: ${host_ip}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
@@ -68,6 +71,7 @@ services:
       MILVUS_HOST: ${host_ip}
       BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
       COLLECTION_NAME: ${COLLECTION_NAME:-LangChainCollection}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       standalone:
         condition: service_healthy
@@ -91,6 +95,7 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       VDMS_USE_CLIP: 0
       host_ip: ${host_ip}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       neo4j-apoc:
         condition: service_healthy
@@ -108,6 +113,7 @@ services:
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       OPENSEARCH_INDEX_NAME: ${INDEX_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       opensearch-vector-db:
         condition: service_healthy
@@ -122,6 +128,7 @@ services:
       PINECONE_API_KEY: ${PINECONE_API_KEY}
       PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
       INDEX_NAME: ${PINECONE_INDEX_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
 
   retriever-pgvector:
     extends: retriever
@@ -129,6 +136,7 @@ services:
     environment:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_PGVECTOR}
       PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       pgvector-db:
         condition: service_healthy
@@ -140,6 +148,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_PATHWAY}
       PATHWAY_HOST: ${PATHWAY_HOST}
       PATHWAY_PORT: ${PATHWAY_PORT}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       pathway-db:
         condition: service_healthy
@@ -152,6 +161,7 @@ services:
       QDRANT_HOST: ${QDRANT_HOST}
       QDRANT_PORT: ${QDRANT_PORT}
       QDRANT_INDEX_NAME: ${INDEX_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       qdrant-vector-db:
         condition: service_healthy
@@ -163,6 +173,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_REDIS}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       REDIS_URL: ${REDIS_URL}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       redis-vector-db:
         condition: service_healthy
@@ -178,6 +189,7 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       REDIS_URL: ${REDIS_URL}
       BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       redis-vector-db:
         condition: service_healthy
@@ -192,6 +204,7 @@ services:
       VDMS_HOST: ${host_ip}
       VDMS_PORT: ${VDMS_PORT}
       VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       vdms-vector-db:
         condition: service_healthy
@@ -207,6 +220,7 @@ services:
       VDMS_HOST: ${host_ip}
       VDMS_PORT: ${VDMS_PORT}
       VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       vdms-vector-db:
         condition: service_healthy
@@ -222,6 +236,7 @@ services:
       ARANGO_PASSWORD: ${ARANGO_PASSWORD}
       ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
       TEI_EMBEDDING_ENDPOINT:  ${TEI_EMBEDDING_ENDPOINT}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       arango-vector-db:
         condition: service_healthy
@@ -233,6 +248,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MARIADBVECTOR}
       MARIADB_CONNECTION_URL: ${MARIADB_CONNECTION_URL:-mariadb+mariadbconnector://dbuser:password@mariadb-server:3306/vectordb}
       LOGFLAG: ${LOGFLAG}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       mariadb-server:
         condition: service_healthy

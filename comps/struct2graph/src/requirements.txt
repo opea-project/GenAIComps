@@ -4,6 +4,7 @@ hanging_threads
 langchain
 langchain-community
 langchain-neo4j
+mcp
 neo4j 
 numpy
 openai

@@ -10,6 +10,7 @@ grpcio
 huggingface-hub
 librosa
 lmdb
+mcp
 numba
 numpy==1.23.5
 opencv-python
