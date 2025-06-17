@@ -1,8 +1,6 @@
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-# /bin/bash
 # Download models
 MODEL_REPO=https://huggingface.co/DAMO-NLP-SG/Video-LLaMA-2-7B-Finetuned
 llm_download=${llm_download}
