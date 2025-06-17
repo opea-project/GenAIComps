@@ -10,8 +10,8 @@ on:
     paths:
       - .github/workflows/pr-examples-test.yml
       - comps/cores/**
-      - comps/dataprep/src/redis/langchain/**
-      - comps/retrievers/src/redis/langchain/**
+      - comps/dataprep/src/**
+      - comps/retrievers/src/**
       - comps/third_parties/nginx/src/**
       - requirements.txt
       - "!**.md"
