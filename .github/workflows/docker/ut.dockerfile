@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     python3 \
     python3-dev \
     python3-pip \
+    python3-venv \
     wget
 
 RUN ln -sf $(which python3) /usr/bin/python

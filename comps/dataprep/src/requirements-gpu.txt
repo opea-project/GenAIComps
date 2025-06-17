@@ -71,7 +71,6 @@ certifi==2025.6.15
     #   llama-cloud
     #   opensearch-py
     #   pinecone
-    #   pinecone-client
     #   requests
 cffi==1.17.1
     # via
@@ -148,7 +147,7 @@ distro==1.9.0
     # via openai
 docarray==0.41.0
     # via -r ./comps/dataprep/src/requirements.in
-docling==2.36.1
+docling==2.37.0
     # via -r ./comps/dataprep/src/requirements.in
 docling-core==2.37.0
     # via
@@ -254,7 +253,7 @@ h11==0.16.0
     #   uvicorn
 h2==4.2.0
     # via httpx
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 hpack==4.1.0
     # via h2
@@ -423,7 +422,7 @@ llama-cloud==0.1.26
     # via
     #   llama-cloud-services
     #   llama-index-indices-managed-llama-cloud
-llama-cloud-services==0.6.33
+llama-cloud-services==0.6.34
     # via llama-parse
 llama-index==0.12.42
     # via -r ./comps/dataprep/src/requirements.in
@@ -488,7 +487,7 @@ llama-index-readers-llama-parse==0.4.0
     # via llama-index
 llama-index-utils-huggingface==0.3.0
     # via llama-index-embeddings-text-embeddings-inference
-llama-parse==0.6.33
+llama-parse==0.6.34
     # via llama-index-readers-llama-parse
 llvmlite==0.44.0
     # via
@@ -823,16 +822,14 @@ pillow==11.2.1
     #   torchvision
     #   trimesh
     #   unstructured-pytesseract
-pinecone==7.0.2
-    # via langchain-pinecone
-pinecone-client==6.0.0
-    # via -r ./comps/dataprep/src/requirements.in
+pinecone==7.1.0
+    # via
+    #   -r ./comps/dataprep/src/requirements.in
+    #   langchain-pinecone
 pinecone-plugin-assistant==1.7.0
     # via pinecone
 pinecone-plugin-interface==0.0.7
-    # via
-    #   pinecone
-    #   pinecone-client
+    # via pinecone
 platformdirs==4.3.8
     # via
     #   banks
@@ -991,9 +988,8 @@ python-dateutil==2.9.0.post0
     #   opensearch-py
     #   pandas
     #   pinecone
-    #   pinecone-client
     #   pycollada
-python-docx==1.1.2
+python-docx==1.2.0
     # via
     #   -r ./comps/dataprep/src/requirements.in
     #   docling
@@ -1307,7 +1303,6 @@ typing-extensions==4.14.0
     #   openai
     #   opentelemetry-sdk
     #   pinecone
-    #   pinecone-client
     #   pydantic
     #   pydantic-core
     #   python-docx
@@ -1353,7 +1348,6 @@ urllib3==2.4.0
     #   elastic-transport
     #   opensearch-py
     #   pinecone
-    #   pinecone-client
     #   python-arango
     #   qdrant-client
     #   requests
