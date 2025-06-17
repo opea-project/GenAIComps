@@ -6,6 +6,7 @@ from uuid import uuid4
 from langgraph.checkpoint.memory import MemorySaver
 
 from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
 
 from ..storage.persistence_redis import RedisPersistence
 from ..tools import get_tools_descriptions
@@ -14,11 +15,25 @@ from ..utils import adapt_custom_prompt, setup_chat_model
 
 class BaseAgent:
     @opea_telemetry
-    def __init__(self, args, local_vars=None, **kwargs) -> None:
+    async def __init__(self, args, local_vars=None, **kwargs) -> None:
         self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
         self.id = f"assistant_{self.__class__.__name__}_{uuid4()}"
+
+        from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
+        from comps.cores.mcp.manager import OpeaMCPToolsManager
+        self.mcp_config = OpeaMCPConfig(
+            sse_servers=[
+                OpeaMCPSSEServerConfig(
+                    url=args.mcp_sse_server_url,
+                    api_key=args.mcp_sse_server_api_key
+                )
+            ],
+        )
+        async with await OpeaMCPToolsManager.create(self.mcp_config) as manager:
+            self.mcp_tools = manager.tools_registry
+
         self.args = args
         adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
         print("Registered tools: ", self.tools_descriptions)
