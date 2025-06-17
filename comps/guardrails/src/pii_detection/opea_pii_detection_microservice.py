@@ -3,8 +3,7 @@
 
 import os
 import time
-
-from integrations.predictionguard import OpeaPiiDetectionPredictionGuard
+from typing import Union
 
 from comps import (
     CustomLogger,
@@ -12,6 +11,7 @@ from comps import (
     PIIRequestDoc,
     PIIResponseDoc,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -21,7 +21,18 @@ from comps import (
 logger = CustomLogger("opea_pii_detection_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-pii_detection_component_name = os.getenv("PII_DETECTION_COMPONENT_NAME", "PREDICTIONGUARD_PII_DETECTION")
+pii_detection_port = int(os.getenv("PII_DETECTION_PORT", 9080))
+pii_detection_component_name = os.getenv("PII_DETECTION_COMPONENT_NAME", "OPEA_NATIVE_PII")
+
+if pii_detection_component_name == "OPEA_NATIVE_PII":
+    from integrations.piidetection import OpeaPiiDetectionNative
+elif pii_detection_component_name == "PREDICTIONGUARD_PII_DETECTION":
+    from integrations.predictionguard import OpeaPiiDetectionPredictionGuard
+else:
+    logger.error(f"Component name {pii_detection_component_name} is not recognized")
+    exit(1)
+
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     pii_detection_component_name,
@@ -35,12 +46,12 @@ loader = OpeaComponentLoader(
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/pii",
     host="0.0.0.0",
-    port=9080,
-    input_datatype=PIIRequestDoc,
-    output_datatype=PIIResponseDoc,
+    port=pii_detection_port,
+    input_datatype=Union[TextDoc, PIIRequestDoc],
+    output_datatype=Union[TextDoc, PIIResponseDoc],
 )
 @register_statistics(names=["opea_service@pii_detection"])
-async def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
+async def pii_guard(input: Union[TextDoc, PIIRequestDoc]) -> Union[TextDoc, PIIResponseDoc]:
     start = time.time()
 
     # Log the input if logging is enabled
