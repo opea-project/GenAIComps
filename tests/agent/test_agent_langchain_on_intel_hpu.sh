@@ -453,7 +453,7 @@ function main() {
 
     stop_docker
 
-    echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune > /dev/null 2>&1
 }
 
 main
