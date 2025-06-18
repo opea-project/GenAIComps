@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from llm_guard import scan_output
 from utils.llm_guard_output_scanners import OutputScannersConfig
 
-from comps import GeneratedDoc, CustomLogger
+from comps import CustomLogger, GeneratedDoc
 
 logger = CustomLogger("opea_llm_guard_output_guardrail_microservice")
 

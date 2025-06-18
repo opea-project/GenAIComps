@@ -55,7 +55,6 @@ ENABLED_SCANNERS = [
 
 from comps import CustomLogger
 from comps.cores.mega.utils import sanitize_env
-
 from comps.guardrails.src.guardrails.utils.scanners import OPEABanSubstrings, OPEARegexScanner
 
 logger = CustomLogger("opea_llm_guard_input_guardrail_microservice")

@@ -5,14 +5,14 @@ from fastapi import HTTPException
 from llm_guard import scan_prompt
 from utils.llm_guard_input_scanners import InputScannersConfig
 
-from comps import LLMParamsDoc, CustomLogger
+from comps import CustomLogger, LLMParamsDoc
 
 logger = CustomLogger("opea_llm_guard_input_guardrail_microservice")
 
+
 class OPEALLMGuardInputGuardrail:
     """OPEALLMGuardInputGuardrail is responsible for scanning and sanitizing LLM input prompts
-    using various input scanners provided by LLM Guard.
-    """
+    using various input scanners provided by LLM Guard."""
 
     def __init__(self, usv_config: dict):
         try:
@@ -43,10 +43,11 @@ class OPEALLMGuardInputGuardrail:
         filtered_results = {
             key: value
             for key, value in results_valid.items()
-            if key != "Anonymize" and not (
-                type(scanner := next((s for s in self._scanners if type(s).__name__ == key), None)).__name__ in {
-                    "BanCompetitors", "BanSubstrings", "OPEABanSubstrings", "Regex", "OPEARegexScanner"
-                } and getattr(scanner, "_redact", False)
+            if key != "Anonymize"
+            and not (
+                type(scanner := next((s for s in self._scanners if type(s).__name__ == key), None)).__name__
+                in {"BanCompetitors", "BanSubstrings", "OPEABanSubstrings", "Regex", "OPEARegexScanner"}
+                and getattr(scanner, "_redact", False)
             )
         }
 

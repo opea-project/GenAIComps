@@ -5,12 +5,12 @@ huggingface-hub<=0.24.0
 langchain-community
 langchain-huggingface
 langchain-openai
+llm_guard
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+presidio_anonymizer
 prometheus-fastapi-instrumentator
 sentencepiece
 shortuuid
 uvicorn
-llm_guard
-presidio_anonymizer

@@ -110,7 +110,7 @@ function validate_microservice() {
     else
         echo "❌ Output guard failed to trigger (virus still in output)!"
         exit 1
-    fi    
+    fi
 }
 
 function stop_docker() {

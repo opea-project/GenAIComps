@@ -1,6 +1,9 @@
-import re
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+import re
 from collections.abc import Iterable
+
 from llm_guard.input_scanners import BanSubstrings, Regex
 from llm_guard.input_scanners.regex import MatchType
 from presidio_anonymizer.core.text_replace_builder import TextReplaceBuilder
@@ -8,6 +11,7 @@ from presidio_anonymizer.core.text_replace_builder import TextReplaceBuilder
 from comps import CustomLogger
 
 logger = CustomLogger("opea_llm_guard_utils_scanners")
+
 
 # The bug is reported here: https://github.com/protectai/llm-guard/issues/210
 class OPEABanSubstrings(BanSubstrings):
@@ -25,6 +29,7 @@ class OPEABanSubstrings(BanSubstrings):
         if output is not None:
             return super().scan(output)
         return super().scan(prompt)
+
 
 # LLM Guard's Regex Scanner doesn't replace all occurrences of found patterns.
 # The bug is reported here: https://github.com/protectai/llm-guard/issues/229

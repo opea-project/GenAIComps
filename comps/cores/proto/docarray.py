@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -144,6 +144,7 @@ class SearchedDoc(BaseDoc):
 class SearchedMultimodalDoc(SearchedDoc):
     metadata: List[Dict[str, Any]]
 
+
 class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
     max_new_tokens: conint(ge=0, le=1024) = 512
     top_k: int = 10
@@ -161,9 +162,11 @@ class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
         ),
     )
 
+
 class RerankedDoc(BaseDoc):
     reranked_docs: DocList[TextDoc]
     initial_query: str
+
 
 class AnonymizeModel(BaseDoc):
     enabled: bool = False
@@ -178,11 +181,13 @@ class AnonymizeModel(BaseDoc):
     threshold: Optional[float] = None
     language: Optional[str] = None
 
+
 class BanCodeModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
     model: Optional[str] = None
     threshold: Optional[float] = None
+
 
 class BanCompetitorsModel(BaseDoc):
     enabled: bool = False
@@ -192,6 +197,7 @@ class BanCompetitorsModel(BaseDoc):
     threshold: Optional[float] = None
     redact: Optional[bool] = None
 
+
 class BanSubstringsModel(BaseDoc):
     enabled: bool = False
     substrings: List[str] = ["backdoor", "malware", "virus"]
@@ -200,12 +206,14 @@ class BanSubstringsModel(BaseDoc):
     redact: Optional[bool] = None
     contains_all: Optional[bool] = None
 
+
 class BanTopicsModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
-    topics: List[str] = ["violence","attack","war"]
+    topics: List[str] = ["violence", "attack", "war"]
     threshold: Optional[float] = None
     model: Optional[str] = None
+
 
 class CodeModel(BaseDoc):
     enabled: bool = False
@@ -215,6 +223,7 @@ class CodeModel(BaseDoc):
     is_blocked: Optional[bool] = None
     threshold: Optional[float] = None
 
+
 class GibberishModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
@@ -222,8 +231,10 @@ class GibberishModel(BaseDoc):
     threshold: Optional[float] = None
     match_type: Optional[str] = None
 
+
 class InvisibleText(BaseDoc):
     enabled: bool = False
+
 
 class LanguageModel(BaseDoc):
     enabled: bool = False
@@ -233,12 +244,14 @@ class LanguageModel(BaseDoc):
     threshold: Optional[float] = None
     match_type: Optional[str] = None
 
+
 class PromptInjectionModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
     model: Optional[str] = None
     threshold: Optional[float] = None
     match_type: Optional[str] = None
+
 
 class RegexModel(BaseDoc):
     enabled: bool = False
@@ -247,14 +260,17 @@ class RegexModel(BaseDoc):
     match_type: Optional[str] = None
     redact: Optional[bool] = None
 
+
 class SecretsModel(BaseDoc):
     enabled: bool = False
     redact_mode: Optional[str] = None
+
 
 class SentimentModel(BaseDoc):
     enabled: bool = False
     threshold: Optional[float] = None
     lexicon: Optional[str] = None
+
 
 class TokenLimitModel(BaseDoc):
     enabled: bool = False
@@ -262,12 +278,15 @@ class TokenLimitModel(BaseDoc):
     encoding_name: Optional[str] = None
     model_name: Optional[str] = None
 
+
 class ToxicityModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
     model: Optional[str] = None
     threshold: Optional[float] = None
     match_type: Optional[str] = None
+
+
 class BiasModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
@@ -275,14 +294,17 @@ class BiasModel(BaseDoc):
     threshold: Optional[float] = None
     match_type: Optional[str] = None
 
+
 class DeanonymizeModel(BaseDoc):
     enabled: bool = False
     matching_strategy: Optional[str] = None
+
 
 class JSONModel(BaseDoc):
     enabled: bool = False
     required_elements: Optional[int] = None
     repair: Optional[bool] = None
+
 
 class LanguageSameModel(BaseDoc):
     enabled: bool = False
@@ -290,11 +312,13 @@ class LanguageSameModel(BaseDoc):
     model: Optional[str] = None
     threshold: Optional[float] = None
 
+
 class MaliciousURLsModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
     model: Optional[str] = None
     threshold: Optional[float] = None
+
 
 class NoRefusalModel(BaseDoc):
     enabled: bool = False
@@ -303,13 +327,16 @@ class NoRefusalModel(BaseDoc):
     threshold: Optional[float] = None
     match_type: Optional[str] = None
 
+
 class NoRefusalLightModel(BaseDoc):
     enabled: bool = False
+
 
 class ReadingTimeModel(BaseDoc):
     enabled: bool = False
     max_time: float = 0.5
     truncate: Optional[bool] = None
+
 
 class FactualConsistencyModel(BaseDoc):
     enabled: bool = False
@@ -317,11 +344,13 @@ class FactualConsistencyModel(BaseDoc):
     model: Optional[str] = None
     minimum_score: Optional[float] = None
 
+
 class RelevanceModel(BaseDoc):
     enabled: bool = False
     use_onnx: bool = False
     model: Optional[str] = None
     threshold: Optional[float] = None
+
 
 class SensitiveModel(BaseDoc):
     enabled: bool = False
@@ -332,10 +361,13 @@ class SensitiveModel(BaseDoc):
     recognizer_conf: Optional[str] = None
     threshold: Optional[float] = None
 
+
 class URLReachabilityModel(BaseDoc):
     enabled: bool = False
     success_status_codes: Optional[List[int]] = None
     timeout: Optional[int] = None
+
+
 class LLMGuardInputGuardrailParams(BaseDoc):
     anonymize: AnonymizeModel = AnonymizeModel()
     ban_code: BanCodeModel = BanCodeModel()
@@ -352,6 +384,7 @@ class LLMGuardInputGuardrailParams(BaseDoc):
     sentiment: SentimentModel = SentimentModel()
     token_limit: TokenLimitModel = TokenLimitModel()
     toxicity: ToxicityModel = ToxicityModel()
+
 
 class LLMGuardOutputGuardrailParams(BaseDoc):
     ban_code: BanCodeModel = BanCodeModel()
@@ -376,7 +409,10 @@ class LLMGuardOutputGuardrailParams(BaseDoc):
     sentiment: SentimentModel = SentimentModel()
     toxicity: ToxicityModel = ToxicityModel()
     url_reachability: URLReachabilityModel = URLReachabilityModel()
-    anonymize_vault: Optional[List[Tuple]] = None # the only parameter not available in fingerprint. Used to tramsmit vault
+    anonymize_vault: Optional[List[Tuple]] = (
+        None  # the only parameter not available in fingerprint. Used to transmit vault
+    )
+
 
 class LLMParamsDoc(BaseDoc):
     model: Optional[str] = None  # for openai and ollama
@@ -419,11 +455,13 @@ class LLMParamsDoc(BaseDoc):
     def chat_template_must_contain_variables(cls, v):
         return v
 
+
 class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
     output_guardrail_params: Optional[LLMGuardOutputGuardrailParams] = None
-    
+
+
 class LLMParams(BaseDoc):
     model: Optional[str] = None
     max_tokens: int = 1024

@@ -9,17 +9,11 @@ from typing import Union
 from dotenv import dotenv_values
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import ValidationError
-
-from utils.llm_guard_input_guardrail import (
-    OPEALLMGuardInputGuardrail
-)
-from utils.llm_guard_output_guardrail import (
-    OPEALLMGuardOutputGuardrail
-)
-
 from integrations.llamaguard import OpeaGuardrailsLlamaGuard
 from integrations.wildguard import OpeaGuardrailsWildGuard
+from pydantic import ValidationError
+from utils.llm_guard_input_guardrail import OPEALLMGuardInputGuardrail
+from utils.llm_guard_output_guardrail import OPEALLMGuardOutputGuardrail
 
 from comps import (
     CustomLogger,
@@ -66,7 +60,7 @@ output_guardrail = OPEALLMGuardOutputGuardrail(output_usvc_config)
 @register_statistics(names=["opea_service@guardrails"])
 async def safety_guard(input: Union[LLMParamsDoc, GeneratedDoc, TextDoc]) -> Union[TextDoc, GeneratedDoc]:
     start = time.time()
-    
+
     if logflag:
         logger.info(f"Received input: {input}")
 

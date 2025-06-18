@@ -182,8 +182,10 @@ def handle_message(messages):
     else:
         return prompt
 
+
 def sanitize_env(value: Optional[str]) -> Optional[str]:
     """Remove quotes from a configuration value if present.
+
     Args:
         value (str): The configuration value to sanitize.
     Returns:
@@ -193,6 +195,6 @@ def sanitize_env(value: Optional[str]) -> Optional[str]:
         return None
     if value.startswith('"') and value.endswith('"'):
         value = value[1:-1]
-    elif value.startswith('\'') and value.endswith('\''):
+    elif value.startswith("'") and value.endswith("'"):
         value = value[1:-1]
     return value
