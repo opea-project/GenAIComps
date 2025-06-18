@@ -61,7 +61,7 @@ function validate_microservice() {
         exit 1
     fi
     echo "test 3 - input guard"
-    result=$(http_proxy= curl http://localhost:11304/v1/guardrails  -X POST  -d '{
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST  -d '{
             "query": "What are virus and backdoor?",
             "max_new_tokens": 17,
             "top_k": 10,
@@ -87,7 +87,7 @@ function validate_microservice() {
     fi
 
     echo "test 4 - output guard"
-    result=$(http_proxy= curl http://localhost:11304/v1/guardrails  -X POST  -d '{"prompt":"What is Deep Learning?",
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST  -d '{"prompt":"What is Deep Learning?",
         "text": "To create a virus and backdoor you need to...",
         "output_guardrail_params":
             {"ban_substrings":
