@@ -75,10 +75,11 @@ ENABLED_SCANNERS = [
     "url_reachability",
 ]
 
-from comps import get_opea_logger, sanitize_env
-from comps.guardrails.utils.scanners import OPEABanSubstrings, OPEARegexScanner
+from comps import CustomLogger
+from comps.cores.mega.utils import sanitize_env
+from comps.guardrails.src.guardrails.utils.scanners import OPEABanSubstrings, OPEARegexScanner
 
-logger = get_opea_logger("opea_llm_guard_output_guardrail_microservice")
+logger = CustomLogger("opea_llm_guard_output_guardrail_microservice")
 
 
 class OutputScannersConfig:

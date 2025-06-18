@@ -53,10 +53,12 @@ ENABLED_SCANNERS = [
     "toxicity",
 ]
 
-from comps import get_opea_logger, sanitize_env
-from comps.guardrails.utils.scanners import OPEABanSubstrings, OPEARegexScanner
+from comps import CustomLogger
+from comps.cores.mega.utils import sanitize_env
 
-logger = get_opea_logger("opea_llm_guard_input_guardrail_microservice")
+from comps.guardrails.src.guardrails.utils.scanners import OPEABanSubstrings, OPEARegexScanner
+
+logger = CustomLogger("opea_llm_guard_input_guardrail_microservice")
 
 
 class InputScannersConfig:

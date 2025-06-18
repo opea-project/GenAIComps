@@ -10,8 +10,16 @@ from dotenv import dotenv_values
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
-from utils.llm_guard_input_guardrail import OPEALLMGuardInputGuardrail
-from utils.llm_guard_output_guardrail import OPEALLMGuardOutputGuardrail
+
+from utils.llm_guard_input_guardrail import (
+    OPEALLMGuardInputGuardrail
+)
+from utils.llm_guard_output_guardrail import (
+    OPEALLMGuardOutputGuardrail
+)
+
+from integrations.llamaguard import OpeaGuardrailsLlamaGuard
+from integrations.wildguard import OpeaGuardrailsWildGuard
 
 from comps import (
     CustomLogger,
@@ -26,7 +34,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import ChatCompletionRequest, DocSumChatCompletionRequest
 
 logger = CustomLogger("opea_guardrails_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -54,67 +61,39 @@ output_guardrail = OPEALLMGuardOutputGuardrail(output_usvc_config)
     host="0.0.0.0",
     port=9090,
     input_datatype=Union[LLMParamsDoc, GeneratedDoc, TextDoc],
-    output_datatype=Union[TextDoc, GeneratedDoc, StreamingResponse],
+    output_datatype=Union[TextDoc, GeneratedDoc],
 )
 @register_statistics(names=["opea_service@guardrails"])
-async def safety_guard(
-    input: Union[LLMParamsDoc, GeneratedDoc, TextDoc],
-) -> Union[TextDoc, GeneratedDoc, StreamingResponse]:
-    start_time = time.time()
-
+async def safety_guard(input: Union[LLMParamsDoc, GeneratedDoc, TextDoc]) -> Union[TextDoc, GeneratedDoc]:
+    start = time.time()
+    
     if logflag:
         logger.info(f"Received input: {input}")
 
     try:
         if isinstance(input, LLMParamsDoc):
             processed = input_guardrail.scan_llm_input(input)
-
-            statistics_dict["opea_service@guardrails"].append_latency(
-                time.time() - start_time, f"input_guard:{type(input).__name__}"
-            )
-
             if logflag:
                 logger.info(f"Input guard passed: {processed}")
-            return processed
+
+        elif isinstance(input, GeneratedDoc):
+            try:
+                doc = input
+            except Exception as e:
+                logger.error(f"Problem using input as GeneratedDoc: {e}")
+                raise HTTPException(status_code=500, detail=f"{e}") from e
+            scanned_output = output_guardrail.scan_llm_output(doc)
+
+            processed = scanned_output
+        else:
+            processed = input
 
         # Use the loader to invoke the component
         guardrails_response = await loader.invoke(processed)
 
-        if isinstance(guardrails_response, GeneratedDoc):
-            try:
-                data = await guardrails_response.json()
-                doc = GeneratedDoc(**data)
-            except ValidationError as e:
-                err_msg = f"ValidationError creating GeneratedDoc: {e.errors()}"
-                logger.error(err_msg)
-                raise HTTPException(status_code=422, detail=err_msg) from e
-            except Exception as e:
-                logger.error(f"Problem with creating GenerateDoc: {e}")
-                raise HTTPException(status_code=500, detail=f"{e}") from e
-
-            scanned_output = output_guardrail.scan_llm_output(doc)
-
-            if doc.streaming is False:
-                return GeneratedDoc(text=scanned_output, prompt=doc.prompt, streaming=False)
-            else:
-                generator = scanned_output.split()
-
-                async def stream_generator():
-                    chat_response = ""
-                    try:
-                        for text in generator:
-                            chat_response += text
-                            chunk_repr = repr(" " + text)  # Guard takes over LLM streaming
-                            logger.debug("[guard - chat_stream] chunk:{chunk_repr}")
-                            yield f"data: {chunk_repr}\n\n"
-                            await asyncio.sleep(0.02)  # Delay of 0.02 second between chunks
-                        logger.debug("[guard - chat_stream] stream response: {chat_response}")
-                        yield "data: [DONE]\n\n"
-                    except Exception as e:
-                        logger.error(f"Error streaming from Guard: {e}")
-                        yield "data: [ERROR]\n\n"
-
-                return StreamingResponse(stream_generator(), media_type="text/event-stream")
+        # Record statistics
+        statistics_dict["opea_service@guardrails"].append_latency(time.time() - start, None)
+        return guardrails_response
 
     except Exception as e:
         logger.error(f"Error during guardrails invocation: {e}")
