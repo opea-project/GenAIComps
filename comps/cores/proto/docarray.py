@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl, ImageUrl
-from pydantic import Field, conint, conlist, field_validator
+from pydantic import Field, NonNegativeFloat, PositiveInt, conint, conlist, field_validator
 
 
 class TopologyInfo:
@@ -96,11 +96,11 @@ class EmbedDoc(BaseDoc):
     text: Union[str, List[str]]
     embedding: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]]
     search_type: str = "similarity"
-    k: int = 4
+    k: PositiveInt = 4
     distance_threshold: Optional[float] = None
-    fetch_k: int = 20
-    lambda_mult: float = 0.5
-    score_threshold: float = 0.2
+    fetch_k: PositiveInt = 20
+    lambda_mult: NonNegativeFloat = 0.5
+    score_threshold: NonNegativeFloat = 0.2
     constraints: Optional[Union[Dict[str, Any], List[Dict[str, Any]], None]] = None
     index_name: Optional[str] = None
 
@@ -135,7 +135,7 @@ class Audio2TextDoc(AudioDoc):
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
-    top_n: int = 1
+    top_n: PositiveInt = 1
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
@@ -382,14 +382,14 @@ class LLMParamsDoc(BaseDoc):
     model: Optional[str] = None  # for openai and ollama
     query: str
     max_tokens: int = 1024
-    max_new_tokens: int = 1024
-    top_k: int = 10
-    top_p: float = 0.95
-    typical_p: float = 0.95
-    temperature: float = 0.01
-    frequency_penalty: float = 0.0
-    presence_penalty: float = 0.0
-    repetition_penalty: float = 1.03
+    max_new_tokens: PositiveInt = 1024
+    top_k: PositiveInt = 10
+    top_p: NonNegativeFloat = 0.95
+    typical_p: NonNegativeFloat = 0.95
+    temperature: NonNegativeFloat = 0.01
+    frequency_penalty: NonNegativeFloat = 0.0
+    presence_penalty: NonNegativeFloat = 0.0
+    repetition_penalty: NonNegativeFloat = 1.03
     stream: bool = True
     language: str = "auto"  # can be "en", "zh"
     input_guardrail_params: Optional[LLMGuardInputGuardrailParams] = None
@@ -427,14 +427,14 @@ class GeneratedDoc(BaseDoc):
 class LLMParams(BaseDoc):
     model: Optional[str] = None
     max_tokens: int = 1024
-    max_new_tokens: int = 1024
-    top_k: int = 10
-    top_p: float = 0.95
-    typical_p: float = 0.95
-    temperature: float = 0.01
-    frequency_penalty: float = 0.0
-    presence_penalty: float = 0.0
-    repetition_penalty: float = 1.03
+    max_new_tokens: PositiveInt = 1024
+    top_k: PositiveInt = 10
+    top_p: NonNegativeFloat = 0.95
+    typical_p: NonNegativeFloat = 0.95
+    temperature: NonNegativeFloat = 0.01
+    frequency_penalty: NonNegativeFloat = 0.0
+    presence_penalty: NonNegativeFloat = 0.0
+    repetition_penalty: NonNegativeFloat = 1.03
     stream: bool = True
     language: str = "auto"  # can be "en", "zh"
     index_name: Optional[str] = None
@@ -452,15 +452,15 @@ class LLMParams(BaseDoc):
 
 class RetrieverParms(BaseDoc):
     search_type: str = "similarity"
-    k: int = 4
+    k: PositiveInt = 4
     distance_threshold: Optional[float] = None
-    fetch_k: int = 20
-    lambda_mult: float = 0.5
-    score_threshold: float = 0.2
+    fetch_k: PositiveInt = 20
+    lambda_mult: NonNegativeFloat = 0.5
+    score_threshold: NonNegativeFloat = 0.2
 
 
 class RerankerParms(BaseDoc):
-    top_n: int = 1
+    top_n: PositiveInt = 1
 
 
 class RAGASParams(BaseDoc):
