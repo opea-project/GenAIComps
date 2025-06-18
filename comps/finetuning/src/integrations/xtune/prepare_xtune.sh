@@ -52,6 +52,6 @@ else
         ps aux | grep "llamafactory-cli webui" | head -n 1 | awk '{print $2}' |xargs kill
         echo "kill webui service done"
     fi
-    echo 0 >> done
+    echo 0 >> "done"
     echo "Please follow README.md to install driver or update torch lib"
 fi
