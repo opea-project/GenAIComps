@@ -20,8 +20,8 @@ COPY comps /home/user/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    if [ ${ARCH} = "cpu" ]; then $uvpip torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    $uvpip -r /home/user/comps/guardrails/src/toxicity_detection/requirements.txt
+    $uvpip -r /home/user/comps/guardrails/src/toxicity_detection/requirements.txt && \
+    if [ ${ARCH} = "cpu" ]; then $uvpip torch --index-url https://download.pytorch.org/whl/cpu; fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

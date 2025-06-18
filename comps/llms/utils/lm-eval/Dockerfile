@@ -25,8 +25,8 @@ COPY comps /home/user/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    $uvpip torch --index-url https://download.pytorch.org/whl/cpu && \
-    $uvpip -r /home/user/comps/llms/utils/lm-eval/requirements-cpu.txt
+    $uvpip -r /home/user/comps/llms/utils/lm-eval/requirements-cpu.txt && \
+    $uvpip torch --index-url https://download.pytorch.org/whl/cpu
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

@@ -25,8 +25,8 @@ WORKDIR /home/users/comps/text2kg/src/tmpddata
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
       $uvpip -r /home/user/comps/text2kg/src/requirements-cpu.txt; \
+      $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
     else \
       $uvpip -r /home/user/comps/text2kg/src/requirements-gpu.txt; \
     fi
