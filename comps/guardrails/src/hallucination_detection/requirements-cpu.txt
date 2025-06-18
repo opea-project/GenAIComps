@@ -563,7 +563,7 @@ transformers==4.52.4
     #   xgrammar
 trimesh==4.6.12
     # via docarray
-triton==3.3.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+triton==3.3.0 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via xgrammar
 typer==0.16.0
     # via fastapi-cli
