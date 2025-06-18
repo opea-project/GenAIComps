@@ -6,7 +6,7 @@ aiofiles==24.1.0
     #   aurelio-sdk
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   -r ./comps/router/src/requirements.in
     #   aurelio-sdk
@@ -23,6 +23,10 @@ anyio==4.9.0
     #   openai
     #   starlette
     #   watchfiles
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via
     #   aiohttp
@@ -34,7 +38,7 @@ av==14.4.0
     # via docarray
 cachetools==5.5.2
     # via google-auth
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -74,7 +78,9 @@ durationpy==0.10
     # via kubernetes
 embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/router/src/requirements.in
 filelock==3.18.0
     # via huggingface-hub
@@ -98,7 +104,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
@@ -125,9 +131,9 @@ importlib-metadata==8.7.0
     # via
     #   litellm
     #   opentelemetry-api
-jax==0.6.1
+jax==0.6.2
     # via docarray
-jaxlib==0.6.1
+jaxlib==0.6.2
     # via jax
 jinja2==3.1.6
     # via litellm
@@ -163,7 +169,7 @@ langsmith==0.3.45
     #   langchain
     #   langchain-community
     #   langchain-core
-litellm==1.72.4
+litellm==1.72.6
     # via semantic-router
 lxml==5.4.0
     # via trimesh
@@ -185,15 +191,17 @@ ml-dtypes==0.5.1
     # via
     #   jax
     #   jaxlib
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
     # via trimesh
-numpy==2.3.0
+networkx==3.5 ; python_full_version >= '3.11'
+    # via trimesh
+numpy==2.2.6 ; python_full_version < '3.11'
     # via
     #   docarray
     #   embreex
@@ -210,11 +218,28 @@ numpy==2.3.0
     #   shapely
     #   trimesh
     #   vhacdx
-oauthlib==3.2.2
+numpy==2.3.0 ; python_full_version >= '3.11'
+    # via
+    #   docarray
+    #   embreex
+    #   jax
+    #   jaxlib
+    #   langchain-community
+    #   manifold3d
+    #   mapbox-earcut
+    #   ml-dtypes
+    #   pandas
+    #   pycollada
+    #   scipy
+    #   semantic-router
+    #   shapely
+    #   trimesh
+    #   vhacdx
+oauthlib==3.3.0
     # via
     #   kubernetes
     #   requests-oauthlib
-openai==1.86.0
+openai==1.88.0
     # via
     #   litellm
     #   semantic-router
@@ -289,7 +314,7 @@ pycollada==0.9
     # via trimesh
 pycparser==2.22 ; platform_python_implementation == 'PyPy'
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   -r ./comps/router/src/requirements.in
     #   aurelio-sdk
@@ -433,9 +458,11 @@ types-urllib3==1.26.25.14
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
     #   langchain-core
+    #   multidict
     #   openai
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -444,10 +471,13 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   pypdf
     #   referencing
+    #   rich
     #   sqlalchemy
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json
@@ -469,7 +499,7 @@ uvloop==0.21.0 ; platform_python_implementation != 'PyPy' and sys_platform != 'c
     # via uvicorn
 vhacdx==0.0.8.post2
     # via trimesh
-watchfiles==1.0.5
+watchfiles==1.1.0
     # via uvicorn
 websocket-client==1.8.0
     # via kubernetes

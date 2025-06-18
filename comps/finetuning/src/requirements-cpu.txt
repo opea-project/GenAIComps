@@ -6,7 +6,7 @@ accelerate==1.7.0
     # via peft
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   -r ./comps/finetuning/src/requirements.in
     #   aiohttp-cors
@@ -23,6 +23,8 @@ anyio==4.9.0
     #   httpx
     #   starlette
     #   watchfiles
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via aiohttp
 attrs==25.3.0
     # via
     #   aiohttp
@@ -31,7 +33,7 @@ attrs==25.3.0
     #   referencing
 cachetools==5.5.2
     # via google-auth
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -70,9 +72,11 @@ dm-tree==0.1.9
     # via ray
 docarray==0.41.0
     # via -r ./comps/finetuning/src/requirements.in
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
 farama-notifications==0.0.4
     # via gymnasium
-fastapi==0.115.12
+fastapi==0.115.13
     # via
     #   -r ./comps/finetuning/src/requirements.in
     #   ray
@@ -83,7 +87,6 @@ filelock==3.18.0
     #   datasets
     #   huggingface-hub
     #   ray
-    #   torch
     #   transformers
     #   virtualenv
 frozenlist==1.7.0
@@ -95,7 +98,6 @@ fsspec==2025.3.0
     #   datasets
     #   huggingface-hub
     #   ray
-    #   torch
 google-api-core==2.25.1
     # via opencensus
 google-auth==2.40.3
@@ -115,7 +117,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
@@ -141,7 +143,6 @@ importlib-metadata==8.7.0
 jinja2==3.1.6
     # via
     #   memray
-    #   torch
 jsonschema==4.24.0
     # via ray
 jsonschema-specifications==2025.4.1
@@ -165,9 +166,9 @@ memray==1.17.2 ; sys_platform != 'win32'
     # via ray
 mpmath==1.3.0
     # via sympy
-msgpack==1.1.0
+msgpack==1.1.1
     # via ray
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
@@ -175,9 +176,7 @@ multiprocess==0.70.16
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
-    # via torch
-numpy==2.2.6 ; sys_platform != 'darwin'
+numpy==2.2.6 ; python_full_version < '3.11' or sys_platform != 'darwin'
     # via
     #   accelerate
     #   cupy-cuda12x
@@ -192,7 +191,7 @@ numpy==2.2.6 ; sys_platform != 'darwin'
     #   scipy
     #   tensorboardx
     #   transformers
-numpy==2.3.0 ; sys_platform == 'darwin'
+numpy==2.3.0 ; python_full_version >= '3.11' and sys_platform == 'darwin'
     # via
     #   accelerate
     #   datasets
@@ -343,7 +342,7 @@ pyyaml==6.0.2
     #   ray
     #   transformers
     #   uvicorn
-ray==2.47.0
+ray==2.47.1
     # via -r ./comps/finetuning/src/requirements.in
 referencing==0.36.2
     # via
@@ -382,8 +381,6 @@ safetensors==0.5.3
     #   transformers
 scipy==1.15.3
     # via ray
-setuptools==80.9.0 ; python_full_version >= '3.12'
-    # via torch
 shortuuid==1.0.13
     # via -r ./comps/finetuning/src/requirements.in
 six==1.17.0
@@ -399,22 +396,12 @@ starlette==0.46.2
     #   fastapi
     #   prometheus-fastapi-instrumentator
     #   ray
-sympy==1.14.0
-    # via torch
 tensorboardx==2.6.4
     # via ray
-textual==3.3.0 ; sys_platform != 'win32'
+textual==3.4.0 ; sys_platform != 'win32'
     # via memray
 tokenizers==0.21.1
     # via transformers
-torch==2.7.1 ; platform_machine != 'x86_64' and sys_platform == 'darwin'
-    # via
-    #   accelerate
-    #   peft
-torch==2.7.1+cpu ; platform_machine == 'x86_64' or sys_platform != 'darwin'
-    # via
-    #   accelerate
-    #   peft
 tqdm==4.67.1
     # via
     #   datasets
@@ -430,9 +417,11 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   gymnasium
     #   huggingface-hub
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -443,9 +432,10 @@ typing-extensions==4.14.0
     #   pydantic-yaml
     #   pyopenssl
     #   referencing
+    #   rich
     #   textual
-    #   torch
     #   typing-inspect
+    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 tzdata==2025.2
@@ -464,7 +454,7 @@ uvloop==0.21.0 ; platform_python_implementation != 'PyPy' and sys_platform != 'c
     # via uvicorn
 virtualenv==20.31.2
     # via ray
-watchfiles==1.0.5
+watchfiles==1.1.0
     # via
     #   ray
     #   uvicorn

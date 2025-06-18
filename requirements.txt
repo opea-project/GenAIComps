@@ -4,7 +4,7 @@ aiofiles==24.1.0
     # via -r ./requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   -r ./requirements.in
     #   langchain-community
@@ -18,11 +18,15 @@ anyio==4.9.0
     #   mcp
     #   sse-starlette
     #   starlette
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via aiohttp
 cachetools==5.5.2
     # via google-auth
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -44,7 +48,9 @@ docx2txt==0.9
     # via -r ./requirements.in
 durationpy==0.10
     # via kubernetes
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./requirements.in
 frozenlist==1.7.0
     # via
@@ -117,17 +123,21 @@ mcp==1.9.4
     # via -r ./requirements.in
 mdurl==0.1.2
     # via markdown-it-py
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-numpy==2.3.0
+numpy==2.2.6 ; python_full_version < '3.11'
     # via
     #   docarray
     #   langchain-community
-oauthlib==3.2.2
+numpy==2.3.0 ; python_full_version >= '3.11'
+    # via
+    #   docarray
+    #   langchain-community
+oauthlib==3.3.0
     # via
     #   kubernetes
     #   requests-oauthlib
@@ -192,7 +202,7 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycparser==2.22 ; platform_python_implementation == 'PyPy'
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   docarray
     #   fastapi
@@ -281,8 +291,10 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   langchain-core
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -290,9 +302,12 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   pypdf
+    #   rich
     #   sqlalchemy
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json

@@ -2,7 +2,7 @@
 #    uv pip compile ./comps/embeddings/src/requirements.in --universal -o ./comps/embeddings/src/requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via -r ./comps/embeddings/src/requirements.in
 aiosignal==1.3.2
     # via aiohttp
@@ -13,9 +13,11 @@ anyio==4.9.0
     #   httpx
     #   openai
     #   starlette
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via aiohttp
 attrs==25.3.0
     # via aiohttp
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -32,7 +34,9 @@ distro==1.9.0
     # via openai
 docarray==0.41.0
     # via -r ./comps/embeddings/src/requirements.in
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/embeddings/src/requirements.in
 filelock==3.18.0
     # via huggingface-hub
@@ -52,7 +56,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
@@ -74,15 +78,17 @@ markdown-it-py==3.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-numpy==2.3.0
+numpy==2.2.6 ; python_full_version < '3.11'
     # via docarray
-openai==1.86.0
+numpy==2.3.0 ; python_full_version >= '3.11'
+    # via docarray
+openai==1.88.0
     # via -r ./comps/embeddings/src/requirements.in
 opentelemetry-api==1.34.1
     # via
@@ -133,7 +139,7 @@ protobuf==5.29.5
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   docarray
     #   fastapi
@@ -174,8 +180,10 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
+    #   multidict
     #   openai
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -184,8 +192,10 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   rich
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 typing-inspection==0.4.1

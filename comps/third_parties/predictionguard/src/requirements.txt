@@ -2,7 +2,7 @@
 #    uv pip compile ./comps/third_parties/predictionguard/src/requirements.in --universal -o ./comps/third_parties/predictionguard/src/requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via -r ./comps/third_parties/predictionguard/src/requirements.in
 aiosignal==1.3.2
     # via aiohttp
@@ -12,9 +12,11 @@ anyio==4.9.0
     # via
     #   httpx
     #   starlette
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via aiohttp
 attrs==25.3.0
     # via aiohttp
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -27,7 +29,9 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via click
 docarray==0.41.0
     # via -r ./comps/third_parties/predictionguard/src/requirements.in
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/third_parties/predictionguard/src/requirements.in
 frozenlist==1.7.0
     # via
@@ -59,13 +63,15 @@ markdown-it-py==3.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-numpy==2.3.0
+numpy==2.2.6 ; python_full_version < '3.11'
+    # via docarray
+numpy==2.3.0 ; python_full_version >= '3.11'
     # via docarray
 opentelemetry-api==1.34.1
     # via
@@ -114,7 +120,7 @@ protobuf==5.29.5
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   docarray
     #   fastapi
@@ -146,7 +152,9 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -154,8 +162,10 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   rich
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 typing-inspection==0.4.1

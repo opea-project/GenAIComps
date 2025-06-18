@@ -8,7 +8,7 @@ aiofiles==24.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   aiobotocore
     #   aiohttp-cors
@@ -38,6 +38,10 @@ asttokens==3.0.0
     # via stack-data
 async-lru==2.0.5
     # via pathway
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via
     #   aiohttp
@@ -64,7 +68,7 @@ botocore==1.35.93
     #   s3transfer
 cachetools==5.5.2
     # via google-auth
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -134,6 +138,11 @@ et-xmlfile==2.0.0
     # via openpyxl
 eval-type-backport==0.2.2
     # via unstructured-client
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via
+    #   anyio
+    #   ipython
+    #   pathway
 executing==2.2.0
     # via stack-data
 fastavro==1.11.1
@@ -146,7 +155,7 @@ filetype==1.2.0
     # via unstructured
 flatbuffers==25.2.10
     # via onnxruntime
-fonttools==4.58.2
+fonttools==4.58.4
     # via matplotlib
 frozenlist==1.7.0
     # via
@@ -235,7 +244,7 @@ h11==0.16.0
     # via httpcore
 h3==4.2.2
     # via pathway
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 html5lib==1.1
     # via unstructured
@@ -275,9 +284,11 @@ importlib-metadata==8.7.0
     #   opentelemetry-api
 instructor==1.2.6
     # via pathway
-ipython==9.3.0
+ipython==8.37.0 ; python_full_version < '3.11'
     # via ipywidgets
-ipython-pygments-lexers==1.1.1
+ipython==9.3.0 ; python_full_version >= '3.11'
+    # via ipywidgets
+ipython-pygments-lexers==1.1.1 ; python_full_version >= '3.11'
     # via ipython
 ipywidgets==8.1.7
     # via jupyter-bokeh
@@ -383,20 +394,25 @@ mdurl==0.1.2
     # via markdown-it-py
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiobotocore
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-narwhals==1.42.1
+narwhals==1.43.0
     # via bokeh
 nest-asyncio==1.6.0
     # via
     #   llama-index-core
     #   unstructured-client
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
+    # via
+    #   llama-index-core
+    #   pathway
+    #   unstructured
+networkx==3.5 ; python_full_version >= '3.11'
     # via
     #   llama-index-core
     #   pathway
@@ -621,7 +637,7 @@ python-dateutil==2.9.0.post0
     #   matplotlib
     #   pandas
     #   unstructured-client
-python-docx==1.1.2
+python-docx==1.2.0
     # via unstructured
 python-dotenv==1.1.0
     # via litellm
@@ -639,7 +655,7 @@ python-sat==1.8.dev17
     # via pathway
 pytz==2025.2
     # via pandas
-pyviz-comms==3.0.4
+pyviz-comms==3.0.5
     # via panel
 pyyaml==6.0.2
     # via
@@ -808,13 +824,16 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   async-lru
     #   beautifulsoup4
     #   cohere
+    #   exceptiongroup
     #   google-generativeai
     #   huggingface-hub
     #   ipython
     #   langchain-core
     #   llama-index-core
+    #   multidict
     #   onnx
     #   openai
     #   opentelemetry-api
@@ -825,10 +844,12 @@ typing-extensions==4.14.0
     #   pathway
     #   pydantic
     #   pydantic-core
+    #   pypdf
     #   python-docx
     #   python-oxmsg
     #   python-pptx
     #   referencing
+    #   rich
     #   sentence-transformers
     #   sqlalchemy
     #   typer
@@ -873,9 +894,9 @@ wrapt==1.17.2
     #   deprecated
     #   llama-index-core
     #   unstructured
-xlrd==2.0.1
+xlrd==2.0.2
     # via unstructured
-xlsxwriter==3.2.3
+xlsxwriter==3.2.5
     # via python-pptx
 xyzservices==2025.4.0
     # via bokeh

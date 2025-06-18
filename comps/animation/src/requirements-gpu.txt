@@ -8,7 +8,7 @@ aiofiles==24.1.0
     # via gradio
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via -r ./comps/animation/src/requirements.in
 aiosignal==1.3.2
     # via aiohttp
@@ -19,6 +19,8 @@ anyio==4.9.0
     #   gradio
     #   httpx
     #   starlette
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via aiohttp
 attrs==25.3.0
     # via
     #   aiohttp
@@ -35,7 +37,7 @@ av==14.4.0
     # via docarray
 basicsr==1.4.2
     # via -r ./comps/animation/src/requirements.in
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -67,9 +69,11 @@ docarray==0.41.0
     # via -r ./comps/animation/src/requirements.in
 embreex==2.17.7.post6
     # via trimesh
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
 facexlib==0.3.0
     # via -r ./comps/animation/src/requirements.in
-fastapi==0.115.12
+fastapi==0.115.13
     # via
     #   -r ./comps/animation/src/requirements.in
     #   gradio
@@ -83,7 +87,7 @@ filelock==3.18.0
     #   torch
 filterpy==1.4.5
     # via facexlib
-fonttools==4.58.2
+fonttools==4.58.4
     # via matplotlib
 frozenlist==1.7.0
     # via
@@ -102,7 +106,7 @@ googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-gradio==5.33.2
+gradio==5.34.1
     # via -r ./comps/animation/src/requirements.in
 gradio-client==1.10.3
     # via
@@ -119,7 +123,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
@@ -196,15 +200,20 @@ ml-dtypes==0.2.0
     # via jax
 mpmath==1.3.0
     # via sympy
-msgpack==1.1.0
+msgpack==1.1.1
     # via librosa
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
+    # via
+    #   scikit-image
+    #   torch
+    #   trimesh
+networkx==3.5 ; python_full_version >= '3.11'
     # via
     #   scikit-image
     #   torch
@@ -374,7 +383,7 @@ pycollada==0.9
     # via trimesh
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   -r ./comps/animation/src/requirements.in
     #   docarray
@@ -429,7 +438,7 @@ rpds-py==0.25.1
     #   referencing
 rtree==1.4.0
     # via trimesh
-ruff==0.11.13 ; sys_platform != 'emscripten'
+ruff==0.12.0 ; sys_platform != 'emscripten'
     # via gradio
 safehttpx==0.1.6
     # via gradio
@@ -487,9 +496,9 @@ svg-path==6.3
     # via trimesh
 sympy==1.14.0
     # via torch
-tavily-python==0.7.5
+tavily-python==0.7.6
     # via -r ./comps/animation/src/requirements.in
-tb-nightly==2.20.0a20250612
+tb-nightly==2.20.0a20250617
     # via
     #   -r ./comps/animation/src/requirements.in
     #   basicsr
@@ -497,10 +506,14 @@ tensorboard-data-server==0.7.2
     # via tb-nightly
 threadpoolctl==3.6.0
     # via scikit-learn
-tifffile==2025.6.11
+tifffile==2025.5.10 ; python_full_version < '3.11'
+    # via scikit-image
+tifffile==2025.6.11 ; python_full_version >= '3.11'
     # via scikit-image
 tiktoken==0.9.0
     # via tavily-python
+tomli==2.2.1 ; python_full_version < '3.11'
+    # via yapf
 tomlkit==0.13.3
     # via gradio
 torch==2.7.1
@@ -531,11 +544,13 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   gradio
     #   gradio-client
     #   huggingface-hub
     #   librosa
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -544,10 +559,12 @@ typing-extensions==4.14.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   rich
     #   torch
     #   typer
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 typing-inspection==0.4.1

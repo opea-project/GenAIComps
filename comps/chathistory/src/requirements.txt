@@ -4,5 +4,5 @@ dnspython==2.7.0
     # via pymongo
 motor==3.7.1
     # via -r ./comps/chathistory/src/requirements.in
-pymongo==4.13.1
+pymongo==4.13.2
     # via motor

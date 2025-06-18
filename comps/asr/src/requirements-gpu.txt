@@ -4,7 +4,7 @@ accelerate==1.7.0
     # via -r ./comps/asr/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   -r ./comps/asr/src/requirements.in
     #   fsspec
@@ -18,6 +18,8 @@ anyio==4.9.0
     #   mcp
     #   sse-starlette
     #   starlette
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via aiohttp
 attrs==25.3.0
     # via
     #   aiohttp
@@ -25,7 +27,7 @@ attrs==25.3.0
     #   referencing
 av==14.4.0
     # via docarray
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -53,7 +55,9 @@ docarray==0.41.0
     # via -r ./comps/asr/src/requirements.in
 embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/asr/src/requirements.in
 filelock==3.18.0
     # via
@@ -80,7 +84,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
@@ -104,9 +108,9 @@ idna==3.10
     #   yarl
 importlib-metadata==8.7.0
     # via opentelemetry-api
-jax==0.6.1
+jax==0.6.2
     # via docarray
-jaxlib==0.6.1
+jaxlib==0.6.2
     # via jax
 jinja2==3.1.6
     # via torch
@@ -136,7 +140,7 @@ ml-dtypes==0.5.1
     #   jaxlib
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
@@ -144,11 +148,33 @@ multiprocess==0.70.16
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
     # via
     #   torch
     #   trimesh
-numpy==2.3.0
+networkx==3.5 ; python_full_version >= '3.11'
+    # via
+    #   torch
+    #   trimesh
+numpy==2.2.6 ; python_full_version < '3.11'
+    # via
+    #   accelerate
+    #   datasets
+    #   docarray
+    #   embreex
+    #   jax
+    #   jaxlib
+    #   manifold3d
+    #   mapbox-earcut
+    #   ml-dtypes
+    #   pandas
+    #   pycollada
+    #   scipy
+    #   shapely
+    #   transformers
+    #   trimesh
+    #   vhacdx
+numpy==2.3.0 ; python_full_version >= '3.11'
     # via
     #   accelerate
     #   datasets
@@ -378,8 +404,10 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -388,9 +416,11 @@ typing-extensions==4.14.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   rich
     #   torch
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 typing-inspection==0.4.1

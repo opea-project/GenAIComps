@@ -9,7 +9,7 @@ aiofiles==24.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   huggingface-hub
     #   langchain-community
@@ -25,6 +25,10 @@ anyio==4.9.0
     #   httpx
     #   openai
     #   starlette
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via
     #   aiohttp
@@ -40,7 +44,7 @@ beautifulsoup4==4.13.4
     # via
     #   llama-index-readers-file
     #   unstructured
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -91,7 +95,9 @@ embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
 emoji==2.14.1
     # via unstructured
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/text2cypher/src/requirements.in
 filelock==3.18.0
     # via
@@ -125,7 +131,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.1.3 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.1.4 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 html5lib==1.1
     # via unstructured
@@ -160,9 +166,9 @@ idna==3.10
     #   yarl
 importlib-metadata==8.7.0
     # via opentelemetry-api
-jax==0.6.1
+jax==0.6.2
     # via docarray
-jaxlib==0.6.1
+jaxlib==0.6.2
     # via jax
 jinja2==3.1.6
     # via
@@ -216,7 +222,7 @@ llama-cloud==0.1.26
     # via
     #   llama-cloud-services
     #   llama-index-indices-managed-llama-cloud
-llama-cloud-services==0.6.32
+llama-cloud-services==0.6.34
     # via llama-parse
 llama-index==0.12.42
     # via -r ./comps/text2cypher/src/requirements.in
@@ -261,7 +267,7 @@ llama-index-llms-huggingface==0.5.0
     # via -r ./comps/text2cypher/src/requirements.in
 llama-index-llms-huggingface-api==0.5.0
     # via -r ./comps/text2cypher/src/requirements.in
-llama-index-llms-openai==0.4.5
+llama-index-llms-openai==0.4.7
     # via
     #   llama-index
     #   llama-index-agent-openai
@@ -281,7 +287,7 @@ llama-index-readers-file==0.4.8
     # via llama-index
 llama-index-readers-llama-parse==0.4.0
     # via llama-index
-llama-parse==0.6.32
+llama-parse==0.6.34
     # via llama-index-readers-llama-parse
 lxml==5.4.0
     # via
@@ -307,7 +313,7 @@ ml-dtypes==0.5.1
     #   jaxlib
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
@@ -321,7 +327,12 @@ nest-asyncio==1.6.0
     # via
     #   llama-index-core
     #   unstructured-client
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
+    # via
+    #   llama-index-core
+    #   torch
+    #   trimesh
+networkx==3.5 ; python_full_version >= '3.11'
     # via
     #   llama-index-core
     #   torch
@@ -331,7 +342,29 @@ nltk==3.9.1
     #   llama-index
     #   llama-index-core
     #   unstructured
-numpy==2.3.0
+numpy==2.2.6 ; python_full_version < '3.11'
+    # via
+    #   accelerate
+    #   docarray
+    #   embreex
+    #   jax
+    #   jaxlib
+    #   langchain-community
+    #   llama-index-core
+    #   manifold3d
+    #   mapbox-earcut
+    #   ml-dtypes
+    #   pandas
+    #   peft
+    #   pycollada
+    #   scikit-learn
+    #   scipy
+    #   shapely
+    #   transformers
+    #   trimesh
+    #   unstructured
+    #   vhacdx
+numpy==2.3.0 ; python_full_version >= '3.11'
     # via
     #   accelerate
     #   docarray
@@ -355,7 +388,7 @@ numpy==2.3.0
     #   vhacdx
 olefile==0.47
     # via python-oxmsg
-openai==1.86.0
+openai==1.88.0
     # via
     #   llama-index-agent-openai
     #   llama-index-embeddings-openai
@@ -442,7 +475,7 @@ pycollada==0.9
     # via trimesh
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   banks
     #   docarray
@@ -639,10 +672,12 @@ typing-extensions==4.14.0
     #   aiosqlite
     #   anyio
     #   beautifulsoup4
+    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
     #   langchain-core
     #   llama-index-core
+    #   multidict
     #   openai
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -651,15 +686,18 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   pypdf
     #   pyprojroot
     #   python-oxmsg
     #   referencing
+    #   rich
     #   sentence-transformers
     #   sqlalchemy
     #   torch
     #   typing-inspect
     #   typing-inspection
     #   unstructured
+    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json

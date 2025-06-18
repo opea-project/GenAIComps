@@ -2,7 +2,7 @@
 #    uv pip compile --index-strategy unsafe-best-match ./comps/web_retrievers/src/requirements.in --universal -o ./comps/web_retrievers/src/requirements-cpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via langchain-community
 aiosignal==1.3.2
     # via aiohttp
@@ -17,6 +17,10 @@ anyio==4.9.0
     #   watchfiles
 asgiref==3.8.1
     # via opentelemetry-instrumentation-asgi
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via
     #   aiohttp
@@ -36,7 +40,7 @@ build==1.2.2.post1
     # via chromadb
 cachetools==5.5.2
     # via google-auth
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -77,6 +81,8 @@ durationpy==0.10
     # via kubernetes
 embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
 fastapi==0.115.9
     # via
     #   -r ./comps/web_retrievers/src/requirements.in
@@ -169,9 +175,9 @@ importlib-metadata==8.7.0
     # via opentelemetry-api
 importlib-resources==6.5.2
     # via chromadb
-jax==0.6.1
+jax==0.6.2
     # via docarray
-jaxlib==0.6.1
+jaxlib==0.6.2
     # via jax
 joblib==1.5.1
     # via scikit-learn
@@ -240,16 +246,19 @@ mmh3==5.1.0
     # via chromadb
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
     # via
     #   trimesh
-numpy==2.3.0
+networkx==3.5 ; python_full_version >= '3.11'
+    # via
+    #   trimesh
+numpy==2.2.6 ; python_full_version < '3.11'
     # via
     #   chromadb
     #   docarray
@@ -270,7 +279,28 @@ numpy==2.3.0
     #   transformers
     #   trimesh
     #   vhacdx
-oauthlib==3.2.2
+numpy==2.3.0 ; python_full_version >= '3.11'
+    # via
+    #   chromadb
+    #   docarray
+    #   embreex
+    #   jax
+    #   jaxlib
+    #   langchain-chroma
+    #   langchain-community
+    #   manifold3d
+    #   mapbox-earcut
+    #   ml-dtypes
+    #   onnxruntime
+    #   pandas
+    #   pycollada
+    #   scikit-learn
+    #   scipy
+    #   shapely
+    #   transformers
+    #   trimesh
+    #   vhacdx
+oauthlib==3.3.0
     # via
     #   kubernetes
     #   requests-oauthlib
@@ -354,7 +384,7 @@ pillow==11.2.1
     #   docarray
     #   sentence-transformers
     #   trimesh
-posthog==4.8.0
+posthog==5.0.0
     # via chromadb
 prometheus-client==0.22.1
     # via prometheus-fastapi-instrumentator
@@ -384,7 +414,7 @@ pycollada==0.9
     # via trimesh
 pycparser==2.22 ; platform_python_implementation == 'PyPy'
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   chromadb
     #   docarray
@@ -530,6 +560,8 @@ tokenizers==0.21.1
     #   chromadb
     #   langchain-huggingface
     #   transformers
+tomli==2.2.1 ; python_full_version < '3.11'
+    # via build
 tqdm==4.67.1
     # via
     #   chromadb
@@ -551,11 +583,14 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   asgiref
     #   beautifulsoup4
     #   chromadb
+    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
     #   langchain-core
+    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -564,11 +599,13 @@ typing-extensions==4.14.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   rich
     #   sentence-transformers
     #   sqlalchemy
     #   typer
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json
@@ -595,7 +632,7 @@ uvloop==0.21.0 ; platform_python_implementation != 'PyPy' and sys_platform != 'c
     # via uvicorn
 vhacdx==0.0.8.post2
     # via trimesh
-watchfiles==1.0.5
+watchfiles==1.1.0
     # via uvicorn
 websocket-client==1.8.0
     # via kubernetes

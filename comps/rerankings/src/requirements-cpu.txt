@@ -2,7 +2,7 @@
 #    uv pip compile --index-strategy unsafe-best-match ./comps/rerankings/src/requirements.in --universal -o ./comps/rerankings/src/requirements-cpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.12
+aiohttp==3.12.13
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   fsspec
@@ -16,6 +16,10 @@ anyio==4.9.0
     #   httpx
     #   openai
     #   starlette
+async-timeout==4.0.3 ; python_full_version < '3.11'
+    # via
+    #   aiohttp
+    #   langchain
 attrs==25.3.0
     # via
     #   aiohttp
@@ -25,7 +29,7 @@ av==14.4.0
     # via docarray
 backoff==2.2.1
     # via posthog
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -61,7 +65,9 @@ docarray==0.41.0
     # via -r ./comps/rerankings/src/requirements.in
 embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.115.12
+exceptiongroup==1.3.0 ; python_full_version < '3.11'
+    # via anyio
+fastapi==0.115.13
     # via -r ./comps/rerankings/src/requirements.in
 filelock==3.18.0
     # via
@@ -121,9 +127,9 @@ idna==3.10
     #   yarl
 importlib-metadata==8.7.0
     # via opentelemetry-api
-jax==0.6.1
+jax==0.6.2
     # via docarray
-jaxlib==0.6.1
+jaxlib==0.6.2
     # via jax
 jinja2==3.1.6
     # via
@@ -186,7 +192,7 @@ more-itertools==10.7.0
     # via haystack-ai
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.0
     # via
     #   aiohttp
     #   yarl
@@ -194,11 +200,15 @@ multiprocess==0.70.16
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.4.2 ; python_full_version < '3.11'
     # via
     #   haystack-ai
     #   trimesh
-numpy==2.3.0
+networkx==3.5 ; python_full_version >= '3.11'
+    # via
+    #   haystack-ai
+    #   trimesh
+numpy==2.2.6 ; python_full_version < '3.11'
     # via
     #   datasets
     #   docarray
@@ -218,7 +228,27 @@ numpy==2.3.0
     #   transformers
     #   trimesh
     #   vhacdx
-openai==1.86.0
+numpy==2.3.0 ; python_full_version >= '3.11'
+    # via
+    #   datasets
+    #   docarray
+    #   embreex
+    #   haystack-ai
+    #   jax
+    #   jaxlib
+    #   langchain-community
+    #   manifold3d
+    #   mapbox-earcut
+    #   ml-dtypes
+    #   pandas
+    #   pycollada
+    #   scikit-learn
+    #   scipy
+    #   shapely
+    #   transformers
+    #   trimesh
+    #   vhacdx
+openai==1.88.0
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   haystack-ai
@@ -275,7 +305,7 @@ pillow==11.2.1
     #   docarray
     #   sentence-transformers
     #   trimesh
-posthog==4.8.0
+posthog==5.0.0
     # via haystack-ai
 prometheus-client==0.22.1
     # via prometheus-fastapi-instrumentator
@@ -296,7 +326,7 @@ pycollada==0.9
     # via trimesh
 pycparser==2.22 ; platform_python_implementation == 'PyPy'
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   docarray
     #   fastapi
@@ -426,10 +456,12 @@ types-requests==2.32.4.20250611
 typing-extensions==4.14.0
     # via
     #   anyio
+    #   exceptiongroup
     #   fastapi
     #   haystack-ai
     #   huggingface-hub
     #   langchain-core
+    #   multidict
     #   openai
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -439,10 +471,12 @@ typing-extensions==4.14.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   rich
     #   sentence-transformers
     #   sqlalchemy
     #   typing-inspect
     #   typing-inspection
+    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json
