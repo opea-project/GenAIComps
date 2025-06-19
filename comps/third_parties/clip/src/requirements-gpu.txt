@@ -470,7 +470,7 @@ tzdata==2025.2
     #   tzlocal
 tzlocal==5.3.1
     # via dateparser
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   requests
     #   types-requests
