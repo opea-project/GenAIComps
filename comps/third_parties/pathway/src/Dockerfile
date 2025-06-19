@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 WORKDIR /app
 
-COPY comps/third_parties/pathway/src/requirements.txt /app/
+COPY comps/third_parties/pathway/src/requirements* /app/
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \

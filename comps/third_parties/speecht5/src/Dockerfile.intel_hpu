@@ -20,10 +20,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 COPY --chown=user:user comps /home/user/comps
 
-# Install requirements and optimum habana
+# Install requirements and optimum habana, numpy==1.23.5 required by vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     $uvpip -r /home/user/comps/third_parties/speecht5/src/requirements-cpu.txt && \
+    $uvpip numpy==1.23.5 && \
     $uvpip --upgrade transformers && \
     $uvpip optimum[habana]
 
