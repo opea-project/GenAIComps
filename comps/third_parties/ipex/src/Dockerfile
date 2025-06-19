@@ -14,7 +14,7 @@ RUN apt-get update && \
     g++-12 \
     gcc-12 \
     git \
-    make
+    make \
     numactl \
     wget
 
@@ -32,7 +32,7 @@ RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/re
 # --build-arg COMPILE=ON to compile from source
 FROM base AS dev
 ARG COMPILE
-RUN git clone https://github.com/intel/intel-extension-for-pytorch.git
+RUN git clone --depth 1 https://github.com/intel/intel-extension-for-pytorch.git
 RUN . ~/miniforge3/bin/activate && conda create -y -n compile_py310 python=3.10 && conda activate compile_py310 && \
     cd intel-extension-for-pytorch/examples/cpu/llm && \
     export CC=gcc && export CXX=g++ && \
@@ -47,6 +47,7 @@ RUN apt-get update && \
     openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    if [ -f /etc/apt/apt.conf.d/proxy.conf ]; then rm /etc/apt/apt.conf.d/proxy.conf; fi
 
 COPY --from=dev /root/intel-extension-for-pytorch/examples/cpu/llm ./llm
 COPY --from=dev /root/intel-extension-for-pytorch/tools/get_libstdcpp_lib.sh ./llm/tools

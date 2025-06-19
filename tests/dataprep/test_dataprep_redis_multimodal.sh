@@ -28,6 +28,9 @@ text_ony_pdf_fn="${WORKPATH}/tests/dataprep/ingest_dataprep_text.pdf"
 
 export DATA_PATH=${model_cache}
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -90,7 +93,8 @@ function start_service() {
     service_name="redis-vector-db dataprep-multimodal-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-multimodal-redis-server" || exit 1
 }
 
 function prepare_data() {
@@ -135,7 +139,7 @@ tire.""" > ${transcript_fn}
     wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
 
     echo "Downloading Image (jpg)"
-    wget https://raw.githubusercontent.com/opea-project/GenAIComps/refs/tags/v1.2/comps/animation/src/assets/img/avatar1.jpg -O ${jpg_image_fn}
+    wget https://raw.githubusercontent.com/opea-project/GenAIComps/refs/tags/v1.3/comps/animation/src/assets/img/avatar1.jpg -O ${jpg_image_fn}
 
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
@@ -144,7 +148,7 @@ tire.""" > ${transcript_fn}
     wget https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav -O ${audio_fn}
 
     echo "Downloading PDF"
-    wget https://raw.githubusercontent.com/opea-project/GenAIComps/v1.1/comps/retrievers/redis/data/nke-10k-2023.pdf -O ${pdf_fn}
+    wget https://raw.githubusercontent.com/opea-project/GenAIComps/v1.3/comps/third_parties/pathway/src/data/nke-10k-2023.pdf -O ${pdf_fn}
 }
 
 function validate_microservice() {

@@ -21,6 +21,7 @@ from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import DataprepRequest, RedisDataprepRequest
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -43,13 +44,17 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
 KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
+
+# Vector Schema Configuration
+DEFAULT_VECTOR_SCHEMA = {"algorithm": "HNSW", "m": 16, "ef_construction": 200}
+VECTOR_SCHEMA = os.getenv("VECTOR_SCHEMA", json.dumps(DEFAULT_VECTOR_SCHEMA))
 
 # Redis Connection Information
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
@@ -122,7 +127,9 @@ async def create_index(client, index_name: str = KEY_INDEX_NAME):
         logger.info(f"[ create index ] creating index {index_name}")
     try:
         definition = IndexDefinition(index_type=IndexType.HASH, prefix=["file:"])
-        await client.create_index((TextField("file_name"), TextField("key_ids")), definition=definition)
+        await client.create_index(
+            (TextField("file_name"), TextField("key_ids"), TextField("index_name")), definition=definition
+        )
         if logflag:
             logger.info(f"[ create index ] index {index_name} successfully created")
     except Exception as e:
@@ -132,11 +139,11 @@ async def create_index(client, index_name: str = KEY_INDEX_NAME):
     return True
 
 
-async def store_by_id(client, key, value):
+async def store_by_id(client, key, value, ingest_index_name):
     if logflag:
         logger.info(f"[ store by id ] storing ids of {key}")
     try:
-        await client.add_document(doc_id="file:" + key, file_name=key, key_ids=value)
+        await client.add_document(doc_id="file:" + key, file_name=key, key_ids=value, index_name=ingest_index_name)
         if logflag:
             logger.info(f"[ store by id ] store document success. id: file:{key}")
     except Exception as e:
@@ -197,6 +204,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
 
     # if data will be saved to a different index name than the default one
     ingest_index_name = index_name if index_name else INDEX_NAME
+    # Parse vector schema
+    try:
+        vector_schema = json.loads(VECTOR_SCHEMA)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid VECTOR_SCHEMA format: {e}")
+        vector_schema = DEFAULT_VECTOR_SCHEMA
 
     file_ids = []
     for i in range(0, num_chunks, batch_size):
@@ -211,6 +224,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
             embedding=embedder,
             index_name=ingest_index_name,
             redis_url=REDIS_URL,
+            vector_schema=vector_schema,
         )
         if logflag:
             logger.info(f"[ redis ingest chunks ] keys: {keys}")
@@ -225,7 +239,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
         await create_index(client)
 
     try:
-        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids))
+        await store_by_id(
+            client,
+            key=encode_filename(ingest_index_name) + "_" + file_name,
+            value="#".join(file_ids),
+            ingest_index_name=ingest_index_name,
+        )
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -269,7 +288,11 @@ async def ingest_data_to_redis(doc_path: DocPath, embedder, index_name):
     ### Specially processing for the table content in PDFs
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
-        chunks = chunks + table_chunks
+        logger.info(f"[ redis ingest data ] table chunks: {table_chunks}")
+        if table_chunks:
+            chunks = chunks + table_chunks
+        else:
+            logger.info(f"[ redis ingest data ] No table chunks found in {path}.")
     if logflag:
         logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
@@ -310,10 +333,10 @@ class OpeaRedisDataprep(OpeaComponent):
 
     async def _initialize_embedder(self):
         if TEI_EMBEDDING_ENDPOINT:
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
 
             import httpx
@@ -327,7 +350,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
             embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model
@@ -354,33 +377,41 @@ class OpeaRedisDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
-        index_name: str = Form(None),
-    ):
+    async def ingest_files(self, input: Union[DataprepRequest, RedisDataprepRequest]):
         """Ingest files/links content into redis database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
-            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
-            index_name (str, optional): The name of the index where data will be ingested.
+            input (RedisDataprepRequest): Model containing the following parameters:
+                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
+                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+                index_name (str, optional): The name of the index where data will be ingested.
         """
+        files = input.files
+        link_list = input.link_list
+        chunk_size = input.chunk_size
+        chunk_overlap = input.chunk_overlap
+        process_table = input.process_table
+        table_strategy = input.table_strategy
+
+        index_name = None
+        if isinstance(input, RedisDataprepRequest):
+            index_name = input.index_name
+
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
+
+        if index_name and index_name.lower() == "all":
+            raise HTTPException(
+                status_code=400,
+                detail="'all' cannot be used as an index_name because it is reserved for specific functionality within the service.",
+            )
 
         if files:
             if not isinstance(files, list):
@@ -478,7 +509,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-    async def get_files(self):
+    async def get_files(self, index_name: str = Body(None, embed=True)):
         """Get file structure from redis database in the format of
         {
             "name": "File Name",
@@ -507,7 +538,24 @@ class OpeaRedisDataprep(OpeaComponent):
             # no doc retrieved
             if len(response) < 2:
                 break
+
             file_list = format_search_results(response, file_list)
+            index_name = INDEX_NAME if index_name is None else index_name
+            filtered_files = []
+            for file in file_list:
+                # Ensure "index_name" key exists in the file dictionary
+                if "index_name" not in file:
+                    continue
+
+                # Check if the file should be included based on the index_name
+                if index_name == "all" or index_name == file["index_name"]:
+                    # Remove the index_name prefix from "name" and "id"
+                    prefix = f"{file['index_name']}_"
+                    file["name"] = file["name"].replace(prefix, "", 1)
+                    file["id"] = file["id"].replace(prefix, "", 1)
+                    filtered_files.append(file)
+
+            file_list = filtered_files
             offset += SEARCH_BATCH_SIZE
             # last batch
             if (len(response) - 1) // 2 < SEARCH_BATCH_SIZE:
@@ -527,7 +575,7 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ redis delete ] delete files: {file_path}")
 
         # delete all uploaded files
-        if file_path == "all":
+        if file_path == "all" and index_name is None:
             if logflag:
                 logger.info("[ redis delete ] delete all files")
 
@@ -571,78 +619,86 @@ class OpeaRedisDataprep(OpeaComponent):
                 logger.info({"status": True})
             return {"status": True}
 
-        delete_path = Path(upload_folder + "/" + encode_filename(file_path))
-        if logflag:
-            logger.info(f"[ redis delete ] delete_path: {delete_path}")
-
-        # partially delete files
-        encode_file = encode_filename(file_path)
+        # partially delete files based on index_name
         index_name = INDEX_NAME if index_name is None else index_name
         index_name_id = encode_filename(index_name)
-        doc_id = "file:" + index_name_id + "_" + encode_file
-        logger.info(f"[ redis delete ] doc id: {doc_id}")
 
-        # determine whether this file exists in db KEY_INDEX_NAME
-        try:
-            result = await search_by_id(self.key_index_client, doc_id)
-            key_ids = result.key_ids
-        except Exception as e:
+        if file_path == "all" and index_name is not None:
+            file_list = [i["name"] for i in await self.get_files(index_name)]
+        else:
+            file_list = [file_path]
+
+        for file_path in file_list:
+            delete_path = Path(upload_folder + "/" + encode_filename(file_path))
             if logflag:
-                logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
-            raise HTTPException(
-                status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
-            )
-        file_ids = key_ids.split("#")
+                logger.info(f"[ redis delete ] delete_path: {delete_path}")
 
-        # delete file keys id in db KEY_INDEX_NAME
-        try:
-            res = await delete_by_id(self.key_index_client, doc_id)
-            assert res
-        except Exception as e:
-            if logflag:
-                logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
-            raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
+            encode_file = encode_filename(file_path)
+            doc_id = "file:" + index_name_id + "_" + encode_file
+            logger.info(f"[ redis delete ] doc id: {doc_id}")
 
-        # delete file content in db index_name
-        for file_id in file_ids:
-            # determine whether this file exists in db index_name
+            # determine whether this file exists in db KEY_INDEX_NAME
             try:
-                await search_by_id(self.data_index_client, file_id)
+                result = await search_by_id(self.key_index_client, doc_id)
+                key_ids = result.key_ids
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
+                    logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
                 raise HTTPException(
-                    status_code=404, detail=f"File not found in db {index_name}. Please check file_path."
+                    status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
                 )
+            file_ids = key_ids.split("#")
 
-            # delete file content
+            # delete file keys id in db KEY_INDEX_NAME
             try:
-                res = await delete_by_id(self.data_index_client, file_id)
+                res = await delete_by_id(self.key_index_client, doc_id)
                 assert res
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {index_name}")
-                raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
+                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
+                raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
 
-        # local file does not exist (restarted docker container)
-        if not delete_path.exists():
-            if logflag:
-                logger.info(f"[ redis delete ] File {file_path} not saved locally.")
-            return {"status": True}
+            # delete file content in db index_name
+            for file_id in file_ids:
+                # determine whether this file exists in db index_name
+                try:
+                    await search_by_id(self.data_index_client, file_id)
+                except Exception as e:
+                    if logflag:
+                        logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
+                    raise HTTPException(
+                        status_code=404, detail=f"File not found in db {index_name}. Please check file_path."
+                    )
 
-        # delete local file
-        if delete_path.is_file():
-            # delete file on local disk
-            delete_path.unlink()
-            if logflag:
-                logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
-            return {"status": True}
+                # delete file content
+                try:
+                    res = await delete_by_id(self.data_index_client, file_id)
+                    assert res
+                except Exception as e:
+                    if logflag:
+                        logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {index_name}")
+                    raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
 
-        # delete folder
-        else:
-            if logflag:
-                logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
-            raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+            # local file does not exist (restarted docker container)
+            if not delete_path.exists():
+                if logflag:
+                    logger.info(f"[ redis delete ] File {file_path} not saved locally.")
+                return {"status": True}
+
+            # delete local file
+            if delete_path.is_file():
+                # delete file on local disk
+                delete_path.unlink()
+                if logflag:
+                    logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
+
+            # delete folder
+            else:
+                if logflag:
+                    logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
+                raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+
+        return {"status": True}
 
     def get_list_of_indices(self):
         """Retrieves a list of all indices from the Redis client.

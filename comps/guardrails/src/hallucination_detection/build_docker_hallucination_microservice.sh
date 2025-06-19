@@ -1,8 +1,9 @@
+#!/bin/bash
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # Folder name you're looking for
-target_folder="GenAIComps"
+target_folder=$OPEA_GENAICOMPS_ROOT
 proj_folder=$(pwd)
 
 # Start from the current directory

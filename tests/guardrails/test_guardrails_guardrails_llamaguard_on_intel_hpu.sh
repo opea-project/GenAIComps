@@ -27,7 +27,7 @@ function start_service() {
     export LLM_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
     export LLM_ENDPOINT_PORT=12110
     export SAFETY_GUARD_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
-    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:${LLM_ENDPOINT_PORT}/v1/chat/completions
+    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:${LLM_ENDPOINT_PORT}
     export GUARDRAILS_PORT=11303
     export TAG=comps
     service_name="tgi-gaudi-server llamaguard-guardrails-server"
@@ -41,7 +41,7 @@ function start_service() {
 function validate_microservice() {
     echo "Validate microservice started"
     echo "test 1 - violated policies"
-    result=$(http_proxy= curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
     if [[ $result == *"Violated"* ]]; then
         echo "Result correct."
     else
@@ -51,7 +51,7 @@ function validate_microservice() {
         exit 1
     fi
     echo "test 2 - safe"
-    result=$(http_proxy= curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11303/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
         if [[ $result == *"car"* ]]; then
         echo "Result correct."
     else
@@ -80,7 +80,7 @@ function main() {
 
     stop_docker
     echo "cleanup container images and volumes"
-    echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune > /dev/null 2>&1
 
 }
 

@@ -20,7 +20,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       VLLM_TORCH_PROFILER_DIR: "/mnt"
     healthcheck:
@@ -28,7 +28,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 100
-    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 # --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   vllm-gaudi-service:
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
     container_name: vllm-gaudi-service
@@ -41,7 +41,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HABANA_VISIBLE_DEVICES: all
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       LLM_MODEL_ID: ${LLM_MODEL_ID}
@@ -87,18 +87,20 @@ services:
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
     container_name: lvm-service
     ports:
-      - ${LVM_PORT:-5051}:9399
+      - ${LVM_PORT:-9399}:9399
     ipc: host
     environment:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LOGFLAG: ${LOGFLAG}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
   lvm-llava:
     extends: lvm
     container_name: lvm-llava-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       llava-service:
         condition: service_healthy
@@ -107,6 +109,7 @@ services:
     container_name: lvm-llava-tgi-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_TGI_LLAVA_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       llava-tgi-service:
         condition: service_healthy
@@ -115,6 +118,7 @@ services:
     container_name: lvm-llama-vision-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAMA_VISION_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       llama-vision-service:
         condition: service_healthy
@@ -123,6 +127,7 @@ services:
     container_name: lvm-predictionguard-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_PREDICTION_GUARD_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       predictionguard-service:
         condition: service_healthy
@@ -131,6 +136,7 @@ services:
     container_name: lvm-video-llama-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VIDEO_LLAMA_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       video-llama-service:
         condition: service_healthy
@@ -139,6 +145,7 @@ services:
     container_name: lvm-vllm-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       vllm-service:
         condition: service_healthy
@@ -147,6 +154,7 @@ services:
     container_name: lvm-vllm-gaudi-service
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       vllm-gaudi-service:
         condition: service_healthy

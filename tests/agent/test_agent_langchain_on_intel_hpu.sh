@@ -26,9 +26,9 @@ export agent_image="opea/agent:comps"
 export agent_container_name="test-comps-agent-endpoint"
 
 export model=meta-llama/Llama-3.3-70B-Instruct #meta-llama/Meta-Llama-3.1-70B-Instruct
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export ip_address=$(hostname -I | awk '{print $1}')
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="meta-llama/Llama-3.3-70B-Instruct" #"meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 echo "LLM_ENDPOINT_URL: $LLM_ENDPOINT_URL"
@@ -453,7 +453,7 @@ function main() {
 
     stop_docker
 
-    echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune > /dev/null 2>&1
 }
 
 main

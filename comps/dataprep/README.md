@@ -60,3 +60,24 @@ For details, please refer to this [readme](src/README_neo4j_llamaindex.md)
 ## Dataprep Microservice for financial domain data
 
 For details, please refer to this [readme](src/README_finance.md)
+
+## Dataprep Microservice with MariaDB Vector
+
+For details, please refer to this [readme](src/README_mariadb.md)
+
+## Running in the air gapped environment
+
+The following steps are common for running the dataprep microservice in an air gapped environment (a.k.a. environment with no internet access), for all DB backends.
+
+1. Download the following models, e.g. `huggingface-cli download --cache-dir <model data directory> <model>`
+
+- microsoft/table-transformer-structure-recognition
+- timm/resnet18.a1_in1k
+- unstructuredio/yolo_x_layout
+
+2. launch the `dataprep` microservice with the following settings:
+
+- mount the `model data directory` as the `/data` directory within the `dataprep` container
+- set environment variable `HF_HUB_OFFLINE` to 1 when launching the `dataprep` microservice
+
+e.g. `docker run -d -v <model data directory>:/data -e HF_HUB_OFFLINE=1 ... ...`

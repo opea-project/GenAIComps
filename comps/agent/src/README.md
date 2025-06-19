@@ -82,7 +82,7 @@ for line in resp.iter_lines(decode_unicode=True):
 
 **Note**:
 
-1. Currently only `reract_llama` agent is enabled for assistants APIs.
+1. Currently only `react_llama` agent is enabled for assistants APIs.
 2. Not all keywords of OpenAI APIs are supported yet.
 
 ### 1.5 Agent memory
@@ -110,6 +110,32 @@ Examples of python code for multi-turn conversations using agent memory:
 
 To run the two examples above, first launch the agent microservice using [this docker compose yaml](../../../tests/agent/reactllama.yaml).
 
+### 1.6 Run LLMs from OpenAI
+
+To run any model from OpenAI, just specify the environment variable `OPENAI_API_KEY`:
+
+```bash
+export OPENAI_API_KEY=<openai-api-key>
+```
+
+These also need to be passed in to the `docker run` command, or included in a YAML file when running `docker compose`.
+
+### 1.7 Run LLMs with OpenAI-compatible APIs on Remote Servers
+
+To run the text generation portion using LLMs deployed on a remote server, specify the following environment variables:
+
+```bash
+export api_key=<openai-api-key>
+export model=<model-card>
+export LLM_ENDPOINT_URL=<inference-endpoint>
+```
+
+These also need to be passed in to the `docker run` command, or included in a YAML file when running `docker compose`.
+
+#### Notes
+
+- For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
+
 ## 🚀2. Start Agent Microservice
 
 ### 2.1 Build docker image for agent microservice
@@ -124,8 +150,7 @@ docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg ht
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export model="meta-llama/Meta-Llama-3.1-70B-Instruct"
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
-export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
 
 # build vLLM image
@@ -142,7 +167,7 @@ docker run -d --runtime=habana --rm --name "comps-vllm-gaudi-service" -p 8080:80
 docker logs comps-vllm-gaudi-service
 
 # Agent
-docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 
 # check status
 docker logs comps-agent-endpoint
@@ -151,7 +176,7 @@ docker logs comps-agent-endpoint
 > debug mode
 >
 > ```bash
-> docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+> docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 > ```
 
 ## 🚀 3. Validate Microservice
@@ -268,7 +293,7 @@ def opea_rag_query(query):
 
 ```bash
 # Agent
-docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
 ```
 
 - validate with my_tools

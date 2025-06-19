@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,6 +19,13 @@ export NEO4J_URL=${NEO4J_URL:-"neo4j://neo4j-apoc:7687"}
 export DATA_DIRECTORY=${DATA_DIRECTORY:-data}
 export FILENAME=${FILENAME:-test1.csv}
 export LOAD_FORMAT=${LOAD_FORMAT:-"CSV"}
+
+export STRUCT2GRAPH_PORT=${STRUCT2GRAPH_PORT:-8090}
+export NEO4J_URL=bolt://neo4j-apoc:7687
+export NEO4J_URI=bolt://neo4j-apoc:7687
+export NEO4J_PORT1=7474
+export NEO4J_PORT2=7687
+export NEO4J_HEALTH_URL="http://localhost:7474"
 
 
 export CYPHER_CSV_CMD="LOAD CSV WITH HEADERS FROM 'file:////test1.csv' AS row \

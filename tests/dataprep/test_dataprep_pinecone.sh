@@ -9,6 +9,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 export DATAPREP_PORT="11106"
 export TAG="comps"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
 
@@ -25,12 +28,13 @@ function build_docker_images() {
 function start_service() {
     export PINECONE_API_KEY=$PINECONE_KEY
     export PINECONE_INDEX_NAME="test-index"
-    export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
+    export HF_TOKEN=$HF_TOKEN
 
     service_name="dataprep-pinecone"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-pinecone-server" || exit 1
 }
 
 function validate_microservice() {

@@ -1,7 +1,7 @@
 # Use a base image
 # FROM python:3.11-slim
-FROM vault.habana.ai/gaudi-docker/1.19.0/ubuntu22.04/habanalabs/pytorch-installer-2.5.1 AS hpu
-
+FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
+ARG REPO_VER=n7.1.1
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
@@ -22,16 +22,16 @@ COPY comps /home/user/comps
 COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install ffmpeg with x264 software codec
-RUN git clone https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg
-WORKDIR /home/user/comps/animation/FFmpeg
-RUN ./configure --enable-gpl --enable-libx264 && \
-    make -j$(nproc-1) && \
+RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg && \
+    cd /home/user/comps/animation/FFmpeg && \
+    ./configure --enable-gpl --enable-libx264 --disable-debug --disable-doc --disable-ffprobe --disable-ffplay && \
+    make -j"$(nproc-1)" && \
     make install && \
-    hash -r
-RUN chmod +x $(which ffmpeg)
+    hash -r && chmod +x "$(which ffmpeg)" && \
+    rm -rf .git
 
 # Upgrade pip
-RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --no-cache-dir --upgrade pip
 
 # Install Wav2Lip from pip
 RUN pip install --no-cache-dir --no-deps Wav2Lipy

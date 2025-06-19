@@ -10,8 +10,8 @@ on:
     paths:
       - .github/workflows/pr-examples-test.yml
       - comps/cores/**
-      - comps/dataprep/src/redis/langchain/**
-      - comps/retrievers/src/redis/langchain/**
+      - comps/dataprep/src/**
+      - comps/retrievers/src/**
       - comps/third_parties/nginx/src/**
       - requirements.txt
       - "!**.md"
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run ChatQnA
         env:
-          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           cd ../ && sudo rm -rf GenAIExamples
           git clone https://github.com/opea-project/GenAIExamples.git

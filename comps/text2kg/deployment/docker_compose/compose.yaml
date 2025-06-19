@@ -1,0 +1,29 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
+
+services:
+  text2kg:
+     image: ${REGISTRY:-opea}/text2kg:${TAG:-latest}
+     container_name: text2kg
+     ports:
+         - ${TEXT2KG_PORT:-8090}:8090
+     environment:
+         - no_proxy=${no_proxy}
+         - https_proxy=${https_proxy}
+         - http_proxy=${http_proxy}
+         - LLM_MODEL_ID=${LLM_MODEL_ID:-"HuggingFaceH4/zephyr-7b-alpha"}
+         - HF_TOKEN=${HF_TOKEN}
+     depends_on:
+         - tgi-server
+         - neo4j-apoc
+     ipc: host
+     network_mode: "host"
+     restart: always
+
+networks:
+  default:
+    driver: bridge

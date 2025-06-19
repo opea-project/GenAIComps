@@ -29,6 +29,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    local offline=${1:-false}
     export host_ip=${ip_address}
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export EMBED_MODEL=${EMBEDDING_MODEL_ID}
@@ -37,13 +38,20 @@ function start_service() {
     export COLLECTION_NAME="rag-qdrant"
     export QDRANT_HOST=$ip_address
     export QDRANT_PORT=6360
-    service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
+    if [[ "$offline" == "true" ]]; then
+        service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant-offline"
+        export offline_no_proxy="${ip_address}"
+    else
+        service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
+    fi
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-qdrant-server" || exit 1
 }
 
 function validate_microservice() {
+    local offline=${1:-false}
     # test /v1/dataprep/ingest upload file
     ingest_doc ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-qdrant-server ${LOG_PATH}/dataprep-qdrant.log
@@ -67,8 +75,10 @@ function validate_microservice() {
     check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-qdrant-server ${LOG_PATH}/dataprep-qdrant.log
 
     # test /v1/dataprep/ingest upload link
-    ingest_external_link ${ip_address} ${DATAPREP_PORT}
-    check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-qdrant-server ${LOG_PATH}/dataprep-qdrant.log
+    if [[ "$offline" != "true" ]]; then
+      ingest_external_link ${ip_address} ${DATAPREP_PORT}
+      check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-qdrant-server ${LOG_PATH}/dataprep-qdrant.log
+    fi
 
 }
 
@@ -77,14 +87,30 @@ function stop_docker() {
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
+}
+
 function main() {
 
     stop_docker
 
     build_docker_images
-    start_service
+    trap stop_service EXIT
 
+    echo "Test normal env ..."
+    start_service
     validate_microservice
+    stop_service
+
+    if [[ -n "${DATA_PATH}" ]]; then
+        echo "Test air gapped env ..."
+        prepare_dataprep_models ${DATA_PATH}
+        start_service true
+        validate_microservice true
+        stop_service
+    fi
 
     stop_docker
     echo y | docker system prune
