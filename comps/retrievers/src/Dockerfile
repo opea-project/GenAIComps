@@ -22,8 +22,8 @@ COPY comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      $uvpip -r /home/user/comps/retrievers/src/requirements-cpu.txt; \
       $uvpip torch torchvision --index-url https://download.pytorch.org/whl/cpu; \
+      $uvpip -r /home/user/comps/retrievers/src/requirements-cpu.txt; \
     else \
       $uvpip -r /home/user/comps/retrievers/src/requirements-gpu.txt; \
     fi

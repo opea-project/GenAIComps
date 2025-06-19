@@ -20,9 +20,8 @@ COPY comps /home/user/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    $uvpip -r /home/user/comps/guardrails/src/prompt_injection/requirements.txt && \
-    if [ ${ARCH} = "cpu" ]; then $uvpip torch --index-url https://download.pytorch.org/whl/cpu; fi
-
+    if [ ${ARCH} = "cpu" ]; then $uvpip torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    $uvpip -r /home/user/comps/guardrails/src/prompt_injection/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

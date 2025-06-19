@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing p
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      $uvpip -r /home/comps/image2video/src/requirements-cpu.txt; \
       $uvpip torch torchvision --index-url https://download.pytorch.org/whl/cpu; \
+      $uvpip -r /home/comps/image2video/src/requirements-cpu.txt; \
     else \
       $uvpip -r /home/comps/image2video/src/requirements-gpu.txt; \
     fi
