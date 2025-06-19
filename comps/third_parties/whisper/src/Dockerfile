@@ -21,10 +21,10 @@ COPY --chown=user:user comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ "${ARCH}" = "cpu" ]; then \
-        $uvpip -r /home/user/comps/asr/src/requirements-cpu.txt ; \
+        $uvpip -r /home/user/comps/third_parties/whisper/src/requirements-cpu.txt ; \
         $uvpip torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
     else \
-        $uvpip -r /home/user/comps/asr/src/requirements-gpu.txt ; \
+        $uvpip -r /home/user/comps/third_parties/whisper/src/requirements-gpu.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
