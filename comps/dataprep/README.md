@@ -65,6 +65,10 @@ For details, please refer to this [readme](src/README_finance.md)
 
 For details, please refer to this [readme](src/README_mariadb.md)
 
+## Dataprep Microservice with ArangoDB
+
+For details, please refer to this [readme](src/README_arangodb.md)
+
 ## Running in the air gapped environment
 
 The following steps are common for running the dataprep microservice in an air gapped environment (a.k.a. environment with no internet access), for all DB backends.
