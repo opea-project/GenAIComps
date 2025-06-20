@@ -1,5 +1,2 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-image:
-  repository: ghcr.io/huggingface/text-embeddings-inference

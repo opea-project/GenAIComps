@@ -18,14 +18,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libreoffice \
     poppler-utils \
     tesseract-ocr \
+    ffmpeg \
     wget curl
-
-# Install ffmpeg static build
-RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
-mkdir ffmpeg-git-amd64-static && tar -xvf ffmpeg-git-amd64-static.tar.xz -C ffmpeg-git-amd64-static --strip-components 1 && \
-export PATH=/root/ffmpeg-git-amd64-static:$PATH && \
-cp /root/ffmpeg-git-amd64-static/ffmpeg /usr/local/bin/
-
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -45,9 +39,14 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home/user/comps/dataprep/src/uploaded_files
+RUN mkdir -p /data && chown -R user /data
 
 USER user
 ENV NLTK_DATA=/home/user/nltk_data
+# air gapped support: predownload all needed nltk data
+RUN mkdir -p /home/user/nltk_data && python -m nltk.downloader -d /home/user/nltk_data punkt_tab averaged_perceptron_tagger_eng stopwords
+# air gapped support: set model cache dir
+ENV HF_HUB_CACHE=/data
 
 WORKDIR /home/user/comps/dataprep/src
 

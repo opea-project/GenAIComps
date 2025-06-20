@@ -21,7 +21,7 @@ export ARANGO_USERNAME=${your_arango_username} # e.g. root
 export ARANGO_PASSWORD=${your_arango_password} # e.g test
 export ARANGO_DB_NAME=${your_db_name} # e.g _system
 export TEI_EMBEDDING_ENDPOINT=${your_tei_embedding_endpoint}
-export HUGGINGFACEHUB_API_TOKEN=${your_huggingface_api_token}
+export HF_TOKEN=${your_huggingface_api_token}
 ```
 
 ### Build Docker Image
@@ -118,6 +118,7 @@ ArangoDB Vector configuration
 - `ARANGO_SEARCH_START`: The starting point for the search. Defaults to `node`. Other option could be `"edge"`, or `"chunk"`.
 - `ARANGO_SEARCH_MODE`: The method of search to use for ArangoDB Vector Search. Defaults to `vector`. Other option could be `"hybrid"`, which combines Vector Search + Full Text Search via Reciprocal Rank Fusion (RRF).
 
+
 ArangoDB Traversal configuration
 
 - `ARANGO_TRAVERSAL_ENABLED`: If set to True, the microservice will perform a traversal of the graph on the documents matched by similarity and return additional context (i.e nodes, edges, or chunks) from the graph. Defaults to `False`. See the `fetch_neighborhoods` method in the `arangodb.py` file for more details.
@@ -130,7 +131,7 @@ Embedding configuration
 
 - `TEI_EMBEDDING_ENDPOINT`: The endpoint for the TEI service.
 - `TEI_EMBED_MODEL`: The model to use for the TEI service. Defaults to `BAAI/bge-base-en-v1.5`.
-- `HUGGINGFACEHUB_API_TOKEN`: The API token for Hugging Face access.
+- `HF_TOKEN`: The API token for Hugging Face access.
 
 Summarizer Configuration
 

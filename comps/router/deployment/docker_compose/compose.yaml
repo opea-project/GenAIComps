@@ -1,0 +1,35 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  router_service:
+    build:
+      context: ../../../..
+      dockerfile: comps/router/src/Dockerfile
+
+    image: "${REGISTRY_AND_REPO:-opea/router}:${TAG:-latest}"
+    container_name: opea_router
+
+    volumes:
+      - ./configs:/app/configs
+
+    environment:
+      CONFIG_PATH: /app/configs/router.yaml
+
+      WEAK_ENDPOINT:  ${WEAK_ENDPOINT:-http://opea_router:8000/weak}
+      STRONG_ENDPOINT: ${STRONG_ENDPOINT:-http://opea_router:8000/strong}
+      WEAK_MODEL_ID:  ${WEAK_MODEL_ID:-openai/gpt-3.5-turbo}
+      STRONG_MODEL_ID: ${STRONG_MODEL_ID:-openai/gpt-4}
+
+      HF_TOKEN:        ${HF_TOKEN:?set HF_TOKEN}
+      OPENAI_API_KEY:  ${OPENAI_API_KEY:-""}
+
+      CONTROLLER_TYPE: ${CONTROLLER_TYPE:-routellm}
+
+    ports:
+      - "${ROUTER_PORT:-6000}:6000"
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

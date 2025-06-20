@@ -24,7 +24,7 @@ function start_service_larger_model() {
     export INJECTION_PROMPTGUARD_PORT=9085
     export TAG=comps
     export HF_TOKEN=${HF_TOKEN}
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    export HF_TOKEN=${HF_TOKEN}
     service_name="prompt-injection-guardrail-server"
     cd $WORKPATH
     echo $WORKPATH
@@ -112,7 +112,7 @@ function main() {
     stop_docker
 
     echo "cleanup container images and volumes"
-    echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune > /dev/null 2>&1
 
 }
 

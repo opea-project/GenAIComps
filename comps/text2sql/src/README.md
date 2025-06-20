@@ -47,11 +47,11 @@ docker run --name postgres-db --ipc=host -e POSTGRES_USER=${POSTGRES_USER} -e PO
 #### Start TGI Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export TGI_PORT=8008
 
-docker run -d --name="text2sql-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.4.1 --model-id $LLM_MODEL_ID
+docker run -d --name="text2sql-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.4.1 --model-id $LLM_MODEL_ID
 ```
 
 #### Verify the TGI Service
@@ -117,11 +117,13 @@ docker run  --runtime=runc --name="comps-langchain-text2sql"  -p 9090:8080 --ipc
 
 ```bash
 export TGI_LLM_ENDPOINT=http://${your_ip}:${TGI_PORT}
-export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
+export LLM_ENDPOINT_PORT=${TGI_PORT}
+export host_ip=${your_ip}
 ```
 
 ##### Start the services.
@@ -149,15 +151,15 @@ The Text-to-SQL microservice exposes the following API endpoints:
 - Test Database Connection
 
   ```bash
-  curl --location http://${your_ip}:9090/v1/postgres/health \
+  curl --location http://${your_ip}:8080/v1/postgres/health \
   --header 'Content-Type: application/json' \
-  --data '{"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}'
+  --data '{"conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}'
   ```
 
 - Execute SQL Query from input text
 
   ```bash
-  curl http://${your_ip}:9090/v1/text2sql\
+  curl http://${your_ip}:8080/v1/text2sql\
           -X POST \
           -d '{"input_text": "Find the total number of Albums.","conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}' \
           -H 'Content-Type: application/json'
