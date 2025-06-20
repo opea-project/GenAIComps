@@ -22,11 +22,13 @@ RUN mkdir /home/user/model && chown user:user -R /home/user/model
 COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/third_parties/video-llama/src
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/third_parties/video-llama/src/requirements.txt; \
+        $uvpip -r /home/user/comps/third_parties/video-llama/src/requirements-cpu.txt; \
+        $uvpip torch==2.5.1 torchvision~=2.5.1 torchaudio==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/third_parties/video-llama/src/requirements.txt; \
+        $uvpip -r /home/user/comps/third_parties/video-llama/src/requirements-gpu.txt; \
     fi
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git

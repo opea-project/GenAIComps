@@ -14,7 +14,12 @@ WORKDIR /home/user
 COPY comps /home/user/comps
 
 # Install deps from the router’s requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r /home/user/comps/router/src/requirements.txt && git clone --depth 1 https://github.com/lm-sys/RouteLLM.git /tmp/RouteLLM && patch -p1 -d /tmp/RouteLLM < /home/user/comps/router/src/hf_compatibility.patch && pip install --no-cache-dir /tmp/RouteLLM && rm -rf /tmp/RouteLLM
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip uv && \
+    $uvpip -r /home/user/comps/router/src/requirements.txt && \
+    git clone --depth 1 https://github.com/lm-sys/RouteLLM.git /tmp/RouteLLM && \
+    patch -p1 -d /tmp/RouteLLM < /home/user/comps/router/src/hf_compatibility.patch && \
+    $uvpip /tmp/RouteLLM && rm -rf /tmp/RouteLLM
 
 # Make imports work
 ENV PYTHONPATH=/home/user

@@ -1,0 +1,54 @@
+# used by microservice
+docarray[full]
+fastapi
+
+# get data source
+finnhub-python==2.4.22
+huggingface_hub
+langchain
+
+#used by tools
+langchain-google-community
+langchain-huggingface
+langchain-openai
+langchain-redis
+langchain_community
+langchainhub
+langgraph
+langsmith
+mysql-connector-python
+numpy
+
+# used by cloud native
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pandas
+prometheus_fastapi_instrumentator
+pyarrow
+pydantic #==1.10.13
+rank_bm25
+
+# used by document loader
+# beautifulsoup4
+# easyocr
+# Pillow
+# pymupdf
+# python-docx
+
+# used by embedding
+# sentence_transformers
+
+# used by Ray
+# ray
+# virtualenv
+
+redis
+shortuuid
+tavily-python
+
+# used by agents
+transformers
+transformers[sentencepiece]
+
+uvicorn
