@@ -5,7 +5,7 @@ name: MicroService-test
 
 on:
   pull_request_target:
-    branches: ["main", "*rc", "pre-ci", "*uv"]
+    branches: ["main", "*rc", "pre-ci", "**uv"]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - comps/**
