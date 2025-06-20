@@ -29,7 +29,8 @@ RUN $uvpip git+https://github.com/huggingface/optimum-habana.git@transformers_fu
 
 WORKDIR /home/user/comps/llms/src/text-generation
 RUN $uvpip -r requirements.txt && \
-    $uvpip soundfile peft backoff
+    $uvpip soundfile peft backoff && \
+    $uvpip numpy==1.26.4
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs

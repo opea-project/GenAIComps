@@ -26,9 +26,8 @@ WORKDIR /home/user/comps/third_parties/video-llama/src
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-        $uvpip torch==2.5.1 torchvision~=2.5.1 torchaudio==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
+        $uvpip torch==2.5.1 torchaudio~=2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
         $uvpip -r /home/user/comps/third_parties/video-llama/src/requirements-cpu.txt; \
-        $uvpip torch==2.5.1 torchvision~=2.5.1 torchaudio==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
     else \
         $uvpip -r /home/user/comps/third_parties/video-llama/src/requirements-gpu.txt; \
     fi
