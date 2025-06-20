@@ -24,12 +24,17 @@ COPY --chown=user:user comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements.txt && \
     pip install --no-cache-dir --upgrade transformers && \
-    pip install --no-cache-dir optimum[habana]
+    pip install --no-cache-dir optimum[habana] && \
+    pip install --no-cache-dir --upgrade 'numpy<2'
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER user
 
 WORKDIR /home/user/comps/third_parties/speecht5/src
+
+# air gapped support
+RUN curl -sLJO https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/spk_embed_default.pt
+RUN curl -sLJO https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/spk_embed_male.pt
 
 ENTRYPOINT ["python", "speecht5_server.py", "--device", "hpu"]
