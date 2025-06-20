@@ -3,9 +3,6 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# Download default voice reference
-wget "https://github.com/intel/intel-extension-for-transformers/raw/refs/heads/main/intel_extension_for_transformers/neural_chat/assets/audio/welcome_cn.wav"
-
 # Download models
 MODEL_REPO=https://huggingface.co/lj1995/GPT-SoVITS
 llm_download=${llm_download}
