@@ -22,9 +22,11 @@ RUN mkdir /home/user/model && chown user:user -R /home/user/model
 COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/third_parties/video-llama/src
 
+# install the fixed torch version again after install cpu requirements, make sure the deps are compatible
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
+        $uvpip torch==2.5.1 torchvision~=2.5.1 torchaudio==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
         $uvpip -r /home/user/comps/third_parties/video-llama/src/requirements-cpu.txt; \
         $uvpip torch==2.5.1 torchvision~=2.5.1 torchaudio==0.20.1 --index-url https://download.pytorch.org/whl/cpu; \
     else \
