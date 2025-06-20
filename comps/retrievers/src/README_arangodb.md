@@ -116,7 +116,7 @@ ArangoDB Vector configuration
 - `ARANGO_USE_APPROX_SEARCH`: If set to True, the microservice will use the approximate nearest neighbor search for as part of the retrieval step. Defaults to `False`, which means the microservice will use the exact search.
 - `ARANGO_NUM_CENTROIDS`: The number of centroids to use for the approximate nearest neighbor search. Defaults to `1`.
 - `ARANGO_SEARCH_START`: The starting point for the search. Defaults to `node`. Other option could be `"edge"`, or `"chunk"`.
-- `ARANGO_SEARCH_TYPE`: The type of search to use for the ArangoDB service. Defaults to `vector`. Other option could be `"hybrid"`, which combines Vector Search + Full Text Search via Reciprocal Rank Fusion (RRF).
+- `ARANGO_SEARCH_MODE`: The method of search to use for ArangoDB Vector Search. Defaults to `vector`. Other option could be `"hybrid"`, which combines Vector Search + Full Text Search via Reciprocal Rank Fusion (RRF).
 
 ArangoDB Traversal configuration
 
@@ -166,7 +166,7 @@ class RetrievalRequest(BaseModel): ...
 class RetrievalRequestArangoDB(RetrievalRequest):
     graph_name: str | None = None
     search_start: str | None = None  # "node", "edge", "chunk"
-    search_type: str | None = None  # "vector", "hybrid"
+    search_mode: str | None = None  # "vector", "hybrid"
     num_centroids: int | None = None
     distance_strategy: str | None = None  #  # "COSINE", "EUCLIDEAN_DISTANCE"
     use_approx_search: bool | None = None

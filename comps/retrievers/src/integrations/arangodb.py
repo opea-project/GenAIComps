@@ -23,7 +23,7 @@ from .config import (
     ARANGO_NUM_CENTROIDS,
     ARANGO_PASSWORD,
     ARANGO_SEARCH_START,
-    ARANGO_SEARCH_TYPE,
+    ARANGO_SEARCH_MODE,
     ARANGO_TRAVERSAL_ENABLED,
     ARANGO_TRAVERSAL_MAX_DEPTH,
     ARANGO_TRAVERSAL_MAX_RETURNED,
@@ -338,7 +338,7 @@ class OpeaArangoRetriever(OpeaComponent):
         embedding = input.embedding if isinstance(input.embedding, list) else None
         graph_name = input_dict.get("graph_name", ARANGO_GRAPH_NAME)
         search_start = input_dict.get("search_start", ARANGO_SEARCH_START)
-        search_type = input_dict.get("search_type", ARANGO_SEARCH_TYPE)
+        search_mode = input_dict.get("search_mode", ARANGO_SEARCH_MODE)
         enable_traversal = input_dict.get("enable_traversal", ARANGO_TRAVERSAL_ENABLED)
         enable_summarizer = input_dict.get("enable_summarizer", SUMMARIZER_ENABLED)
         distance_strategy = input_dict.get("distance_strategy", ARANGO_DISTANCE_STRATEGY)
@@ -455,7 +455,7 @@ class OpeaArangoRetriever(OpeaComponent):
                 text_field=ARANGO_TEXT_FIELD,
                 distance_strategy=distance_strategy,
                 num_centroids=num_centroids,
-                search_type=search_type,
+                search_type=search_mode,
             )
         except Exception as e:
             if logflag:
