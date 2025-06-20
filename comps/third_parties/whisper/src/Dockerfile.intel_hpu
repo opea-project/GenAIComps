@@ -24,7 +24,8 @@ COPY --chown=user:user comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     pip install --no-cache-dir optimum-habana && \
-    pip install --no-cache-dir --upgrade Jinja2
+    pip install --no-cache-dir --upgrade Jinja2 && \
+    pip install --no-cache-dir --upgrade 'numpy<2'
 
 ENV PYTHONPATH=$PYTHONPATH:/home/users
 
