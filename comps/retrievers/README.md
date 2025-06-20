@@ -45,3 +45,7 @@ For details, please refer to this [readme](src/README_pathway.md)
 ## Retriever Microservice with MariaDB Vector
 
 For details, please refer to this [readme](src/README_mariadb.md)
+
+## Retriever Microservice with ArangoDB
+
+For details, please refer to this [readme](src/README_arangodb.md)
