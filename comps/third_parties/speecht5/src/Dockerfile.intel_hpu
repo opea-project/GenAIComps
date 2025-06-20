@@ -24,8 +24,7 @@ COPY --chown=user:user comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     $uvpip -r /home/user/comps/third_parties/speecht5/src/requirements-cpu.txt && \
-    $uvpip numpy==1.23.5 && \
-    $uvpip --upgrade transformers && \
+    $uvpip numpy==1.26.4 && \
     $uvpip optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
