@@ -118,7 +118,6 @@ ArangoDB Vector configuration
 - `ARANGO_SEARCH_START`: The starting point for the search. Defaults to `node`. Other option could be `"edge"`, or `"chunk"`.
 - `ARANGO_SEARCH_MODE`: The method of search to use for ArangoDB Vector Search. Defaults to `vector`. Other option could be `"hybrid"`, which combines Vector Search + Full Text Search via Reciprocal Rank Fusion (RRF).
 
-
 ArangoDB Traversal configuration
 
 - `ARANGO_TRAVERSAL_ENABLED`: If set to True, the microservice will perform a traversal of the graph on the documents matched by similarity and return additional context (i.e nodes, edges, or chunks) from the graph. Defaults to `False`. See the `fetch_neighborhoods` method in the `arangodb.py` file for more details.
