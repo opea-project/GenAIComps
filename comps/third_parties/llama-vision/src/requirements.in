@@ -8,8 +8,8 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 optimum[habana]
 prometheus-fastapi-instrumentator
-pydantic==2.9.2
+pydantic
 pydub
 shortuuid
-transformers>=4.50.0
+transformers
 uvicorn
