@@ -48,9 +48,6 @@ class OpeaDocSumvLLM(OpeaDocSum):
             input (DocSumChatCompletionRequest): The input text(s).
         """
         headers = {}
-        print("...........")
-        print(self.access_token,self.llm_endpoint)
-        print("...........")
         if self.access_token:
             headers = {"Authorization": f"Bearer {self.access_token}"}
 
