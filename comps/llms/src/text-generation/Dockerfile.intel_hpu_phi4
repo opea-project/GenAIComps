@@ -28,7 +28,8 @@ RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana
 
 WORKDIR /home/user/comps/llms/src/text-generation
 RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir soundfile peft backoff
+    pip install --no-cache-dir soundfile peft backoff && \
+    pip install numpy==1.26.4
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
