@@ -72,7 +72,9 @@ class OpeaDocSum(OpeaComponent):
             self.access_token = OPENAI_API_KEY
         else:
             self.access_token = (
-                get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+                get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET)
+                if TOKEN_URL and CLIENTID and CLIENT_SECRET
+                else None
             )
         self.llm_endpoint = get_llm_endpoint()
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
