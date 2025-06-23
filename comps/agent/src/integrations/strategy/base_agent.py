@@ -46,10 +46,12 @@ class BaseAgent:
             from comps.cores.mcp.manager import OpeaMCPToolsManager
 
             self.mcp_config = OpeaMCPConfig(
-                sse_servers=[OpeaMCPSSEServerConfig(
-                    url=self.args.mcp_sse_server_url,
-                    api_key=self.args.mcp_sse_server_api_key,
-                )],
+                sse_servers=[
+                    OpeaMCPSSEServerConfig(
+                        url=self.args.mcp_sse_server_url,
+                        api_key=self.args.mcp_sse_server_api_key,
+                    )
+                ],
             )
             async with await OpeaMCPToolsManager.create(self.mcp_config) as manager:
                 self.mcp_tools = manager.tools_registry
