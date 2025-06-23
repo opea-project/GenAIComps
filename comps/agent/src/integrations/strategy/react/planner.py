@@ -29,10 +29,10 @@ class ReActAgentwithLangchain(BaseAgent):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
         else:
             agent_chain = create_react_langchain_agent(
-                self.llm, self.mcp_tools, prompt, tools_renderer=tool_renderer
+                self.llm, self.tools_descriptions, prompt, tools_renderer=tool_renderer
             )
         self.app = AgentExecutor(
-            agent=agent_chain, tools=self.mcp_tools, verbose=True, handle_parsing_errors=True
+            agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )
         self.memory = {}
 
