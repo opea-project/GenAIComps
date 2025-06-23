@@ -34,9 +34,18 @@ function _invoke_curl() {
 	;;
     esac
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "$header" "${url}" "$@")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    curl_args=(-X POST -H "$header")
+    # remove empty arguments from the list
+    for arg in "$@"; do
+        if [[ -n "$arg" ]]; then
+            curl_args+=("$arg")
+        fi
+    done
+    curl_args+=("${url}")
+
+    HTTP_RESPONSE=$(curl --silent --show-error --write-out "\nHTTPSTATUS:%{http_code}" "${curl_args[@]}" )
+    RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+    HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -n 's/.*HTTPSTATUS:\([0-9]*\)$/\1/p')
 }
 
 

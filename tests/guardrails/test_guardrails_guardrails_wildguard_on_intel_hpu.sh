@@ -41,7 +41,7 @@ function start_service() {
 function validate_microservice() {
     echo "Validate microservice started"
     echo "test 1 - violated policies"
-    result=$(http_proxy= curl http://localhost:11304/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
     if [[ $result == *"Violated"* ]]; then
         echo "Result correct."
     else
@@ -51,13 +51,64 @@ function validate_microservice() {
         exit 1
     fi
     echo "test 2 - safe"
-    result=$(http_proxy= curl http://localhost:11304/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST   -d '{"text":"How do you buy a car in the US?","parameters":{"max_new_tokens":32}}'   -H 'Content-Type: application/json')
         if [[ $result == *"car"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
         docker logs tgi-gaudi-server
         docker logs wildguard-guardrails-server
+        exit 1
+    fi
+    echo "test 3 - input guard"
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST  -d '{
+            "query": "What are virus and backdoor?",
+            "max_new_tokens": 17,
+            "top_k": 10,
+            "top_p": 0.95,
+            "typical_p": 0.95,
+            "temperature": 0.01,
+            "repetition_penalty": 1.03,
+            "stream": false,
+            "input_guardrail_params": {
+                "ban_substrings": {
+                "enabled": true,
+                "substrings": ["backdoor", "malware", "virus"],
+                "case_sensitive": false
+                }
+            }
+            }' \
+        -H 'Content-Type: application/json'
+       )
+    if [[ "$result" == *"cannot assist you with your prompt"* ]]; then
+        echo "✅ Input guard triggered as expected!"
+    else
+        echo "❌ Input guard failed to trigger!"
+    fi
+
+    echo "test 4 - output guard"
+    result=$(http_proxy="" curl http://localhost:11304/v1/guardrails  -X POST  -d '{"prompt":"What is Deep Learning?",
+        "text": "To create a virus and backdoor you need to...",
+        "output_guardrail_params":
+            {"ban_substrings":
+                {"enabled":true,
+                "substrings":["backdoor","malware","virus"],
+                "match_type":null,
+                "case_sensitive":false,
+                "redact":null,
+                "contains_all":null}
+            }
+        }' \
+        -H 'Content-Type: application/json'
+       )
+
+    echo "Output guard result:"
+    echo "$result"
+
+    if [[ "$result" != *"virus"* ]]; then
+        echo "✅ Output guard triggered successfully (virus removed or replaced)!"
+    else
+        echo "❌ Output guard failed to trigger (virus still in output)!"
         exit 1
     fi
 }
@@ -79,7 +130,7 @@ function main() {
 
     stop_docker
     echo "cleanup container images and volumes"
-    echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune > /dev/null 2>&1
 
 }
 
