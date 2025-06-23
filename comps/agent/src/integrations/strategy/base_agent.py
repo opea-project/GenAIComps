@@ -5,8 +5,8 @@ from uuid import uuid4
 
 from langgraph.checkpoint.memory import MemorySaver
 
-from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
 from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
 
 from ..storage.persistence_redis import RedisPersistence
 from ..tools import get_tools_descriptions
@@ -24,13 +24,9 @@ class BaseAgent:
         if args.mcp_sse_server_url:
             from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
             from comps.cores.mcp.manager import OpeaMCPToolsManager
+
             self.mcp_config = OpeaMCPConfig(
-                sse_servers=[
-                    OpeaMCPSSEServerConfig(
-                        url=args.mcp_sse_server_url,
-                        api_key=args.mcp_sse_server_api_key
-                    )
-                ],
+                sse_servers=[OpeaMCPSSEServerConfig(url=args.mcp_sse_server_url, api_key=args.mcp_sse_server_api_key)],
             )
             async with await OpeaMCPToolsManager.create(self.mcp_config) as manager:
                 self.mcp_tools = manager.tools_registry
