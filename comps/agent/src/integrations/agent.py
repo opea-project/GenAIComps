@@ -5,6 +5,7 @@ from .utils import load_python_prompt
 
 agent = None
 
+
 async def instantiate_agent(args):
     global agent
     strategy = args.strategy
@@ -53,7 +54,7 @@ async def instantiate_agent(args):
             agent = SQLAgent(args, with_memory, custom_prompt=custom_prompt)
         else:
             raise ValueError(f"Agent strategy: {strategy} not supported!")
-    
+
         await agent.async_init()
 
     return agent
