@@ -23,13 +23,14 @@ COPY comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
-    $uvpip git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
+    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 RUN $uvpip git+https://github.com/huggingface/optimum-habana.git@transformers_future
 
 WORKDIR /home/user/comps/llms/src/text-generation
 RUN $uvpip -r requirements.txt && \
-    $uvpip soundfile peft backoff
+    $uvpip soundfile peft backoff && \
+    $uvpip numpy==1.26.4
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
