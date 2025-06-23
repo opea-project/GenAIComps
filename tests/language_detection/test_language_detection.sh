@@ -7,7 +7,6 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
-
 export TAG=comps
 export PORT=8069
 export service_name="language-detection"
@@ -28,7 +27,7 @@ function start_service() {
     unset http_proxy
     cd $WORKPATH/comps/language_detection/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d
-    sleep 3s
+    sleep 10s
 }
 
 function validate_microservice() {
