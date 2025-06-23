@@ -33,7 +33,7 @@ RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}
 
 WORKDIR /root/comps/text2cypher/src
 RUN $uvpip -r requirements-cpu.txt && \
-    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3 transformers==4.49.0
 
 # Set environment variables
 ENV PYTHONPATH=/root:/usr/lib/habanalabs/:/root/optimum-habana

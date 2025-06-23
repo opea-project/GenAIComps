@@ -34,7 +34,7 @@ RUN $uvpip -r requirements.txt
 
 WORKDIR /home/user/comps/llms/src/text-generation/
 RUN $uvpip -r requirements.txt && \
-    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.4
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.4 transformers==4.49.0
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
