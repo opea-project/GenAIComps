@@ -10,12 +10,14 @@ langchain
 #used by tools
 langchain-google-community
 langchain-huggingface
+langchain-mcp-adapters
 langchain-openai
 langchain-redis
 langchain_community
 langchainhub
 langgraph
 langsmith
+mcp
 mysql-connector-python
 numpy
 

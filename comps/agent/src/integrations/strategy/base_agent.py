@@ -5,19 +5,17 @@ from uuid import uuid4
 
 from langgraph.checkpoint.memory import MemorySaver
 
-from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
 from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
 
 from ..storage.persistence_redis import RedisPersistence
-from ..tools import get_tools_descriptions
 from ..utils import adapt_custom_prompt, setup_chat_model
 
 
 class BaseAgent:
     @opea_telemetry
-    def __init__(self, args, local_vars=None, **kwargs) -> None:
+    def __init__(self, args, tools_descriptions=None, local_vars=None, **kwargs) -> None:
         self.llm = setup_chat_model(args)
-        self.tools_descriptions = get_tools_descriptions(args.tools)
+        self.tools_descriptions = tools_descriptions or []
         self.app = None
         self.id = f"assistant_{self.__class__.__name__}_{uuid4()}"
 
@@ -39,23 +37,6 @@ class BaseAgent:
         else:
             self.store = None
             self.checkpointer = None
-
-    async def async_init(self):
-        if self.args.mcp_sse_server_url:
-            from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig
-            from comps.cores.mcp.manager import OpeaMCPToolsManager
-
-            self.mcp_config = OpeaMCPConfig(
-                sse_servers=[
-                    OpeaMCPSSEServerConfig(
-                        url=self.args.mcp_sse_server_url,
-                        api_key=self.args.mcp_sse_server_api_key,
-                    )
-                ],
-            )
-            async with await OpeaMCPToolsManager.create(self.mcp_config) as manager:
-                self.mcp_tools = manager.tools_registry
-                self.tools_descriptions.extend(self.mcp_tools)
 
     @property
     def is_vllm(self):

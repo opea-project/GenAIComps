@@ -42,6 +42,12 @@ if os.environ.get("role_description") is not None:
 
 if os.environ.get("tools") is not None:
     env_config += ["--tools", os.environ["tools"]]
+    
+if os.environ.get("mcp_sse_server_url") is not None:
+    env_config += ["--mcp_sse_server_url", os.environ["mcp_sse_server_url"]]
+    
+if os.environ.get("mcp_sse_server_api_key") is not None:
+    env_config += ["--mcp_sse_server_api_key", os.environ["mcp_sse_server_api_key"]]
 
 if os.environ.get("stream") is not None:
     env_config += ["--stream", os.environ["stream"]]
