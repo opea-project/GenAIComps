@@ -3,9 +3,9 @@
 
 
 import os
+
 from comps import CustomLogger, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.constants import MCPFuncType
-
 
 logger = CustomLogger("comps-react-agent")
 logflag = os.getenv("LOGFLAG", False)

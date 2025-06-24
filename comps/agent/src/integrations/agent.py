@@ -1,8 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 from .storage.persistence_redis import RedisPersistence
-from .utils import load_python_prompt
 from .tools import get_mcp_tools, get_tools_descriptions
+from .utils import load_python_prompt
 
 agent = None
 
@@ -11,7 +11,7 @@ async def instantiate_agent(args):
     global agent
     strategy = args.strategy
     with_memory = args.with_memory
-    
+
     # initialize tools
     base_tools = get_tools_descriptions(getattr(args, "tools", None))
     mcp_tools = await get_mcp_tools(args.mcp_sse_server_url) if getattr(args, "mcp_sse_server_url", None) else []
@@ -28,11 +28,15 @@ async def instantiate_agent(args):
         if strategy == "react_langchain":
             from .strategy.react import ReActAgentwithLangchain
 
-            agent = ReActAgentwithLangchain(args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt)
+            agent = ReActAgentwithLangchain(
+                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+            )
         elif strategy == "react_langgraph":
             from .strategy.react import ReActAgentwithLanggraph
 
-            agent = ReActAgentwithLanggraph(args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt)
+            agent = ReActAgentwithLanggraph(
+                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+            )
         elif strategy == "react_llama":
             print("Initializing ReAct Agent with LLAMA")
             from .strategy.react import ReActAgentLlama
@@ -41,7 +45,9 @@ async def instantiate_agent(args):
         elif strategy == "plan_execute":
             from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
-            agent = PlanExecuteAgentWithLangGraph(args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt)
+            agent = PlanExecuteAgentWithLangGraph(
+                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+            )
 
         elif strategy == "rag_agent" or strategy == "rag_agent_llama":
             print("Initializing RAG Agent")
