@@ -23,7 +23,7 @@ if [ "$hw_mode" = "gpu" ]; then
 else
     BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
     source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
-    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
+    git clone --depth 1 -b ${VLLM_OPENVINO_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
     docker build -t vllm-openvino:latest -f Dockerfile.openvino . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd $BASEDIR && rm -rf vllm
 fi
