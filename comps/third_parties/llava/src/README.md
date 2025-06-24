@@ -71,6 +71,25 @@ docker run -d --name llava-service -p 8399:8399 -e http_proxy=$http_proxy --ipc=
 docker run -d --name llava-service -p 8399:8399 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/lvm-llava:latest
 ```
 
+##### Running in the air gapped environment
+
+The following steps are needed for running the service in an air gapped environment(a.k.a. environment with no internet access):
+
+1. Pre-download the model `llava-hf/llava-1.5-7b-hf`:
+
+```bash
+# predownload model
+export model_dir="./data"
+mkdir -p ${model_dir}
+huggingface-cli download --cache-dir ${model_dir} llava-hf/llava-1.5-7b-hf
+```
+
+2. Launch the microservice by mounting the `model_dir` directory into the container as the `/data` directory and setting environment variable `HF_HUB_OFFLINE` to `1`:
+
+```bash
+docker run -d --name llava-service -p 8399:8399 -e HF_HUB_OFFLINE=1 -v ${model_dir}:/data opea/lvm-llava:latest
+```
+
 #### 2.2.2 Test
 
 > Note: The `MAX_IMAGES` environment variable is used to specify the maximum number of images that will be sent from the LVM service to the LLaVA server.

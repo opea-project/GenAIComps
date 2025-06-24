@@ -31,6 +31,13 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
+# air gapped support: set model cache dir
+RUN mkdir -p /data && chown -R user /data
+ENV HF_HUB_CACHE=/data
+# air gapped support: download warmup jpg files
+RUN mkdir -p /home/user/comps/third_parties/llava/src/cache && cd /home/user/comps/third_parties/llava/src/cache && curl -sJLO https://llava-vl.github.io/static/images/view.jpg
+RUN chown -R user /home/user/comps/third_parties/llava/src/cache
+
 USER user
 WORKDIR /home/user/comps/third_parties/llava/src
 

@@ -121,6 +121,29 @@ async def generate(request: Request) -> Response:
     return JSONResponse(ret)
 
 
+def _get_remote_file_with_cache(url, local_path=None, cache_dir="cache"):
+    """Downloads a remote file and saves it locally as a cache.
+    If the file already exists in the cache directory, it uses the cached version.
+
+    Args:
+        url (str): The URL of the remote file.
+        local_path (str): The desired local filename (relative to cache_dir).
+        cache_dir (str): The directory to store cached files.
+    """
+    os.makedirs(cache_dir, exist_ok=True)  # Create cache directory if it doesn't exist
+    if not local_path:
+        local_path = os.path.basename(url)
+    cached_file_path = os.path.join(cache_dir, local_path)
+
+    if not os.path.exists(cached_file_path):
+        response = requests.get(url, stream=True, timeout=3000)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        with open(cached_file_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+    return cached_file_path
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
@@ -173,29 +196,31 @@ if __name__ == "__main__":
 
         generator.model = wrap_in_hpu_graph(generator.model)
 
-    image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
-    images = []
-    for image_path in image_paths:
-        images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
+    if args.warmup > 0:
+        image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
+        images = []
+        for image_path in image_paths:
+            cached_image_file = _get_remote_file_with_cache(image_path)
+            images.append(PIL.Image.open(cached_image_file))
 
-    # Generate a text prompt to use for warm up
-    conversation = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image"},
-                {"type": "text", "text": "What's the content of the image?"},
-            ],
-        },
-    ]
-    text_prompt = processor.apply_chat_template(conversation)
-    for i in range(args.warmup):
-        res = generator(
-            images,
-            text=text_prompt,
-            batch_size=1,
-            generate_kwargs=generate_kwargs,
-        )
+        # Generate a text prompt to use for warm up
+        conversation = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image"},
+                    {"type": "text", "text": "What's the content of the image?"},
+                ],
+            },
+        ]
+        text_prompt = processor.apply_chat_template(conversation)
+        for i in range(args.warmup):
+            res = generator(
+                images,
+                text=text_prompt,
+                batch_size=1,
+                generate_kwargs=generate_kwargs,
+            )
 
     uvicorn.run(
         app,
