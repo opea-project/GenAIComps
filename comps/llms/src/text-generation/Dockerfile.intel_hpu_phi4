@@ -20,15 +20,17 @@ RUN git lfs install
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
-RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana.git@transformers_future
+RUN $uvpip git+https://github.com/huggingface/optimum-habana.git@transformers_future
 
 WORKDIR /home/user/comps/llms/src/text-generation
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir soundfile peft backoff
+RUN $uvpip -r requirements.txt && \
+    $uvpip soundfile peft backoff && \
+    $uvpip numpy==1.26.4 transformers==4.51.3
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs

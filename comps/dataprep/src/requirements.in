@@ -10,7 +10,7 @@ einops
 elasticsearch
 fastapi
 future
-graspologic
+graspologic>=3.4.1
 html2text
 huggingface_hub
 ipython
@@ -50,7 +50,7 @@ opentelemetry-sdk==1.27.0
 pandas
 pgvector==0.2.5
 Pillow
-pinecone-client
+pinecone
 prometheus-fastapi-instrumentator
 protobuf==4.24.2
 psycopg2

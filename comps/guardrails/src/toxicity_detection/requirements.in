@@ -1,0 +1,17 @@
+aiohttp
+docarray[full]
+fastapi
+httpx
+huggingface_hub
+langchain-community
+langchain-huggingface
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+predictionguard
+prometheus-fastapi-instrumentator
+pyyaml
+requests
+shortuuid
+uvicorn
+transformers

@@ -26,9 +26,9 @@ sentence-transformers
 sentencepiece
 shortuuid
 timm
-torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
-torchaudio~=2.5.1 --index-url https://download.pytorch.org/whl/cpu
-torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1
+torchaudio~=2.5.1
+torchvision==0.20.1
 transformers==4.49
 uvicorn
 validators
