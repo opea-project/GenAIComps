@@ -75,12 +75,12 @@ jobs:
           fi
 
           cd ${{ github.workspace }}
-          source ${{ github.workspace }}/.github/env/_build_image.sh
+          source ${{ github.workspace }}/.github/env/_vllm_versions.sh
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
-              git clone -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git
+              git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_yml}) != 0 ]]; then
-              git clone -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git
+              git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git
           fi
       - name: Get build list
         id: get-build-list

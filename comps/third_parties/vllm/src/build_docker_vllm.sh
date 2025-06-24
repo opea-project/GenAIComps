@@ -35,12 +35,12 @@ fi
 
 # Build the docker image for vLLM based on the hardware mode
 if [ "$hw_mode" = "hpu" ]; then
-    git clone -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
+    git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
     docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd ..
     rm -rf vllm-fork
 else
-    git clone -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
+    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
     docker build -f docker/Dockerfile.cpu -t opea/vllm-cpu:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd ..
     rm -rf vllm
