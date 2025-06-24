@@ -22,7 +22,7 @@ service_name="docsum-vllm"
 function build_docker_images() {
     cd $WORKPATH
     VLLM_VER="v0.8.3"
-    git clone -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
+    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
     docker build --no-cache -f docker/Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm built fail"
