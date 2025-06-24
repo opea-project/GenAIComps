@@ -1,0 +1,15 @@
+accelerate>=0.26.0
+datasets
+docarray[full]
+fastapi
+numpy<2
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+optimum[habana]
+prometheus-fastapi-instrumentator
+pydantic
+pydub
+shortuuid
+transformers
+uvicorn
