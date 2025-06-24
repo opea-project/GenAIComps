@@ -17,7 +17,7 @@ service_name="vllm-openvino"
 
 function build_container() {
     cd $WORKPATH
-    VLLM_VER="v0.6.1"
+    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
     git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git vllm-openvino && cd vllm-openvino
 
     docker build --no-cache -t ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest} \
