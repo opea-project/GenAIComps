@@ -1,8 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-ARG UBUNTU_VER=22.04
-FROM ubuntu:${UBUNTU_VER} as devel
+FROM python:3.11-slim
 
 ENV LANG=C.UTF-8
 
@@ -11,13 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     aspell-en \
     build-essential \
     git \
-    python3 \
-    python3-dev \
-    python3-distutils \
-    python3-pip \
     wget
 
-RUN ln -sf $(which python3) /usr/bin/python
-RUN python -m pip install --no-cache-dir pytest pytest-cov
+RUN python -m pip install --no-cache-dir pytest pytest-cov uv
 
 WORKDIR /
