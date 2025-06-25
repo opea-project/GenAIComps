@@ -18,6 +18,7 @@ export HF_CACHE_DIR=${model_cache:-./data}
 echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
 ls $HF_CACHE_DIR
 export vllm_volume=${HF_CACHE_DIR}
+mcp_port=8056
 
 
 export WORKPATH=$WORKPATH
@@ -37,7 +38,7 @@ export max_new_tokens=4096
 export TOOLSET_PATH=$WORKPATH/comps/agent/src/tools/
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
-export MCP_SSE_SERVER_URL="http://${ip_address}:8056"
+export MCP_SSE_SERVER_URL="http://${ip_address}:${mcp_port}/sse"
 
 function build_docker_images() {
     echo "Building the docker images"
@@ -171,12 +172,19 @@ function start_vllm_service_70B() {
 
 function start_mcp_tool_service() {
     echo "Starting mcp tool microservice"
-    export PYTHONPATH=$WORKPATH
-    pip install mcp
-    python $WORKPATH/tests/agent/mcp_tool.py > ${LOG_PATH}/mcp_tool.log 2>&1 & echo $! > ${LOG_PATH}/mcp_tool.pid
+
+    docker run -d --name "test-comps-mcp-tool-service" \
+    -v $WORKPATH:/workspace/GenAIComps \
+    -v $WORKPATH/tests/agent/mcp_tool.py:/workspace/mcp_tool.py \
+    -w /workspace \
+    -e http_proxy=$http_proxy \
+    -e https_proxy=$https_proxy \
+    -p $mcp_port:8000 \
+    python:3.11-slim \
+    bash -c "pip install --upgrade pip && pip install -r GenAIComps/comps/agent/src/requirements.txt && export PYTHONPATH=/workspace/GenAIComps && python /workspace/mcp_tool.py"
 
     sleep 1m
-    cat ${LOG_PATH}/mcp_tool.log
+    docker logs test-comps-mcp-tool-service &> ${LOG_PATH}/mcp_tool.log
     echo "Service started successfully"
 }
 
@@ -366,15 +374,10 @@ function stop_redis_docker() {
 }
 
 function stop_mcp_tool() {
-    if [ -f ${LOG_PATH}/mcp_tool.pid ]; then
-        local pid=$(cat ${LOG_PATH}/mcp_tool.pid)
-        echo "Stopping mcp tool microservice with PID: $pid"
-        kill -9 $pid
-        rm -f ${LOG_PATH}/mcp_tool.pid
-        echo "MCP Tool microservice stopped successfully"
-    else
-        echo "MCP Tool microservice is not running or PID file not found."
-    fi
+    cid=$(docker ps -aq --filter "name=test-comps-mcp-tool-service")
+    echo "Stopping the docker containers "${cid}
+    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    echo "MCP Docker containers stopped successfully"
 }
 
 function stop_docker() {
