@@ -5,22 +5,23 @@ import argparse
 import asyncio
 import base64
 import io
-import numpy as np
 import os
-import soundfile as sf
 import sys
-import time
 import threading
+import time
 import uuid
 from typing import List, Optional
 
+import numpy as np
+import soundfile as sf
 import uvicorn
-from fastapi import FastAPI, File, Form, Request, UploadFile, WebSocket, WebSocketDisconnect, Body
+from fastapi import Body, FastAPI, File, Form, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
+from faster_whisper_model import FasterWhisperModel
 from pydub import AudioSegment
 from starlette.middleware.cors import CORSMiddleware
 from whisper_model import WhisperModelCPU, WhisperModelHPU, WhisperModelXPU, get_nlp
-from faster_whisper_model import FasterWhisperModel
+
 from comps import CustomLogger
 from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
@@ -42,16 +43,17 @@ app.add_middleware(
 )
 
 
-def init_streaming_whisper(streaming_model_size: str, model_size: str, device: str, return_timestamps: str, language: str):
-    """init streaming whisper service in a thread"""
+def init_streaming_whisper(
+    streaming_model_size: str, model_size: str, device: str, return_timestamps: str, language: str
+):
+    """Init streaming whisper service in a thread."""
     global streaming_asr
     if device == "cpu":
         # for cpu device, leverage the faster-whisper library for streaming asr
         # notice that the library uses different naming for the model definition
         try:
             prefix = "openai/whisper-"
-            formatted_model = args.streaming_model_name_or_path.replace(
-                prefix, "", 1)
+            formatted_model = args.streaming_model_name_or_path.replace(prefix, "", 1)
             streaming_asr = FasterWhisperModel(
                 model_size_or_path=formatted_model,
             )
@@ -76,8 +78,7 @@ def init_streaming_whisper(streaming_model_size: str, model_size: str, device: s
                 )
                 streaming_asr_ready.set()
             except Exception as e:
-                logger.error(
-                    f"Failed to initialize streaming Whisper model on hpu: {e}")
+                logger.error(f"Failed to initialize streaming Whisper model on hpu: {e}")
                 streaming_asr_ready.set()
 
         elif device == "xpu":
@@ -90,8 +91,7 @@ def init_streaming_whisper(streaming_model_size: str, model_size: str, device: s
                 )
                 streaming_asr_ready.set()
             except Exception as e:
-                logger.error(
-                    f"Failed to initialize streaming Whisper model on xpu: {e}")
+                logger.error(f"Failed to initialize streaming Whisper model on xpu: {e}")
                 streaming_asr_ready.set()
     # load the segmentation tool
     get_nlp(language)
@@ -173,21 +173,12 @@ async def audio_transcriptions(
 
 
 @app.post("/v1/realtime/transcription_sessions")
-async def create_realtime_transcription_session(
-    config: Optional[dict] = Body(default=None)
-):
+async def create_realtime_transcription_session(config: Optional[dict] = Body(default=None)):
     # set default values for all configs
     client_secret = None
-    turn_detection = {
-        "silence_duration_ms": 500,
-        "prefix_padding_ms": 300,
-        "threshold": 0.5,
-        "type": "server_vad"
-    }
+    turn_detection = {"silence_duration_ms": 500, "prefix_padding_ms": 300, "threshold": 0.5, "type": "server_vad"}
     input_audio_format = "pcm16"
-    input_audio_transcription = {
-        "model": "openai/whisper-medium"
-    }
+    input_audio_transcription = {"model": "openai/whisper-medium"}
     modalities = ["audio", "text"]
 
     if config:
@@ -199,7 +190,7 @@ async def create_realtime_transcription_session(
                 "silence_duration_ms": td.get("silence_duration_ms", 500),
                 "prefix_padding_ms": td.get("prefix_padding_ms", 300),
                 "threshold": td.get("threshold", 0.5),
-                "type": td.get("type", "server_vad")
+                "type": td.get("type", "server_vad"),
             }
         if config.get("input_audio_transcription"):
             input_audio_transcription = config["input_audio_transcription"]
@@ -209,11 +200,10 @@ async def create_realtime_transcription_session(
             logger.info("Unused Include param for now.")
 
     if input_audio_transcription.get("model") != streaming_asr_model:
-        logger.info(
-            "Unmatched model for streaming asr. Fallback to default model")
+        logger.info("Unmatched model for streaming asr. Fallback to default model")
         input_audio_transcription["model"] = streaming_asr_model
 
-    '''
+    """
     # user may choose from the available models and start the streaming whisper thread later
     available_streaming_models = ["openai/whisper-tiny", "openai/whisper-base", "openai/whisper-small", "openai/whisper-medium"]
     if input_audio_transcription.model in available_streaming_models:
@@ -226,7 +216,7 @@ async def create_realtime_transcription_session(
         streaming_whisper_thread.start()
     else:
         logger.error("Unsupported model chosen, fallback to default streaming model")
-    '''
+    """
     session_id = f"sess_{uuid.uuid4().hex[:12]}"
     expires_at = int(time.time()) + 1800  # expires in 30 mins
 
@@ -238,7 +228,7 @@ async def create_realtime_transcription_session(
         "input_audio_format": input_audio_format,
         "input_audio_transcription": input_audio_transcription,
         "turn_detection": turn_detection,
-        "modalities": modalities
+        "modalities": modalities,
     }
 
     return session
@@ -246,15 +236,14 @@ async def create_realtime_transcription_session(
 
 @app.websocket("/v1/realtime")
 async def audio_transcriptions_streaming(websocket: WebSocket, intent: str = "transcription"):
-    """
-    This endpoint is used to stream the transcription of the audio input.
+    """This endpoint is used to stream the transcription of the audio input.
+
     Args:
         websocket: WebSocket
         intent: String, default is "transcription"
     """
     if intent != "transcription":
-        logger.warning(
-            "Unsupported function. Currently only support the 'transcription' intent.")
+        logger.warning("Unsupported function. Currently only support the 'transcription' intent.")
         await websocket.close()
         return
 
@@ -262,31 +251,35 @@ async def audio_transcriptions_streaming(websocket: WebSocket, intent: str = "tr
 
     # wait for the streaming model to be initialized
     if not streaming_asr_ready.wait(timeout=10):
-        await websocket.send_json({
-            "event_id": "event_0",
-            "type": "error",
-            "error": {
-                "type": "initialization_timeout",
-                "code": "initialization_timeout",
-                "message": "The streaming asr failed to initialize.",
-                "param": None,
-                "event_id": "event_0"
+        await websocket.send_json(
+            {
+                "event_id": "event_0",
+                "type": "error",
+                "error": {
+                    "type": "initialization_timeout",
+                    "code": "initialization_timeout",
+                    "message": "The streaming asr failed to initialize.",
+                    "param": None,
+                    "event_id": "event_0",
+                },
             }
-        })
+        )
         return
 
     if streaming_asr is None:
-        await websocket.send_json({
-            "event_id": "event_0",
-            "type": "error",
-            "error": {
-                "type": "initialization_failure",
-                "code": "initialization_failure",
-                "message": "The streaming asr model failed to initialize.",
-                "param": None,
-                "event_id": "event_0"
+        await websocket.send_json(
+            {
+                "event_id": "event_0",
+                "type": "error",
+                "error": {
+                    "type": "initialization_failure",
+                    "code": "initialization_failure",
+                    "message": "The streaming asr model failed to initialize.",
+                    "param": None,
+                    "event_id": "event_0",
+                },
             }
-        })
+        )
         return
 
     try:
@@ -296,9 +289,9 @@ async def audio_transcriptions_streaming(websocket: WebSocket, intent: str = "tr
         get_speech_timestamps = None
         if streaming_asr_device != "cpu":
             import torch
+
             torch.set_num_threads(1)
-            model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad',
-                                          model='silero_vad')
+            model, utils = torch.hub.load(repo_or_dir="snakers4/silero-vad", model="silero_vad")
             get_speech_timestamps, _, _, _, _ = utils
 
         while True:
@@ -306,22 +299,23 @@ async def audio_transcriptions_streaming(websocket: WebSocket, intent: str = "tr
                 # receive message with timeout
                 try:
                     message = await asyncio.wait_for(
-                        websocket.receive_json(),
-                        timeout=DEFAULT_SESSION_TIMEOUT_MINS * 60
+                        websocket.receive_json(), timeout=DEFAULT_SESSION_TIMEOUT_MINS * 60
                     )
                 except asyncio.TimeoutError:
                     logger.info("Session expired after 30 minutes.")
-                    await websocket.send_json({
-                        "event_id": event_id,
-                        "type": "error",
-                        "error": {
-                            "type": "expired_session_error",
-                            "code": "expired_session_error",
-                            "message": "session_expired - Your session hit the maximum duration of 30 minutes.",
-                            "param": None,
-                            "event_id": event_id
+                    await websocket.send_json(
+                        {
+                            "event_id": event_id,
+                            "type": "error",
+                            "error": {
+                                "type": "expired_session_error",
+                                "code": "expired_session_error",
+                                "message": "session_expired - Your session hit the maximum duration of 30 minutes.",
+                                "param": None,
+                                "event_id": event_id,
+                            },
                         }
-                    })
+                    )
                     await websocket.close()
                     break
 
@@ -344,62 +338,57 @@ async def audio_transcriptions_streaming(websocket: WebSocket, intent: str = "tr
                             audio = np.mean(audio, axis=1)
                         if sr != 16000:
                             import librosa
-                            audio = librosa.resample(
-                                audio, orig_sr=sr, target_sr=16000)
+
+                            audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
                             sr = 16000
                         audio_int16 = (audio * 32767).astype(np.int16)
                         audio_tensor = torch.from_numpy(audio_int16)
                         audio_tensor = audio_tensor.squeeze()
-                        speech_timestamps = get_speech_timestamps(
-                            audio_tensor, model, sampling_rate=16000)
+                        speech_timestamps = get_speech_timestamps(audio_tensor, model, sampling_rate=16000)
 
                     # process transcription
-                    await streaming_asr.audio2text_streaming(websocket=websocket, audio_data=audio, timestamp=speech_timestamps, item_id=item_id)
+                    await streaming_asr.audio2text_streaming(
+                        websocket=websocket, audio_data=audio, timestamp=speech_timestamps, item_id=item_id
+                    )
                 else:
-                    logger.info("Unsupported message type： %s",
-                                message.get("type"))
-                    await websocket.send_json({
-                        "event_id": "event_0",
-                        "type": "error",
-                        "error": {
-                            "type": "unsupported_action_type",
-                            "code": "unsupported_action_type",
-                            "message": "Recived unsupported action item.",
-                            "param": None,
-                            "event_id": "event_0"
+                    logger.info("Unsupported message type： %s", message.get("type"))
+                    await websocket.send_json(
+                        {
+                            "event_id": "event_0",
+                            "type": "error",
+                            "error": {
+                                "type": "unsupported_action_type",
+                                "code": "unsupported_action_type",
+                                "message": "Received unsupported action item.",
+                                "param": None,
+                                "event_id": "event_0",
+                            },
                         }
-                    })
+                    )
 
             except WebSocketDisconnect:
                 logger.info("WebSocket connection closed unexpectedly")
                 break
             except Exception as e:
                 logger.error(f"Error in WebSocket connection: {e}")
-                await websocket.send_json({
-                    "status": "error",
-                    "error": str(e)
-                })
+                await websocket.send_json({"status": "error", "error": str(e)})
                 break
 
     except Exception as e:
         logger.error(f"Error in audio streaming: {e}")
-        await websocket.send_json({
-            "status": "error",
-            "error": str(e)
-        })
+        await websocket.send_json({"status": "error", "error": str(e)})
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=7066)
-    parser.add_argument("--model_name_or_path", type=str,
-                        default="openai/whisper-small")
+    parser.add_argument("--model_name_or_path", type=str, default="openai/whisper-small")
     parser.add_argument("--language", type=str, default="english")
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--return_timestamps", type=str, default=True)
     parser.add_argument("--enable_streaming", type=bool, default=False)
-    parser.add_argument("--streaming_model_name_or_path",
-                        type=str, default="openai/whisper-small")
+    parser.add_argument("--streaming_model_name_or_path", type=str, default="openai/whisper-small")
 
     args = parser.parse_args()
     # initiate asr according to device type
@@ -436,9 +425,14 @@ if __name__ == "__main__":
         streaming_asr_model = args.streaming_model_name_or_path
         streaming_whisper_thread = threading.Thread(
             target=init_streaming_whisper,
-            args=(args.streaming_model_name_or_path, args.model_name_or_path,
-                  args.device, args.return_timestamps, args.language),
-            daemon=True
+            args=(
+                args.streaming_model_name_or_path,
+                args.model_name_or_path,
+                args.device,
+                args.return_timestamps,
+                args.language,
+            ),
+            daemon=True,
         )
         streaming_whisper_thread.start()
     uvicorn.run(app, host=args.host, port=args.port)
