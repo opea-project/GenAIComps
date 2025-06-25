@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Base image for GenAIComps based OPEA Python applications
-# Build: docker build -t opea/comps-base -f Dockerfile .
+# Build: docker build -t opea/comps-base:{version}-openeuler -f Dockerfile .
 
 ARG IMAGE_NAME=openeuler/python
 ARG IMAGE_TAG=3.11.13-oe2403lts
@@ -25,8 +25,9 @@ WORKDIR $HOME
 
 COPY *.toml *.py *.txt *.md LICENSE ./
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r requirements.txt
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    $uvpip -r requirements.txt
 
 COPY comps/ comps/
 
