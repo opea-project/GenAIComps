@@ -106,7 +106,6 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
    Ensure the ports are correctly mapped to avoid conflicts with other services.
 
 2. Environment Variables:
-
    - Use http_proxy and https_proxy for proxy setup if necessary.
    - CHUNK_DURATION: target chunk duration, should be aligned with VideoQnA dataprep. Default 10s.
 
