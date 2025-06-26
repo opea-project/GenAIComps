@@ -4,8 +4,11 @@
 
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
-from comps import opea_store
+
 from bson.objectid import ObjectId
+
+from comps import opea_store
+
 
 class DummyDoc:
     def model_dump(self, **kwargs):
@@ -28,7 +31,6 @@ class MockAsyncCursor:
         return doc
 
 
-
 class MockSortCursor:
     def __init__(self, docs):
         self.docs = docs
@@ -48,7 +50,7 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
             "MONGO_PORT": 27017,
             "DB_NAME": "test_db",
             "COLLECTION_NAME": "test_collection",
-            "user": "test_user"
+            "user": "test_user",
         }
         # patcher = patch("motor.motor_asyncio.AsyncIOMotorClient")
         patcher = patch("comps.cores.storages.mongodb.motor.AsyncIOMotorClient")
@@ -90,43 +92,29 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
 
     async def test_aupdate_document(self):
         self.store.collection.update_one.return_value.modified_count = 1
-        doc = {
-            "doc_id": str(ObjectId()),
-            "data": DummyDoc()
-        }
+        doc = {"doc_id": str(ObjectId()), "data": DummyDoc()}
         result = await self.store.aupdate_document(doc)
         self.assertTrue(result)
 
     async def test_aupdate_documents(self):
         self.store.collection.update_one.return_value.modified_count = 1
-        docs = [{
-            "doc_id": str(ObjectId()),
-            "data": DummyDoc()
-        }]
+        docs = [{"doc_id": str(ObjectId()), "data": DummyDoc()}]
         result = await self.store.aupdate_documents(docs)
         self.assertTrue(result)
 
     async def test_aget_document_by_id(self):
-        self.store.collection.find_one.return_value = {
-            "_id": ObjectId(),
-            "data": {"text": "mock"}
-        }
+        self.store.collection.find_one.return_value = {"_id": ObjectId(), "data": {"text": "mock"}}
         result = await self.store.aget_document_by_id(str(ObjectId()))
         self.assertEqual(result, {"text": "mock"})
 
     async def test_aget_documents_by_ids(self):
         mock_id = ObjectId("60dbf3a1fc13ae1a3b000000")
-        self.store.collection.find_one.return_value = {
-            "_id": mock_id,
-            "data": {"text": "mock"}
-        }
+        self.store.collection.find_one.return_value = {"_id": mock_id, "data": {"text": "mock"}}
         result = await self.store.aget_documents_by_ids([str(mock_id)])
         self.assertEqual(result, [{"text": "mock"}])
 
     async def test_aget_documents_by_user(self):
-        mock_docs = [
-            {"_id": ObjectId("60dbf3a1fc13ae1a3b000000"), "user": "test_user"}
-        ]
+        mock_docs = [{"_id": ObjectId("60dbf3a1fc13ae1a3b000000"), "user": "test_user"}]
         self.store.collection.find.return_value = MockAsyncCursor(mock_docs)
 
         result = await self.store.aget_documents_by_user("test_user")
@@ -148,12 +136,7 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
         self.store.collection.create_index = MagicMock()
 
         mock_docs = [
-            {
-                "_id": ObjectId("60dbf3a1fc13ae1a3b000000"),
-                "data": "mock data",
-                "user": "test_user",
-                "score": 0.9
-            }
+            {"_id": ObjectId("60dbf3a1fc13ae1a3b000000"), "data": "mock data", "user": "test_user", "score": 0.9}
         ]
         mock_cursor = MockSortCursor(mock_docs)
 

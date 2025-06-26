@@ -3,13 +3,13 @@
 
 
 from typing import Any
+
 import bson.errors as BsonError
-from bson.objectid import ObjectId
 import motor.motor_asyncio as motor
+from bson.objectid import ObjectId
 
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger
-
 
 logger = CustomLogger("MongoDBStore")
 
@@ -36,7 +36,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.error(e)
             raise Exception()
-        
+
         self.collection = self.db[COLLECTION_NAME]
 
     def health_check(self) -> bool:
@@ -47,12 +47,12 @@ class MongoDBStore(OpeaStore):
         """
         try:
             self.collection.count_documents()
-            logger.info(f"MongoDB Health check succeed!")
+            logger.info("MongoDB Health check succeed!")
             return True
         except Exception as e:
             logger.error(f"MongoDB Health check failed: {e}")
             return False
-        
+
     async def asave_document(self, doc: dict, **kwargs) -> bool | dict:
         """Stores a new document into the MongoDB collection.
 
@@ -96,7 +96,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.error(f"Fail to save document: {e}")
             raise Exception(e)
-        
+
     async def aupdate_document(self, doc: dict, **kwargs) -> bool | dict:
         """Update a single document in the store.
 
@@ -135,7 +135,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.error(e)
             raise Exception(e)
-        
+
     async def aupdate_documents(self, docs: list[dict], **kwargs) -> bool | dict:
         """Update multiple documents in the store.
 
@@ -150,10 +150,9 @@ class MongoDBStore(OpeaStore):
             result = await self.aupdate_document(doc)
             assert result
         return True
-    
+
     async def aget_document_by_id(self, id: str, **kwargs) -> dict | None:
-        """
-        Asynchronously retrieve a single document by its unique identifier.
+        """Asynchronously retrieve a single document by its unique identifier.
 
         Args:
             id (str): The unique identifier for the document.
@@ -181,10 +180,9 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.info(e)
             raise Exception(e)
-        
+
     async def aget_documents_by_ids(self, ids: list[str], **kwargs) -> list[dict]:
-        """
-        Asynchronously retrieve a single document by its unique identifier.
+        """Asynchronously retrieve a single document by its unique identifier.
 
         Args:
             id (str): The unique identifier for the document.
@@ -213,8 +211,7 @@ class MongoDBStore(OpeaStore):
             raise Exception(e)
 
     async def aget_documents_by_user(self, user: str = None, **kwargs) -> list[dict] | None:
-        """
-        Asynchronously retrieve all documents for a specific user.
+        """Asynchronously retrieve all documents for a specific user.
 
         Args:
             user (str): The unique identifier for the user.
@@ -242,7 +239,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.info(e)
             raise Exception(e)
-        
+
     async def adelete_document(self, id: str, **kwargs) -> bool:
         """Asynchronously delete a single document from the store.
 
@@ -275,12 +272,12 @@ class MongoDBStore(OpeaStore):
             raise Exception(e)
 
     async def adelete_documents(self, ids: list[str], **kwargs) -> bool:
-        """Asynchronously delete multiple documents from the store."
-        
+        """Asynchronously delete multiple documents from the store.".
+
         Args:
             ids (list[str]): A list of unique identifiers for the documents.
             **kwargs: Additional arguments for deleting the documents.
-        
+
         Returns:
             bool: True if doc is successfully deleted, False otherwise.
 
