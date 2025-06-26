@@ -29,13 +29,13 @@ async def instantiate_agent(args):
             from .strategy.react import ReActAgentwithLangchain
 
             agent = ReActAgentwithLangchain(
-                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+                args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt
             )
         elif strategy == "react_langgraph":
             from .strategy.react import ReActAgentwithLanggraph
 
             agent = ReActAgentwithLanggraph(
-                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+                args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt
             )
         elif strategy == "react_llama":
             print("Initializing ReAct Agent with LLAMA")
@@ -46,7 +46,7 @@ async def instantiate_agent(args):
             from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
             agent = PlanExecuteAgentWithLangGraph(
-                args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt
+                args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt
             )
 
         elif strategy == "rag_agent" or strategy == "rag_agent_llama":
@@ -58,12 +58,12 @@ async def instantiate_agent(args):
             print("Initializing SQL Agent Llama")
             from .strategy.sqlagent import SQLAgentLlama
 
-            agent = SQLAgentLlama(args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt)
+            agent = SQLAgentLlama(args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt)
         elif strategy == "sql_agent":
             print("Initializing SQL Agent")
             from .strategy.sqlagent import SQLAgent
 
-            agent = SQLAgent(args, with_memory, tools_descriptions=all_tools, custom_prompt=custom_prompt)
+            agent = SQLAgent(args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt)
         else:
             raise ValueError(f"Agent strategy: {strategy} not supported!")
 
