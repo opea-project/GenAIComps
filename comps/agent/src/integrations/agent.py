@@ -58,7 +58,9 @@ async def instantiate_agent(args):
             print("Initializing SQL Agent Llama")
             from .strategy.sqlagent import SQLAgentLlama
 
-            agent = SQLAgentLlama(args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt)
+            agent = SQLAgentLlama(
+                args, tools_descriptions=all_tools, with_memory=with_memory, custom_prompt=custom_prompt
+            )
         elif strategy == "sql_agent":
             print("Initializing SQL Agent")
             from .strategy.sqlagent import SQLAgent
