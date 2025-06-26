@@ -1,14 +1,17 @@
+aiohttp
 docarray[full]
 fastapi
-# Fix for issue with langchain-huggingface not using InferenceClient `base_url` kwarg
-huggingface-hub<=0.24.0
+httpx
+huggingface_hub
 langchain-community
 langchain-huggingface
-langchain-openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+predictionguard
 prometheus-fastapi-instrumentator
-sentencepiece
+pyyaml
+requests
 shortuuid
 uvicorn
+transformers

@@ -23,8 +23,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements.txt
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    $uvpip torch --index-url https://download.pytorch.org/whl/cpu && \
+    $uvpip -r /home/user/comps/llms/utils/lm-eval/requirements-cpu.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

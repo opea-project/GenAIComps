@@ -10,10 +10,15 @@ ARG ARCH="cpu"
 
 COPY comps /home/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/comps/text2image/src/requirements.txt
+      $uvpip torch torchvision --index-url https://download.pytorch.org/whl/cpu; \
+      $uvpip -r /home/comps/text2image/src/requirements-cpu.txt; \
+    else \
+      $uvpip -r /home/comps/text2image/src/requirements-gpu.txt; \
+    fi
+
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
