@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from bson.objectid import ObjectId
 
-from comps import opea_store
+from comps.cores.storages import opea_store
 
 
 class DummyDoc:
