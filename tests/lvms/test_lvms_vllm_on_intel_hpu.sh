@@ -18,9 +18,8 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    git clone https://github.com/HabanaAI/vllm-fork.git
-    cd ./vllm-fork/
-    git checkout f78aeb9da0712561163eddd353e3b6097cd69bac # revert this to habana_main when https://github.com/HabanaAI/vllm-fork/issues/1015 is fixed
+    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+    git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git && cd ./vllm-fork
     docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:$TAG --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd ..
     rm -rf vllm-fork

@@ -55,15 +55,9 @@ function build_docker_images() {
 
 function build_vllm_docker_images() {
     echo "Building the vllm docker images"
-    cd $WORKPATH
-    echo $WORKPATH
-    if [ ! -d "./vllm" ]; then
-        git clone https://github.com/HabanaAI/vllm-fork.git
-    fi
-    cd ./vllm-fork
-    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
-    echo "Check out vLLM tag ${VLLM_VER}"
-    git checkout ${VLLM_VER} &> /dev/null
+    cd $WORKPATH && echo $WORKPATH
+    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+    git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git && cd ./vllm-fork
     docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi:comps failed"
