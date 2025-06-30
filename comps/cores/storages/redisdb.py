@@ -18,7 +18,7 @@ logger = CustomLogger("RedisDBStore")
 
 
 def escape_redis_query_value(value: str) -> str:
-    # 简单转义 Redis Search 查询语法特殊字符，避免语法错误
+    # Escape special characters in Redis Search query syntax to avoid syntax errors
     special_chars = r'(){}[]|&!@~":'
     for ch in special_chars:
         value = value.replace(ch, f"\\{ch}")
@@ -83,7 +83,6 @@ class RedisDBStore(OpeaStore):
                 TagField("$.id", as_name="id"),
                 TextField("$.title", as_name="title"),
                 TextField("$.content", as_name="content"),
-                # 如果想全文索引整个 JSON 字段，可以用 TextField("$")，但性能有差别
             )
 
             definition = IndexDefinition(prefix=[self.doc_prefix], index_type=IndexType.JSON)
@@ -214,7 +213,6 @@ class RedisDBStore(OpeaStore):
             value_esc = escape_redis_query_value(value_str)
 
             if search_type == "exact":
-                # Tag style exact match
                 query_str = f"@{key}:{{{value_esc}}}"
             elif search_type == "contains":
                 query_str = f"@{key}:*{value_esc}*"
@@ -223,7 +221,6 @@ class RedisDBStore(OpeaStore):
             elif search_type == "ends_with":
                 query_str = f"@{key}:*{value_esc}"
             elif search_type == "regex":
-                # Redis Search 不支持正则，客户端过滤
                 return await self._regex_search(key, value_str)
             elif search_type == "custom":
                 if "filter_clause" not in kwargs:
