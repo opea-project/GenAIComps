@@ -17,7 +17,6 @@ This strategy is a practise provided with [LangGraph](https://github.com/langcha
 4. CompletionChecker:
 
    Judge on Replanner output
-
    - option plan_executor: Goto "Executor"
    - option END: Complete the query with Final answer.
 

@@ -10,7 +10,6 @@ This agent strategy includes steps listed below:
    - No: Complete the query with Final answer
 
 2. Retriever:
-
    - Get related documents from a retrieval tool, then send the documents to 'DocumentGrader'. Note: The retrieval tool here is broad-sense, which can be a text retriever over a proprietary knowledge base, a websearch API, knowledge graph API, SQL database API etc.
 
 3. DocumentGrader
