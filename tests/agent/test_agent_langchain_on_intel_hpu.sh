@@ -18,6 +18,7 @@ export HF_CACHE_DIR=${model_cache:-./data}
 echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
 ls $HF_CACHE_DIR
 export vllm_volume=${HF_CACHE_DIR}
+mcp_port=8056
 
 
 export WORKPATH=$WORKPATH
@@ -37,6 +38,7 @@ export max_new_tokens=4096
 export TOOLSET_PATH=$WORKPATH/comps/agent/src/tools/
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
+export MCP_SSE_SERVER_URL="http://${ip_address}:${mcp_port}/sse"
 
 function build_docker_images() {
     echo "Building the docker images"
@@ -168,6 +170,24 @@ function start_vllm_service_70B() {
     echo "Service started successfully"
 }
 
+function start_mcp_tool_service() {
+    echo "Starting mcp tool microservice"
+
+    docker run -d --name "test-comps-mcp-tool-service" \
+    -v $WORKPATH:/workspace/GenAIComps \
+    -v $WORKPATH/tests/agent/mcp_tool.py:/workspace/mcp_tool.py \
+    -w /workspace \
+    -e http_proxy=$http_proxy \
+    -e https_proxy=$https_proxy \
+    -p $mcp_port:8000 \
+    python:3.11-slim \
+    bash -c "pip install --upgrade pip && pip install -r GenAIComps/comps/agent/src/requirements.txt && export PYTHONPATH=/workspace/GenAIComps && python /workspace/mcp_tool.py"
+
+    sleep 1m
+    docker logs test-comps-mcp-tool-service &> ${LOG_PATH}/mcp_tool.log
+    echo "Service started successfully"
+}
+
 agent_start_wait_time=2m
 
 function start_react_agent_service() {
@@ -178,7 +198,6 @@ function start_react_agent_service() {
     echo "Service started successfully"
 }
 
-
 function start_react_langgraph_agent_service_openai() {
     echo "Starting react agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_langgraph_openai.yaml up -d
@@ -186,7 +205,6 @@ function start_react_langgraph_agent_service_openai() {
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
-
 
 function start_react_llama_agent_service() {
     echo "Starting redis for testing agent persistent"
@@ -228,6 +246,14 @@ function start_ragagent_agent_service() {
 function start_ragagent_agent_service_openai() {
     echo "Starting rag agent microservice"
     docker compose -f $WORKPATH/tests/agent/ragagent_openai.yaml up -d
+    sleep $agent_start_wait_time
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+function start_ragagent_agent_service_mcp() {
+    echo "Starting rag agent microservice"
+    docker compose -f $WORKPATH/tests/agent/ragagent_mcp.yaml up -d
     sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
@@ -280,7 +306,6 @@ function validate_microservice() {
         exit 1
     fi
 }
-
 
 function validate_microservice_multi_turn_streaming() {
     echo "Testing agent service - chat completion API"
@@ -348,13 +373,19 @@ function stop_redis_docker() {
     echo "Docker containers stopped successfully"
 }
 
+function stop_mcp_tool() {
+    cid=$(docker ps -aq --filter "name=test-comps-mcp-tool-service")
+    echo "Stopping the docker containers "${cid}
+    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    echo "MCP Docker containers stopped successfully"
+}
+
 function stop_docker() {
     stop_tgi_docker
     stop_vllm_docker
     stop_agent_docker
     stop_redis_docker
 }
-
 
 function validate_sql_agent(){
     cd $WORKPATH/tests/
@@ -371,7 +402,6 @@ function validate_sql_agent(){
         exit 1
     fi
 }
-
 
 function main() {
     stop_agent_docker
@@ -390,6 +420,14 @@ function main() {
     echo "=============Testing RAG Agent: chat completion, single-turn, not streaming ============="
     validate_microservice
     stop_agent_docker
+    echo "============================================="
+    # # test rag agent with mcp
+    start_mcp_tool_service
+    start_ragagent_agent_service_mcp
+    echo "=============Testing RAG Agent with MCP: chat completion, single-turn, not streaming ============="
+    validate_microservice
+    stop_agent_docker
+    stop_mcp_tool
     echo "============================================="
 
     # # # test react_llama
