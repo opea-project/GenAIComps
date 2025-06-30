@@ -32,6 +32,8 @@ RUN $uvpip -r requirements.txt && \
     $uvpip soundfile peft backoff && \
     $uvpip numpy==1.26.4 transformers==4.51.3
 
+RUN pip install --no-cache-dir "numpy<2.0"
+
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs
 
