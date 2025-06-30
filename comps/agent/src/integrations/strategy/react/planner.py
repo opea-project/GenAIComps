@@ -20,8 +20,8 @@ from ..base_agent import BaseAgent
 
 class ReActAgentwithLangchain(BaseAgent):
     @opea_telemetry
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, with_memory=False, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
         from .prompt import hwchase17_react_prompt
 
         prompt = hwchase17_react_prompt
@@ -90,8 +90,8 @@ class ReActAgentwithLangchain(BaseAgent):
 
 class ReActAgentwithLanggraph(BaseAgent):
     @opea_telemetry
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, with_memory=False, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
         if kwargs.get("custom_prompt") is not None:
             print("***Custom prompt is provided.")
             REACT_SYS_MESSAGE = kwargs.get("custom_prompt").REACT_SYS_MESSAGE
@@ -279,8 +279,8 @@ class ReActAgentNodeLlama:
 
 class ReActAgentLlama(BaseAgent):
     @opea_telemetry
-    def __init__(self, args, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
 
         agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store, **kwargs)
         tool_node = ToolNode(self.tools_descriptions)

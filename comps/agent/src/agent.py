@@ -39,9 +39,8 @@ args, _ = get_args()
 
 db_client = None
 
-logger.info("========initiating agent============")
+logger.info("======== args ============")
 logger.info(f"args: {args}")
-agent_inst = instantiate_agent(args)
 
 
 class AgentCompletionRequest(ChatCompletionRequest):
@@ -103,6 +102,8 @@ async def llm_generate(input: AgentCompletionRequest):
 
     if args.with_memory:
         config["configurable"] = {"thread_id": input.thread_id}
+
+    agent_inst = await instantiate_agent(args)
 
     if logflag:
         logger.info(type(agent_inst))
@@ -184,10 +185,10 @@ class CreateAssistant(CreateAssistantsRequest):
     port=args.port,
 )
 @opea_telemetry
-def create_assistants(input: CreateAssistant):
+async def create_assistants(input: CreateAssistant):
     # 1. initialize the agent
     print("@@@ Initializing agent with config: ", input.agent_config)
-    agent_inst = instantiate_agent(input.agent_config)
+    agent_inst = await instantiate_agent(input.agent_config)
     assistant_id = agent_inst.id
     created_at = int(datetime.now().timestamp())
     with assistants_global_kv as g_assistants:
