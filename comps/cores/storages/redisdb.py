@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import redis
 from redis.asyncio import Redis as AsyncRedis
-from redis.commands.search.field import TextField, TagField
+from redis.commands.search.field import TagField, TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 
@@ -29,8 +29,7 @@ class RedisDBStore(OpeaStore):
     """A concrete implementation of OpeaStore for Redis with search capabilities."""
 
     def __init__(self, name: str, description: str = "", config: dict = {}):
-        """
-        Initializes the RedisDBStore with the given configuration.
+        """Initializes the RedisDBStore with the given configuration.
 
         Args:
             name (str): The name of the component.
@@ -70,9 +69,7 @@ class RedisDBStore(OpeaStore):
                 if self.auto_create_index:
                     await self.create_index()
                 else:
-                    raise RuntimeError(
-                        f"Index '{self.index_name}' does not exist and auto-creation is disabled"
-                    )
+                    raise RuntimeError(f"Index '{self.index_name}' does not exist and auto-creation is disabled")
 
             return True
         except Exception as e:
@@ -89,10 +86,7 @@ class RedisDBStore(OpeaStore):
                 # 如果想全文索引整个 JSON 字段，可以用 TextField("$")，但性能有差别
             )
 
-            definition = IndexDefinition(
-                prefix=[self.doc_prefix],
-                index_type=IndexType.JSON
-            )
+            definition = IndexDefinition(prefix=[self.doc_prefix], index_type=IndexType.JSON)
 
             await self.index.create_index(schema, definition=definition)
             logger.info(f"Created Redis index '{self.index_name}' with prefix '{self.doc_prefix}'")
@@ -213,13 +207,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to delete documents: {e}")
             raise
 
-    async def search(
-        self,
-        key: str,
-        value: Any,
-        search_type: str = "exact",
-        **kwargs
-    ) -> List[dict]:
+    async def search(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> List[dict]:
         """Search for documents by key and value using Redis Search."""
         try:
             value_str = str(value)

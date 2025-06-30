@@ -1,8 +1,9 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from comps.cores.storages import opea_store
 
@@ -13,7 +14,7 @@ def mock_redisdb_store():
     with patch("redis.asyncio.Redis.from_url") as mock_client_factory:
         mock_client = AsyncMock()
         mock_index = AsyncMock()
-        
+
         # Simulate Redis client behavior
         mock_client.ping.return_value = True
         mock_client.ft.return_value = mock_index
