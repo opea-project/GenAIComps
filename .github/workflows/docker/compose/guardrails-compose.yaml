@@ -19,6 +19,10 @@ services:
     build:
       dockerfile: comps/guardrails/src/pii_detection/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-pii-predictionguard:${TAG:-latest}
+  guardrails-polite-guard:
+    build:
+      dockerfile: comps/guardrails/src/polite_guard/Dockerfile
+    image: ${REGISTRY:-opea}/guardrails-polite-guard:${TAG:-latest}
   guardrails-toxicity-predictionguard:
     build:
       dockerfile: comps/guardrails/src/toxicity_detection/Dockerfile
