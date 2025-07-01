@@ -4,12 +4,13 @@
 import asyncio
 import json
 import re
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 from typing import Any, List, Optional
+from concurrent.futures import ThreadPoolExecutor
 
 import redis
 from redis.asyncio import Redis as AsyncRedis
-from redisearch import Client, IndexDefinition, Query, TagField, TextField
+from redisearch import Client, TextField, TagField, IndexDefinition, Query
 
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger

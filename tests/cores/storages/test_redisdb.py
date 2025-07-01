@@ -8,11 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from comps.cores.storages import opea_store
 
-
 class DummyDoc:
     def model_dump(self, **kwargs):
         return {"id": "123", "title": "Test", "content": "Content"}
-
 
 class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
 
@@ -73,6 +71,53 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             await self.store.asave_document({"title": "no id"})
 
+    async def test_store_init_fields(self):
+        self.assertEqual(self.store.index_name, "test_index")
+        self.assertTrue(self.store.auto_create_index)
+
+    async def test_create_index_actual_fields(self):
+        self.store.search_client.create_index = MagicMock()
+        await self.store.create_index()
+        self.store.search_client.create_index.assert_called()
+
+    async def test_asave_document_json_error(self):
+        doc = DummyDoc().model_dump()
+        self.mock_client.json().set = AsyncMock(side_effect=TypeError("invalid json"))
+        with self.assertRaises(TypeError):
+            await self.store.asave_document(doc)
+
+    async def test_regex_search_multiple_docs(self):
+        self.mock_client.scan = AsyncMock(return_value=(0, ["test:doc:1", "test:doc:2"]))
+        self.mock_client.json().get = AsyncMock(
+            side_effect=[
+                {"id": "1", "title": "Hello"},
+                {"id": "2", "title": "World"},
+            ]
+        )
+        result = await self.store._regex_search("title", "H.*|W.*")
+        self.assertEqual(len(result), 2)
+        self.assertTrue(any("Hello" in doc["title"] for doc in result))
+
+    async def test_adelete_document_not_found(self):
+        self.mock_client.delete = AsyncMock(return_value=0)
+        result = await self.store.adelete_document("not_exist")
+        self.assertFalse(result)
+
+    async def test_adelete_document_error(self):
+        self.mock_client.delete = AsyncMock(side_effect=Exception("delete error"))
+        with self.assertRaises(Exception):
+            await self.store.adelete_document("123")
+
+    async def test_adelete_documents_partial_failure(self):
+        self.mock_client.delete = AsyncMock(return_value=1)
+        result = await self.store.adelete_documents(["doc1", "doc2"])
+        self.assertTrue(result)
+
+    async def test_adelete_documents_none_deleted(self):
+        self.mock_client.delete = AsyncMock(return_value=0)
+        result = await self.store.adelete_documents(["doc1", "doc2"])
+        self.assertFalse(result)
+
     async def test_aget_documents_by_ids_invalid_json(self):
         mock_pipeline = MagicMock()
         mock_pipeline.json.return_value.get.side_effect = lambda key: None
@@ -91,8 +136,8 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
 
     async def test_regex_search_fallback(self):
         self.mock_client.scan = AsyncMock(side_effect=[(1, ["test:doc:1"]), (0, [])])
-        self.mock_client.json().get = AsyncMock(return_value={"id": "1", "title": "Hello"})
-        result = await self.store._regex_search("title", "Hel")
+        self.mock_client.json().get = AsyncMock(return_value={"id": "1", "title": "Test"})
+        result = await self.store._regex_search("title", "Test")
         self.assertEqual(len(result), 1)
 
     async def test_regex_search_fail(self):
@@ -249,7 +294,6 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         result = await self.store.asearch("content", "Cont", search_type="contains")
         self.assertEqual(len(result), 1)
         self.assertIn("Cont", result[0]["content"])
-
 
 if __name__ == "__main__":
     unittest.main()
