@@ -3,7 +3,7 @@
 
 import json
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional
 
 import redis
 from redis.asyncio import Redis as AsyncRedis
@@ -50,7 +50,7 @@ class RedisDBStore(OpeaStore):
         self.client: Optional[AsyncRedis] = None
         self.index = None
 
-    async def initialize(self) -> bool:
+    async def _initialize_connection(self) -> bool:
         """Initialize the Redis connection and index (should be called after constructor)."""
         try:
             self.client = AsyncRedis.from_url(self.redis_url, decode_responses=True)
@@ -113,7 +113,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Redis health check failed: {e}")
             return False
 
-    async def save_document(self, doc: dict, **kwargs) -> bool:
+    async def asave_document(self, doc: dict, **kwargs) -> bool:
         """Saves a single document to Redis as JSON."""
         try:
             if "id" not in doc:
@@ -126,7 +126,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to save document: {e}")
             raise
 
-    async def save_documents(self, docs: List[dict], **kwargs) -> bool:
+    async def asave_documents(self, docs: List[dict], **kwargs) -> bool:
         """Saves multiple documents to Redis using pipeline."""
         try:
             if not docs:
@@ -149,15 +149,15 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to save documents: {e}")
             raise
 
-    async def update_document(self, doc: dict, **kwargs) -> bool:
+    async def aupdate_document(self, doc: dict, **kwargs) -> bool:
         """Updates a document in Redis (same as save)."""
-        return await self.save_document(doc, **kwargs)
+        return await self.asave_document(doc, **kwargs)
 
-    async def update_documents(self, docs: List[dict], **kwargs) -> bool:
+    async def aupdate_documents(self, docs: List[dict], **kwargs) -> bool:
         """Updates multiple documents in Redis (same as save)."""
-        return await self.save_documents(docs, **kwargs)
+        return await self.asave_documents(docs, **kwargs)
 
-    async def get_document_by_id(self, id: str, **kwargs) -> Optional[dict]:
+    async def aget_document_by_id(self, id: str, **kwargs) -> Optional[dict]:
         """Retrieves a document by its ID."""
         try:
             key = f"{self.doc_prefix}{id}"
@@ -167,7 +167,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to get document by ID {id}: {e}")
             return None
 
-    async def get_documents_by_ids(self, ids: List[str], **kwargs) -> List[dict]:
+    async def aget_documents_by_ids(self, ids: List[str], **kwargs) -> List[dict]:
         """Retrieves multiple documents by their IDs."""
         try:
             if not ids:
@@ -179,12 +179,13 @@ class RedisDBStore(OpeaStore):
                 pipeline.json().get(key)
 
             results = await pipeline.execute()
-            return [res for res in results if res]
+
+            return [json.loads(res) if isinstance(res, str) else res for res in results if res]
         except Exception as e:
             logger.error(f"Failed to get documents by IDs: {e}")
             raise
 
-    async def delete_document(self, id: str, **kwargs) -> bool:
+    async def adelete_document(self, id: str, **kwargs) -> bool:
         """Deletes a document by ID."""
         try:
             key = f"{self.doc_prefix}{id}"
@@ -194,7 +195,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to delete document {id}: {e}")
             raise
 
-    async def delete_documents(self, ids: List[str], **kwargs) -> bool:
+    async def adelete_documents(self, ids: List[str], **kwargs) -> bool:
         """Deletes multiple documents by ID."""
         try:
             if not ids:
@@ -206,7 +207,7 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Failed to delete documents: {e}")
             raise
 
-    async def search(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> List[dict]:
+    async def asearch(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> List[dict]:
         """Search for documents by key and value using Redis Search."""
         try:
             value_str = str(value)

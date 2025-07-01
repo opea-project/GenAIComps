@@ -19,5 +19,6 @@ python-arango
 python-multipart
 pyyaml
 requests
+redis
 shortuuid
 uvicorn

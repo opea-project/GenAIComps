@@ -236,6 +236,8 @@ pyyaml==6.0.2
     #   langchain
     #   langchain-community
     #   langchain-core
+redis==4.6.0
+    # via -r ./requirements.in
 requests==2.32.4
     # via
     #   -r ./requirements.in
