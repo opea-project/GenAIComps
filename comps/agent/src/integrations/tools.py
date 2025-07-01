@@ -145,3 +145,21 @@ def get_tools_descriptions(file_dir_path: str):
             else:
                 pass
     return tools
+
+
+async def get_mcp_tools(mcp_sse_server_url):
+
+    mcp_tools = []
+    from langchain_mcp_adapters.client import MultiServerMCPClient
+
+    client = MultiServerMCPClient(
+        {
+            "math": {
+                "url": mcp_sse_server_url,
+                "transport": "sse",
+            }
+        }
+    )
+
+    mcp_tools = await client.get_tools()
+    return mcp_tools

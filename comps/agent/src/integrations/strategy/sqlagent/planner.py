@@ -131,8 +131,8 @@ class SQLAgentLlama(BaseAgent):
     # # db_name and db_path
     # # use_hints, hints_file
     @opea_telemetry
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, with_memory=False, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
         # note: here tools only include user defined tools
         # we need to add the sql query tool as well
         print("@@@@ user defined tools: ", self.tools_descriptions)
@@ -284,8 +284,8 @@ class QueryFixerNode:
 
 class SQLAgent(BaseAgent):
     @opea_telemetry
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, with_memory=False, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
 
         sql_tool = get_sql_query_tool(args.db_path)
         tools = self.tools_descriptions + [sql_tool]

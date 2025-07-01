@@ -33,7 +33,7 @@ start_router() {
   export CONTROLLER_TYPE=routellm
 
   docker compose -f compose.yaml up router_service -d
-  sleep 20
+  sleep 40
 }
 
 validate() {

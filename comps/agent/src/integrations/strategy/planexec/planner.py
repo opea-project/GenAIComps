@@ -270,8 +270,8 @@ class Replanner:
 
 class PlanExecuteAgentWithLangGraph(BaseAgent):
     @opea_telemetry
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, tools_descriptions=None, with_memory=False, **kwargs):
+        super().__init__(args, tools_descriptions, local_vars=globals(), **kwargs)
 
         # Define Node
         plan_checker = PlanStepChecker(self.llm, is_vllm=self.is_vllm)
