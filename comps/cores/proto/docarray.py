@@ -4,7 +4,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from docarray import BaseDoc, DocList
+from docarray import BaseDoc
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, NonNegativeFloat, PositiveInt, conint, conlist, field_validator
@@ -133,7 +133,7 @@ class Audio2TextDoc(AudioDoc):
 
 
 class SearchedDoc(BaseDoc):
-    retrieved_docs: DocList[TextDoc]
+    retrieved_docs: List[TextDoc]
     initial_query: str
     top_n: PositiveInt = 1
 
@@ -164,7 +164,7 @@ class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
 
 
 class RerankedDoc(BaseDoc):
-    reranked_docs: DocList[TextDoc]
+    reranked_docs: List[TextDoc]
     initial_query: str
 
 
@@ -502,10 +502,10 @@ class RerankerParms(BaseDoc):
 
 
 class RAGASParams(BaseDoc):
-    questions: DocList[TextDoc]
-    answers: DocList[TextDoc]
-    docs: DocList[TextDoc]
-    ground_truths: DocList[TextDoc]
+    questions: List[TextDoc]
+    answers: List[TextDoc]
+    docs: List[TextDoc]
+    ground_truths: List[TextDoc]
 
 
 class RAGASScores(BaseDoc):
@@ -583,7 +583,7 @@ class ImagePath(BaseDoc):
 
 
 class ImagesPath(BaseDoc):
-    images_path: DocList[ImagePath]
+    images_path: List[ImagePath]
 
 
 class VideoPath(BaseDoc):

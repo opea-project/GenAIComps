@@ -8,6 +8,7 @@ kubernetes
 langchain
 langchain-community
 mcp
+motor
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
