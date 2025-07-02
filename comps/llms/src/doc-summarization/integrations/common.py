@@ -27,6 +27,7 @@ MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", 2048))
 MAX_TOTAL_TOKENS = int(os.getenv("MAX_TOTAL_TOKENS", 4096))
 
@@ -67,9 +68,14 @@ class OpeaDocSum(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
-        self.access_token = (
-            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
-        )
+        if OPENAI_API_KEY:
+            self.access_token = OPENAI_API_KEY
+        else:
+            self.access_token = (
+                get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET)
+                if TOKEN_URL and CLIENTID and CLIENT_SECRET
+                else None
+            )
         self.llm_endpoint = get_llm_endpoint()
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         health_status = self.check_health()
