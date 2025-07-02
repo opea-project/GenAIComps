@@ -276,6 +276,7 @@ class ServiceOrchestrator(DAG):
                         stream=True,
                         timeout=2000,
                     )
+
                 else:
                     response = requests.post(
                         url=endpoint,
@@ -367,7 +368,11 @@ class ServiceOrchestrator(DAG):
                 if ENABLE_OPEA_TELEMETRY
                 else contextlib.nullcontext()
             ):
-                response = await session.post(endpoint, json=input_data)
+                response = await session.post(
+                    endpoint,
+                    json=input_data,
+                    headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
+                )
 
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
