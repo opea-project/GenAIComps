@@ -3,18 +3,20 @@
 
 import json
 import re
+import asyncio
 from typing import Any, List, Optional
+from concurrent.futures import ThreadPoolExecutor
 
 import redis
 from redis.asyncio import Redis as AsyncRedis
-from redis.commands.search.field import TagField, TextField
-from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-from redis.commands.search.query import Query
+from redisearch import Client, TextField, TagField, IndexDefinition, Query
 
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger
 
 logger = CustomLogger("RedisDBStore")
+
+_executor = ThreadPoolExecutor(max_workers=5)
 
 
 def escape_redis_query_value(value: str) -> str:
@@ -29,17 +31,6 @@ class RedisDBStore(OpeaStore):
     """A concrete implementation of OpeaStore for Redis with search capabilities."""
 
     def __init__(self, name: str, description: str = "", config: dict = {}):
-        """Initializes the RedisDBStore with the given configuration.
-
-        Args:
-            name (str): The name of the component.
-            description (str): A brief description of the component.
-            config (dict): Configuration parameters including:
-                - REDIS_URL: Complete Redis URL (redis://...)
-                - INDEX_NAME: Name of the Redis search index
-                - DOC_PREFIX: Prefix for document keys (default: "doc:")
-                - AUTO_CREATE_INDEX: Whether to auto-create the index if missing (default: True)
-        """
         super().__init__(name, description, config)
 
         self.redis_url: str = config.get("REDIS_URL", "redis://localhost:6379")
@@ -48,22 +39,20 @@ class RedisDBStore(OpeaStore):
         self.auto_create_index: bool = config.get("AUTO_CREATE_INDEX", True)
 
         self.client: Optional[AsyncRedis] = None
-        self.index = None
+        self.search_client: Optional[Client] = None
 
     async def _initialize_connection(self) -> bool:
-        """Initialize the Redis connection and index (should be called after constructor)."""
+        """Initialize the Redis connection and index."""
         try:
             self.client = AsyncRedis.from_url(self.redis_url, decode_responses=True)
-
             if not await self.client.ping():
                 raise ConnectionError(f"Failed to connect to Redis at {self.redis_url}")
 
-            logger.info(f"Connected to Redis at {self.redis_url}")
+            self.search_client = Client(self.index_name, conn=self.client)
 
-            self.index = self.client.ft(self.index_name)
-
+            loop = asyncio.get_event_loop()
             try:
-                await self.index.info()
+                await loop.run_in_executor(_executor, self.search_client.info)
                 logger.debug(f"Using existing index: {self.index_name}")
             except redis.exceptions.ResponseError:
                 if self.auto_create_index:
@@ -80,21 +69,21 @@ class RedisDBStore(OpeaStore):
         """Creates the Redis search index with flexible schema."""
         try:
             schema = (
-                TagField("$.id", as_name="id"),
-                TextField("$.title", as_name="title"),
-                TextField("$.content", as_name="content"),
+                TagField("$.id"),
+                TextField("$.title"),
+                TextField("$.content"),
             )
 
-            definition = IndexDefinition(prefix=[self.doc_prefix], index_type=IndexType.JSON)
+            definition = IndexDefinition(prefix=[self.doc_prefix])
 
-            await self.index.create_index(schema, definition=definition)
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(_executor, lambda: self.search_client.create_index(schema, definition))
             logger.info(f"Created Redis index '{self.index_name}' with prefix '{self.doc_prefix}'")
         except Exception as e:
             logger.error(f"Failed to create index '{self.index_name}': {e}")
             raise
 
     async def close(self) -> None:
-        """Close the Redis connection cleanly."""
         try:
             if self.client:
                 await self.client.close()
@@ -103,7 +92,6 @@ class RedisDBStore(OpeaStore):
             logger.error(f"Error closing Redis connection: {e}")
 
     async def health_check(self) -> bool:
-        """Performs a health check on the Redis connection."""
         try:
             if self.client is None:
                 logger.error("Redis client not initialized")
@@ -114,7 +102,6 @@ class RedisDBStore(OpeaStore):
             return False
 
     async def asave_document(self, doc: dict, **kwargs) -> bool:
-        """Saves a single document to Redis as JSON."""
         try:
             if "id" not in doc:
                 raise ValueError("Document must contain 'id' field")
@@ -127,38 +114,34 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def asave_documents(self, docs: List[dict], **kwargs) -> bool:
-        """Saves multiple documents to Redis using pipeline."""
         try:
             if not docs:
                 return True
-
             pipeline = self.client.pipeline()
             for doc in docs:
                 if "id" not in doc:
                     raise ValueError("All documents must contain 'id' field")
-
                 key = f"{self.doc_prefix}{doc['id']}"
                 pipeline.json().set(key, "$", doc)
 
             results = await pipeline.execute()
-            success = all(res for res in results)
-            if not success:
-                logger.warning("Not all documents saved successfully in pipeline")
-            return success
+            for r in results:
+                if isinstance(r, Exception):
+                    logger.error("Partial failure during batch save.")
+                    return False
+
+            return True
         except Exception as e:
             logger.error(f"Failed to save documents: {e}")
-            raise
+            return False
 
     async def aupdate_document(self, doc: dict, **kwargs) -> bool:
-        """Updates a document in Redis (same as save)."""
         return await self.asave_document(doc, **kwargs)
 
     async def aupdate_documents(self, docs: List[dict], **kwargs) -> bool:
-        """Updates multiple documents in Redis (same as save)."""
         return await self.asave_documents(docs, **kwargs)
 
     async def aget_document_by_id(self, id: str, **kwargs) -> Optional[dict]:
-        """Retrieves a document by its ID."""
         try:
             key = f"{self.doc_prefix}{id}"
             result = await self.client.json().get(key)
@@ -168,7 +151,6 @@ class RedisDBStore(OpeaStore):
             return None
 
     async def aget_documents_by_ids(self, ids: List[str], **kwargs) -> List[dict]:
-        """Retrieves multiple documents by their IDs."""
         try:
             if not ids:
                 return []
@@ -186,7 +168,6 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def adelete_document(self, id: str, **kwargs) -> bool:
-        """Deletes a document by ID."""
         try:
             key = f"{self.doc_prefix}{id}"
             deleted = await self.client.delete(key)
@@ -196,7 +177,6 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def adelete_documents(self, ids: List[str], **kwargs) -> bool:
-        """Deletes multiple documents by ID."""
         try:
             if not ids:
                 return True
@@ -231,7 +211,9 @@ class RedisDBStore(OpeaStore):
                 raise ValueError(f"Unsupported search type: {search_type}")
 
             query = Query(query_str)
-            result = await self.index.search(query)
+
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(_executor, lambda: self.search_client.search(query))
 
             return [json.loads(doc.json) for doc in result.docs]
         except Exception as e:
@@ -239,7 +221,6 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def _regex_search(self, key: str, pattern: str) -> List[dict]:
-        """Fallback regex search for unsupported regex in RedisSearch."""
         try:
             cursor = 0
             docs = []
