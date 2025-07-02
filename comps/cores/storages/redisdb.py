@@ -1,15 +1,15 @@
 # Copyright (C) 2025 RedisDB Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import json
 import re
-import asyncio
-from typing import Any, List, Optional
 from concurrent.futures import ThreadPoolExecutor
+from typing import Any, List, Optional
 
 import redis
 from redis.asyncio import Redis as AsyncRedis
-from redisearch import Client, TextField, TagField, IndexDefinition, Query
+from redisearch import Client, IndexDefinition, Query, TagField, TextField
 
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger
