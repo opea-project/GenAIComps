@@ -12,7 +12,7 @@ import actions
 import commentMore
 import matplotlib.pyplot as plt
 import numpy as np
-import osAdd
+import os
 
 parser = argparse.ArgumentParser(description="Plot evaluation metrics")
 parser.add_argument("--model_name", type=str, default="Qwen2-VL-2B-Instruct", help="Model name")
