@@ -32,13 +32,13 @@ else
     python -m pip install --no-cache-dir -r requirements.txt
     pip uninstall -y torchvision torchaudio
     pip install setuptools==75.6.0
-    python -m pip install --no-cache-dir torch==2.6.0+xpu torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu
+    python -m pip install --no-cache-dir torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/xpu
     cd src/llamafactory/clip_finetune/dassl
     python setup.py develop
     cd ../../../..
     pip install matplotlib
     pip install -e ".[metrics]"
-    pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.6.10+xpu oneccl_bind_pt==2.6.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
+    pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.7.10+xpu oneccl_bind_pt==2.7.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
     pip install "transformers>=4.50.0" optimum "auto_gptq>=0.5.0"
     echo "start llamafactory webui"
     if [ -z $GUI ]; then
