@@ -8,9 +8,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from comps.cores.storages import opea_store
 
+
 class DummyDoc:
     def model_dump(self, **kwargs):
         return {"id": "123", "title": "Test", "content": "Content"}
+
 
 class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
 
@@ -294,6 +296,7 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         result = await self.store.asearch("content", "Cont", search_type="contains")
         self.assertEqual(len(result), 1)
         self.assertIn("Cont", result[0]["content"])
+
 
 if __name__ == "__main__":
     unittest.main()
