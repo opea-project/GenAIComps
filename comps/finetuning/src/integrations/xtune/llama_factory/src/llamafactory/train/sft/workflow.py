@@ -21,12 +21,11 @@ from ...data import SFTDataCollatorWith4DAttentionMask, get_dataset, get_templat
 from ...extras.constants import IGNORE_INDEX
 from ...extras.logging import get_logger
 from ...extras.misc import calculate_tps, get_logits_processor
-from ...extras.ploting import plot_loss
+from ...extras.plotting import plot_loss
 from ...model import load_model, load_tokenizer
 from ..trainer_utils import create_modelcard_and_push
 from .metric import ComputeAccuracy, ComputeSimilarity, eval_logit_processor
 from .trainer import CustomSeq2SeqTrainer
-
 
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
@@ -99,7 +98,10 @@ def run_sft(
         trainer.save_state()
         if trainer.is_world_process_zero() and finetuning_args.plot_loss:
             if training_args.predict_with_generate:
-                plot_loss(training_args.output_dir, keys=["loss", "eval_loss", "eval_rouge-1", "eval_rouge-2","eval_rouge-l", "eval_bleu-4"])
+                plot_loss(
+                    training_args.output_dir,
+                    keys=["loss", "eval_loss", "eval_rouge-1", "eval_rouge-2", "eval_rouge-l", "eval_bleu-4"],
+                )
             else:
                 plot_loss(training_args.output_dir, keys=["loss", "eval_loss", "eval_accuracy"])
 
