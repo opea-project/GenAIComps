@@ -1,0 +1,126 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+
+server {
+    listen       80;
+    listen  [::]:80;
+
+    location /home {
+        alias  /usr/share/nginx/html/index.html;
+    }
+
+    proxy_connect_timeout 600;
+    proxy_send_timeout 600;
+    proxy_read_timeout 600;
+    send_timeout 600;
+    client_max_body_size 10G;
+
+    location / {
+        proxy_pass http://${FRONTEND_SERVICE_IP}:${FRONTEND_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /v1/${BACKEND_SERVICE_NAME} {
+        proxy_pass http://${BACKEND_SERVICE_IP}:${BACKEND_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/dataprep/ingest {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 6000;
+        proxy_send_timeout 6000;
+        proxy_read_timeout 6000;
+        send_timeout 6000;
+    }
+
+    location /v1/dataprep/get {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /v1/dataprep/delete {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /v1/${BACKEND_CODEGEN_SERVICE_NAME} {
+        proxy_pass http://${BACKEND_CODEGEN_SERVICE_IP}:${BACKEND_CODEGEN_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_DOCSUM_SERVICE_NAME} {
+        proxy_pass http://${BACKEND_DOCSUM_SERVICE_IP}:${BACKEND_DOCSUM_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_CHAT_HISTORY_SERVICE_NAME}/ {
+        proxy_pass http://${BACKEND_CHAT_HISTORY_SERVICE_IP}:${BACKEND_CHAT_HISTORY_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_PROMPT_SERVICE_NAME}/ {
+        proxy_pass http://${BACKEND_PROMPT_SERVICE_IP}:${BACKEND_PROMPT_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+    location /${KEYCLOAK_SERVICE_NAME}/ {
+        proxy_pass http://${KEYCLOAK_SERVICE_IP}:${KEYCLOAK_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
