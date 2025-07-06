@@ -83,7 +83,26 @@ JSON_DATA
 A chat_template starting with the default assistant description.
 
 ```json
-{"id":"4e799abdf5f09433adc276b511a8b0ae","model":null,"query":"### Question: What is Deep Learning? \n\n### Answer:","max_tokens":1024,"max_new_tokens":1024,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"frequency_penalty":0.0,"presence_penalty":0.0,"repetition_penalty":1.03,"stream":true,"language":"auto","input_guardrail_params":null,"output_guardrail_params":null,"chat_template":"### You are a helpful, respectful, and honest assistant to help the user with questions. Please refer to the search results obtained from the local knowledge base. Refer also to the conversation history if you think it is relevant to the current question. Ignore all information that you think is not relevant to the question. If you don'\''t know the answer to a question, please don'\''t share false information. \n ### Search results: [File: Unknown Source]\nDeep Learning is...\n### Conversation history: User: Hello\nAssistant: Hello as well\nUser: How are you?\nAssistant: I am good, thank you!\nUser: Who are you?\nAssistant: I am a robot\n### Question: What is Deep Learning? \n\n### Answer:","documents":[]}
+{
+  "id": "4e799abdf5f09433adc276b511a8b0ae",
+  "model": null,
+  "query": "### Question: What is Deep Learning? \n\n### Answer:",
+  "max_tokens": 1024,
+  "max_new_tokens": 1024,
+  "top_k": 10,
+  "top_p": 0.95,
+  "typical_p": 0.95,
+  "temperature": 0.01,
+  "frequency_penalty": 0.0,
+  "presence_penalty": 0.0,
+  "repetition_penalty": 1.03,
+  "stream": true,
+  "language": "auto",
+  "input_guardrail_params": null,
+  "output_guardrail_params": null,
+  "chat_template": "### You are a helpful, respectful, and honest assistant to help the user with questions. Please refer to the search results obtained from the local knowledge base. Refer also to the conversation history if you think it is relevant to the current question. Ignore all information that you think is not relevant to the question. If you don'\''t know the answer to a question, please don'\''t share false information. \n ### Search results: [File: Unknown Source]\nDeep Learning is...\n### Conversation history: User: Hello\nAssistant: Hello as well\nUser: How are you?\nAssistant: I am good, thank you!\nUser: Who are you?\nAssistant: I am a robot\n### Question: What is Deep Learning? \n\n### Answer:",
+  "documents": []
+}
 ```
 
 ##### 3.2.2 Custom Prompt Template
@@ -110,7 +129,26 @@ JSON_DATA
 Custom instructions about using search results in the chat_template.
 
 ```json
-{"id":"b1f1cec396954d5dc1b942f5959d556d","model":null,"query":"### Question: What is Deep Learning? \n### Answer:","max_tokens":1024,"max_new_tokens":1024,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"frequency_penalty":0.0,"presence_penalty":0.0,"repetition_penalty":1.03,"stream":true,"language":"auto","input_guardrail_params":null,"output_guardrail_params":null,"chat_template":"### Please refer to the search results obtained from the local knowledge base. But be careful to not incorporate information that you think is not relevant to the question. If you don'\''t know the answer to a question, please don'\''t share false information. ### Search results: [File: Unknown Source]\nDeep Learning is...\n### Question: What is Deep Learning? \n### Answer:","documents":[]}
+{
+  "id": "b1f1cec396954d5dc1b942f5959d556d",
+  "model": null,
+  "query": "### Question: What is Deep Learning? \n### Answer:",
+  "max_tokens": 1024,
+  "max_new_tokens": 1024,
+  "top_k": 10,
+  "top_p": 0.95,
+  "typical_p": 0.95,
+  "temperature": 0.01,
+  "frequency_penalty": 0.0,
+  "presence_penalty": 0.0,
+  "repetition_penalty": 1.03,
+  "stream": true,
+  "language": "auto",
+  "input_guardrail_params": null,
+  "output_guardrail_params": null,
+  "chat_template": "### Please refer to the search results obtained from the local knowledge base. But be careful to not incorporate information that you think is not relevant to the question. If you don'\''t know the answer to a question, please don'\''t share false information. ### Search results: [File: Unknown Source]\nDeep Learning is...\n### Question: What is Deep Learning? \n### Answer:",
+  "documents": []
+}
 ```
 
 ##### 3.2.3 Translation Scenario
@@ -138,6 +176,24 @@ JSON_DATA
 A translation instruction like: Translate this from chinese to english.
 
 ```json
-{"id":"4f5e0024c2330a7be065b370d02e061f","model":null,"query":"### Question: 什么是深度学习？ \n### Answer:","max_tokens":1024,"max_new_tokens":1024,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"frequency_penalty":0.0,"presence_penalty":0.0,"repetition_penalty":1.03,"stream":true,"language":"auto","input_guardrail_params":null,"output_guardrail_params":null,"chat_template":"### You are a helpful, respectful, and honest assistant to help the user with translations. Translate this from chinese to english.\n### Question: 什么是深度学习？ \n### Answer:","documents":[]}
+{
+  "id": "4f5e0024c2330a7be065b370d02e061f",
+  "model": null,
+  "query": "### Question: 什么是深度学习？ \n### Answer:",
+  "max_tokens": 1024,
+  "max_new_tokens": 1024,
+  "top_k": 10,
+  "top_p": 0.95,
+  "typical_p": 0.95,
+  "temperature": 0.01,
+  "frequency_penalty": 0.0,
+  "presence_penalty": 0.0,
+  "repetition_penalty": 1.03,
+  "stream": true,
+  "language": "auto",
+  "input_guardrail_params": null,
+  "output_guardrail_params": null,
+  "chat_template": "### You are a helpful, respectful, and honest assistant to help the user with translations. Translate this from chinese to english.\n### Question: 什么是深度学习？ \n### Answer:",
+  "documents": []
+}
 ```
-
