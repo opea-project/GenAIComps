@@ -220,7 +220,8 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
             raise
 
         combined_chat_template = system_prompt + "\n" + user_prompt
-        return LLMParamsDoc(chat_template=combined_chat_template, query=user_prompt)
+        extract_query = extract_query_from_user_prompt(user_prompt)
+        return LLMParamsDoc(chat_template=combined_chat_template, query=extract_query)
 
     def check_health(self) -> bool:
         """Check the health status of the prompt template component.
@@ -273,3 +274,9 @@ def extract_text_from_nested_dict(data: object) -> str:
     else:
         logger.error(f"Unsupported data type for text extraction: {type(data)}")
         raise ValueError(f"Unsupported data type for text extraction: {type(data)}")
+
+def extract_query_from_user_prompt(user_prompt: str) -> str:
+    match = re.search(r"### Question:\s*(.+?)\s*(?:### Answer:|$)", user_prompt, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return user_prompt.strip()
