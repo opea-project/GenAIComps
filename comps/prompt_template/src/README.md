@@ -4,7 +4,7 @@ The Prompt Template microservice dynamically generates system and user prompts b
 
 ## Getting started
 
-### 🚀1. Start Language Detection Microservice with Python (Option 1)
+### 🚀1. Start Prompt Template Microservice with Python (Option 1)
 
 To start the Prompt Template microservice, you need to install Python packages first.
 
