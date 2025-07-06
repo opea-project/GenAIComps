@@ -8,20 +8,20 @@ from fastapi import HTTPException
 
 from comps import (
     CustomLogger,
-    OpeaComponentLoader,
     LLMParamsDoc,
-    PromptTemplateInput, 
-    ServiceType, 
-    opea_microservices, 
-    register_microservice, 
-    register_statistics, 
+    OpeaComponentLoader,
+    PromptTemplateInput,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
     statistics_dict,
 )
-
 from comps.prompt_template.src.integrations.native import OPEAPromptTemplateGenerator
 
 logger = CustomLogger("opea_prompt_template")
 component_loader = None
+
 
 @register_microservice(
     name="opea_service@prompt_template",
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         component_loader = OpeaComponentLoader(
             prompt_templete_component_name,
             description=f"Prompt Template Generator Component: {prompt_templete_component_name}",
-            config={}
+            config={},
         )
     except Exception as e:
         logger.error(f"Failed to initialize component: {e}")

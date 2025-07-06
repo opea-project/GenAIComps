@@ -1,11 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import List
 
-from comps import (
-    CustomLogger
-)
+from comps import CustomLogger
 from comps.cores.proto.docarray import PrevQuestionDetails
 
 logger = CustomLogger(f"{__file__.split('comps/')[1].split('/', 1)[0]}_microservice")
+
 
 class ConversationHistoryHandler:
     def validate_conversation_history(self, con_history: List[PrevQuestionDetails]):
@@ -20,7 +22,6 @@ class ConversationHistoryHandler:
             if h.question.strip() != "" or h.answer.strip() != "":
                 if_not_empty_history = True
         return if_not_empty_history
-
 
     def parse_conversation_history(self, con_history: List[PrevQuestionDetails], type: str, params: dict = {}) -> str:
         if self.validate_conversation_history(con_history) is False:

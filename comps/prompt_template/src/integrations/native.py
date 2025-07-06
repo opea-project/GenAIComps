@@ -2,24 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from typing import Union, List, Set
+from typing import List, Set, Union
 
 from comps import (
     CustomLogger,
     LLMParamsDoc,
-    TextDoc,
-    PromptTemplateInput,
     OpeaComponent,
     OpeaComponentRegistry,
+    PromptTemplateInput,
     ServiceType,
+    TextDoc,
 )
-
-from comps.prompt_template.src.integrations.utils.templates import (
-    template_system_english as default_system_template,
-    template_user_english as default_user_template,
-)
-
 from comps.prompt_template.src.integrations.utils.conversation_history_handler import ConversationHistoryHandler
+from comps.prompt_template.src.integrations.utils.templates import template_system_english as default_system_template
+from comps.prompt_template.src.integrations.utils.templates import template_user_english as default_user_template
 
 logger = CustomLogger("opea_prompt_template")
 
@@ -48,8 +44,7 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         user_prompt_template: str,
         placeholders: Set[str] = {"user_prompt", "reranked_docs"},
     ) -> None:
-        """
-        Validate system and user prompt templates.
+        """Validate system and user prompt templates.
 
         Args:
             system_prompt_template: System prompt template string.
@@ -101,8 +96,7 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         new_user_prompt_template: str,
         placeholders: Set[str],
     ) -> bool:
-        """
-        Check if new templates differ and validate them.
+        """Check if new templates differ and validate them.
 
         Args:
             new_system_prompt_template: New system prompt template.
@@ -116,10 +110,9 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
             logger.info("Empty new prompt templates, no change.")
             return False
 
-        if (
-            new_system_prompt_template == getattr(self, "system_prompt_template", None)
-            and new_user_prompt_template == getattr(self, "user_prompt_template", None)
-        ):
+        if new_system_prompt_template == getattr(
+            self, "system_prompt_template", None
+        ) and new_user_prompt_template == getattr(self, "user_prompt_template", None):
             logger.info("Prompt templates unchanged.")
             return False
 
@@ -129,8 +122,7 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         return True
 
     def _get_prompt(self, **kwargs) -> tuple[str, str]:
-        """
-        Generate formatted prompts with provided kwargs.
+        """Generate formatted prompts with provided kwargs.
 
         Returns:
             Tuple of (system_prompt, user_prompt)
@@ -140,8 +132,7 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         return system_prompt, user_prompt
 
     def _parse_reranked_docs(self, reranked_docs: List[Union[dict, TextDoc]]) -> str:
-        """
-        Format reranked documents into string.
+        """Format reranked documents into string.
 
         Args:
             reranked_docs: List of document dicts or TextDoc instances.
@@ -180,8 +171,7 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         return "\n\n".join(formatted_docs)
 
     async def invoke(self, input: PromptTemplateInput) -> LLMParamsDoc:
-        """
-        Entry point for prompt generation.
+        """Entry point for prompt generation.
 
         Args:
             input: PromptTemplateInput instance.
@@ -232,10 +222,8 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
         combined_chat_template = system_prompt + "\n" + user_prompt
         return LLMParamsDoc(chat_template=combined_chat_template, query=user_prompt)
 
-
     def check_health(self) -> bool:
-        """
-        Check the health status of the prompt template component.
+        """Check the health status of the prompt template component.
 
         Returns:
             bool: True if healthy, False otherwise.
@@ -250,9 +238,9 @@ class OPEAPromptTemplateGenerator(OpeaComponent):
             logger.error(f"Prompt template health check failed: {e}")
             return False
 
+
 def extract_placeholders_from_template(template: str) -> Set[str]:
-    """
-    Extract placeholders from a template string.
+    """Extract placeholders from a template string.
 
     Args:
         template: Template string.
@@ -264,8 +252,7 @@ def extract_placeholders_from_template(template: str) -> Set[str]:
 
 
 def extract_text_from_nested_dict(data: object) -> str:
-    """
-    Recursively extract text from nested dicts/lists/TextDoc.
+    """Recursively extract text from nested dicts/lists/TextDoc.
 
     Args:
         data: Input data.
