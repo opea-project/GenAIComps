@@ -275,6 +275,7 @@ def extract_text_from_nested_dict(data: object) -> str:
         logger.error(f"Unsupported data type for text extraction: {type(data)}")
         raise ValueError(f"Unsupported data type for text extraction: {type(data)}")
 
+
 def extract_query_from_user_prompt(user_prompt: str) -> str:
     match = re.search(r"### Question:\s*(.+?)\s*(?:### Answer:|$)", user_prompt, re.DOTALL)
     if match:
