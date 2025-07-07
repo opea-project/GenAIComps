@@ -135,7 +135,7 @@ function validate_microservices() {
         'text' \
         "docsum-vllm-gaudi" \
         "docsum-vllm-gaudi" \
-        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 1500}'
+        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 1500, "timeout":200}'
 
     echo "Validate map_reduce mode..."
     validate_services \
