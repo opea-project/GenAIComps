@@ -32,6 +32,7 @@ from comps.finetuning.src.integrations.llm_on_ray.finetune.data_process import (
     GroupCollator,
     InstructionDataProcessor,
     PretrainingDataProcessor,
+    ReasoningDataProcessor,
     TrainDatasetForCE,
     TrainDatasetForEmbedding,
 )
@@ -301,6 +302,21 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
             desc="Tokenize dataset",
         )
         return tokenized_dataset
+    elif task == "reasoning":
+        processor = ReasoningDataProcessor(config, tokenizer)
+        for key in dataset:
+            prompts = processor.make_prompt(dataset[key])
+            dataset[key] = datasets.Dataset.from_dict(prompts)
+
+        column_names = list(dataset["train"].features)
+        tokenized_dataset = dataset.map(
+            processor.tokenize,
+            remove_columns=column_names,
+            batched=True,
+            load_from_cache_file=False,
+            desc="Tokenize dataset",
+        )
+        return tokenized_dataset
     elif task == "rerank":
         dataset["train"] = TrainDatasetForCE(dataset["train"], config["Dataset"], tokenizer)
         return dataset
@@ -313,9 +329,13 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
 
 def prepare_data_collator(config: Dict, tokenizer):
     task = config["General"].get("task", "instruction_tuning")
-    if task == "instruction_tuning" or task == "pretraining":
+    if task in ["instruction_tuning", "pretraining"]:
         return transformers.DataCollatorForLanguageModeling(
             tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
+        )
+    elif task == "reasoning":
+        return transformers.DataCollatorForSeq2Seq(
+            tokenizer=tokenizer, max_length=config["Dataset"]["max_length"], return_tensors="pt"
         )
     elif task == "dpo":
         return DPOCollator(tokenizer)
@@ -338,14 +358,14 @@ def load_model(config: Dict):
     model_config = config["General"].get("config", {})
     task = config["General"].get("task", "instruction_tuning")
     ref_model = None
-    if task in ["instruction_tuning", "pretraining", "dpo"]:
+    if task in ["instruction_tuning", "pretraining", "dpo", "reasoning"]:
         model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
         if task == "dpo":
             ref_model = transformers.AutoModelForCausalLM.from_pretrained(
                 model_name, torch_dtype=model_dtype, **model_config
             )
         lora_config = config["General"].get("lora_config", None)
-        if lora_config and task == "instruction_tuning":
+        if lora_config and task in ["instruction_tuning"]:
             peft_config = LoraConfig(**lora_config)
             model = get_peft_model(model, peft_config)
     elif task == "rerank":
@@ -389,6 +409,8 @@ def load_model(config: Dict):
 def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, data_collator):
     device = config["Training"]["device"]
     task = config["General"].get("task", "instruction_tuning")
+    if task == "reasoning":
+        model.resize_token_embeddings(len(tokenizer))
     if device in ["cpu", "gpu", "cuda"]:
         training_args = convert_to_training_args(TrainingArguments, config)
         if task == "dpo":
