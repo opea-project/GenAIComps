@@ -41,6 +41,7 @@ class ServiceType(Enum):
     LANGUAGE_DETECTION = 24
     PROMPT_TEMPLATE = 25
 
+
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
 
