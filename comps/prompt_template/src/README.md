@@ -86,7 +86,7 @@ A chat_template starting with the default assistant description.
 {
   "id": "4e799abdf5f09433adc276b511a8b0ae",
   "model": null,
-  "query": "### Question: What is Deep Learning? \n\n### Answer:",
+  "query": "What is Deep Learning?",
   "max_tokens": 1024,
   "max_new_tokens": 1024,
   "top_k": 10,
@@ -132,7 +132,7 @@ Custom instructions about using search results in the chat_template.
 {
   "id": "b1f1cec396954d5dc1b942f5959d556d",
   "model": null,
-  "query": "### Question: What is Deep Learning? \n### Answer:",
+  "query": "What is Deep Learning?",
   "max_tokens": 1024,
   "max_new_tokens": 1024,
   "top_k": 10,
@@ -179,7 +179,7 @@ A translation instruction like: Translate this from chinese to english.
 {
   "id": "4f5e0024c2330a7be065b370d02e061f",
   "model": null,
-  "query": "### Question: 什么是深度学习？ \n### Answer:",
+  "query": "什么是深度学习？",
   "max_tokens": 1024,
   "max_new_tokens": 1024,
   "top_k": 10,
