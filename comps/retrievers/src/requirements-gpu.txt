@@ -761,7 +761,7 @@ pexpect==4.9.0 ; (python_full_version < '3.11' and sys_platform != 'emscripten' 
     # via ipython
 pgvector==0.4.1
     # via -r ./comps/retrievers/src/requirements.in
-pillow==11.2.1
+pillow==11.3.0
     # via
     #   bokeh
     #   cairosvg
@@ -1159,7 +1159,7 @@ traitlets==5.14.3 ; python_full_version < '3.11' or python_full_version >= '3.13
     #   ipython
     #   ipywidgets
     #   matplotlib-inline
-transformers==4.52.4
+transformers==4.53.1
     # via
     #   llama-index-llms-openai-like
     #   sentence-transformers
