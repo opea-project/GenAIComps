@@ -17,11 +17,8 @@ service_name="faqgen-vllm-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
-    git clone https://github.com/HabanaAI/vllm-fork.git
-    cd vllm-fork/
-    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
-    echo "Check out vLLM tag ${VLLM_VER}"
-    git checkout ${VLLM_VER} &> /dev/null
+    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+    git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git && cd ./vllm-fork
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
