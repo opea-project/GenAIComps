@@ -36,7 +36,7 @@ function build_vllm_image() {
 
     # Pull the last tagged version of vLLM.
     git clone https://github.com/vllm-project/vllm.git && cd vllm
-    VLLM_VER="$(git describe --tags "$(git rev-list --tags --max-count=1)" )"
+    VLLM_VER=v0.9.2
     echo "Checked out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
 
