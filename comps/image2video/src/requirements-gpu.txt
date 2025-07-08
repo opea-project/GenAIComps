@@ -270,7 +270,7 @@ pandas==2.3.0
     # via
     #   datasets
     #   docarray
-pillow==11.2.1
+pillow==11.3.0
     # via
     #   diffusers
     #   docarray
