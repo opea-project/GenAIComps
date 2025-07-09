@@ -57,7 +57,7 @@ function test_mcp_disabled() {
         "is_thumbs_up": true
       }
     }')
-    
+
     echo "Response: $result"
     if [[ ${#result} -eq 26 ]]; then
         echo "Backward compatibility test PASSED - service works with MCP disabled"
@@ -112,7 +112,7 @@ function test_mcp_enabled() {
         "is_thumbs_up": true
       }
     }')
-    
+
     echo "Response: $result"
     if [[ ${#result} -eq 26 ]]; then
         echo "HTTP endpoint test PASSED with MCP enabled"
