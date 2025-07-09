@@ -46,7 +46,7 @@ environment:
 When MCP is enabled, the following tools are exposed to AI agents:
 
 1. **create_feedback_data** - Create or update feedback data for AI-generated responses including ratings and comments
-2. **get_feedback** - Retrieve feedback data by ID or get all feedback for a specific user  
+2. **get_feedback** - Retrieve feedback data by ID or get all feedback for a specific user
 3. **delete_feedback** - Delete specific feedback data by user ID and feedback ID
 
 ### Using with AI Agents
