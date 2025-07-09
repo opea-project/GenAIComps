@@ -210,7 +210,7 @@ class ReasoningDataProcessor:
         tokenizer.pad_token = tokenizer.eos_token
         self.system = """
 You are an assistant that engages in extremely thorough, self-questioning reasoning. You will help the user to answer the question they propose.
-Your responses must be given after the thorough and rigorous reasoning, and output your reasoning content between <think> and </think> tags. 
+Your responses must be given after the thorough and rigorous reasoning, and output your reasoning content between <think> and </think> tags.
 Make sure to always include the final answer, and output the final answer after the </think> tag.
 """
         self.keys = config["Dataset"].get("reasoning_dataset_keys", ["Question", "Complex_CoT", "Response"])
@@ -238,7 +238,9 @@ Make sure to always include the final answer, and output the final answer after 
             prompt = self.system + "\n" + "### User" + "\n" + question + "\n" + "### Assistant" + "\n"
             prompts["prompt_sources"].append(prompt)
             if reasoning:
-                prompt_response = self.think_tokens[0] + reasoning + self.think_tokens[1] + "\n" + response + self.tokenizer.eos_token
+                prompt_response = (
+                    self.think_tokens[0] + reasoning + self.think_tokens[1] + "\n" + response + self.tokenizer.eos_token
+                )
             else:
                 prompt_response = response + self.tokenizer.eos_token
             prompts["prompt_targets"].append(prompt_response)
