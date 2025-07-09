@@ -74,7 +74,7 @@ class GeneralConfig(BaseModel):
 
     @validator("task")
     def check_task(cls, v: str):
-        assert v in ["instruction_tuning", "pretraining", "dpo", "rerank", "embedding"]
+        assert v in ["instruction_tuning", "pretraining", "dpo", "rerank", "embedding", "reasoning"]
         return v
 
 
@@ -116,6 +116,9 @@ class DatasetConfig(BaseModel):
     )
     query_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for query")
     passage_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for passage")
+    reasoning_dataset_keys: Optional[List[str]] = Field(
+        default=["Question", "Complex_CoT", "Response"], description="keys of reasoning dataset"
+    )
 
 
 class RayResourceConfig(BaseModel):
