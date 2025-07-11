@@ -1,0 +1,19 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  prompt-template:
+    image: ${REGISTRY:-opea}/prompt-template:${TAG:-latest}
+    container_name: prompt-template
+    ports:
+      - "7900:7900"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+    ipc: host
+    restart: always
+
+networks:
+  default:
+    driver: bridge
