@@ -472,7 +472,7 @@ function validate_microservice() {
 function stop_docker() {
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose down || true
-    
+
     cid=$(docker ps -aq --filter "name=test-comps-lvm*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 

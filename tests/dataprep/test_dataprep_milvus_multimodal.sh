@@ -417,7 +417,7 @@ function main() {
     start_service
     validate_microservice
     stop_service
-    
+
     echo "Test with openEuler OS ..."
     build_docker_images "Dockerfile.openEuler"
     start_lvm "Dockerfile.openEuler"
