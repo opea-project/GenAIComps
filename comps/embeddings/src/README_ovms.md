@@ -6,10 +6,10 @@ The **OVMS Embedding Microservice** is Intel’s highly optimized serving soluti
 
 ## Table of Contents
 
-1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)    
-2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)  
-3. [Consume Embedding Service](#consume-embedding-service)  
-4. [Tips for Better Understanding](#tips-for-better-understanding)  
+1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)
+2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)
+3. [Consume Embedding Service](#consume-embedding-service)
+4. [Tips for Better Understanding](#tips-for-better-understanding)
 
 ---
 
@@ -19,36 +19,36 @@ The **OVMS Embedding Microservice** is Intel’s highly optimized serving soluti
 
 Install requirements and export the model from HuggingFace Hub to local repository, convert to IR format and optionally quantize for faster startup:
 
-   ```bash
-   pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
-   curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
-   mkdir models
-   python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
-   ```
+```bash
+pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
+curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
+mkdir models
+python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+```
 
 ### Run OVMS Docker Container
 
 Run OVMS service container with model volume mounted and port mapping:
 
-   ```bash
-   your_port=8090
-   docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
-   openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
-   ```
+```bash
+your_port=8090
+docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
+openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
+```
 
 ### Test OVMS Service
 
 Run the following command to check if the service is up and running.
 
-   ```bash
-   curl http://localhost:$your_port/v3/embeddings \
-   -X POST \
-   -H 'Content-Type: application/json'
-   -d '{
-   "model": "BAAI/bge-large-en-v1.5",
-   "input":"What is Deep Learning?"
-   }'
-   ```
+```bash
+curl http://localhost:$your_port/v3/embeddings \
+-X POST \
+-H 'Content-Type: application/json'
+-d '{
+"model": "BAAI/bge-large-en-v1.5",
+"input":"What is Deep Learning?"
+}'
+```
 
 ### Build and Run Embedding Microservice Docker Image
 
@@ -160,4 +160,3 @@ The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api
 
 6. **Learn More about OVMS Embeddings API**  
    Refer to the [OVMS Embeddings API Documentation](https://docs.openvino.ai/2025/model-server/ovms_docs_rest_api_embeddings.html) for detailed API behavior.
-

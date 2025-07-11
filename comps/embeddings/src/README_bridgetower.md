@@ -5,9 +5,9 @@ The Multimodal Embedding Microservice is designed to efficiently convert pairs o
 ---
 
 ## Table of Contents
- 
-1. [Start Microservice](#start-microservice)  
-2. [Consume Embedding Service](#consume-embedding-service)  
+
+1. [Start Microservice](#start-microservice)
+2. [Consume Embedding Service](#consume-embedding-service)
 
 ---
 

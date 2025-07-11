@@ -6,8 +6,8 @@ The Embedding Microservice is designed to efficiently convert textual strings in
 
 ## Table of Contents
 
-1. [Overview](#overview)  
-2. [Key Features](#key-features)  
+1. [Overview](#overview)
+2. [Key Features](#key-features)
 3. [Supported Implementations](#supported-implementations)
 
 ---
@@ -38,10 +38,10 @@ Users are able to configure and build embedding-related services according to th
 
 The Embeddings Microservice supports multiple implementation options to suit different deployment and usage scenarios. Each implementation includes its own configuration and setup instructions:
 
-| Implementation                    | Description                                                             | Documentation                                          |
-|-----------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------|
-| **With OVMS**                     | Embedding microservice using OpenVINO Model Server (OVMS)              | [README_OVMS](src/README_ovms.md)                     |
-| **With TEI**                      | TEI-based embedding microservice for efficient text processing         | [README_TEI](src/README_tei.md)                       |
-| **With Prediction Guard**         | Embedding service using Prediction Guard with safety filters           | [README_PredictionGuard](src/README_predictionguard.md) |
-| **With Multimodal CLIP**          | Multimodal embedding service using CLIP for text and image data        | [README_CLIP](src/README_clip.md)                     |
-| **With Multimodal BridgeTower**   | Multimodal embedding service using BridgeTower                         | [README_BridgeTower](src/README_bridgetower.md)       |
+| Implementation                  | Description                                                     | Documentation                                           |
+| ------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------- |
+| **With OVMS**                   | Embedding microservice using OpenVINO Model Server (OVMS)       | [README_OVMS](src/README_ovms.md)                       |
+| **With TEI**                    | TEI-based embedding microservice for efficient text processing  | [README_TEI](src/README_tei.md)                         |
+| **With Prediction Guard**       | Embedding service using Prediction Guard with safety filters    | [README_PredictionGuard](src/README_predictionguard.md) |
+| **With Multimodal CLIP**        | Multimodal embedding service using CLIP for text and image data | [README_CLIP](src/README_clip.md)                       |
+| **With Multimodal BridgeTower** | Multimodal embedding service using BridgeTower                  | [README_BridgeTower](src/README_bridgetower.md)         |

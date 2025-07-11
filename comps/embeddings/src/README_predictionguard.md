@@ -10,10 +10,10 @@ This embedding microservice is designed to efficiently convert text into vectori
 
 ## Table of Contents
 
-1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)    
-2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)  
-3. [Consume Embedding Service](#consume-embedding-service)  
-4. [Tips for Better Understanding](#tips-for-better-understanding)  
+1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)
+2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)
+3. [Consume Embedding Service](#consume-embedding-service)
+4. [Tips for Better Understanding](#tips-for-better-understanding)
 
 ---
 

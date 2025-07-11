@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)    
-2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)  
-3. [Consume Embedding Service](#consume-embedding-service)  
-4. [Tips for Better Understanding](#tips-for-better-understanding)  
+1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)
+2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)
+3. [Consume Embedding Service](#consume-embedding-service)
+4. [Tips for Better Understanding](#tips-for-better-understanding)
 
 ---
 
@@ -15,24 +15,24 @@
 
 Replace `your_port` and `model` with desired values to start the service.
 
-   ```bash
-   your_port=8090
-   model="BAAI/bge-large-en-v1.5"
-   docker run -p $your_port:80 -v ./data:/data --name tei-embedding-serving \
-   -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always \
-   ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
-   ```
+```bash
+your_port=8090
+model="BAAI/bge-large-en-v1.5"
+docker run -p $your_port:80 -v ./data:/data --name tei-embedding-serving \
+-e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always \
+ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
+```
 
 ### Test the TEI service
 
 Run the following command to check if the service is up and running.
 
-   ```bash
-   curl localhost:$your_port/v1/embeddings \
-   -X POST \
-   -d '{"input":"What is Deep Learning?"}' \
-   -H 'Content-Type: application/json'
-   ```
+```bash
+curl localhost:$your_port/v1/embeddings \
+-X POST \
+-d '{"input":"What is Deep Learning?"}' \
+-H 'Content-Type: application/json'
+```
 
 ### Build Docker Image and Run Docker with CLI
 
@@ -116,7 +116,7 @@ The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api
    -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
    -H 'Content-Type: application/json'
    ```
-   
+
 ## Tips for Better Understanding
 
 1. **Port Mapping**  

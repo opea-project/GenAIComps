@@ -6,8 +6,8 @@ The Multimodal CLIP Embedding Microservice provides a powerful solution for conv
 
 ## Table of Contents
 
-1. [Start Microservice](#start-microservice)  
-2. [Consume Embedding Service](#consume-embedding-service)  
+1. [Start Microservice](#start-microservice)
+2. [Consume Embedding Service](#consume-embedding-service)
 
 ---
 
@@ -52,18 +52,18 @@ The service supports [OpenAI API](https://platform.openai.com/docs/api-reference
 
 **Single Text Input**:
 
-  ```bash
-  curl http://localhost:6000/v1/embeddings \
-    -X POST \
-    -d '{"input":"Hello, world!"}' \
-    -H 'Content-Type: application/json'
-  ```
+```bash
+curl http://localhost:6000/v1/embeddings \
+  -X POST \
+  -d '{"input":"Hello, world!"}' \
+  -H 'Content-Type: application/json'
+```
 
 **Multiple Texts with Parameters**:
 
-  ```bash
-  curl http://localhost:6000/v1/embeddings \
-    -X POST \
-    -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
-    -H 'Content-Type: application/json'
-  ```
+```bash
+curl http://localhost:6000/v1/embeddings \
+  -X POST \
+  -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
+  -H 'Content-Type: application/json'
+```
