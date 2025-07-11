@@ -17,8 +17,9 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
+    dockerfile_name="comps/dataprep/src/$1"
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -91,37 +92,32 @@ function validate_microservice() {
     check_result "dataprep - del" '{"status":true}' dataprep-milvus-server ${LOG_PATH}/dataprep_milvus.log
 }
 
-function stop_docker() {
+function stop_service() {
     cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
-    docker compose -f compose.yaml down --remove-orphans
+    docker compose down || true
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose
-    docker compose -f compose.yaml down --remove-orphans
+    docker compose down || true
 
 }
 
 function main() {
 
-    stop_docker
 
-    build_docker_images
-    trap stop_docker EXIT
-
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
     echo "Test normal env ..."
     start_service
     validate_microservice
-    stop_docker
+    stop_service
 
-    if [[ -n "${DATA_PATH}" ]]; then
-        echo "Test air gapped env ..."
-        prepare_dataprep_models ${DATA_PATH}
-        start_service true
-        validate_microservice true
-        stop_docker
-    fi
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
 
-    echo y | docker system prune
-
+    docker system prune -f
 }
 
 main

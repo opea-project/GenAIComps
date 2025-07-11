@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -16,8 +16,9 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
 
+    dockerfile_name="comps/dataprep/src/$1"
     # build dataprep image for mariadb
-    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -81,25 +82,29 @@ function validate_microservice() {
     check_result "dataprep - del" '{"status":true}' dataprep-mariadb-vector ${LOG_PATH}/dataprep_mariadb.log
 }
 
-function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-mariadb-vector")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-
-    cid=$(docker ps -aq --filter "name=mariadb-server")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
 
-    stop_docker
-
-    build_docker_images
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
     start_service
 
+    echo "Test normal env ..."
+    start_service
     validate_microservice
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
+
+    docker system prune -f
 
 }
 
