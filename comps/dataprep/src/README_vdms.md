@@ -6,6 +6,12 @@ For dataprep microservice, we currently provide one framework: `Langchain`.
 
 We organized the folders in the same way, so you can use either framework for dataprep microservice with the following constructions.
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Docker (Option 2)](#1-start-microservice-with-docker-option-2)
+2. [🚀2. Status Microservice](#2-status-microservice)
+3. [🚀3. Consume Microservice](#3-consume-microservice)
+
 ## 🚀1. Start Microservice with Docker (Option 2)
 
 ### 1.1 Start VDMS Server

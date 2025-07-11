@@ -11,7 +11,12 @@ This microservice follows the graphRAG approached defined by Microsoft paper ["F
 
 This dataprep microservice ingests the input files and uses LLM (TGI, VLLM or OpenAI model when OPENAI_API_KEY is set) to extract entities, relationships and descriptions of those to build a graph-based text index. Compose yaml file deploys TGI but works also with vLLM inference endpoint.
 
-## 🚀Start Microservice with Docker
+## Table of contents
+
+1. [Start Microservice with Docker](#start-microservice-with-docker)
+2. [Invoke Microservice](#invoke-microservice)
+
+## Start Microservice with Docker
 
 ### 1. Build Docker Image
 
@@ -20,7 +25,7 @@ cd ../../../../
 docker build -t opea/dataprep:latest --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-## 2. Setup Environment Variables
+### 2. Setup Environment Variables
 
 ```bash
 # Manually set private environment settings

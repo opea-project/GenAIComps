@@ -1,5 +1,10 @@
 # Dataprep Microservice with MariaDB Vector
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Docker](#1-start-microservice-with-docker)
+2. [🚀2. Consume Microservice](#2-consume-microservice)
+
 ## 🚀1. Start Microservice with Docker
 
 ### 1.1 Build Docker Image
