@@ -1,15 +1,19 @@
-# 🌟 Embedding Microservice with TEI
+# Embedding Microservice with TEI
 
-This guide walks you through starting, deploying, and consuming the **TEI-based Embeddings Microservice**. 🚀
+## Table of Contents
+
+1. [Start Microservice with `docker run`](#start-microservice-with-docker-run)    
+2. [Start Microservice with Docker Compose](#start-microservice-with-docker-compose)  
+3. [Consume Embedding Service](#consume-embedding-service)  
+4. [Tips for Better Understanding](#tips-for-better-understanding)  
 
 ---
 
-## 📦 1. Start Microservice with `docker run`
+## Start Microservice with `docker run`
 
-### 🔹 1.1 Start Embedding Service with TEI
+### Start TEI Service
 
-1. **Start the TEI service**:
-   Replace `your_port` and `model` with desired values to start the service.
+Replace `your_port` and `model` with desired values to start the service.
 
    ```bash
    your_port=8090
@@ -19,8 +23,9 @@ This guide walks you through starting, deploying, and consuming the **TEI-based 
    ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
    ```
 
-2. **Test the TEI service**:
-   Run the following command to check if the service is up and running.
+### Test the TEI service
+
+Run the following command to check if the service is up and running.
 
    ```bash
    curl localhost:$your_port/v1/embeddings \
@@ -29,7 +34,7 @@ This guide walks you through starting, deploying, and consuming the **TEI-based 
    -H 'Content-Type: application/json'
    ```
 
-### 🔹 1.2 Build Docker Image and Run Docker with CLI
+### Build Docker Image and Run Docker with CLI
 
 1. Build the Docker image for the embedding microservice:
 
@@ -40,7 +45,7 @@ This guide walks you through starting, deploying, and consuming the **TEI-based 
    -f comps/embeddings/src/Dockerfile .
    ```
 
-2. Run the embedding microservice and connect it to the TEI service:
+2. Run the embedding microservice connected to TEI service:
 
    ```bash
    docker run -d --name="embedding-tei-server" \
@@ -52,13 +57,11 @@ This guide walks you through starting, deploying, and consuming the **TEI-based 
    opea/embedding:latest
    ```
 
-## 📦 2. Start Microservice with docker compose
+## Start Microservice with Docker Compose
 
-Deploy both the TEI Embedding Service and the Embedding Microservice using Docker Compose.
+Deploy both the TEI Embedding Service and the Embedding Microservice using Docker Compose
 
-🔹 Steps:
-
-1. Set environment variables:
+1. Export environment variables:
 
    ```bash
    export host_ip=${your_ip_address}
@@ -80,9 +83,9 @@ Deploy both the TEI Embedding Service and the Embedding Microservice using Docke
    docker compose up tei-embedding-serving tei-embedding-server -d
    ```
 
-## 📦 3. Consume Embedding Service
+## Consume Embedding Service
 
-### 🔹 3.1 Check Service Status
+### Check Service Status
 
 Verify the embedding service is running:
 
@@ -92,7 +95,7 @@ curl http://localhost:6000/v1/health_check \
 -H 'Content-Type: application/json'
 ```
 
-### 🔹 3.2 Use the Embedding Service API
+### Use the Embedding Service API
 
 The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api-reference/embeddings).
 
@@ -113,17 +116,17 @@ The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api
    -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
    -H 'Content-Type: application/json'
    ```
+   
+## Tips for Better Understanding
 
-## ✨ Tips for Better Understanding:
-
-1. Port Mapping:
+1. **Port Mapping**  
    Ensure the ports are correctly mapped to avoid conflicts with other services.
 
-2. Model Selection:
-   Choose a model appropriate for your use case, like "BAAI/bge-large-en-v1.5" or "BAAI/bge-base-en-v1.5".
+2. **Model Selection**  
+   Choose a model appropriate for your use case, like `"BAAI/bge-large-en-v1.5"` or `"BAAI/bge-base-en-v1.5"`.
 
-3. Environment Variables:
-   Use http_proxy and https_proxy for proxy setup if necessary.
+3. **Environment Variables**  
+   Use `http_proxy` and `https_proxy` for proxy setup if necessary.
 
-4. Data Volume:
+4. **Data Volume**  
    The `-v ./data:/data` flag ensures the data directory is correctly mounted.
