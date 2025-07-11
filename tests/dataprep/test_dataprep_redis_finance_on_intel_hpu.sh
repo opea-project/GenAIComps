@@ -17,7 +17,8 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    dockerfile_name="comps/dataprep/src/$1"
+    docker build -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -145,27 +146,31 @@ function validate_microservice() {
     fi
 }
 
-function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-redis-server*" --filter "name=redis-vector-*" --filter "name=redis-kv-store" --filter "name=tei-embedding-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
 
-    stop_docker
-    stop_vllm_service
-
-    build_docker_images
-    start_service
-
     build_vllm_docker_images
     start_vllm_service_70B
 
+    echo "Test normal env ..."
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+    start_service
     validate_microservice
+    stop_service
+
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
 
     stop_vllm_service
-    stop_docker
-    echo y | docker system prune
+    docker system prune -f
 
 }
 

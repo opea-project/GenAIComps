@@ -34,7 +34,8 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    dockerfile_name="comps/dataprep/src/$1"
+    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
@@ -47,14 +48,16 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/llava/src/Dockerfile .
+    dockerfile_name="comps/third_parties/llava/src/$1"
+    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/Dockerfile .
+    dockerfile_name="comps/lvms/src/$1"
+    docker build --no-cache -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/lvm built fail"
         exit 1
@@ -75,7 +78,7 @@ function start_lvm() {
     cd $WORKPATH
     echo $(pwd)
     echo "Building LVM Docker Images"
-    build_lvm_docker_images
+    build_lvm_docker_images $1
     echo "Starting LVM Services"
     start_lvm_service
 
@@ -467,8 +470,9 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-multimodal-redis-server*" --filter "name=redis-vector-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
+
     cid=$(docker ps -aq --filter "name=test-comps-lvm*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
@@ -482,17 +486,25 @@ function delete_data() {
 
 function main() {
 
-    stop_docker
-    build_docker_images
     prepare_data
 
-    start_lvm
+    echo "Test normal env ..."
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+    start_lvm "Dockerfile"
     start_service
-
     validate_microservice
+    stop_service
+
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile"
+    start_lvm "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
+
     delete_data
-    stop_docker
-    echo y | docker system prune
+    docker system prune -f
 
 }
 

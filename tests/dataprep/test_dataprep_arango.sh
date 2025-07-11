@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 export WORKPATH=$(dirname "$PWD")
 export LOG_PATH="$WORKPATH/tests"
@@ -17,7 +17,8 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    dockerfile_name="comps/dataprep/src/$1"
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -113,25 +114,29 @@ function validate_microservice() {
     check_result "dataprep - del" '{"status":true}' dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
 }
 
-function stop_docker() {
-    cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
-    docker compose -f compose.yaml down --remove-orphans
-
-    cd $WORKPATH/comps/dataprep/deployment/docker_compose
-    docker compose -f compose.yaml down --remove-orphans
-
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
-    stop_docker
 
-    build_docker_images
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+
+    echo "Test normal env ..."
     start_service
-
     validate_microservice
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
+
+    docker system prune -f
+
 
 }
 
