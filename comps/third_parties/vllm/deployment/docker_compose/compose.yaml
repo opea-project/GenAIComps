@@ -77,30 +77,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 100
-  vllm-openvino-arc:
-    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
-    container_name: vllm-openvino-arc
-    ports:
-      - ${LLM_ENDPOINT_PORT:-8008}:${LLM_ENDPOINT_PORT:-8008}
-    volumes:
-      - "${HF_CACHE_DIR:-$HOME/.cache/huggingface}:/root/.cache/huggingface"
-    devices:
-      - "/dev/dri:/dev/dri"
-    group_add:
-      - ${RENDER_GROUP_ID:-110}
-    environment:
-      HTTPS_PROXY: ${http_proxy}
-      HTTP_PROXY: ${https_proxy}
-      LLM_MODEL_ID: ${LLM_MODEL_ID}
-      LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
-      host_ip: ${host_ip}
-    entrypoint: /bin/bash -c " export VLLM_OPENVINO_DEVICE=GPU &&  export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON &&  python3 -m vllm.entrypoints.openai.api_server    --model ${LLM_MODEL_ID}    --host 0.0.0.0    --port ${LLM_ENDPOINT_PORT}    --max_model_len 4096"
-    ipc: host
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 100
   vllm-rocm-server:
     image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
     container_name: vllm-server
