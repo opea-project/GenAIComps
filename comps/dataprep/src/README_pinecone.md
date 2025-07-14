@@ -1,5 +1,10 @@
 # Dataprep Microservice with Pinecone
 
+## Table of contents
+
+1. [Start Microservice with Docker](#start-microservice-with-docker)
+2. [Invoke Microservice](#invoke-microservice)
+
 ## 🚀Start Microservice with Docker
 
 ### Start Pinecone Server
