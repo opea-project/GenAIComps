@@ -33,6 +33,7 @@ rm -rf vllm-fork
 ### Build LVM Docker Image
 
 Build the generic LVM microservice Docker image:
+
 ```bash
 cd ../../../
 docker build -t opea/lvm:latest \
@@ -46,6 +47,7 @@ docker build -t opea/lvm:latest \
 Deploy the vLLM service and the LVM microservice using Docker Compose.
 
 1.  Export the required environment variables:
+
     ```bash
     export ip_address=$(hostname -I | awk '{print $1}')
     export LVM_PORT=9399

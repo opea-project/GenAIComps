@@ -16,6 +16,7 @@ This service utilizes [Prediction Guard](https://docs.predictionguard.com) for V
 ### Build Docker Image
 
 First, build the generic LVM microservice Docker image:
+
 ```bash
 cd ../../../
 docker build -t opea/lvm:latest \
@@ -29,6 +30,7 @@ docker build -t opea/lvm:latest \
 Deploy the PredictionGuard LVM service using Docker Compose.
 
 1.  Export the required environment variables. Get your API key from [Prediction Guard](https://docs.predictionguard.com).
+
     ```bash
     export PREDICTIONGUARD_PORT=9399
     export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
