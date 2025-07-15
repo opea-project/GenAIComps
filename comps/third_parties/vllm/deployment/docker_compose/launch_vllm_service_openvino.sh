@@ -22,7 +22,7 @@ while getopts ":hm:p:d:" opt; do
       echo "  -m model   Model (default: meta-llama/Llama-2-7b-hf for cpu"
       echo "             meta-llama/Llama-3.2-3B-Instruct for gpu)"
       echo "  -p port    Port (default: 8000)"
-      echo "  -d device  Target Device (Default: cpu, optional selection can be 'cpu' and 'gpu')"
+      echo "  -d device  Target Device (Default: cpu)"
       exit 0
       ;;
     m)
@@ -49,12 +49,6 @@ device=${device:-$default_device}
 
 # Set the Huggingface cache directory variable
 HF_CACHE_DIR=$HOME/.cache/huggingface
-if [ "$device" = "gpu" ]; then
-  docker_args="-e VLLM_OPENVINO_DEVICE=GPU  --device /dev/dri -v /dev/dri/by-path:/dev/dri/by-path"
-  vllm_args="--max_model_len=1024"
-  model_name="meta-llama/Llama-3.2-3B-Instruct"
-  image="opea/vllm-arc:latest"
-fi
 # Start the model server using Openvino as the backend inference engine.
 # Provide the container name that is unique and meaningful, typically one that includes the model name.
 
