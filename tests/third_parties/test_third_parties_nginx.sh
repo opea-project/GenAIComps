@@ -64,7 +64,7 @@ function stop_service() {
 }
 
 function main() {
-    
+
     build_docker_images "Dockerfile"
     trap stop_service EXIT
 
