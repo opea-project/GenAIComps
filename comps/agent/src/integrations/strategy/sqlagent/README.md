@@ -8,9 +8,9 @@ We currently have two types of SQL agents:
 ## Table of Contents
 
 1. [Overview of sql_agent_llama](#overview-of-sql_agent_llama)
-    - [Database schema](#database-schema)
-    - [Hints module](#hints-module)
-    - [Output parser](#output-parser)
+   - [Database schema](#database-schema)
+   - [Hints module](#hints-module)
+   - [Output parser](#output-parser)
 2. [Overview of sql_agent](#overview-of-sql_agent)
 3. [Limitations](#limitations)
 

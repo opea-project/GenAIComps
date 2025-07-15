@@ -5,21 +5,21 @@ This agent microservice is built on Langchain/Langgraph frameworks. Agents integ
 ## Table of Contents
 
 1. [Quick Start Deployment](#quick-start-deployment): Step-by-step guide to quickly deploy Opea components.
-    - [Build Docker Image](#build-docker-image)
-    - [Setup Environments](#setup-environments)
-    - [Start Agent Microservices](#start-agent-microservices)
-    - [Validate Microservice](#validate-microservice)
+   - [Build Docker Image](#build-docker-image)
+   - [Setup Environments](#setup-environments)
+   - [Start Agent Microservices](#start-agent-microservices)
+   - [Validate Microservice](#validate-microservice)
 2. [Supported Agent Types](#supported-agent-types): Overview of all agent types currently supported.
 3. [Docker Compose Files](#docker-compose-files): Standard Docker Compose configurations for easy setup.
 4. [Other Supported Features](#other-supported-features): Includes integrated tools, OpenAI-compatible APIs, and agent memory support.
-    - [Tools](#tools)
-    - [Agent APIs](#agent-apis)
-    - [Agent memory](#agent-memory)
-    - [Run LLMs from OpenAI](#run-llms-from-openai)
-    - [Run LLMs with OpenAI-compatible APIs on Remote Servers](#run-llms-with-openai-compatible-apis-on-remote-servers)
+   - [Tools](#tools)
+   - [Agent APIs](#agent-apis)
+   - [Agent memory](#agent-memory)
+   - [Run LLMs from OpenAI](#run-llms-from-openai)
+   - [Run LLMs with OpenAI-compatible APIs on Remote Servers](#run-llms-with-openai-compatible-apis-on-remote-servers)
 5. [Customizations](#customizations): Guide to customizing tools and agent strategies for specific needs.
-    - [Customize tools](#customize-tools)
-    - [Customize agent strategy](#customize-agent-strategy)
+   - [Customize tools](#customize-tools)
+   - [Customize agent strategy](#customize-agent-strategy)
 
 ## Quick Start Deployment
 
@@ -172,20 +172,20 @@ We support two sets of APIs that are OpenAI compatible:
 
 1. OpenAI compatible chat completions API. Example usage with Python code below.
 
-    ```python
-    url = f"http://{ip_address}:{agent_port}/v1/chat/completions"
+   ```python
+   url = f"http://{ip_address}:{agent_port}/v1/chat/completions"
 
-    # single-turn, not streaming -> if agent is used as a worker agent (i.e., tool for supervisor agent)
-    payload = {"messages": query, "stream": false}
-    resp = requests.post(url=url, json=payload, proxies=proxies, stream=False)
+   # single-turn, not streaming -> if agent is used as a worker agent (i.e., tool for supervisor agent)
+   payload = {"messages": query, "stream": false}
+   resp = requests.post(url=url, json=payload, proxies=proxies, stream=False)
 
-    # multi-turn, streaming -> to interface with users
-    query = {"role": "user", "messages": user_message, "thread_id": thread_id, "stream": stream}
-    content = json.dumps(query)
-    resp = requests.post(url=url, data=content, proxies=proxies, stream=True)
-    for line in resp.iter_lines(decode_unicode=True):
-        print(line)
-    ```
+   # multi-turn, streaming -> to interface with users
+   query = {"role": "user", "messages": user_message, "thread_id": thread_id, "stream": stream}
+   content = json.dumps(query)
+   resp = requests.post(url=url, data=content, proxies=proxies, stream=True)
+   for line in resp.iter_lines(decode_unicode=True):
+       print(line)
+   ```
 
 2. OpenAI compatible assistants APIs.
 
