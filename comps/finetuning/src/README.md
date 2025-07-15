@@ -256,9 +256,14 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -H "Content-Type: application/json" \
   -d '{
     "training_file": "medical_o1_sft.json",
-    "model": "Qwen/Qwen2.5-7B",
+    "model": "Qwen/Qwen2.5-3B",
     "Dataset": {
       "max_length":2048
+    },
+    "Training":{
+      "epochs":1,
+      "batch_size":1,
+      "gradient_accumulation_steps":8
     },
     "General": {
       "task":"reasoning"

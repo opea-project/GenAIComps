@@ -219,7 +219,8 @@ Make sure to always include the final answer, and output the final answer after 
         self.truncation_side = config["Dataset"].get("truncation_side", "right")
         self.max_length = self.max_seq_length = config["Dataset"].get("max_length", 2048)
         self.truncation = config["Dataset"].get("truncation", True)
-        self.padding = config["Dataset"].get("padding", True)
+        # set padding to max_length for hpu to avoid bug in GaudiTrainer and accelerate training on hpu
+        self.padding = config["Dataset"].get("padding", True) if config["Training"]["device"] != "hpu" else "max_length"
         self.mask_input = config["Dataset"].get("mask_input", True)
         self.mask_response = config["Dataset"].get("mask_response", True)
 
