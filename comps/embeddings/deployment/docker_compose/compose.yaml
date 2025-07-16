@@ -101,6 +101,20 @@ services:
       multimodal-bridgetower-embedding-gaudi-serving:
         condition: service_healthy
 
+  multimodal-bridgetower-embedding-server-offline:
+    <<: *multimodal-bridgetower-embedding-config
+    container_name: embedding-multimodal-bridgetower-server-offline
+    depends_on:
+      multimodal-bridgetower-embedding-serving-offline:
+        condition: service_healthy
+
+  multimodal-bridgetower-embedding-gaudi-server-offline:
+    <<: *multimodal-bridgetower-embedding-config
+    container_name: embedding-multimodal-bridgetower-gaudi-server-offline
+    depends_on:
+      multimodal-bridgetower-embedding-gaudi-serving-offline:
+        condition: service_healthy
+
 networks:
   default:
     driver: bridge
