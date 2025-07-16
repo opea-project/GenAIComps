@@ -43,7 +43,7 @@ jobs:
       - name: Build and check image sizes
         if: steps.changed-dockerfiles.outputs.files != ''
         run: |
-          set -x
+          set -e
           cd ${{github.workspace}}
           merged_commit=$(git log -1 --format='%H')
           while IFS= read -r -d '' dockerfile; do
