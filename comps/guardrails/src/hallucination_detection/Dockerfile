@@ -14,7 +14,7 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 COPY comps /home/user/comps
-RUN git clone https://github.com/opea-project/GenAIExamples.git
+
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \

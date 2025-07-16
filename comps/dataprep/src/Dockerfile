@@ -19,7 +19,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     poppler-utils \
     tesseract-ocr \
     ffmpeg \
-    wget curl
+    wget curl git
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
