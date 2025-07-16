@@ -8,11 +8,15 @@ from feedback_store import FeedbackStore
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("feedback_mongo")
 logflag = os.getenv("LOGFLAG", False)
+
+# Enable MCP support based on environment variable
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 class FeedbackData(BaseModel):
@@ -63,6 +67,9 @@ class FeedbackId(BaseModel):
     host="0.0.0.0",
     input_datatype=FeedbackData,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Create or update feedback data for AI-generated responses including ratings and comments",
 )
 async def create_feedback_data(feedback: ChatFeedback):
     """Creates and stores a feedback data in database.
@@ -99,6 +106,9 @@ async def create_feedback_data(feedback: ChatFeedback):
     host="0.0.0.0",
     input_datatype=FeedbackId,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Retrieve feedback data by ID or get all feedback for a specific user",
 )
 async def get_feedback(feedback: FeedbackId):
     """Retrieves feedback_data from feedback store based on provided FeedbackId or user.
@@ -136,6 +146,9 @@ async def get_feedback(feedback: FeedbackId):
     host="0.0.0.0",
     input_datatype=FeedbackId,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Delete specific feedback data by user ID and feedback ID",
 )
 async def delete_feedback(feedback: FeedbackId):
     """Delete a feedback data from feedback store by given feedback Id.
