@@ -1,11 +1,10 @@
-#!/bin/bash
-# Copyright (C) 2025 Intel Corporation
+#!/usr/bin/env python3
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
 import base64
 import json
-import os
 import random
 import sys
 
@@ -22,7 +21,10 @@ async def validate_svc(ip_address, service_port, service_type):
         async with ClientSession(*streams) as session:
             result = await session.initialize()
             if service_type == "asr":
-                url = "https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
+                url = (
+                    "https://github.com/intel/intel-extension-for-transformers/raw/main/"
+                    "intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
+                )
                 response = requests.get(url)
                 response.raise_for_status()  # Ensure the download succeeded
                 binary_data = response.content
@@ -79,7 +81,9 @@ async def validate_svc(ip_address, service_port, service_type):
             elif service_type == "lvm":
                 input_dict = {
                     "request": {
-                        "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",
+                        "image": (
+                            "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC"
+                        ),
                         "prompt": "What is this?",
                     }
                 }
