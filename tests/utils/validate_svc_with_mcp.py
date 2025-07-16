@@ -90,6 +90,62 @@ async def validate_svc(ip_address, service_port, service_type):
                     print("Result correct.")
                 else:
                     print(f"Result wrong. Received was {result_content}")
+            elif service_type == "chathistory":
+                # Test create operation
+                chat_data = {
+                    "data": {
+                        "messages": [{"role": "user", "content": "Hello, this is a test message"}],
+                        "user": "test_user"
+                    },
+                    "first_query": "Hello, this is a test message"
+                }
+                
+                # Create chat conversation
+                tool_result = await session.call_tool(
+                    "create_documents",
+                    chat_data,
+                )
+                create_result = tool_result.content
+                conversation_id = json.loads(create_result[0].text)
+                
+                if not conversation_id:
+                    print(f"Create operation failed. Received was {create_result}")
+                    exit(1)
+                    
+                # Test get operation
+                get_data = {
+                    "user": "test_user",
+                    "id": conversation_id
+                }
+                
+                tool_result = await session.call_tool(
+                    "get_documents",
+                    get_data,
+                )
+                get_result = tool_result.content
+                retrieved_doc = json.loads(get_result[0].text)
+                
+                if not retrieved_doc or retrieved_doc.get("user") != "test_user":
+                    print(f"Get operation failed. Received was {get_result}")
+                    exit(1)
+                    
+                # Test delete operation
+                delete_data = {
+                    "user": "test_user",
+                    "id": conversation_id
+                }
+                
+                tool_result = await session.call_tool(
+                    "delete_documents",
+                    delete_data,
+                )
+                delete_result = tool_result.content
+                
+                if not delete_result:
+                    print(f"Delete operation failed. Received was {delete_result}")
+                    exit(1)
+                    
+                print("Result correct.")
             else:
                 print(f"Unknown service type: {service_type}")
                 exit(1)
