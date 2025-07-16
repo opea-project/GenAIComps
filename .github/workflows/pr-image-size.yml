@@ -19,7 +19,7 @@ concurrency:
 jobs:
   get-check-list:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
