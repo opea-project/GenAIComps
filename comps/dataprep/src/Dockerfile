@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     else \
       $uvpip -r /home/user/comps/dataprep/src/requirements-gpu.txt; \
     fi
-
+RUN git clone https://github.com/opea-project/GenAIExamples.git
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home/user/comps/dataprep/src/uploaded_files
