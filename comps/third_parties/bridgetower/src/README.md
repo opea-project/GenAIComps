@@ -49,6 +49,7 @@ docker compose -f compose.yaml up -d multimodal-bridgetower-embedding-serving
 The following steps are common for running the dataprep microservice in an air gapped environment (a.k.a. environment with no internet access).
 
 1. Download the necessary data
+
 ```shell
 # Download model
 export DATA_PATH="<model data directory>"
@@ -57,7 +58,6 @@ huggingface-cli download --cache-dir $DATA_PATH BridgeTower/bridgetower-large-it
 cd $DATA_PATH
 wget https://llava-vl.github.io/static/images/view.jpg
 ```
-
 
 2. launch the `embedding-multimodal-bridgetower` microservice with the following settings:
 
