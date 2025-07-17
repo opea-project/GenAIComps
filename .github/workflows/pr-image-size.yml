@@ -19,7 +19,8 @@ concurrency:
 jobs:
   get-check-list:
     runs-on: ubuntu-latest
-    
+    outputs:
+      files: ${{ steps.changed-dockerfiles.outputs.files }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
