@@ -36,7 +36,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    pip install mcp
+
     python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $CHATHISTORY_PORT "chathistory"
     if [ $? -ne 0 ]; then
         docker logs mongodb
