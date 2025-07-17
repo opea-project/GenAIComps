@@ -230,7 +230,7 @@ llama-index-agent-openai==0.4.11
     #   llama-index-program-openai
 llama-index-cli==0.4.3
     # via llama-index
-llama-index-core==0.12.43
+llama-index-core==0.12.47
     # via
     #   llama-cloud-services
     #   llama-index
@@ -443,7 +443,7 @@ pandas==2.3.0
     #   llama-index-readers-file
 peft==0.15.2
     # via -r ./comps/text2cypher/src/requirements.in
-pillow==11.2.1
+pillow==11.3.0
     # via
     #   docarray
     #   llama-index-core
@@ -642,7 +642,7 @@ tqdm==4.67.1
     #   sentence-transformers
     #   transformers
     #   unstructured
-transformers==4.52.4
+transformers==4.53.1
     # via
     #   -r ./comps/text2cypher/src/requirements.in
     #   llama-index-llms-huggingface
