@@ -102,5 +102,5 @@ jobs:
             -d '{"body":"File '"$dockerfile"' resulted in a change in the image size from '"$size_base"' -> '"$size_pr"' MB"}'
           fi
 
-          # echo "File $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB" >> $GITHUB_STEP_SUMMARY
+          echo "::warning::File $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB" >> $GITHUB_STEP_SUMMARY
           docker rmi "$image_base" "$image_pr"
