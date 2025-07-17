@@ -27,6 +27,7 @@ RUN LIBREOFFICE_URL=https://mirrors.bfsu.edu.cn/libreoffice/libreoffice/stable/2
     wget $LIBREOFFICE_URL -O /tmp/LibreOffice_24.8.6_Linux_x86-64_rpm.tar.gz && \
     tar -xvf /tmp/LibreOffice_24.8.6_Linux_x86-64_rpm.tar.gz -C /tmp && \
     yum install -y /tmp/LibreOffice_24.8.6.2_Linux_x86-64_rpm/RPMS/*.rpm && \
+    yum clean all && \
     rm -fr /tmp/LibreOffice*
 
 RUN useradd -m -s /bin/bash user && \
