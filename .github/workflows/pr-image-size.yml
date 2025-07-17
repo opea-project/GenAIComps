@@ -31,7 +31,8 @@ jobs:
         id: changed-dockerfiles
         run: |
           merged_commit=$(git log -1 --format='%H')
-          files=$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '{print $2}' | grep -E 'Dockerfile$' | xargs)
+          files=$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '{print $2}' | grep -E 'Dockerfile$' | jq -R . | jq -sc .)
+          echo "files=$files"
           echo "files=$files" >> $GITHUB_OUTPUT
 
   build-and-check:
@@ -43,7 +44,7 @@ jobs:
     if: needs.get-check-list.outputs.files != ''
     strategy:
       matrix:
-        dockerfile: [${{ fromJson('["' + needs.get-check-list.outputs.files.replace(' ', '","') + '"]') }}]
+        dockerfile: ${{ fromJson(needs.get-check-list.outputs.files) }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
