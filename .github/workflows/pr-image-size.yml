@@ -45,6 +45,7 @@ jobs:
     strategy:
       matrix:
         dockerfile: ${{ fromJson(needs.get-check-list.outputs.files) }}
+      fail-fast: false
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
