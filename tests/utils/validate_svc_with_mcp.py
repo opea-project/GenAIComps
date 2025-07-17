@@ -99,9 +99,9 @@ async def validate_svc(ip_address, service_port, service_type):
                 chat_data = {
                     "data": {
                         "messages": [{"role": "user", "content": "Hello, this is a test message"}],
-                        "user": "test_user"
+                        "user": "test_user",
                     },
-                    "first_query": "Hello, this is a test message"
+                    "first_query": "Hello, this is a test message",
                 }
 
                 # Create chat conversation
@@ -117,10 +117,7 @@ async def validate_svc(ip_address, service_port, service_type):
                     exit(1)
 
                 # Test get operation
-                get_data = {
-                    "user": "test_user",
-                    "id": conversation_id
-                }
+                get_data = {"user": "test_user", "id": conversation_id}
 
                 tool_result = await session.call_tool(
                     "get_documents",
@@ -134,10 +131,7 @@ async def validate_svc(ip_address, service_port, service_type):
                     exit(1)
 
                 # Test delete operation
-                delete_data = {
-                    "user": "test_user",
-                    "id": conversation_id
-                }
+                delete_data = {"user": "test_user", "id": conversation_id}
 
                 tool_result = await session.call_tool(
                     "delete_documents",
