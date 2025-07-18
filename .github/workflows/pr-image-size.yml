@@ -141,7 +141,6 @@ jobs:
       - name: Read Summary
         id: summary
         run: |
-          set -x
           all_comments=$(cat downloaded-files/*.md | jq -Rs .)
           echo "all_comments=$all_comments"
           echo "all_comments=$all_comments" >> $GITHUB_OUTPUT
@@ -159,7 +158,6 @@ jobs:
           all_comments: ${{ needs.collect-comments.outputs.all_comments }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -x
           all_comments=$(echo $all_comments | jq -r . | sed 's|\\n|\n|g')
           json_body=$(jq -n --arg msg "$all_comments" '{"body": $msg}')
 
@@ -168,12 +166,6 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
             | jq '.[] | select(.user.login=="github-actions[bot]") | .id' | tail -n1)
-
-                  # curl -X POST \
-                  #   -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  #   -H "Accept: application/vnd.github.v3+json" \
-                  #   "https://api.github.com/repos/opea-project/GenAIComps/issues/${{ github.event.pull_request.number }}/comments" \
-                  #   -d '{"body":"File '"$dockerfile"' resulted in a change in the image size from '"$size_base"' -> '"$size_pr"' MB"}'
 
           if [ -n "$comment_id" ]; then
             curl -X PATCH \
