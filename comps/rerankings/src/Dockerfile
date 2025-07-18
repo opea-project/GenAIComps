@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     else \
       $uvpip -r /home/user/comps/rerankings/src/requirements-gpu.txt; \
     fi
-
+RUN git clone https://github.com/opea-project/GenAIExamples.git
 COPY comps /home/user/comps
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

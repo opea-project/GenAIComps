@@ -90,18 +90,101 @@ jobs:
           # echo "::warning::Image size change: $size_base -> $size_pr MB' (diff: $diff MB)"
           echo "comment to ${{ github.event.pull_request.number }}"
           if [ "$diff" -gt 50 ]; then
-            curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/opea-project/GenAIComps/issues/${{ github.event.pull_request.number }}/comments" \
-            -d '{"body":"⚠️ File '"$dockerfile"' resulted in a change in the image size from '"$size_base"' -> '"$size_pr"' MB"}'
+            comment_message="⚠️ WARNING\nFile $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB (diff: $diff MB)"
           else
-            curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/opea-project/GenAIComps/issues/${{ github.event.pull_request.number }}/comments" \
-            -d '{"body":"File '"$dockerfile"' resulted in a change in the image size from '"$size_base"' -> '"$size_pr"' MB"}'
+            comment_message="File $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB (diff: $diff MB)"
           fi
 
-          echo "::warning::File $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB" >> $GITHUB_STEP_SUMMARY
+          # echo "::warning::File $dockerfile resulted in a change in the image size from $size_base -> $size_pr MB" >> $GITHUB_STEP_SUMMARY
           docker rmi "$image_base" "$image_pr"
+
+          echo $comment_message >> $GITHUB_STEP_SUMMARY
+          image_name=$(echo $dir | tr '/' '-')
+          cp $GITHUB_STEP_SUMMARY ${{github.workspace}}/build-$image_name.md
+          echo "summary_path=${{github.workspace}}/build-$image_name.md" >> $GITHUB_ENV
+
+      - name: Download origin artifact log
+        uses: actions/download-artifact@v4
+        with:
+          name: build-comments
+          path: merged-files
+        continue-on-error: true
+
+      - name: Merge logs
+        run: |
+          mkdir -p merged-files
+          ls merged-files/
+          cp ${{ env.summary_path }} merged-files/
+
+      - name: Save Summary as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-comments
+          path: merged-files/
+          overwrite: true
+
+  collect-comments:
+    needs: build-and-check
+    permissions:
+      actions: read
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      all_comments: ${{ steps.summary.outputs.all_comments }}
+    steps:
+      - name: Download Summary
+        uses: actions/download-artifact@v4
+        with:
+          name: build-comments
+          path: downloaded-files
+
+      - name: Read Summary
+        id: summary
+        run: |
+          set -x
+          all_comments=$(cat downloaded-files/*.md | jq -Rs .)
+          echo "all_comments=$all_comments"
+          echo "all_comments=$all_comments" >> $GITHUB_OUTPUT
+
+  Post-comment-on-PR:
+    needs: collect-comments
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: always() && needs.collect-comments.outputs.all_comments != ''
+    steps:
+      - name: Post comment on PR
+        env:
+          all_comments: ${{ needs.collect-comments.outputs.all_comments }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -x
+          all_comments=$(echo $all_comments | jq -r . | sed 's|\\n|\n|g')
+          json_body=$(jq -n --arg msg "$all_comments" '{"body": $msg}')
+
+          comment_id=$(curl -s \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            | jq '.[] | select(.user.login=="github-actions[bot]") | .id' | tail -n1)
+
+                  # curl -X POST \
+                  #   -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  #   -H "Accept: application/vnd.github.v3+json" \
+                  #   "https://api.github.com/repos/opea-project/GenAIComps/issues/${{ github.event.pull_request.number }}/comments" \
+                  #   -d '{"body":"File '"$dockerfile"' resulted in a change in the image size from '"$size_base"' -> '"$size_pr"' MB"}'
+
+          if [ -n "$comment_id" ]; then
+            curl -X PATCH \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/comments/$comment_id" \
+              -d "$json_body"
+          else
+            curl -X POST \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+              -d "$json_body"
+          fi
