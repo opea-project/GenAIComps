@@ -29,6 +29,7 @@ function start_service() {
     cd $WORKPATH/comps/finetuning/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
+    docker logs $service_name
 }
 
 function validate_upload() {
