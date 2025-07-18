@@ -139,7 +139,9 @@ class ServiceOrchestrator(DAG):
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
                 asyncio.create_task(
-                    self.shield_execute(session, req_start, node, initial_inputs, runtime_graph, llm_parameters, **kwargs)
+                    self.shield_execute(
+                        session, req_start, node, initial_inputs, runtime_graph, llm_parameters, **kwargs
+                    )
                 )
                 for node in self.ind_nodes()
             }
@@ -161,7 +163,9 @@ class ServiceOrchestrator(DAG):
                     downstreams = runtime_graph.downstream(node)
 
                     # remove all the black nodes that are skipped to be forwarded to
-                    if (not isinstance(response, StreamingResponse) and "downstream_black_list" in response) or is_task_failed:
+                    if (
+                        not isinstance(response, StreamingResponse) and "downstream_black_list" in response
+                    ) or is_task_failed:
                         for black_node in response["downstream_black_list"]:
                             for downstream in reversed(downstreams):
                                 try:
@@ -249,7 +253,6 @@ class ServiceOrchestrator(DAG):
             return await self.execute(session, req_start, cur_node, inputs, runtime_graph, llm_parameters, **kwargs)
         except Exception as e:
             return {"error": e}, cur_node
-
 
     @opea_telemetry
     async def execute(
