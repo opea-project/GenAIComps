@@ -19,6 +19,16 @@ You can use this UI to easily access basic functions(merge two tool into one UI)
 
 or use the command line to use tools separately which is easier to customize parameters and has more comprehensive functionality.
 
+## Table of contents
+
+1. [Installation](#Installation)
+2. [Data Preparation](#Data-Preparation)
+3. [Fine-Tuning with LLaMA Board GUI (powered by Gradio)](#Fine-Tuning-with-LLaMA-Board-GUI-powered-by-Gradio)
+4. [Fine-Tuning with Shell instead of GUI](#Fine-Tuning-with-Shell-instead-of-GUI)
+5. [Xtune Examples](#Xtune-Examples)
+6. [Citation](#Citation)
+7. [Acknowledgement](#Acknowledgement)
+
 ## Installation
 
 > [!IMPORTANT]
