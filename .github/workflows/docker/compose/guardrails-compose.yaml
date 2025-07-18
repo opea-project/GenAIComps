@@ -7,6 +7,10 @@ services:
     build:
       dockerfile: comps/guardrails/src/guardrails/Dockerfile
     image: ${REGISTRY:-opea}/guardrails:${TAG:-latest}
+  guardrails-openeuler:
+    build:
+      dockerfile: comps/guardrails/src/guardrails/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/guardrails:${TAG:-latest}-openeuler
   guardrails-bias-detection:
     build:
       dockerfile: comps/guardrails/src/bias_detection/Dockerfile

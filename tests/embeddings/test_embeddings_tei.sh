@@ -11,7 +11,8 @@ export DATA_PATH=${model_cache}
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
+    dockerfile_name="comps/embeddings/src/$1"
+    docker build --no-cache -t opea/embedding:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/embedding built fail"
         exit 1
@@ -73,22 +74,31 @@ function validate_microservice_with_openai() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=tei-embedding-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    function stop_service() {
+    cd $WORKPATH/comps/embeddings/deployment/docker_compose/
+    docker compose down || true
+}
 }
 
 function main() {
 
-    stop_docker
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
 
-    build_docker_images
+    echo "Test normal env ..."
     start_service
-
     validate_microservice
     validate_microservice_with_openai
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    validate_microservice_with_openai
+    stop_service
+
+    docker system prune -f
 
 }
 
