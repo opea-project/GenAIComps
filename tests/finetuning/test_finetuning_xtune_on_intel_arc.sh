@@ -29,6 +29,7 @@ function start_service() {
     cd $WORKPATH/comps/finetuning/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
+    docker logs $service_name
 }
 
 function validate_upload() {
@@ -37,7 +38,7 @@ function validate_upload() {
     local DOCKER_NAME="$3"
     local EXPECTED_PURPOSE="$4"
     local EXPECTED_FILENAME="$5"
-
+    
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "file=@./$EXPECTED_FILENAME" -F purpose="$EXPECTED_PURPOSE" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
