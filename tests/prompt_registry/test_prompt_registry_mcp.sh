@@ -65,15 +65,22 @@ function test_mcp_disabled() {
     echo "Response: $result"
 
     # Extract prompt_id from result
-    prompt_id=$(echo $result | grep -oP '"prompt_id":"\K[^"]+')
-
-    # Fallback if prompt_id is empty - handle raw ID string response
-    if [ -z "$prompt_id" ]; then
-        # Remove quotes if present
-        prompt_id=$(echo "$result" | sed 's/^"//;s/"$//')
+    # First try to extract from JSON format
+    if echo "$result" | grep -q '"prompt_id"'; then
+        prompt_id=$(echo "$result" | grep -oP '"prompt_id":"\K[^"]+')
+    else
+        # Otherwise, assume it's a quoted string and extract the ID
+        prompt_id=$(echo "$result" | grep -oP '"\K[^"]+')
     fi
 
-    if [[ ! -z "$prompt_id" ]] && [[ "$prompt_id" != "null" ]]; then
+    # Additional fallback using sed if grep didn't work
+    if [ -z "$prompt_id" ]; then
+        prompt_id=$(echo "$result" | sed -e 's/^"//' -e 's/"$//')
+    fi
+
+    echo "Extracted prompt_id: $prompt_id"
+
+    if [[ ! -z "$prompt_id" ]] && [[ "$prompt_id" != "null" ]] && [[ ${#prompt_id} -eq 24 ]]; then
         echo "Backward compatibility test PASSED - service works with MCP disabled"
 
         # Test get endpoint
