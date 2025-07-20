@@ -65,16 +65,12 @@ function test_mcp_disabled() {
     echo "Response: $result"
 
     # Extract prompt_id from result
-    # First try to extract from JSON format
+    # First check if it's JSON format with "prompt_id" field
     if echo "$result" | grep -q '"prompt_id"'; then
-        prompt_id=$(echo "$result" | grep -oP '"prompt_id":"\K[^"]+')
+        # Extract from JSON format using sed
+        prompt_id=$(echo "$result" | sed -n 's/.*"prompt_id":"\([^"]*\)".*/\1/p')
     else
-        # Otherwise, assume it's a quoted string and extract the ID
-        prompt_id=$(echo "$result" | grep -oP '"\K[^"]+')
-    fi
-
-    # Additional fallback using sed if grep didn't work
-    if [ -z "$prompt_id" ]; then
+        # Otherwise, it's just a quoted string - remove the quotes
         prompt_id=$(echo "$result" | sed -e 's/^"//' -e 's/"$//')
     fi
 
