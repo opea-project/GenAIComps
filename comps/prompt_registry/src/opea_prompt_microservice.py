@@ -6,11 +6,13 @@ from typing import Optional
 from prompt_store import PromptStore
 from pydantic import BaseModel
 
-from comps import CustomLogger
+from comps import CustomLogger, ServiceType
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 
 logger = CustomLogger("prompt_registry")
 logflag = os.getenv("LOGFLAG", False)
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 class PromptCreate(BaseModel):
@@ -39,11 +41,15 @@ class PromptId(BaseModel):
 
 
 @register_microservice(
-    name="opea_service@prompt",
+    name="opea_service@prompt_create",
+    service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/create",
     host="0.0.0.0",
     input_datatype=PromptCreate,
     port=6018,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Store a user's preferred prompt in the database with metadata",
 )
 async def create_prompt(prompt: PromptCreate):
     """Creates and stores a prompt in prompt store.
@@ -70,11 +76,15 @@ async def create_prompt(prompt: PromptCreate):
 
 
 @register_microservice(
-    name="opea_service@prompt",
+    name="opea_service@prompt_get",
+    service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/get",
     host="0.0.0.0",
     input_datatype=PromptId,
     port=6018,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Retrieve prompts by user, ID, or keyword search from the database",
 )
 async def get_prompt(prompt: PromptId):
     """Retrieves prompt from prompt store based on provided PromptId or user.
@@ -106,11 +116,15 @@ async def get_prompt(prompt: PromptId):
 
 
 @register_microservice(
-    name="opea_service@prompt",
+    name="opea_service@prompt_delete",
+    service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/delete",
     host="0.0.0.0",
     input_datatype=PromptId,
     port=6018,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Delete a prompt by ID from the database",
 )
 async def delete_prompt(prompt: PromptId):
     """Delete a prompt from prompt store by given PromptId.
@@ -140,4 +154,6 @@ async def delete_prompt(prompt: PromptId):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@prompt"].start()
+    # Start the service based on which endpoint was registered last
+    # In practice, all three endpoints are part of the same service
+    opea_microservices["opea_service@prompt_create"].start()
