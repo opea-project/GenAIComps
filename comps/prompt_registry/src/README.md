@@ -115,13 +115,13 @@ The Prompt Registry microservice exposes the following API endpoints:
 
 ## 🤖 MCP (Model Context Protocol) Usage
 
-When MCP is enabled (`ENABLE_MCP=true`), AI agents can discover and use the prompt registry service through the OPEA MCP framework:
+When MCP is enabled (`ENABLE_MCP=true`), the service operates in MCP-only mode. **Note: Regular HTTP endpoints are not available when MCP is enabled.** AI agents can discover and use the prompt registry service through the OPEA MCP framework:
 
 ### Available MCP Tools
 
-- **opea_service@prompt_create**: Store prompts with user association
-- **opea_service@prompt_get**: Retrieve prompts by various criteria
-- **opea_service@prompt_delete**: Remove prompts from the database
+- **create_prompt**: Store prompts with user association
+- **get_prompt**: Retrieve prompts by various criteria
+- **delete_prompt**: Remove prompts from the database
 
 ### Example MCP Client Usage
 
@@ -138,12 +138,12 @@ async def use_prompt_registry():
 
             # Create a prompt
             result = await session.call_tool(
-                "opea_service@prompt_create",
+                "create_prompt",
                 {"request": {"prompt_text": "Explain quantum computing in simple terms", "user": "ai_agent_001"}},
             )
 
             # Retrieve prompts
-            prompts = await session.call_tool("opea_service@prompt_get", {"request": {"user": "ai_agent_001"}})
+            prompts = await session.call_tool("get_prompt", {"request": {"user": "ai_agent_001"}})
 ```
 
 ### Benefits for AI Agents

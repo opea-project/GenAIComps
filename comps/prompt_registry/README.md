@@ -25,9 +25,9 @@ For more detail, please refer to this [README](./src/README.md)
 
 The Prompt Registry microservice supports MCP, allowing AI agents to discover and utilize its prompt management capabilities. When MCP is enabled, the service exposes three tools:
 
-- `opea_service@prompt_create`: Store a user's preferred prompt in the database
-- `opea_service@prompt_get`: Retrieve prompts by user, ID, or keyword search
-- `opea_service@prompt_delete`: Delete a prompt by ID from the database
+- `create_prompt`: Store a user's preferred prompt in the database
+- `get_prompt`: Retrieve prompts by user, ID, or keyword search
+- `delete_prompt`: Delete a prompt by ID from the database
 
 To enable MCP support, set the `ENABLE_MCP` environment variable:
 
@@ -41,6 +41,13 @@ Or in Docker Compose:
 environment:
   ENABLE_MCP: true
 ```
+
+**Important Note**: When MCP is enabled (`ENABLE_MCP=true`), the service operates in MCP-only mode:
+
+- Regular HTTP endpoints (`/v1/prompt/create`, `/v1/prompt/get`, `/v1/prompt/delete`) are not available
+- The service only exposes the SSE endpoint (`/sse`) for MCP protocol communication
+- AI agents interact with the service through MCP tools, not HTTP APIs
+- To use both HTTP endpoints and MCP, you would need to run two instances of the service (one with MCP enabled, one without)
 
 When MCP is enabled, AI agents can:
 

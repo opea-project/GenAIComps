@@ -41,7 +41,7 @@ class PromptId(BaseModel):
 
 
 @register_microservice(
-    name="opea_service@prompt_create",
+    name="opea_service@prompt_registry",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/create",
     host="0.0.0.0",
@@ -76,7 +76,7 @@ async def create_prompt(prompt: PromptCreate):
 
 
 @register_microservice(
-    name="opea_service@prompt_get",
+    name="opea_service@prompt_registry",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/get",
     host="0.0.0.0",
@@ -116,7 +116,7 @@ async def get_prompt(prompt: PromptId):
 
 
 @register_microservice(
-    name="opea_service@prompt_delete",
+    name="opea_service@prompt_registry",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/delete",
     host="0.0.0.0",
@@ -154,6 +154,5 @@ async def delete_prompt(prompt: PromptId):
 
 
 if __name__ == "__main__":
-    # Start the service based on which endpoint was registered last
-    # In practice, all three endpoints are part of the same service
-    opea_microservices["opea_service@prompt_create"].start()
+    # Start the unified service with all endpoints
+    opea_microservices["opea_service@prompt_registry"].start()
