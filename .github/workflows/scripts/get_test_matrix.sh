@@ -54,6 +54,7 @@ function find_test_1() {
                     done
                 fi
                 if [ "$run_all_interation" = "true" ]; then
+                    set -x
                     find_test=$(find ./tests -type f -name "test_${service_name}*.sh") || true
                     if [ "$find_test" ]; then
                         # limit test case. If the changed file only to be Dockerfile.openEuler, then only run the script integrate related test.
@@ -69,6 +70,7 @@ function find_test_1() {
                             fill_in_matrix "$find_test"
                         fi
                     fi
+                    set +x
                 fi
             elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
                 # new org with `src` and `third_parties` folder
