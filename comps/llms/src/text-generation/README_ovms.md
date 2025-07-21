@@ -25,6 +25,7 @@ To start the OVMS service, you need to export models from Hugging Face Hub to th
   mkdir models
   python export_model.py text-generation --source_model Qwen/Qwen2-7B-Instruct --weight-format int8 --config_file_path models/config_llm.json --model_repository_path models --target_device CPU
 ```
+
 Change the `source_model` as needed.
 
 ### Start the OVMS container:
