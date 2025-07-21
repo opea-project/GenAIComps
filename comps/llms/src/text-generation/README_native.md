@@ -2,9 +2,18 @@
 
 LLM Native microservice uses [optimum-habana](https://github.com/huggingface/optimum-habana) for model initialization and warm-up, focusing solely on large language models (LLMs). It operates without frameworks like TGI/VLLM, using PyTorch directly for inference, and supports only non-stream formats. This streamlined approach optimizes performance on Habana hardware.
 
-## 🚀1. Start Microservice
+---
 
-### 1.1 Setup Environment Variables
+## Table of Contents
+
+1. [Start Microservice](#start-microservice)
+2. [Consume Microservice](#consume-microservice)
+
+---
+
+## Start Microservice
+
+### Setup Environment Variables
 
 In order to start Native LLM service, you need to setup the following environment variables first.
 
@@ -18,14 +27,14 @@ export LLM_COMPONENT_NAME="OpeaTextGenNative"
 export host_ip=${host_ip}
 ```
 
-Note. If you want to run "microsoft/Phi-4-multimodal-instruct", please download the [model weights](https://huggingface.co/microsoft/Phi-4-multimodal-instruct/tree/main) manually and put at `/path/to/Phi-4-multimodal-instruct` locally, then setup following environment.
+> Note: If you want to run "microsoft/Phi-4-multimodal-instruct", please download the [model weights](https://huggingface.co/microsoft/Phi-4-multimodal-instruct/tree/main) manually and put at `/path/to/Phi-4-multimodal-instruct` locally, then setup following environment.
 
 ```bash
 export LLM_MODEL_ID="/path/to/Phi-4-multimodal-instruct"
 export LLM_COMPONENT_NAME="OpeaTextGenNativePhi4Multimodal"
 ```
 
-### 1.2 Build Docker Image
+### Build Docker Image
 
 ```bash
 ## For `Qwen` and `Falcon`
@@ -47,13 +56,13 @@ To start a docker container, you have two options:
 
 You can choose one as needed.
 
-### 1.3 Run Docker with CLI (Option A)
+### Option A: Run Docker with CLI
 
 ```bash
 docker run -d --runtime=habana --name="llm-native-server" -p $TEXTGEN_PORT:9000 -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e TOKENIZERS_PARALLELISM=false -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e LLM_MODEL_ID=${LLM_MODEL_ID} -e LLM_COMPONENT_NAME=$LLM_COMPONENT_NAME $image_name
 ```
 
-### 1.4 Run Docker with Docker Compose (Option B)
+### Option A: Run Docker with Docker Compose
 
 ```bash
 export service_name="textgen-native-gaudi"
@@ -63,9 +72,11 @@ cd comps/llms/deployment/docker_compose
 docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
 
-## 🚀2. Consume LLM Service
+---
 
-### 2.1 Check Service Status
+## Consume Microservice
+
+### Check Service Status
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
@@ -73,7 +84,7 @@ curl http://${your_ip}:9000/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-### 2.2 Consume LLM Service
+### Consume LLM Service
 
 ```bash
 curl http://${your_ip}:9000/v1/chat/completions\
