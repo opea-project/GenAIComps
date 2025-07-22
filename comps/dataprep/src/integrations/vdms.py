@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import json
 import os
-import asyncio
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
@@ -122,7 +122,7 @@ class OpeaVdmsDataprep(OpeaComponent):
             )
 
         content = await document_loader(path)
-        
+
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
 
@@ -130,7 +130,7 @@ class OpeaVdmsDataprep(OpeaComponent):
             chunks = content
         else:
             chunks = await asyncio.to_thread(text_splitter.split_text, content)
-            
+
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
             logger.info(f"table chunks: {table_chunks}")

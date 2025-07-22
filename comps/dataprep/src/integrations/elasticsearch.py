@@ -64,7 +64,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaElasticSearchDataprep health check failed.")
-    
+
     def check_health(self) -> bool:
         try:
             health = self.es_client.cluster.health()
