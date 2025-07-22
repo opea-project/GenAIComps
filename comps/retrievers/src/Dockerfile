@@ -11,7 +11,23 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libglib2.0-0 \
     libjemalloc-dev \
     libmariadb-dev \
-    build-essential
+    build-essential \
+    curl
+
+# Add Microsoft package repo
+RUN DEBIAN_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2 | cut -d '.' -f 1) && \
+    curl -sSL -O https://packages.microsoft.com/config/debian/$DEBIAN_VERSION/packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb
+
+# Install Microsoft ODBC Driver and tools
+RUN apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y \
+    msodbcsql18 \
+    mssql-tools18 \
+    unixodbc-dev \
+    libgssapi-krb5-2 && \
+    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \

@@ -248,3 +248,10 @@ OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "tru
 #######################################################
 MARIADB_CONNECTION_URL = os.getenv("MARIADB_CONNECTION_URL", "localhost")
 MARIADB_COLLECTION_NAME = os.getenv("MARIADB_COLLECTION_NAME", "rag_mariadbvector")
+
+#######################################################
+#                     SQL Server                      #
+#######################################################
+
+MSSQL_CONNECTION_STRING = os.getenv("MSSQL_CONNECTION_STRING", "localhost")
+TABLE_NAME = os.getenv("TABLE_NAME", "sqlserver_vectorstore")

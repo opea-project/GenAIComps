@@ -435,6 +435,7 @@ langchain-openai==0.3.24
     #   langchain-pinecone
 langchain-pinecone==0.2.8
     # via -r ./comps/retrievers/src/requirements.in
+langchain-sqlserver==0.1.1
 langchain-tests==0.3.17
     # via langchain-pinecone
 langchain-text-splitters==0.3.8
@@ -837,6 +838,7 @@ pymupdf==1.26.1
     # via -r ./comps/retrievers/src/requirements.in
 pynndescent==0.5.13
     # via umap-learn
+pyodbc==5.2.0
 pyparsing==3.2.3
     # via
     #   httplib2
