@@ -164,7 +164,7 @@ If you want to finetune with plotting eval loss, please set eval_strategy as ste
 ```
 # Finetune qwen2-vl with logging eval loss
 export DATA='where you can find dataset_info.json'
-export dataset=activitynet_qa_2000_limit_20s                    # to point which dataset llamafactory will yse
+export dataset=activitynet_qa_2000_limit_20s                    # to point which dataset llamafactory will use
 export eval_dataset=activitynet_qa_val_500_limit_20s
 llamafactory-cli train \
     --stage sft \
