@@ -1,0 +1,25 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  sqlserver-db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: sqlserver-db
+    hostname: sql-db
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -No -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -Q \"SELECT 1\""]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    restart: unless-stopped
+
+volumes:
+  sqlserverdata:
