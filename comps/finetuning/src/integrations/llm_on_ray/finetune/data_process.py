@@ -44,8 +44,8 @@ class InstructionDataProcessor:
         prompts["prompt_targets"] = []
         for rec in examples:
             instruction = rec["instruction"]
-            response = rec["input"]
-            context = rec.get("output")
+            context = rec["input"]
+            response = rec.get("output")
             if not instruction:
                 raise ValueError(f"Expected an instruction in: {rec}")
             # if not response:
@@ -193,7 +193,94 @@ class InstructionDataProcessor:
                 if self.mask_input:
                     labels[:input_id_len] = [IGNORE_INDEX] * input_id_len
                 # mask response
-                if self.mask_response:
+                elif self.mask_response:
+                    labels[input_id_len:input_len] = [IGNORE_INDEX] * (input_len - input_id_len)
+
+            examples["input_ids"].append(results["input_ids"])
+            examples["labels"].append(labels)
+            examples["attention_mask"].append(results["attention_mask"])
+        return examples
+
+
+class ReasoningDataProcessor:
+    def __init__(self, config, tokenizer):
+        self.tokenizer = tokenizer
+        self.think_tokens = ["<think>", "</think>"]
+        tokenizer.add_special_tokens({"additional_special_tokens": self.think_tokens})
+        tokenizer.pad_token = tokenizer.eos_token
+        self.system = """
+You are an assistant that engages in extremely thorough, self-questioning reasoning. You will help the user to answer the question they propose.
+Your responses must be given after the thorough and rigorous reasoning, and output your reasoning content between <think> and </think> tags.
+Make sure to always include the final answer, and output the final answer after the </think> tag.
+"""
+        self.keys = config["Dataset"].get("reasoning_dataset_keys", ["Question", "Complex_CoT", "Response"])
+        assert len(self.keys) >= 2, "dataset must have 2 keys or more."
+        self.padding_side = config["Dataset"].get("padding_side", "right")
+        self.truncation_side = config["Dataset"].get("truncation_side", "right")
+        self.max_length = self.max_seq_length = config["Dataset"].get("max_length", 2048)
+        self.truncation = config["Dataset"].get("truncation", True)
+        # set padding to max_length for hpu to avoid bug in GaudiTrainer and accelerate training on hpu
+        self.padding = config["Dataset"].get("padding", True) if config["Training"]["device"] != "hpu" else "max_length"
+        self.mask_input = config["Dataset"].get("mask_input", True)
+        self.mask_response = config["Dataset"].get("mask_response", True)
+
+    def make_prompt(self, examples):
+        prompts = {}
+        prompts["prompt_sources"] = []
+        prompts["prompt_targets"] = []
+        for rec in examples:
+            for key in self.keys:
+                assert key in rec, f"Key {key} not in dataset, provide correct keys in reasoning_dataset_keys argument."
+            question = rec[self.keys[0]]
+            reasoning = rec[self.keys[1]] if len(self.keys) == 3 else ""
+            response = rec[self.keys[2]] if len(self.keys) == 3 else rec[self.keys[1]]
+            if not question:
+                raise ValueError(f"Expected a question in: {rec}")
+            prompt = self.system + "\n" + "### User" + "\n" + question + "\n" + "### Assistant" + "\n"
+            prompts["prompt_sources"].append(prompt)
+            if reasoning:
+                prompt_response = (
+                    self.think_tokens[0] + reasoning + self.think_tokens[1] + "\n" + response + self.tokenizer.eos_token
+                )
+            else:
+                prompt_response = response + self.tokenizer.eos_token
+            prompts["prompt_targets"].append(prompt_response)
+        return prompts
+
+    def tokenize(self, examples):
+        keys = list(examples.data.keys())
+        if len(keys) != 2:
+            raise ValueError("Unsupported dataset format")
+
+        examples["input_ids"] = []
+        examples["labels"] = []
+        examples["attention_mask"] = []
+        for s, t in zip(examples[keys[0]], examples[keys[1]]):
+            results = self.tokenizer(
+                s + t,
+                padding=self.padding,
+                truncation=self.truncation,
+                return_tensors=None,
+                max_length=self.max_length,
+            )
+
+            input_ids = results["input_ids"]
+            input_len = len(input_ids)
+            labels = copy.deepcopy(input_ids)
+            if self.mask_input or self.mask_response:
+                sources_tokenized = self.tokenizer(
+                    s,
+                    padding=False,
+                    truncation=True,
+                    return_tensors=None,
+                    max_length=self.max_length,
+                )
+                input_id_len = len(sources_tokenized["input_ids"])
+                # mask input
+                if self.mask_input:
+                    labels[:input_id_len] = [IGNORE_INDEX] * input_id_len
+                # mask response
+                elif self.mask_response:
                     labels[input_id_len:input_len] = [IGNORE_INDEX] * (input_len - input_id_len)
 
             examples["input_ids"].append(results["input_ids"])
