@@ -1,56 +1,56 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-ARG BASE_IMAGE=ubuntu:22.04
-FROM ${BASE_IMAGE} AS base
+FROM ubuntu:24.04
+SHELL ["/bin/bash", "-c"]
+
+ARG VER_SGLANG=main
+ARG VER_TORCH=2.7.1
+ARG VER_TORCHVISION=0.22.1
+ARG VER_TRITON=3.3.1
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing \
+    apt-get full-upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
-    curl \
-    g++-11 \
-    gcc-11 \
     git \
-    make \
-    numactl \
-    wget
+    curl \
+    wget \
+    vim \
+    gcc \
+    g++ \
+    make
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 && \
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100 && \
-    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
+WORKDIR /sgl-workspace
 
-WORKDIR /root
-
-RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/releases/download/24.7.1-2/Miniforge3-24.7.1-2-Linux-x86_64.sh && \
+RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/releases/download/24.11.3-2/Miniforge3-24.11.3-2-Linux-x86_64.sh && \
     bash miniforge.sh -b -p ./miniforge3 && \
-    rm miniforge.sh
+    rm -f miniforge.sh && \
+    . miniforge3/bin/activate && \
+    conda install -y libsqlite==3.48.0 gperftools tbb libnuma numactl
+
+ENV PATH=/sgl-workspace/miniforge3/bin:/sgl-workspace/miniforge3/condabin:${PATH}
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV CONDA_PREFIX=/sgl-workspace/miniforge3
+
+RUN pip config set global.index-url https://download.pytorch.org/whl/cpu && \
+    pip config set global.extra-index-url https://pypi.org/simple && \
+    pip install intel-openmp
 
 RUN git clone https://github.com/sgl-project/sglang.git && \
-    rm -rf sglang/.git
-RUN . ~/miniforge3/bin/activate && conda create -n sglang python=3.10 && conda activate sglang && \
-    pip install --no-cache-dir -e "python[all_cpu]" && \
-    conda install -y libsqlite=3.48.0 && \
-    pip uninstall -y triton && pip uninstall -y transformers && pip install --no-cache-dir transformers>=4.50.0 && \
-    pip install --no-cache-dir triton==3.1 && pip install --no-cache-dir intel-openmp==2024.2.0 && pip install --no-cache-dir transformers
+    cd sglang && \
+    git checkout ${VER_SGLANG} && \
+    pip install -e "python[all_cpu]" && \
+    pip install torch==${VER_TORCH} torchvision==${VER_TORCHVISION} triton==${VER_TRITON} --force-reinstall && \
+    cd sgl-kernel && \
+    cp pyproject_cpu.toml pyproject.toml && \
+    pip install -v .
 
-RUN git clone https://github.com/vllm-project/vllm.git --depth=1 -b v0.6.4.post1 && \
-    rm -rf vllm/.git
-RUN apt-get install -y libnuma-dev && \
-    . ~/miniforge3/bin/activate && conda activate sglang && \
-    pip install --no-cache-dir cmake==3.31.2 wheel packaging ninja "setuptools-scm>=8" numpy nvidia-ml-py && \
-    pip install --no-cache-dir -v -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu && \
-    VLLM_TARGET_DEVICE=cpu python setup.py develop
+ENV SGLANG_USE_CPU_ENGINE=1
+ENV LD_PRELOAD=/sgl-workspace/miniforge3/lib/libiomp5.so:/sgl-workspace/miniforge3/lib/libtcmalloc.so:/sgl-workspace/miniforge3/lib/libtbbmalloc.so.2
 
-WORKDIR /root/sglang/sgl-kernel
-RUN . ~/miniforge3/bin/activate && conda activate sglang && python setup.py install
+WORKDIR /sgl-workspace/sglang
 
-WORKDIR /root/sglang
-RUN . ~/miniforge3/bin/activate && conda activate sglang && pip uninstall -y torch torchvision && \
-    pip install --no-cache-dir torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu && \
-    conda install -y gperftools gcc=11 gxx=11 cxx-compiler -c conda-forge
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["python3 -m sglang.launch_server --model ${MODEL_ID} --trust-remote-code --device cpu --disable-overlap-schedule --chunked-prefill-size 2048 --max-running-requests 32 --mem-fraction-static 0.8 --context-length 65536 --max-total-tokens 65536 --host 0.0.0.0 --port ${SGLANG_LLM_PORT} --api-key ${HF_TOKEN} --chat-template llama-4"]
 
-COPY ./comps/third_parties/sglang/src/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -36,20 +36,22 @@ function start_service() {
 function validate_microservice() {
     echo "Validate microservice started"
     result=$(http_proxy="" curl http://localhost:8699/v1/chat/completions \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": ${MODEL_ID},
-    "messages": [
-      {"role": "user", "content": "What is Deep Learning?"}
-    ],
-    "max_tokens": 32
-  }'
-)
+      -X POST \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer ${HF_TOKEN}" \
+      -d "{
+        \"model\": \"${MODEL_ID}\",
+        \"messages\": [
+          {\"role\": \"user\", \"content\": \"What is Deep Learning?\"}
+        ],
+        \"max_tokens\": 32
+      }"
+    )
     if [[ $result == *"Deep"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
+        echo "$result"
         docker logs sglang-server
         exit 1
     fi
