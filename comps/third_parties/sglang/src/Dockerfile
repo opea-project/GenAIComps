@@ -27,7 +27,7 @@ RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/re
     bash miniforge.sh -b -p ./miniforge3 && \
     rm miniforge.sh
 
-RUN git clone https://github.com/jianan-gu/sglang --depth=1 -b llama4_optimzed_cpu_r1 && \
+RUN git clone https://github.com/sgl-project/sglang.git && \
     rm -rf sglang/.git
 RUN . ~/miniforge3/bin/activate && conda create -n sglang python=3.10 && conda activate sglang && \
     pip install --no-cache-dir -e "python[all_cpu]" && \
