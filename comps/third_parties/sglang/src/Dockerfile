@@ -35,16 +35,16 @@ ENV CONDA_PREFIX=/sgl-workspace/miniforge3
 
 RUN pip config set global.index-url https://download.pytorch.org/whl/cpu && \
     pip config set global.extra-index-url https://pypi.org/simple && \
-    pip install intel-openmp
+    pip install --no-cache-dir intel-openmp
 
 RUN git clone https://github.com/sgl-project/sglang.git && \
     cd sglang && \
     git checkout ${VER_SGLANG} && \
-    pip install -e "python[all_cpu]" && \
-    pip install torch==${VER_TORCH} torchvision==${VER_TORCHVISION} triton==${VER_TRITON} --force-reinstall && \
+    pip install --no-cache-dir -e "python[all_cpu]" && \
+    pip install --no-cache-dir torch==${VER_TORCH} torchvision==${VER_TORCHVISION} triton==${VER_TRITON} --force-reinstall && \
     cd sgl-kernel && \
     cp pyproject_cpu.toml pyproject.toml && \
-    pip install -v .
+    pip install --no-cache-dir -v .
 
 ENV SGLANG_USE_CPU_ENGINE=1
 ENV LD_PRELOAD=/sgl-workspace/miniforge3/lib/libiomp5.so:/sgl-workspace/miniforge3/lib/libtcmalloc.so:/sgl-workspace/miniforge3/lib/libtbbmalloc.so.2
