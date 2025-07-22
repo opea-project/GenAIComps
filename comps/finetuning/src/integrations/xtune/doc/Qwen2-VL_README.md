@@ -1,5 +1,3 @@
-
-
 # Qwen2-VL Training and Hyperparameter Optimization
 
 This is a flexible Qwen2-VL model training and Optuna hyperparameter optimization script that supports multiple running modes.
@@ -35,7 +33,7 @@ Create configuration file `config_optuna.json`:
     "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
     "print_detail_log": true
   },
-  
+
   "optuna": {
     "n_trials": 10,
     "sampler_name": "TPESampler",
@@ -45,7 +43,7 @@ Create configuration file `config_optuna.json`:
     "warmup_steps_min": 50,
     "warmup_steps_max": 500
   },
-  
+
   "training": {
     "train_dataset": "activitynet_train_qa_5",
     "n_epochs": 5,
@@ -67,7 +65,7 @@ Create configuration file `config_optuna.json`:
     "max_samples": 100000,
     "video_fps": 0.1
   },
-  
+
   "evaluation": {
     "eval_dataset": "activitynet_qa_val_500_limit_20s",
     "per_device_eval_batch_size": 1,
@@ -84,17 +82,23 @@ Create configuration file `config_optuna.json`:
 ```
 
 Run:
+
 ```bash
 python optuna_tuning.py --config_file config_optuna.json
 ```
+
 #### Visualization
+
 If you want to see visual results of Optuna:
 Run:
+
 ```sh
 sudo ufw allow 8084
 optuna-dashboard --host 0.0.0.0 --port 8084 sqlite:///./saves/optuna_tuning/optuna_study.db
 ```
+
 Open in the website:
+
 ```
 http://<serverIP>:8084/dashboard
 ```
@@ -112,7 +116,7 @@ Create configuration file `config_finetune_eval.json` (without `optuna` paramete
     "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
     "print_detail_log": false
   },
-  
+
   "training": {
     "train_dataset": "activitynet_qa_2000_limit_20s",
     "n_epochs": 5,
@@ -136,7 +140,7 @@ Create configuration file `config_finetune_eval.json` (without `optuna` paramete
     "learning_rate": 5e-5,
     "warmup_steps": 100
   },
-  
+
   "evaluation": {
     "eval_dataset": "activitynet_qa_val_500_limit_20s",
     "per_device_eval_batch_size": 1,
@@ -153,6 +157,7 @@ Create configuration file `config_finetune_eval.json` (without `optuna` paramete
 ```
 
 Run:
+
 ```bash
 python optuna_tuning.py --config_file config_finetune_eval.json
 ```
@@ -170,7 +175,7 @@ Create configuration file `config_finetune_only.json` (without `optuna` and `eva
     "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
     "print_detail_log": false
   },
-  
+
   "training": {
     "train_dataset": "activitynet_qa_2000_limit_20s",
     "n_epochs": 5,
@@ -198,12 +203,15 @@ Create configuration file `config_finetune_only.json` (without `optuna` and `eva
 ```
 
 Run:
+
 ```bash
 python optuna_tuning.py --config_file config_finetune_only.json
 ```
 
 ### 4. Command line finetune
-## 
+
+##
+
 ```
 llamafactory-cli train \
     --stage sft \
@@ -249,73 +257,75 @@ llamafactory-cli train \
 
 ### Base Configuration (base)
 
-| Parameter | Description | Default Value | Type |
-|-----------|-------------|---------------|------|
-| `working_directory` | Working directory for running commands | "./" | string |
-| `base_output_dir` | Base directory for saving results | "./saves/optuna_tuning" | string |
-| `model_base_path` | Base path for model files | "./models" | string |
-| `model_name` | Model name | "Qwen2-VL-7B-Instruct-GPTQ-Int8" | string |
-| `print_detail_log` | Whether to print detailed finetune or evaluation logs of LLamaFactory| true | boolean |
+| Parameter           | Description                                                           | Default Value                    | Type    |
+| ------------------- | --------------------------------------------------------------------- | -------------------------------- | ------- |
+| `working_directory` | Working directory for running commands                                | "./"                             | string  |
+| `base_output_dir`   | Base directory for saving results                                     | "./saves/optuna_tuning"          | string  |
+| `model_base_path`   | Base path for model files                                             | "./models"                       | string  |
+| `model_name`        | Model name                                                            | "Qwen2-VL-7B-Instruct-GPTQ-Int8" | string  |
+| `print_detail_log`  | Whether to print detailed finetune or evaluation logs of LLamaFactory | true                             | boolean |
 
 ### Optuna Configuration (optuna) - Required only for optimization mode
 
-| Parameter | Description | Default Value | Type |
-|-----------|-------------|---------------|------|
-| `n_trials` | Number of Optuna trials | 10 | integer |
-| `sampler_name` | Optuna sampler name | "TPESampler" | string |
-| `study_name` | Optuna study name | "qwen2vl_hyperparameter_tuning" | string |
-| `learning_rate_min` | Minimum value for learning rate search range | 1e-6 | float |
-| `learning_rate_max` | Maximum value for learning rate search range | 1e-3 | float |
-| `warmup_steps_min` | Minimum value for warmup steps search range | 50 | integer |
-| `warmup_steps_max` | Maximum value for warmup steps search range | 500 | integer |
+| Parameter           | Description                                  | Default Value                   | Type    |
+| ------------------- | -------------------------------------------- | ------------------------------- | ------- |
+| `n_trials`          | Number of Optuna trials                      | 10                              | integer |
+| `sampler_name`      | Optuna sampler name                          | "TPESampler"                    | string  |
+| `study_name`        | Optuna study name                            | "qwen2vl_hyperparameter_tuning" | string  |
+| `learning_rate_min` | Minimum value for learning rate search range | 1e-6                            | float   |
+| `learning_rate_max` | Maximum value for learning rate search range | 1e-3                            | float   |
+| `warmup_steps_min`  | Minimum value for warmup steps search range  | 50                              | integer |
+| `warmup_steps_max`  | Maximum value for warmup steps search range  | 500                             | integer |
 
 ### Training Configuration (training)
 
-| Parameter | Description | Default Value | Type |
-|-----------|-------------|---------------|------|
-| `n_epochs` | Number of training epochs | 8 | integer |
-| `train_dataset` | Training dataset name | "activitynet_qa_2000_limit_20s" | string |
-| `per_device_train_batch_size` | Training batch size per device | 2 | integer |
-| `gradient_accumulation_steps` | Gradient accumulation steps | 8 | integer |
-| `lr_scheduler_type` | Learning rate scheduler type | "cosine" | string |
-| `train_cutoff_len` | Training sequence cutoff length | 2048 | integer |
-| `max_grad_norm` | Maximum gradient clipping | 1.0 | float |
-| `logging_steps` | Logging interval steps | 10 | integer |
-| `save_steps` | Checkpoint saving interval steps | 500 | integer |
-| `optim` | Optimizer | "adamw_torch" | string |
-| `preprocessing_num_workers` | Number of preprocessing workers | 16 | integer |
-| `bf16` | Whether to use bf16 precision | true | boolean |
-| `finetuning_type` | Fine-tuning type | "lora" | string |
-| `lora_rank` | LoRA rank | 8 | integer |
-| `lora_alpha` | LoRA alpha | 16 | integer |
-| `lora_dropout` | LoRA dropout | 0.0 | float |
-| `lora_target` | LoRA target modules | "all" | string |
-| `max_samples` | Maximum number of samples | 100000 | integer |
-| `video_fps` | Video frame rate | 0.1 | float |
-| `learning_rate` | Learning rate (required for non-Optuna mode) | null | float |
-| `warmup_steps` | Warmup steps (required for non-Optuna mode) | null | integer |
+| Parameter                     | Description                                  | Default Value                   | Type    |
+| ----------------------------- | -------------------------------------------- | ------------------------------- | ------- |
+| `n_epochs`                    | Number of training epochs                    | 8                               | integer |
+| `train_dataset`               | Training dataset name                        | "activitynet_qa_2000_limit_20s" | string  |
+| `per_device_train_batch_size` | Training batch size per device               | 2                               | integer |
+| `gradient_accumulation_steps` | Gradient accumulation steps                  | 8                               | integer |
+| `lr_scheduler_type`           | Learning rate scheduler type                 | "cosine"                        | string  |
+| `train_cutoff_len`            | Training sequence cutoff length              | 2048                            | integer |
+| `max_grad_norm`               | Maximum gradient clipping                    | 1.0                             | float   |
+| `logging_steps`               | Logging interval steps                       | 10                              | integer |
+| `save_steps`                  | Checkpoint saving interval steps             | 500                             | integer |
+| `optim`                       | Optimizer                                    | "adamw_torch"                   | string  |
+| `preprocessing_num_workers`   | Number of preprocessing workers              | 16                              | integer |
+| `bf16`                        | Whether to use bf16 precision                | true                            | boolean |
+| `finetuning_type`             | Fine-tuning type                             | "lora"                          | string  |
+| `lora_rank`                   | LoRA rank                                    | 8                               | integer |
+| `lora_alpha`                  | LoRA alpha                                   | 16                              | integer |
+| `lora_dropout`                | LoRA dropout                                 | 0.0                             | float   |
+| `lora_target`                 | LoRA target modules                          | "all"                           | string  |
+| `max_samples`                 | Maximum number of samples                    | 100000                          | integer |
+| `video_fps`                   | Video frame rate                             | 0.1                             | float   |
+| `learning_rate`               | Learning rate (required for non-Optuna mode) | null                            | float   |
+| `warmup_steps`                | Warmup steps (required for non-Optuna mode)  | null                            | integer |
 
 ### Evaluation Configuration (evaluation) - Optional
 
-| Parameter | Description | Default Value | Type |
-|-----------|-------------|---------------|------|
-| `eval_dataset` | Evaluation dataset name | "activitynet_qa_val_500_limit_20s" | string |
-| `per_device_eval_batch_size` | Evaluation batch size per device | 1 | integer |
-| `predict_with_generate` | Whether to use generation for prediction | true | boolean |
-| `eval_cutoff_len` | Evaluation sequence cutoff length | 1024 | integer |
-| `max_new_tokens` | Maximum number of new generated tokens | 128 | integer |
-| `top_p` | Top-p sampling parameter | 0.7 | float |
-| `temperature` | Temperature parameter | 0.95 | float |
-| `quantization_method` | Quantization method | "bitsandbytes" | string |
-| `max_samples` | Maximum number of samples | 100000 | integer |
-| `video_fps` | Video frame rate | 0.1 | float |
+| Parameter                    | Description                              | Default Value                      | Type    |
+| ---------------------------- | ---------------------------------------- | ---------------------------------- | ------- |
+| `eval_dataset`               | Evaluation dataset name                  | "activitynet_qa_val_500_limit_20s" | string  |
+| `per_device_eval_batch_size` | Evaluation batch size per device         | 1                                  | integer |
+| `predict_with_generate`      | Whether to use generation for prediction | true                               | boolean |
+| `eval_cutoff_len`            | Evaluation sequence cutoff length        | 1024                               | integer |
+| `max_new_tokens`             | Maximum number of new generated tokens   | 128                                | integer |
+| `top_p`                      | Top-p sampling parameter                 | 0.7                                | float   |
+| `temperature`                | Temperature parameter                    | 0.95                               | float   |
+| `quantization_method`        | Quantization method                      | "bitsandbytes"                     | string  |
+| `max_samples`                | Maximum number of samples                | 100000                             | integer |
+| `video_fps`                  | Video frame rate                         | 0.1                                | float   |
 
 ## 🔍 Optuna features
 
 ### Supported Parameters
+
 - `learning_rate` and `warmup_steps`.
 
 **Recommended configuration example:**
+
 ```json
 "optuna": {
   "n_trials": 20,
@@ -330,15 +340,15 @@ llamafactory-cli train \
 
 ### Supported Samplers
 
-| Sampler Name | Description | Use Case |
-|--------------|-------------|----------|
-| `TPESampler` | Tree-structured Parzen Estimator | Default recommended, suitable for continuous parameter optimization |
-| `RandomSampler` | Random sampling | Quick exploration, baseline comparison |
-| `CmaEsSampler` | Covariance Matrix Adaptation Evolution Strategy | Continuous optimization problems |
-| `GPSampler` | Gaussian Process sampler | Expensive objective function evaluation |
-| `PartialFixedSampler` | Partial fixed parameter sampler | Scenarios with some fixed parameters |
-| `NSGAIISampler` | Non-dominated Sorting Genetic Algorithm II | Multi-objective optimization |
-| `QMCSampler` | Quasi-Monte Carlo sampler | Low discrepancy sequences, uniform exploration |
+| Sampler Name          | Description                                     | Use Case                                                            |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| `TPESampler`          | Tree-structured Parzen Estimator                | Default recommended, suitable for continuous parameter optimization |
+| `RandomSampler`       | Random sampling                                 | Quick exploration, baseline comparison                              |
+| `CmaEsSampler`        | Covariance Matrix Adaptation Evolution Strategy | Continuous optimization problems                                    |
+| `GPSampler`           | Gaussian Process sampler                        | Expensive objective function evaluation                             |
+| `PartialFixedSampler` | Partial fixed parameter sampler                 | Scenarios with some fixed parameters                                |
+| `NSGAIISampler`       | Non-dominated Sorting Genetic Algorithm II      | Multi-objective optimization                                        |
+| `QMCSampler`          | Quasi-Monte Carlo sampler                       | Low discrepancy sequences, uniform exploration                      |
 
 ## 💡 Log Control
 
@@ -350,17 +360,22 @@ Control subprocess output verbosity through the `print_detail_log` parameter:
 ## 📊 Output and Results
 
 ### Optuna Optimization Mode Output
+
 - Training results: `{base_output_dir}/{study_name}/trial_XXX/`
 - Optuna database: `{base_output_dir}/optuna_study.db`
 - Best parameters: `{base_output_dir}/{study_name}/best_params.json`
 
 ### Training Mode Output
+
 - Training results: `{base_output_dir}/{model_name}/{timestamp}/`
 - Evaluation results: `{base_output_dir}/{model_name}/{timestamp}/evaluation/`
+
 ### Evaluation Metrics
+
 The script returns all evaluation metrics, including but not limited to:
+
 - `predict_bleu-4`: BLEU-4 score
-- `predict_rouge-1`: ROUGE-1 score  
+- `predict_rouge-1`: ROUGE-1 score
 - `predict_rouge-2`: ROUGE-2 score
 - `predict_rouge-l`: ROUGE-L score
 
@@ -369,26 +384,31 @@ The script returns all evaluation metrics, including but not limited to:
 Here are three complete configuration file examples:
 
 ### 1. Optuna Optimization Example
+
 ```bash
 # Run 10 trials to optimize learning rate and warmup steps
 python optuna_tuning.py --config_file ./cfgs/config_optuna.json
 ```
 
-### 2. Fixed Parameter Train+Eval Example  
+### 2. Fixed Parameter Train+Eval Example
+
 ```bash
 # Train and evaluate with fixed parameters
 python optuna_tuning.py --config_file ./cfgs/config_finetune_eval.json
 ```
 
 ### 3. Train-Only Example
+
 ```bash
 # Only perform training without evaluation
 python optuna_tuning.py --config_file ./cfgs/config_finetune_only.json
 ```
 
 ## Finetune qwen2-vl with logging eval loss
+
 If you want to finetune with plotting eval loss, please set `eval_strategy` as `steps`, `eval_steps`and `eval_dataset`:
-Please change the dateset to 
+Please change the dateset to
+
 ```
 export DATA='where you can find dataset_info.json'
 export dataset=activitynet_qa_2000_limit_20s                    # to point which dataset llamafactory will yse
@@ -432,8 +452,10 @@ llamafactory-cli train \
     --lora_dropout 0 \
     --lora_target all
 ```
+
 ### Evaluation metrics calculation and plotting
-If you want to plot eval metrics: 
+
+If you want to plot eval metrics:
 Change `MODEL_NAME`,`EXPERIENT_NAME`,`EVAL_DATASET` as you need and run evaluation metrics calculation sctrpt:
 
 ```
@@ -444,7 +466,9 @@ export EVAL_DATASET=activitynet_qa_val_500_limit_20s
 chmod a+x ./doc/run_eval.sh
 ./doc/run_eval.sh
 ```
+
 Change `model_name` and `experiment_name` then run:
+
 ```
 python plot_metrics.py --model_name your_model_name --experiment_name your_experiment_name
 ```

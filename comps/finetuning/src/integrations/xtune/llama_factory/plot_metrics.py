@@ -1,17 +1,23 @@
-import os
-import json
-import re
-import matplotlib.pyplot as plt
-import numpy as np
-from collections import defaultdict
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 # Configuration - Update these paths as needed
-#add args
+# add args
 import argparse
+import json
+import os
+import re
+from collections import defaultdict
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 parser = argparse.ArgumentParser(description="Plot evaluation metrics")
 parser.add_argument("--model_name", type=str, default="Qwen2-VL-2B-Instruct", help="Model name")
 parser.add_argument("--experiment_name", type=str, default="finetune_onlyplot_evalloss", help="Experiment name")
-parser.add_argument("--eval_folder", type=str, default="eval_val_500_limit_20s", help="Directory containing evaluation results")
+parser.add_argument(
+    "--eval_folder", type=str, default="eval_val_500_limit_20s", help="Directory containing evaluation results"
+)
 args = parser.parse_args()
 model_name = args.model_name
 experiment_name = args.experiment_name
@@ -34,21 +40,21 @@ checkpoint_numbers = []
 
 for eval_dir in eval_dirs:
     # Extract checkpoint number
-    match = re.search(r'checkpoint-(\d+)', eval_dir)
+    match = re.search(r"checkpoint-(\d+)", eval_dir)
     if not match:
         continue
-    
+
     checkpoint_num = int(match.group(1))
     checkpoint_numbers.append(checkpoint_num)
-    
+
     # Read the predict_results.json file
     results_path = os.path.join(eval_output_dir, eval_dir, "predict_results.json")
     if not os.path.exists(results_path):
         print(f"Warning: No results file found at {results_path}")
         continue
-    
+
     try:
-        with open(results_path, 'r') as f:
+        with open(results_path, "r") as f:
             results = json.load(f)
         metrics_by_checkpoint[checkpoint_num] = results
         print(f"Loaded metrics from checkpoint-{checkpoint_num}")
@@ -94,22 +100,21 @@ for metric, values in metric_values.items():
     if len(values) < 2:  # Skip metrics with insufficient data
         print(f"Skipping {metric} - insufficient data points")
         continue
-        
+
     plt.figure(figsize=(10, 6))
-    plt.plot(checkpoint_numbers[:len(values)], values, 'o-', linewidth=2, markersize=8)
-    plt.title(f'{metric} across Checkpoints', fontsize=16)
-    plt.xlabel('Checkpoint Number', fontsize=14)
+    plt.plot(checkpoint_numbers[: len(values)], values, "o-", linewidth=2, markersize=8)
+    plt.title(f"{metric} across Checkpoints", fontsize=16)
+    plt.xlabel("Checkpoint Number", fontsize=14)
     plt.ylabel(metric, fontsize=14)
     plt.grid(True, alpha=0.3)
-    
+
     # Add data points with values
-    for i, (x, y) in enumerate(zip(checkpoint_numbers[:len(values)], values)):
-        plt.annotate(f'{y:.4f}', (x, y), textcoords="offset points", 
-                     xytext=(0,10), ha='center', fontsize=10)
-    
+    for i, (x, y) in enumerate(zip(checkpoint_numbers[: len(values)], values)):
+        plt.annotate(f"{y:.4f}", (x, y), textcoords="offset points", xytext=(0, 10), ha="center", fontsize=10)
+
     # Save the plot
     plt.tight_layout()
-    plt.savefig(os.path.join(plot_output_dir, f'{metric}_plot.png'), dpi=300)
+    plt.savefig(os.path.join(plot_output_dir, f"{metric}_plot.png"), dpi=300)
     print(f"Saved plot for {metric}")
     plt.close()
 
@@ -119,7 +124,7 @@ metric_count = 0
 legend_entries = []
 
 # Identify the most important metrics to include in the combined plot
-priority_metrics = ["BLEU-4", "ROUGE", "METEOR", "accuracy", "f1_score", "rouge1", "rouge2", "rougeL"]
+priority_metrics = ["BLEU-4", "ROGUE", "METEOR", "accuracy", "f1_score", "rouge1", "rouge2", "rougeL"]
 important_metrics = [m for m in priority_metrics if m in metric_values and len(metric_values[m]) >= 2]
 
 # If we don't have priority metrics, just use what we have
@@ -127,51 +132,49 @@ if not important_metrics:
     important_metrics = [m for m in metric_values if len(metric_values[m]) >= 2][:5]
 
 # Plot the important metrics
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 for i, metric in enumerate(important_metrics):
     values = metric_values[metric]
-    plt.plot(checkpoint_numbers[:len(values)], values, 'o-', 
-             linewidth=2, markersize=8, color=colors[i % len(colors)])
-    
+    plt.plot(checkpoint_numbers[: len(values)], values, "o-", linewidth=2, markersize=8, color=colors[i % len(colors)])
+
     # Add values as text annotations
-    for j, (x, y) in enumerate(zip(checkpoint_numbers[:len(values)], values)):
-        plt.annotate(f'{y:.3f}', (x, y), textcoords="offset points", 
-                     xytext=(0,10), ha='center', fontsize=9)
-    
+    for j, (x, y) in enumerate(zip(checkpoint_numbers[: len(values)], values)):
+        plt.annotate(f"{y:.3f}", (x, y), textcoords="offset points", xytext=(0, 10), ha="center", fontsize=9)
+
     legend_entries.append(metric)
     metric_count += 1
-    
+
     if metric_count >= 5:  # Limit to 5 metrics on one plot to avoid crowding
         break
 
 if metric_count > 0:
-    plt.title('Key Metrics across Checkpoints', fontsize=16)
-    plt.xlabel('Checkpoint Number', fontsize=14)
-    plt.ylabel('Metric Value', fontsize=14)
+    plt.title("Key Metrics across Checkpoints", fontsize=16)
+    plt.xlabel("Checkpoint Number", fontsize=14)
+    plt.ylabel("Metric Value", fontsize=14)
     plt.grid(True, alpha=0.3)
-    plt.legend(legend_entries, fontsize=12, loc='best')
+    plt.legend(legend_entries, fontsize=12, loc="best")
     plt.tight_layout()
-    plt.savefig(os.path.join(plot_output_dir, 'combined_metrics_plot.png'), dpi=300)
-    print(f"Saved combined metrics plot")
+    plt.savefig(os.path.join(plot_output_dir, "combined_metrics_plot.png"), dpi=300)
+    print("Saved combined metrics plot")
 
 # Create a comprehensive CSV with all metrics
 csv_path = os.path.join(plot_output_dir, "metrics_summary.csv")
-with open(csv_path, 'w') as f:
+with open(csv_path, "w") as f:
     # Header row with checkpoint numbers
     f.write("Metric," + ",".join([f"Checkpoint-{num}" for num in checkpoint_numbers]) + "\n")
-    
+
     # Data rows
     for metric in sorted(metric_values.keys()):
         values = metric_values[metric]
         row_data = [metric]
-        
+
         # Add values for each checkpoint
         for i, checkpoint in enumerate(checkpoint_numbers):
             if i < len(values):
                 row_data.append(f"{values[i]:.6f}")
             else:
                 row_data.append("N/A")
-        
+
         f.write(",".join(row_data) + "\n")
 
 print(f"Generated metrics summary CSV at {csv_path}")
@@ -182,46 +185,45 @@ trainer_state_path = os.path.join(eval_loss_dir, "trainer_state.json")
 
 if os.path.exists(trainer_state_path):
     try:
-        with open(trainer_state_path, 'r') as f:
+        with open(trainer_state_path, "r") as f:
             trainer_state = json.load(f)
-        
+
         # Extract eval_loss and steps from log_history
         eval_steps = []
         eval_losses = []
-        
+
         for entry in trainer_state["log_history"]:
             if "eval_loss" in entry and "step" in entry:
                 eval_steps.append(entry["step"])
                 eval_losses.append(entry["eval_loss"])
-        
+
         if len(eval_steps) > 1:  # We need at least 2 points to plot a meaningful line
             plt.figure(figsize=(10, 6))
-            plt.plot(eval_steps, eval_losses, 'o-', linewidth=2, markersize=8, color='#d62728')
-            plt.title('Evaluation Loss During Training', fontsize=16)
-            plt.xlabel('Training Step', fontsize=14)
-            plt.ylabel('Evaluation Loss', fontsize=14)
+            plt.plot(eval_steps, eval_losses, "o-", linewidth=2, markersize=8, color="#d62728")
+            plt.title("Evaluation Loss During Training", fontsize=16)
+            plt.xlabel("Training Step", fontsize=14)
+            plt.ylabel("Evaluation Loss", fontsize=14)
             plt.grid(True, alpha=0.3)
-            
+
             # Add data point annotations
             for i, (x, y) in enumerate(zip(eval_steps, eval_losses)):
-                plt.annotate(f'{y:.4f}', (x, y), textcoords="offset points", 
-                             xytext=(0,10), ha='center', fontsize=10)
-            
+                plt.annotate(f"{y:.4f}", (x, y), textcoords="offset points", xytext=(0, 10), ha="center", fontsize=10)
+
             plt.tight_layout()
-            plt.savefig(os.path.join(plot_output_dir, 'eval_loss_plot.png'), dpi=300)
-            print(f"Saved evaluation loss plot")
-            
+            plt.savefig(os.path.join(plot_output_dir, "eval_loss_plot.png"), dpi=300)
+            print("Saved evaluation loss plot")
+
             # Also save the data to CSV
             csv_path = os.path.join(plot_output_dir, "eval_loss.csv")
-            with open(csv_path, 'w') as f:
+            with open(csv_path, "w") as f:
                 f.write("Step,Eval_Loss\n")
                 for step, loss in zip(eval_steps, eval_losses):
                     f.write(f"{step},{loss:.6f}\n")
             print(f"Saved evaluation loss data to {csv_path}")
-            
+
         else:
             print("Not enough evaluation loss data points to create a plot")
-            
+
     except Exception as e:
         print(f"Error processing trainer_state.json: {e}")
 else:

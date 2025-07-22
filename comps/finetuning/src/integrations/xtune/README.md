@@ -152,11 +152,15 @@ cd src/llamafactory/adaclip_finetune
 ```
 
 ### Qwen2-VL Training and Hyperparameter Optimization
-``` bash
+
+```bash
 # Please see Qwen2-VL_README.md in doc for detail, bolow are simple use
 ```
+
 #### Step 1: Finetune qwen2-vl with logging eval loss
+
 If you want to finetune with plotting eval loss, please set eval_strategy as steps, eval_stepsand eval_dataset:
+
 ```
 # Finetune qwen2-vl with logging eval loss
 export DATA='where you can find dataset_info.json'
@@ -201,8 +205,10 @@ llamafactory-cli train \
     --lora_dropout 0 \
     --lora_target all
 ```
+
 #### step 2: Evaluation metrics calculation and plotting
-If you want to plot eval metrics: 
+
+If you want to plot eval metrics:
 Change `MODEL_NAME`,`EXPERIENT_NAME`,`EVAL_DATASET` as you need and run evaluation metrics calculation sctrpt:
 
 ```
@@ -213,10 +219,13 @@ export EVAL_DATASET=activitynet_qa_val_500_limit_20s
 chmod a+x ./doc/run_eval.sh
 ./doc/run_eval.sh
 ```
+
 Change `model_name` and `experiment_name` then run:
+
 ```
 python plot_metrics.py --model_name your_model_name --experiment_name your_experiment_name
 ```
+
 ### DeepSeek-R1 Distillation(not main function)
 
 Please see [doc](./doc/DeepSeek-R1_distillation_best_practice-v1.3.pdf) for details

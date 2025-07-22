@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # Path to the checkpoints directory
 MODEL_NAME=${MODEL_NAME: -"Qwen2-VL-2B-Instruct"}
 EXPERIENT_NAME=${EXPERIENT_NAME: -"finetune_onlyplot_evalloss_5e-6"}
@@ -26,9 +29,9 @@ fi
 for checkpoint_path in $checkpoints; do
     # Extract checkpoint name (e.g., checkpoint-100)
     checkpoint=$(basename ${checkpoint_path})
-    
+
     echo "Running evaluation on ${checkpoint}..."
-    
+
     # Create output directory for this checkpoint's evaluation
     eval_output_dir="saves/${MODEL_NAME}/lora/${EXPERIENT_NAME}/eval_${EVAL_STR}"
     #if exists,skip this checkpoint
@@ -61,7 +64,7 @@ for checkpoint_path in $checkpoints; do
         --adapter_name_or_path "${checkpoint_path}" \
         --video_fps 0.1 \
         --report_to none
-    
+
     # Check if the command was successful
     if [ $? -eq 0 ]; then
         echo "Evaluation completed successfully for ${checkpoint}"
@@ -70,7 +73,7 @@ for checkpoint_path in $checkpoints; do
         # You can choose to exit on failure or continue with the next checkpoint
         # exit 1  # Uncomment to exit on first failure
     fi
-    
+
     echo "----------------------------------------"
     # Wait a moment before starting the next one
     sleep 5
