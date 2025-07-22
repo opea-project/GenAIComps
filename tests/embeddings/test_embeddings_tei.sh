@@ -73,11 +73,10 @@ function validate_microservice_with_openai() {
     fi
 }
 
-function stop_docker() {
-    function stop_service() {
+
+function stop_service() {
     cd $WORKPATH/comps/embeddings/deployment/docker_compose/
     docker compose down || true
-}
 }
 
 function main() {

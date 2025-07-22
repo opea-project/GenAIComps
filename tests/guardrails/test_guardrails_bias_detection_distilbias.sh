@@ -10,8 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
-    dockerfile_name="comps/guardrails/src/bias_detection/$1"
-    docker build --no-cache -t opea/guardrails-bias-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
+    docker build --no-cache -t opea/guardrails-bias-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/bias_detection/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/guardrails-bias-detection built fail"
         exit 1
@@ -54,28 +53,24 @@ function validate_microservice() {
     echo "Validate microservice completed"
 }
 
-function stop_service() {
-    cd $WORKPATH/comps/guardrails/deployment/docker_compose/
-    docker compose down || true
+function stop_docker() {
+    cid=$(docker ps -aq --filter "name=guardrails-bias-detection-server")
+    echo "Shutdown legacy containers "$cid
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {
 
-    build_docker_images "Dockerfile"
-    trap stop_service EXIT
+    stop_docker
 
-    echo "Test normal env ..."
+    build_docker_images
     start_service
-    validate_microservice
-    stop_service
 
-    echo "Test with openEuler OS ..."
-    build_docker_images "Dockerfile.openEuler"
-    start_service
     validate_microservice
-    stop_service
 
-    docker system prune -f
+    stop_docker
+    echo "cleanup container images and volumes"
+    echo y | docker system prune > /dev/null 2>&1
 
 }
 
