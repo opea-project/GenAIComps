@@ -39,7 +39,7 @@ else
     pip install matplotlib
     pip install -e ".[metrics]"
     pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.7.10+xpu oneccl_bind_pt==2.7.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
-    pip install "transformers>=4.50.0" optimum "auto_gptq>=0.5.0"
+    pip install "transformers==4.51.0" optimum "auto_gptq>=0.5.0"
     python -m pip list | grep nvidia | awk '{print $1}' | xargs -L1 python -m pip uninstall -y
     echo "start llamafactory webui"
     if [ -z $GUI ]; then

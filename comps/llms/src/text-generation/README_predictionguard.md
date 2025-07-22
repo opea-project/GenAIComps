@@ -1,10 +1,21 @@
-# Prediction Guard Introduction
+# Prediction Guard Microservice
 
 [Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
 
-## Get Started
+---
 
-### Run the Predictionguard Microservice
+## Table of Contents
+
+1. [Start Microservice](#start-microservice)
+2. [Consume Microservice](#consume-microservice)
+
+---
+
+## Start Microservice
+
+You can build and run the Prediction Guard microservice using Docker Compose.
+
+### Run Docker with Docker Compose
 
 ```bash
 export service_name="textgen-predictionguard"
@@ -13,7 +24,9 @@ cd comps/llms/deployment/docker_compose/
 docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
 
-## Consume the Prediction Guard Microservice
+---
+
+## Consume Microservice
 
 See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options.
 
