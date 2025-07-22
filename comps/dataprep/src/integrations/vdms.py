@@ -3,6 +3,7 @@
 
 import json
 import os
+import asyncio
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
@@ -121,7 +122,15 @@ class OpeaVdmsDataprep(OpeaComponent):
             )
 
         content = await document_loader(path)
-        chunks = text_splitter.split_text(content)
+        
+        structured_types = [".xlsx", ".csv", ".json", "jsonl"]
+        _, ext = os.path.splitext(path)
+
+        if ext in structured_types:
+            chunks = content
+        else:
+            chunks = await asyncio.to_thread(text_splitter.split_text, content)
+            
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
             logger.info(f"table chunks: {table_chunks}")
