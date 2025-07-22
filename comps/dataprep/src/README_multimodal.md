@@ -23,7 +23,7 @@ Please refer to this [readme](../../third_parties/redis/src/README.md).
 
 This is required only if you are going to consume the _generate_captions_ API of this microservice as described [here](#43-consume-generate_captions-api).
 
-Please refer to this [readme](../../lvms/src/README.md) to start the LVM microservice.
+Please refer to this [readme](../../lvms/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
 
 ```bash
