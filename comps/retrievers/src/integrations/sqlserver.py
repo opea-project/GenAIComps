@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import pyodbc
 
+import pyodbc
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
-from langchain_sqlserver.vectorstores import SQLServer_VectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_sqlserver.vectorstores import SQLServer_VectorStore
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import MSSQL_CONNECTION_STRING, TABLE_NAME, TEI_EMBEDDING_ENDPOINT, EMBED_MODEL, HF_TOKEN
+from .config import EMBED_MODEL, HF_TOKEN, MSSQL_CONNECTION_STRING, TABLE_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("sqlserver_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -83,7 +83,9 @@ class OpeaSqlServerRetriever(OpeaComponent):
             logger.info(f"Embedding Length of the model: {self.embedding_length}")
         except Exception as e:
             logger.error(f"Failed to generate embedding for model '{EMBED_MODEL}': {e}")
-            raise RuntimeError("Embedding initialization failed. Please check the model configuration and embedding service.")
+            raise RuntimeError(
+                "Embedding initialization failed. Please check the model configuration and embedding service."
+            )
 
         return embeddings
 
@@ -93,7 +95,7 @@ class OpeaSqlServerRetriever(OpeaComponent):
             embedding_function=self.embedder,
             table_name=self.sqlserver_table_name,
             connection_string=self.MSSQL_CONNECTION_STRING,
-            embedding_length=self.embedding_length
+            embedding_length=self.embedding_length,
         )
         return vector_db
 
@@ -104,11 +106,11 @@ class OpeaSqlServerRetriever(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ check health ] start to check health of SQL Server")
+            logger.info("[ check health ] start to check health of SQL Server")
         try:
             conn = pyodbc.connect(MSSQL_CONNECTION_STRING)
             conn.close()
-            logger.info(f"[ check health ] Successfully connected to SQL Server!")
+            logger.info("[ check health ] Successfully connected to SQL Server!")
             return True
 
         except pyodbc.Error as e:

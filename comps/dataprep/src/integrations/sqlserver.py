@@ -10,8 +10,8 @@ import pyodbc
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
-from langchain_sqlserver.vectorstores import SQLServer_VectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_sqlserver.vectorstores import SQLServer_VectorStore
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import DataprepRequest
@@ -94,7 +94,9 @@ class OpeaSqlServerDataprep(OpeaComponent):
             logger.info(f"Embedding Length of the model: {self.embedding_length}")
         except Exception as e:
             logger.error(f"Failed to generate embedding for model '{EMBED_MODEL}': {e}")
-            raise RuntimeError("Embedding initialization failed. Please check the model configuration and embedding service.")
+            raise RuntimeError(
+                "Embedding initialization failed. Please check the model configuration and embedding service."
+            )
 
         # Perform health check
         health_status = self.check_health()
@@ -121,8 +123,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
         pass
 
     async def save_file_to_local_disk(self, save_path: str, file: UploadFile):
-        """
-        Asynchronously saves the contents of an UploadFile to the specified local disk path.
+        """Asynchronously saves the contents of an UploadFile to the specified local disk path.
 
         Args:
             save_path (str): The file system path where the file should be saved.
@@ -142,9 +143,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
                 raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
     def delete_embeddings(self, doc_name):
-        """
-        Delete embeddings from SQLServer_VectorStore by doc_name or all.
-        """
+        """Delete embeddings from SQLServer_VectorStore by doc_name or all."""
         try:
             if logflag:
                 logger.info(f"Deleting {doc_name} from vectorstore")
@@ -180,7 +179,6 @@ class OpeaSqlServerDataprep(OpeaComponent):
         except Exception as e:
             logger.error(f"Error during deletion: {e}")
             return False
-
 
     async def ingest_doc_to_sqlserver(self, doc_path: DocPath):
         """Ingest document to SQLServer_VectorStore."""
@@ -226,8 +224,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
         return True
 
     async def ingest_link_to_sqlserver(self, link_list: List[str]):
-        """
-        Parses HTML content from a list of URLs, splits it into text chunks, and stores embeddings in SQL Server.
+        """Parses HTML content from a list of URLs, splits it into text chunks, and stores embeddings in SQL Server.
 
         Args:
             link_list (List[str]): URLs to process.
@@ -348,11 +345,11 @@ class OpeaSqlServerDataprep(OpeaComponent):
             "parent": "",
         }"""
         if logflag:
-            logger.info(f"[ dataprep - get file ] start to get file structure")
+            logger.info("[ dataprep - get file ] start to get file structure")
 
         if not Path(self.upload_folder).exists():
             if logflag:
-                logger.info(f"No file uploaded, return empty list.")
+                logger.info("No file uploaded, return empty list.")
             return []
 
         file_content = get_file_structure(self.upload_folder)
@@ -369,11 +366,11 @@ class OpeaSqlServerDataprep(OpeaComponent):
         """
         if file_path == "all":
             if logflag:
-                logger.info(f"[dataprep - del] delete all files")
+                logger.info("[dataprep - del] delete all files")
             remove_folder_with_ignore(self.upload_folder)
             assert self.delete_embeddings(file_path)
             if logflag:
-                logger.info(f"[dataprep - del] successfully delete all files.")
+                logger.info("[dataprep - del] successfully delete all files.")
             create_upload_folder(self.upload_folder)
             if logflag:
                 logger.info({"status": True})
@@ -399,7 +396,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
             # delete folder
             else:
                 if logflag:
-                    logger.info(f"[dataprep - del] delete folder is not supported for now.")
+                    logger.info("[dataprep - del] delete folder is not supported for now.")
                     logger.info({"status": False})
                 return {"status": False}
             if logflag:

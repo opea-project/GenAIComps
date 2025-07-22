@@ -1,6 +1,4 @@
-
 # Start SQLServer server
-
 
 ## 1. Download SQLServer image
 
@@ -18,7 +16,7 @@ export MSSQL_SA_PASSWORD='Passw0rd!'
 
 ## 3. Run SQLServer service
 
- 1. Using docker run command
+1.  Using docker run command
 
 ```bash
 docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$MSSQL_SA_PASSWORD" \
@@ -28,6 +26,7 @@ mcr.microsoft.com/mssql/server:2025-latest
 ```
 
 2. Using docker compose command
+
 ```bash
 cd ../deployment/docker_compose/
 docker compose up -d
