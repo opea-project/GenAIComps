@@ -1,16 +1,20 @@
 # Document Summary LLM Microservice
 
-This microservice leverages LangChain to implement advanced text summarization strategies and facilitate Large Language Model (LLM) inference using Text Generation Inference (TGI) on Intel Xeon and Gaudi2 processors. Users can configure the backend service to utilize either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
+The Document Summary LLM Microservice leverages LangChain to provide advanced text summarization and Large Language Model (LLM) inference using Text Generation Inference (TGI) on Intel Xeon and Gaudi2 processors. The backend can be configured to use either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
-# Quick Start Guide
+---
 
-## Deployment options
+## Table of Contents
 
-## 🚀1. Start Microservice with Docker 🐳
+1. [Start Microservice](#start-microservice)
+2. [Consume Microservice](#consume-microservice)
+3. [Air-Gapped Environment Usage](#air-gapped-environment-usage)
 
-### 1.1 Setup Environment Variables
+---
 
-In order to start DocSum services, you need to setup the following environment variables first.
+## Start Microservice
+
+### Set Environment Variables
 
 ```bash
 export host_ip=${your_host_ip}
@@ -23,38 +27,32 @@ export MAX_INPUT_TOKENS=2048
 export MAX_TOTAL_TOKENS=4096
 ```
 
-Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_new_tokens + 50), 50 is reserved prompt length.
+> MAX_TOTAL_TOKENS must be greater than MAX_INPUT_TOKENS + max_new_tokens + 50 (50 tokens reserved for prompt length).
 
-### 1.2 Build Docker Image
+### Build Docker Images
 
-Step 1: Prepare backend LLM docker image.
+#### Build Backend LLM Image
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) for building the necessary Docker image.
+For vLLM, refer to [vLLM Build Instructions](../../../third_parties/vllm/).
 
 TGI does not require additional setup.
 
-Step 2: Build DocSum docker image:
+#### Build DocSum Microservice Image
 
 ```bash
 cd ../../../../
 docker build -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
 ```
 
-### 1.3 Run Docker Service
+### Run Docker Service
 
-To start a docker container, you have two options:
+You can start the service using either the CLI or Docker Compose.
 
-- A. Run Docker with CLI
-- B. Run Docker with Docker Compose
+#### Option A: Run with Docker CLI
 
-You can choose one as needed.
+1. Start the backend LLM service ([TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm)).
 
-### 1.3.1 Run Docker with CLI (Option A)
-
-Step 1: Start the backend LLM service
-Please refer to [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm) guideline to start a backend LLM service.
-
-Step 2: Start the DocSum microservices
+2. Start DocSum microservice:
 
 ```bash
 export DocSum_COMPONENT_NAME="OpeaDocSumTgi" # or "OpeaDocSumvLLM"
@@ -68,56 +66,46 @@ docker run -d \
     -e LLM_ENDPOINT=$LLM_ENDPOINT \
     -e HF_TOKEN=$HF_TOKEN \
     -e DocSum_COMPONENT_NAME=$DocSum_COMPONENT_NAME \
-    -e MAX_INPUT_TOKENS=${MAX_INPUT_TOKENS} \
-    -e MAX_TOTAL_TOKENS=${MAX_TOTAL_TOKENS} \
+    -e MAX_INPUT_TOKENS=$MAX_INPUT_TOKENS \
+    -e MAX_TOTAL_TOKENS=$MAX_TOTAL_TOKENS \
     opea/llm-docsum:latest
 ```
 
-### 1.3.2 Run Docker with Docker Compose (Option B)
-
-Set `service_name` to match backend service.
+#### Option B: Run with Docker Compose
 
 ```bash
 export service_name="docsum-tgi"
-# Alternative you can use service_name as: "docsum-tgi-gaudi", "docsum-vllm", "docsum-vllm-gaudi"
+# Alternatives: "docsum-tgi-gaudi", "docsum-vllm", "docsum-vllm-gaudi"
 
 cd ../../deployment/docker_compose/
 docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 ```
 
-## 🚀2. Start Microservice with Kubernetes
-
-The **DocSum microservice** can be deployed on a **Kubernetes cluster** using the provided manifests.
-
-### 2.1 Deployment Overview
-
-- Requires **a running Kubernetes cluster** and `kubectl` configured.
-- The service can be exposed using **ClusterIP, NodePort, or Ingress**.
-- Backend LLM service (**TGI or vLLM**) must be running.
-
-### 2.2 Quick Deployment Steps
-
-Run the following commands to deploy:
+### Kubernetes Deployment (Optional)
 
 ```bash
 kubectl apply -f deployment/k8s/docsum-deployment.yaml
 kubectl apply -f deployment/k8s/docsum-service.yaml
-kubectl apply -f deployment/k8s/docsum-ingress.yaml  # If using Ingress
+kubectl apply -f deployment/k8s/docsum-ingress.yaml  # Optional
 ```
 
-For detailed deployment steps and configuration options, refer to the [Kubernetes Deployment Guide](../../../llms/deployment).
+For details, see [Kubernetes Deployment Guide](../../../llms/deployment).
 
-## 🚀3. Consume LLM Service
+---
 
-### 3.1 Checking Service Status
+## Consume Microservice
+
+### Check Service Status
 
 ```bash
-curl http://${your_ip}:9000/v1/health_check\
-  -X GET \
-  -H 'Content-Type: application/json'
+curl http://${your_ip}:9000/v1/health_check \
+-X GET \
+-H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume LLM Service
+### Consume LLM Service
+
+Basic usage:
 
 In DocSum microservice, except for basic LLM parameters, we also support several optimization parameters setting.
 
@@ -129,7 +117,7 @@ If you want to deal with long context, can select suitable summary type, details
 - "chunk_size": max token length for each chunk. Set to be different default value according to "summary_type".
 - "chunk_overlap": overlap token length between each chunk, default is 0.1\*chunk_size
 
-#### 3.2.1 Basic usage
+#### Basic usage
 
 ```bash
 # Enable stream to receive a stream response. By default, this is set to True.
@@ -151,7 +139,7 @@ curl http://${your_ip}:9000/v1/docsum \
   -H 'Content-Type: application/json'
 ```
 
-#### 3.2.2 Long context summarization with "summary_type"
+#### Long context summarization with "summary_type"
 
 **summary_type=auto**
 
@@ -200,7 +188,9 @@ curl http://${your_ip}:9000/v1/docsum \
   -H 'Content-Type: application/json'
 ```
 
-## Running in the air gapped environment
+---
+
+## Air-Gapped Environment Usage
 
 The following steps are needed for running the `opea/llm-docsum` microservice in an air gapped environment (a.k.a. environment with no internet access).
 
