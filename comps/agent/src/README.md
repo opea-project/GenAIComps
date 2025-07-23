@@ -1,12 +1,124 @@
 # Agent Microservice
 
-## 1. Overview
-
 This agent microservice is built on Langchain/Langgraph frameworks. Agents integrate the reasoning capabilities of large language models (LLMs) with the ability to take actionable steps, creating a more sophisticated system that can understand and process information, evaluate situations, take appropriate actions, communicate responses, and track ongoing situations.
 
-### 1.1 Supported agent types
+## Table of Contents
 
-We currently support the following types of agents. Please refer to the example config yaml (links in the table in [Section 1.2](#12-llm-engine)) for each agent strategy to see what environment variables need to be set up.
+1. [Quick Start Deployment](#quick-start-deployment): Step-by-step guide to quickly deploy Opea components.
+   - [Build Docker Image](#build-docker-image)
+   - [Setup Environments](#setup-environments)
+   - [Start Agent Microservices](#start-agent-microservices)
+   - [Validate Microservice](#validate-microservice)
+2. [Supported Agent Types](#supported-agent-types): Overview of all agent types currently supported.
+3. [Docker Compose Files](#docker-compose-files): Standard Docker Compose configurations for easy setup.
+4. [Other Supported Features](#other-supported-features): Includes integrated tools, OpenAI-compatible APIs, and agent memory support.
+   - [Tools](#tools)
+   - [Agent APIs](#agent-apis)
+   - [Agent memory](#agent-memory)
+   - [Run LLMs from OpenAI](#run-llms-from-openai)
+   - [Run LLMs with OpenAI-compatible APIs on Remote Servers](#run-llms-with-openai-compatible-apis-on-remote-servers)
+5. [Customizations](#customizations): Guide to customizing tools and agent strategies for specific needs.
+   - [Customize tools](#customize-tools)
+   - [Customize agent strategy](#customize-agent-strategy)
+
+## Quick Start Deployment
+
+### Build Docker Image
+
+```bash
+cd GenAIComps/ # back to GenAIComps/ folder
+docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+```
+
+### Setup Environments
+
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+export model="meta-llama/Meta-Llama-3.1-70B-Instruct"
+export HF_TOKEN=${HF_TOKEN}
+export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
+```
+
+### Start Agent Microservices
+
+```bash
+# build vLLM image
+git clone https://github.com/HabanaAI/vllm-fork.git
+cd ./vllm-fork
+VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
+git checkout ${VLLM_VER} &> /dev/null
+docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+
+# serve vllm on 4 Gaudi2 cards
+docker run -d --runtime=habana --rm --name "comps-vllm-gaudi-service" -p 8080:8000 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:latest --model ${model} --max-seq-len-to-capture 16384 --enable-auto-tool-choice --tool-call-parser llama3_json --guided-decoding-backend lm-format-enforcer --tensor-parallel-size 4
+
+# check status
+docker logs comps-vllm-gaudi-service
+
+# Agent
+docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+
+# check status
+docker logs comps-agent-endpoint
+```
+
+To run the agent microservice in debug mode, run the command below:
+
+```bash
+docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
+```
+
+### Validate Microservice
+
+Once microservice starts, user can use below script to invoke.
+
+#### Use chat completions API
+
+For multi-turn conversations, first specify a `thread_id`.
+
+```bash
+export thread_id=<thread-id>
+curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
+     "messages": "What is OPEA project?",
+     "thread_id":${thread_id},
+     "stream":true
+    }'
+
+# expected output
+data: 'The OPEA project is .....</s>' # just showing partial example here.
+data: [DONE]
+```
+
+#### Use assistants APIs
+
+```bash
+# step1 create assistant to get `asssistant_id`
+curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
+     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml"}
+    }'
+
+## if want to persist your agent messages, set store config like this:
+curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
+     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml","with_memory":true, "memory_type":"store", "store_config":{"redis_uri":"redis://${ip_address}:6379"}}
+    }'
+
+# step2 create thread to get `thread_id`
+curl http://${ip_address}:9090/v1/threads -X POST -H "Content-Type: application/json" -d '{}'
+
+# step3 create messages
+curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?"}'
+
+
+## if agent is set with `memory_type`=store, should add `assistant_id` in the messages for store
+curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?", "assistant_id": "{assistant_id}"}'
+
+# step4 run
+curl http://${ip_address}:9090/v1/threads/{thread_id}/runs -X POST -H "Content-Type: application/json" -d '{"assistant_id": "{assistant_id}"}'
+```
+
+## Supported agent types
+
+We currently support the following types of agents. Please refer to the example config yaml (links in the table in [Docker Compose Files](#docker-compose-files)) for each agent strategy to see what environment variables need to be set up.
 
 1. ReAct: use `react_langchain` or `react_langgraph` or `react_llama` as strategy. First introduced in this seminal [paper](https://arxiv.org/abs/2210.03629). The ReAct agent engages in "reason-act-observe" cycles to solve problems. Please refer to this [doc](https://python.langchain.com/v0.2/docs/how_to/migrate_agent/) to understand the differences between the langchain and langgraph versions of react agents. See table below to understand the validated LLMs for each react strategy. We recommend using `react_llama` as it has the most features enabled, including agent memory, multi-turn conversations and assistants APIs.
 2. RAG agent: use `rag_agent` or `rag_agent_llama` strategy. This agent is specifically designed for improving RAG performance. It has the capability to rephrase query, check relevancy of retrieved context, and iterate if context is not relevant. See table below to understand the validated LLMs for each rag agent strategy.
@@ -17,14 +129,19 @@ We currently support the following types of agents. Please refer to the example 
 
 1. Due to the limitations in support for tool calling by TGI and vllm, we have developed subcategories of agent strategies (`rag_agent_llama`, `react_llama` and `sql_agent_llama`) specifically designed for open-source LLMs served with TGI and vllm.
 2. Currently only `react_llama` agent supports memory and multi-turn conversations.
-3. For advanced developers who want to implement their own agent strategies, please refer to [Section 5](#5-customize-agent-strategy) below.
+3. For advanced developers who want to implement their own agent strategies, please refer to [Customize agent strategy](#customize-agent-strategy) below.
 
-### 1.2 LLM engine
+## Docker Compose Files
 
-Agents use LLM for reasoning and planning. We support 2 options of LLM engine:
+We provide multiple Docker Compose YAML files to facilitate deployment of different agent configurations and LLM serving options. Each YAML file demonstrates how to allocate resources and set environment variables for specific agent strategies and LLM engines, enabling flexible and efficient deployment on Intel® Gaudi® or other platforms.
 
-1. Open-source LLMs served with vllm. Follow the instructions in [Section 2.2](#22-start-agent-microservices-with-vllm).
-2. OpenAI LLMs via API calls. To use OpenAI llms, specify `llm_engine=openai` and `export OPENAI_API_KEY=<your-openai-key>`
+- Each compose file corresponds to a distinct agent type or strategy, such as ReAct (with LangChain, LangGraph, or Llama backend), RAG agent, or Plan & Execute agent.
+
+- Example YAMLs are pre-configured to use either open-source LLMs (via vllm) or OpenAI APIs, with recommended hardware bindings and agent parameters.
+
+- Users can select and launch the desired agent setup by choosing the appropriate YAML file (e.g., react_langchain.yaml, rag_agent.yaml), ensuring optimal compatibility and performance for their use case.
+
+- The provided compose files illustrate best practices for managing device allocation, parallelism, and LLM-specific options, simplifying multi-agent and multi-model deployments.
 
 | Agent type       | `strategy` arg    | Validated LLMs (serving SW)                                                                                                                                                       | Notes                                                                                                                                                                                                                                                                          | Example config yaml                                               |
 | ---------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
@@ -37,7 +154,9 @@ Agents use LLM for reasoning and planning. We support 2 options of LLM engine:
 | SQL agent        | `sql_agent_llama` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct), [llama3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct) (vllm-gaudi) | database query tool is natively integrated using Langchain's [QuerySQLDataBaseTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.sql_database.tool.QuerySQLDatabaseTool.html). User can also register their own tools with this agent. | [sql_agent_llama yaml](../../../tests/agent/sql_agent_llama.yaml) |
 | SQL agent        | `sql_agent`       | GPT-4o-mini                                                                                                                                                                       | database query tool is natively integrated using Langchain's [QuerySQLDataBaseTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.sql_database.tool.QuerySQLDatabaseTool.html). User can also register their own tools with this agent. | [sql_agent yaml](../../../tests/agent/sql_agent_openai.yaml)      |
 
-### 1.3 Tools
+## Other Supported Features
+
+### Tools
 
 The tools are registered with a yaml file. We support the following types of tools:
 
@@ -45,28 +164,28 @@ The tools are registered with a yaml file. We support the following types of too
 2. User-defined python functions. This is usually used to wrap endpoints with request post or simple pre/post-processing.
 3. Langchain tool modules.
 
-Examples of how to register tools can be found in [Section 4](#-4-provide-your-own-tools) below.
+Examples of how to register tools can be found in [Customize tools](#customize-tools) below.
 
-### 1.4 Agent APIs
+### Agent APIs
 
 We support two sets of APIs that are OpenAI compatible:
 
 1. OpenAI compatible chat completions API. Example usage with Python code below.
 
-```python
-url = f"http://{ip_address}:{agent_port}/v1/chat/completions"
+   ```python
+   url = f"http://{ip_address}:{agent_port}/v1/chat/completions"
 
-# single-turn, not streaming -> if agent is used as a worker agent (i.e., tool for supervisor agent)
-payload = {"messages": query, "stream": false}
-resp = requests.post(url=url, json=payload, proxies=proxies, stream=False)
+   # single-turn, not streaming -> if agent is used as a worker agent (i.e., tool for supervisor agent)
+   payload = {"messages": query, "stream": false}
+   resp = requests.post(url=url, json=payload, proxies=proxies, stream=False)
 
-# multi-turn, streaming -> to interface with users
-query = {"role": "user", "messages": user_message, "thread_id": thread_id, "stream": stream}
-content = json.dumps(query)
-resp = requests.post(url=url, data=content, proxies=proxies, stream=True)
-for line in resp.iter_lines(decode_unicode=True):
-    print(line)
-```
+   # multi-turn, streaming -> to interface with users
+   query = {"role": "user", "messages": user_message, "thread_id": thread_id, "stream": stream}
+   content = json.dumps(query)
+   resp = requests.post(url=url, data=content, proxies=proxies, stream=True)
+   for line in resp.iter_lines(decode_unicode=True):
+       print(line)
+   ```
 
 2. OpenAI compatible assistants APIs.
 
@@ -85,7 +204,7 @@ for line in resp.iter_lines(decode_unicode=True):
 1. Currently only `react_llama` agent is enabled for assistants APIs.
 2. Not all keywords of OpenAI APIs are supported yet.
 
-### 1.5 Agent memory
+### Agent memory
 
 We currently supports two types of memory.
 
@@ -110,7 +229,7 @@ Examples of python code for multi-turn conversations using agent memory:
 
 To run the two examples above, first launch the agent microservice using [this docker compose yaml](../../../tests/agent/reactllama.yaml).
 
-### 1.6 Run LLMs from OpenAI
+### Run LLMs from OpenAI
 
 To run any model from OpenAI, just specify the environment variable `OPENAI_API_KEY`:
 
@@ -120,7 +239,7 @@ export OPENAI_API_KEY=<openai-api-key>
 
 These also need to be passed in to the `docker run` command, or included in a YAML file when running `docker compose`.
 
-### 1.7 Run LLMs with OpenAI-compatible APIs on Remote Servers
+### Run LLMs with OpenAI-compatible APIs on Remote Servers
 
 To run the text generation portion using LLMs deployed on a remote server, specify the following environment variables:
 
@@ -136,109 +255,9 @@ These also need to be passed in to the `docker run` command, or included in a YA
 
 - For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
 
-## 🚀2. Start Agent Microservice
+## Customizations
 
-### 2.1 Build docker image for agent microservice
-
-```bash
-cd GenAIComps/ # back to GenAIComps/ folder
-docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
-```
-
-### 2.2 Start Agent microservices with vllm
-
-```bash
-export ip_address=$(hostname -I | awk '{print $1}')
-export model="meta-llama/Meta-Llama-3.1-70B-Instruct"
-export HF_TOKEN=${HF_TOKEN}
-export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
-
-# build vLLM image
-git clone https://github.com/HabanaAI/vllm-fork.git
-cd ./vllm-fork
-VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
-git checkout ${VLLM_VER} &> /dev/null
-docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
-
-# vllm serving on 4 Gaudi2 cards
-docker run -d --runtime=habana --rm --name "comps-vllm-gaudi-service" -p 8080:8000 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:latest --model ${model} --max-seq-len-to-capture 16384 --enable-auto-tool-choice --tool-call-parser llama3_json --guided-decoding-backend lm-format-enforcer --tensor-parallel-size 4
-
-# check status
-docker logs comps-vllm-gaudi-service
-
-# Agent
-docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/src/tools:/home/user/comps/agent/src/tools -p 9090:9090 --ipc=host -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
-
-# check status
-docker logs comps-agent-endpoint
-```
-
-> debug mode
->
-> ```bash
-> docker run --rm --runtime=runc --name="comps-agent-endpoint" -v ./comps/agent/src/:/home/user/comps/agent/src/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e with_memory=true -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/src/tools/custom_tools.yaml opea/agent:latest
-> ```
-
-## 🚀 3. Validate Microservice
-
-Once microservice starts, user can use below script to invoke.
-
-### 3.1 Use chat completions API
-
-For multi-turn conversations, first specify a `thread_id`.
-
-```bash
-export thread_id=<thread-id>
-curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-     "messages": "What is OPEA project?",
-     "thread_id":${thread_id},
-     "stream":true
-    }'
-
-# expected output
-
-data: 'The OPEA project is .....</s>' # just showing partial example here.
-
-data: [DONE]
-
-```
-
-### 3.2 Use assistants APIs
-
-```bash
-
-# step1 create assistant to get `asssistant_id`
-
-curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
-     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml"}
-    }'
-
-## if want to persist your agent messages, set store config like this:
-curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
-     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml","with_memory":true, "memory_type":"store", "store_config":{"redis_uri":"redis://${ip_address}:6379"}}
-    }'
-
-# step2 create thread to get `thread_id`
-
-curl http://${ip_address}:9090/v1/threads -X POST -H "Content-Type: application/json" -d '{}'
-
-# step3 create messages
-
-curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?"}'
-
-
-## if agent is set with `memory_type`=store, should add `assistant_id` in the messages for store
-
-curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?", "assistant_id": "{assistant_id}"}'
-
-# step4 run
-
-curl http://${ip_address}:9090/v1/threads/{thread_id}/runs -X POST -H "Content-Type: application/json" -d '{"assistant_id": "{assistant_id}"}'
-
-
-```
-
-## 🚀 4. Provide your own tools
+### Customize tools
 
 - Define tools
 
@@ -307,7 +326,7 @@ data: 'The Intel OPEA project is a initiative to incubate open source developmen
 data: [DONE]
 ```
 
-## 5. Customize agent strategy
+### Customize agent strategy
 
 For advanced developers who want to implement their own agent strategies, you can add a separate folder in `integrations\strategy`, implement your agent by inherit the `BaseAgent` class, and add your strategy into the `integrations\agent.py`. The architecture of this agent microservice is shown in the diagram below as a reference.
 ![Architecture Overview](agent_arch.jpg)
