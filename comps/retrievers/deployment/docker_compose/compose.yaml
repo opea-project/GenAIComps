@@ -178,6 +178,12 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       REDIS_URL: ${REDIS_URL}
       BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:7000/v1/health_check || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
     depends_on:
       redis-vector-db:
         condition: service_healthy

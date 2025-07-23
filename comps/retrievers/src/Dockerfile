@@ -11,7 +11,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libglib2.0-0 \
     libjemalloc-dev \
     libmariadb-dev \
-    build-essential
+    build-essential \
+    curl
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
