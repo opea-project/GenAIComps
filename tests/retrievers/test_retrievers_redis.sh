@@ -68,8 +68,6 @@ function validate_microservice() {
     local test_embedding="$1"
     local container_name="$2"
 
-    export PATH="${HOME}/miniforge3/bin:$PATH"
-    source activate
     URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
@@ -95,8 +93,6 @@ function validate_mm_microservice() {
     local test_embedding="$1"
     local container_name="$2"
 
-    export PATH="${HOME}/miniforge3/bin:$PATH"
-    source activate
     URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     # Test the retriever with a b64 image that should be passed through
@@ -144,6 +140,9 @@ function main() {
 
     build_docker_images "Dockerfile"
     trap stop_service EXIT
+
+    export PATH="${HOME}/miniforge3/bin:$PATH"
+    source activate && sleep 1s
 
     echo "Test normal env ..."
     # test text retriever
