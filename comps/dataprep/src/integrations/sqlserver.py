@@ -345,7 +345,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
             "parent": "",
         }"""
         if logflag:
-            logger.info(f"[ dataprep - get file ] start to get file structure")
+            logger.info("[ dataprep - get file ] start to get file structure")
         try:
             with pyodbc.connect(MSSQL_CONNECTION_STRING) as conn:
                 with conn.cursor() as cursor:
@@ -358,12 +358,12 @@ class OpeaSqlServerDataprep(OpeaComponent):
                     results = cursor.fetchall()
 
             if not results:
-                logger.info(f"No file uploaded, return empty list.")
+                logger.info("No file uploaded, return empty list.")
                 return []
 
             # Extract doc_name values from the result tuples
             doc_names = [row[0] for row in results]
-            cleaned_files_list = [path.replace(self.upload_folder, '') for path in doc_names]
+            cleaned_files_list = [path.replace(self.upload_folder, "") for path in doc_names]
             file_content = format_file_list(cleaned_files_list)
             if logflag:
                 logger.info(f"{file_content}")
@@ -371,7 +371,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
 
         except pyodbc.Error as e:
             error_code = e.args[0] if e.args else None
-            if error_code == '42S02':
+            if error_code == "42S02":
                 logger.warning(f"Table '{TABLE_NAME}' not found. Returning empty list.")
                 return []
             logger.error(f"SQL Database error: {e}")
