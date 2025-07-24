@@ -19,7 +19,7 @@ from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
     encode_filename,
-    get_file_structure,
+    format_file_list,
     get_separators,
     parse_html_new,
     remove_folder_with_ignore,
@@ -163,8 +163,8 @@ class OpeaSqlServerDataprep(OpeaComponent):
                     with pyodbc.connect(MSSQL_CONNECTION_STRING) as conn:
                         with conn.cursor() as cursor:
                             # Define the DELETE query with parameter
-                            delete_query = """
-                            DELETE FROM sqlserver_vectorstore
+                            delete_query = f"""
+                            DELETE FROM {TABLE_NAME}
                             WHERE JSON_VALUE(content_metadata, '$.doc_name') = ?
                             """
                             # Execute the DELETE query with the doc_name parameter
@@ -336,7 +336,7 @@ class OpeaSqlServerDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-    async def get_files(self):
+    async def get_files(self) -> Union[List[str], None]:
         """Get file structure from sqlserver database in the format of
         {
             "name": "File Name",
@@ -345,17 +345,46 @@ class OpeaSqlServerDataprep(OpeaComponent):
             "parent": "",
         }"""
         if logflag:
+<<<<<<< HEAD
             logger.info("[ dataprep - get file ] start to get file structure")
 
         if not Path(self.upload_folder).exists():
             if logflag:
                 logger.info("No file uploaded, return empty list.")
             return []
+=======
+            logger.info(f"[ dataprep - get file ] start to get file structure")
+        try:
+            with pyodbc.connect(MSSQL_CONNECTION_STRING) as conn:
+                with conn.cursor() as cursor:
+                    query = f"""
+                        SELECT DISTINCT JSON_VALUE(content_metadata, '$.doc_name') AS doc_name
+                        FROM {TABLE_NAME}
+                        WHERE JSON_VALUE(content_metadata, '$.doc_name') IS NOT NULL;
+                    """
+                    cursor.execute(query)
+                    results = cursor.fetchall()
 
-        file_content = get_file_structure(self.upload_folder)
-        if logflag:
-            logger.info(f"{file_content}")
-        return file_content
+            if not results:
+                logger.info(f"No file uploaded, return empty list.")
+                return []
+>>>>>>> 953d053a (Fix review comments)
+
+            # Extract doc_name values from the result tuples
+            doc_names = [row[0] for row in results]
+            cleaned_files_list = [path.replace(self.upload_folder, '') for path in doc_names]
+            file_content = format_file_list(cleaned_files_list)
+            if logflag:
+                logger.info(f"{file_content}")
+            return file_content
+
+        except pyodbc.Error as e:
+            error_code = e.args[0] if e.args else None
+            if error_code == '42S02':
+                logger.warning(f"Table '{TABLE_NAME}' not found. Returning empty list.")
+                return []
+            logger.error(f"SQL Database error: {e}")
+            return None
 
     async def delete_files(self, file_path: str = Body(..., embed=True)):
         """Delete file according to `file_path`.

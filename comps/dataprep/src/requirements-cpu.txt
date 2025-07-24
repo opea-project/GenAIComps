@@ -34,13 +34,6 @@ anytree==2.13.0
     # via graspologic
 asttokens==3.0.0
     # via stack-data
-async-timeout==4.0.3 ; python_full_version < '3.11'
-    # via
-    #   aiohttp
-    #   langchain
-    #   redis
-async-timeout==5.0.1 ; python_full_version >= '3.11' and python_full_version < '3.11.3'
-    # via redis
 attrs==25.3.0
     # via
     #   aiohttp
@@ -51,6 +44,10 @@ autograd==1.8.0
     # via hyppo
 av==14.4.0
     # via docarray
+azure-core==1.35.0
+    # via azure-identity
+azure-identity==1.23.1
+    # via langchain-sqlserver
 backoff==2.2.1
     # via unstructured
 banks==2.1.2
@@ -118,7 +115,10 @@ contourpy==1.3.2
     # via matplotlib
 cryptography==45.0.4
     # via
+    #   azure-identity
+    #   msal
     #   pdfminer-six
+    #   pyjwt
     #   unstructured-client
 cssselect2==0.8.0
     # via cairosvg
@@ -189,11 +189,6 @@ et-xmlfile==2.0.0
     # via openpyxl
 events==0.5
     # via opensearch-py
-exceptiongroup==1.3.0 ; python_full_version < '3.11'
-    # via
-    #   anyio
-    #   ipython
-    #   pytest
 executing==2.2.0
     # via stack-data
 fastapi==0.115.13
@@ -201,6 +196,7 @@ fastapi==0.115.13
 filelock==3.18.0
     # via
     #   huggingface-hub
+    #   torch
     #   transformers
 filetype==1.2.0
     # via
@@ -219,6 +215,7 @@ fsspec==2025.5.1
     # via
     #   huggingface-hub
     #   llama-index-core
+    #   torch
 future==1.0.0
     # via -r ./comps/dataprep/src/requirements.in
 gensim==4.3.3
@@ -323,11 +320,9 @@ importlib-metadata==8.4.0
     #   python-arango
 iniconfig==2.1.0
     # via pytest
-ipython==8.37.0 ; python_full_version < '3.11'
+ipython==9.3.0
     # via -r ./comps/dataprep/src/requirements.in
-ipython==9.3.0 ; python_full_version >= '3.11'
-    # via -r ./comps/dataprep/src/requirements.in
-ipython-pygments-lexers==1.1.1 ; python_full_version >= '3.11'
+ipython-pygments-lexers==1.1.1
     # via ipython
 jax==0.5.3
     # via docarray
@@ -339,6 +334,7 @@ jinja2==3.1.6
     # via
     #   banks
     #   langchain-redis
+    #   torch
 jiter==0.10.0
     # via openai
 joblib==1.5.1
@@ -389,6 +385,7 @@ langchain-core==0.3.65
     #   langchain-openai
     #   langchain-pinecone
     #   langchain-redis
+    #   langchain-sqlserver
     #   langchain-tests
     #   langchain-text-splitters
     #   langchain-vdms
@@ -411,6 +408,7 @@ langchain-pinecone==0.2.8
 langchain-redis==0.2.0
     # via -r ./comps/dataprep/src/requirements.in
 langchain-sqlserver==0.1.1
+    # via -r ./comps/dataprep/src/requirements.in
 langchain-tests==0.3.17
     # via langchain-pinecone
 langchain-text-splitters==0.3.8
@@ -557,6 +555,12 @@ mpire==2.10.2
     # via semchunk
 mpmath==1.3.0
     # via sympy
+msal==1.33.0
+    # via
+    #   azure-identity
+    #   msal-extensions
+msal-extensions==1.3.1
+    # via azure-identity
 multidict==6.5.0
     # via
     #   aiohttp
@@ -573,18 +577,12 @@ nest-asyncio==1.6.0
     # via
     #   llama-index-core
     #   unstructured-client
-networkx==3.4.2 ; python_full_version < '3.11'
+networkx==3.5
     # via
     #   graspologic
     #   llama-index-core
     #   scikit-image
-    #   trimesh
-    #   unstructured
-networkx==3.5 ; python_full_version >= '3.11'
-    # via
-    #   graspologic
-    #   llama-index-core
-    #   scikit-image
+    #   torch
     #   trimesh
     #   unstructured
 ninja==1.11.1.4
@@ -623,6 +621,7 @@ numpy==1.26.4
     #   langchain-mariadb
     #   langchain-pinecone
     #   langchain-redis
+    #   langchain-sqlserver
     #   langchain-tests
     #   llama-index-core
     #   manifold3d
@@ -652,12 +651,50 @@ numpy==1.26.4
     #   shapely
     #   statsmodels
     #   tifffile
+    #   torchvision
     #   transformers
     #   trimesh
     #   umap-learn
     #   unstructured
     #   unstructured-inference
     #   vhacdx
+nvidia-cublas-cu12==12.6.4.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cudnn-cu12
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cuda-cupti-cu12==12.6.80 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-nvrtc-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-runtime-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cudnn-cu12==9.5.1.17 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufft-cu12==11.3.0.4 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufile-cu12==1.11.1.6 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-curand-cu12==10.3.7.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusolver-cu12==11.7.1.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusparse-cu12==12.5.4.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cusparselt-cu12==0.6.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nccl-cu12==2.26.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nvjitlink-cu12==12.6.85 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cufft-cu12
+    #   nvidia-cusolver-cu12
+    #   nvidia-cusparse-cu12
+    #   torch
+nvidia-nvtx-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
 olefile==0.47
     # via python-oxmsg
 omegaconf==2.3.0
@@ -799,6 +836,7 @@ pillow==11.2.1
     #   python-pptx
     #   scikit-image
     #   sentence-transformers
+    #   torchvision
     #   trimesh
     #   unstructured-pytesseract
 pinecone==7.1.0
@@ -914,7 +952,9 @@ pygments==2.19.1
     #   pytest
     #   rich
 pyjwt==2.10.1
-    # via python-arango
+    # via
+    #   msal
+    #   python-arango
 pylatexenc==2.10
     # via docling
 pymilvus==2.5.6
@@ -926,6 +966,9 @@ pymupdf==1.26.1
 pynndescent==0.5.13
     # via umap-learn
 pyodbc==5.2.0
+    # via
+    #   -r ./comps/dataprep/src/requirements.in
+    #   langchain-sqlserver
 pypandoc==1.15
     # via unstructured
 pyparsing==3.2.3
@@ -1043,6 +1086,7 @@ regex==2024.11.6
     #   transformers
 requests==2.32.4
     # via
+    #   azure-core
     #   docling
     #   google-api-core
     #   huggingface-hub
@@ -1050,6 +1094,7 @@ requests==2.32.4
     #   langchain-community
     #   langsmith
     #   llama-index-core
+    #   msal
     #   opensearch-py
     #   opentelemetry-exporter-otlp-proto-http
     #   pinecone-plugin-assistant
@@ -1122,6 +1167,7 @@ setuptools==80.9.0
     #   grpcio-tools
     #   pymilvus
     #   python-arango
+    #   torch
     #   triton
 shapely==2.1.1
     # via
@@ -1135,6 +1181,7 @@ simsimd==6.4.9
     # via elasticsearch
 six==1.17.0
     # via
+    #   azure-core
     #   html5lib
     #   langdetect
     #   python-dateutil
@@ -1151,6 +1198,7 @@ sqlalchemy==2.0.41
     #   langchain
     #   langchain-community
     #   langchain-mariadb
+    #   langchain-sqlserver
     #   llama-index-core
 stack-data==0.6.3
     # via ipython
@@ -1167,6 +1215,7 @@ svg-path==6.3
 sympy==1.14.0
     # via
     #   onnxruntime
+    #   torch
 syrupy==4.9.1
     # via langchain-tests
 tabulate==0.9.0
@@ -1182,9 +1231,7 @@ tenacity==9.1.2
     #   redisvl
 threadpoolctl==3.6.0
     # via scikit-learn
-tifffile==2025.5.10 ; python_full_version < '3.11'
-    # via scikit-image
-tifffile==2025.6.11 ; python_full_version >= '3.11'
+tifffile==2025.6.11
     # via scikit-image
 tiktoken==0.9.0
     # via
@@ -1204,8 +1251,24 @@ tokenizers==0.21.1
     # via
     #   langchain-huggingface
     #   transformers
-tomli==2.2.1 ; python_full_version < '3.11'
-    # via pytest
+torch==2.7.1
+    # via
+    #   accelerate
+    #   docling-ibm-models
+    #   easyocr
+    #   effdet
+    #   openai-whisper
+    #   safetensors
+    #   sentence-transformers
+    #   timm
+    #   torchvision
+    #   unstructured-inference
+torchvision==0.22.1
+    # via
+    #   docling-ibm-models
+    #   easyocr
+    #   effdet
+    #   timm
 tqdm==4.67.1
     # via
     #   -r ./comps/dataprep/src/requirements.in
@@ -1238,7 +1301,9 @@ transformers==4.52.4
 trimesh==4.6.12
     # via docarray
 triton==3.3.1 ; (platform_machine == 'x86_64' and sys_platform == 'linux') or sys_platform == 'linux2'
-    # via openai-whisper
+    # via
+    #   openai-whisper
+    #   torch
 typer==0.16.0
     # via
     #   docling
@@ -1253,35 +1318,32 @@ typing-extensions==4.14.0
     # via
     #   aiosqlite
     #   anyio
+    #   azure-core
+    #   azure-identity
     #   beautifulsoup4
     #   docling-core
     #   elasticsearch
-    #   exceptiongroup
     #   fastapi
     #   graspologic
     #   huggingface-hub
-    #   ipython
     #   langchain-core
     #   llama-index-core
-    #   multidict
     #   openai
     #   opentelemetry-sdk
     #   pinecone
     #   pydantic
     #   pydantic-core
-    #   pypdf
     #   python-docx
     #   python-oxmsg
     #   python-pptx
     #   referencing
-    #   rich
     #   sentence-transformers
     #   sqlalchemy
+    #   torch
     #   typer
     #   typing-inspect
     #   typing-inspection
     #   unstructured
-    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json

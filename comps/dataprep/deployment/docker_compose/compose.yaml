@@ -509,6 +509,8 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_SQLSERVER"
       TABLE_NAME: ${TABLE_NAME}
       MSSQL_CONNECTION_STRING: ${MSSQL_CONNECTION_STRING}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s

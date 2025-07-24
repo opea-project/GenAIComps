@@ -103,7 +103,7 @@ curl http://localhost:7000/v1/health_check \
   -H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume Embedding Service
+### 3.2 Consume Retriever Service
 
 To consume the Retriever Microservice, you can generate a mock embedding vector of length 768 with Python.
 
