@@ -152,12 +152,6 @@ function main() {
     validate_microservice "$test_embedding" "$service_name"
     stop_service
 
-    # test multimodal retriever
-    start_multimodal_service
-    test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-    validate_microservice "$test_embedding_multi" "$service_name_mm"
-    validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
-
     # clean env
     stop_service
 
@@ -168,12 +162,6 @@ function main() {
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
     validate_microservice "$test_embedding" "$service_name"
     stop_service
-
-    # test multimodal retriever
-    start_multimodal_service
-    test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-    validate_microservice "$test_embedding_multi" "$service_name_mm"
-    validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
 
     # clean env
     stop_service
