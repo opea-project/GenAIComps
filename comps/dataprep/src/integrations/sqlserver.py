@@ -345,14 +345,6 @@ class OpeaSqlServerDataprep(OpeaComponent):
             "parent": "",
         }"""
         if logflag:
-<<<<<<< HEAD
-            logger.info("[ dataprep - get file ] start to get file structure")
-
-        if not Path(self.upload_folder).exists():
-            if logflag:
-                logger.info("No file uploaded, return empty list.")
-            return []
-=======
             logger.info(f"[ dataprep - get file ] start to get file structure")
         try:
             with pyodbc.connect(MSSQL_CONNECTION_STRING) as conn:
@@ -368,7 +360,6 @@ class OpeaSqlServerDataprep(OpeaComponent):
             if not results:
                 logger.info(f"No file uploaded, return empty list.")
                 return []
->>>>>>> 953d053a (Fix review comments)
 
             # Extract doc_name values from the result tuples
             doc_names = [row[0] for row in results]
