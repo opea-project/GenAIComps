@@ -178,8 +178,6 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       REDIS_URL: ${REDIS_URL}
       BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
-    volumes:
-      - "${DATA_PATH:-./data}:/home/user/.cache/huggingface/hub"
     depends_on:
       redis-vector-db:
         condition: service_healthy
