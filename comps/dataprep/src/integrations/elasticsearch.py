@@ -66,12 +66,13 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             logger.error("OpeaElasticSearchDataprep health check failed.")
 
     def check_health(self) -> bool:
-        """Checks the health of the ElasticSearch service."""
-        if self.es_client is None:
-            logger.error("ElasticSearch client is not initialized.")
+        try:
+            health = self.es_client.cluster.health()
+            logger.info(f"ES cluster health: {health['status']}")
+            return True
+        except Exception as e:
+            logger.error(f"ES health check failed: {e}")
             return False
-
-        return True
 
     def invoke(self, *args, **kwargs):
         pass
@@ -107,7 +108,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         self, embedder: Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceEmbeddings]
     ) -> ElasticsearchStore:
         """Get Elasticsearch vector store."""
-        return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=self.es_client)
+        return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_url=ES_CONNECTION_STRING)
 
     def delete_embeddings(self, doc_name: str) -> bool:
         """Delete documents from Elasticsearch."""
@@ -212,7 +213,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             separators=get_separators(),
         )
 
-        batch_size = 32
+        batch_size = 8
 
         for link in link_list:
             content = parse_html([link])[0][0]
@@ -230,7 +231,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             chunks = text_splitter.split_text(content)
 
             num_chunks = len(chunks)
-            metadata = [dict({"doc_name": str(doc_path)})]
+            metadata = dict({"doc_name": str(doc_path)})
 
             for i in range(0, num_chunks, batch_size):
                 batch_chunks = chunks[i : i + batch_size]
