@@ -1,11 +1,10 @@
-#!/bin/bash
-# Copyright (C) 2025 Intel Corporation
+#!/usr/bin/env python3
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
 import base64
 import json
-import os
 import random
 import sys
 
@@ -22,7 +21,10 @@ async def validate_svc(ip_address, service_port, service_type):
         async with ClientSession(*streams) as session:
             result = await session.initialize()
             if service_type == "asr":
-                url = "https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
+                url = (
+                    "https://github.com/intel/intel-extension-for-transformers/raw/main/"
+                    "intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
+                )
                 response = requests.get(url)
                 response.raise_for_status()  # Ensure the download succeeded
                 binary_data = response.content
@@ -79,7 +81,9 @@ async def validate_svc(ip_address, service_port, service_type):
             elif service_type == "lvm":
                 input_dict = {
                     "request": {
-                        "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",
+                        "image": (
+                            "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC"
+                        ),
                         "prompt": "What is this?",
                     }
                 }
@@ -90,6 +94,56 @@ async def validate_svc(ip_address, service_port, service_type):
                     print("Result correct.")
                 else:
                     print(f"Result wrong. Received was {result_content}")
+            elif service_type == "chathistory":
+                # Test create operation
+                chat_data = {
+                    "data": {
+                        "messages": [{"role": "user", "content": "Hello, this is a test message"}],
+                        "user": "test_user",
+                    },
+                    "first_query": "Hello, this is a test message",
+                }
+
+                # Create chat conversation
+                tool_result = await session.call_tool(
+                    "create_documents",
+                    chat_data,
+                )
+                create_result = tool_result.content
+                conversation_id = json.loads(create_result[0].text)
+
+                if not conversation_id:
+                    print(f"Create operation failed. Received was {create_result}")
+                    exit(1)
+
+                # Test get operation
+                get_data = {"user": "test_user", "id": conversation_id}
+
+                tool_result = await session.call_tool(
+                    "get_documents",
+                    get_data,
+                )
+                get_result = tool_result.content
+                retrieved_doc = json.loads(get_result[0].text)
+
+                if not retrieved_doc or retrieved_doc.get("user") != "test_user":
+                    print(f"Get operation failed. Received was {get_result}")
+                    exit(1)
+
+                # Test delete operation
+                delete_data = {"user": "test_user", "id": conversation_id}
+
+                tool_result = await session.call_tool(
+                    "delete_documents",
+                    delete_data,
+                )
+                delete_result = tool_result.content
+
+                if not delete_result:
+                    print(f"Delete operation failed. Received was {delete_result}")
+                    exit(1)
+
+                print("Result correct.")
             else:
                 print(f"Unknown service type: {service_type}")
                 exit(1)

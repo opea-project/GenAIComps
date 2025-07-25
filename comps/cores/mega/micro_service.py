@@ -99,9 +99,10 @@ class MicroService(HTTPService):
                 self.request_buffer = defaultdict(deque)
                 self.add_startup_event(self._dynamic_batch_processor())
 
-            if not enable_mcp:
-                self._async_setup()
-            else:
+            # Always setup async regardless of MCP
+            self._async_setup()
+
+            if enable_mcp:
                 from mcp.server.fastmcp import FastMCP
 
                 self.mcp = FastMCP(name, host=self.host, port=self.port)
@@ -164,13 +165,13 @@ class MicroService(HTTPService):
             return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
 
     def start(self):
-        """Start the server using MCP if enabled, otherwise fall back to default."""
+        """Start the server with MCP integration if enabled."""
         if self.enable_mcp:
-            self.mcp.run(
-                transport="sse",
-            )
-        else:
-            super().start()
+            # Mount MCP SSE app at /sse endpoint
+            self.app.mount("/sse", self.mcp.sse_app)
+
+        # Always start the HTTP service
+        super().start()
 
     @property
     def api_key_value(self):
