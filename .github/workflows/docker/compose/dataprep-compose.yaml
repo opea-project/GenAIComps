@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/dataprep/src/Dockerfile
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+  dataprep-openeuler:
+    build:
+      dockerfile: comps/dataprep/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}-openeuler

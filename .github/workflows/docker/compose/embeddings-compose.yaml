@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/embeddings/src/Dockerfile
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+  embedding-openeuler:
+    build:
+      dockerfile: comps/embeddings/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}-openeuler

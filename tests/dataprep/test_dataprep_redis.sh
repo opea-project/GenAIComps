@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -18,7 +18,8 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    dockerfile_name="comps/dataprep/src/$1"
+    docker build -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -118,11 +119,6 @@ function validate_microservice() {
 
 }
 
-function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-redis-server*" --filter "name=redis-vector-*" --filter "name=tei-embedding-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-}
-
 function stop_service() {
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose down || true
@@ -130,9 +126,7 @@ function stop_service() {
 
 function main() {
 
-    stop_docker
-
-    build_docker_images
+    build_docker_images "Dockerfile"
     trap stop_service EXIT
 
     echo "Test normal env ..."
@@ -148,8 +142,13 @@ function main() {
         stop_service
     fi
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
+
+    docker system prune -f
 
 }
 

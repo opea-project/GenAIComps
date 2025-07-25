@@ -6,6 +6,10 @@ services:
     build:
       dockerfile: comps/third_parties/nginx/src/Dockerfile
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
+  nginx-openeuler:
+    build:
+      dockerfile: comps/third_parties/nginx/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/nginx:${TAG:-latest}-openeuler
   embedding-multimodal-clip:
     build:
       dockerfile: comps/third_parties/clip/src/Dockerfile

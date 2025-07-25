@@ -54,10 +54,23 @@ function find_test_1() {
                     done
                 fi
                 if [ "$run_all_interation" = "true" ]; then
+                    set -x
                     find_test=$(find ./tests -type f -name "test_${service_name}*.sh") || true
                     if [ "$find_test" ]; then
-                        fill_in_matrix "$find_test"
+                        # limit test case. If the changed file only to be Dockerfile.openEuler, then only run the script integrate related test.
+                        check_files_except_openeuler_docker=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -vE 'Dockerfile.openEuler' | sort -u) || true
+                        if [ -z "$check_files_except_openeuler_docker" ]; then
+                            for test in ${find_test}; do
+                                find_dockerfile=$(grep -rl "openEuler" $test) || true
+                                if [ "$find_dockerfile" ]; then
+                                    fill_in_matrix "$test"
+                                fi
+                            done
+                        else
+                            fill_in_matrix "$find_test"
+                        fi
                     fi
+                    set +x
                 fi
             elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
                 # new org with `src` and `third_parties` folder

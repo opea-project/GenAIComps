@@ -18,7 +18,8 @@ service_name_mm="retriever-redis-multimodal"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
+    dockerfile_name="comps/retrievers/src/$1"
+    docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/retriever built fail"
         exit 1
@@ -67,8 +68,6 @@ function validate_microservice() {
     local test_embedding="$1"
     local container_name="$2"
 
-    export PATH="${HOME}/miniforge3/bin:$PATH"
-    source activate
     URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
@@ -94,8 +93,6 @@ function validate_mm_microservice() {
     local test_embedding="$1"
     local container_name="$2"
 
-    export PATH="${HOME}/miniforge3/bin:$PATH"
-    source activate
     URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     # Test the retriever with a b64 image that should be passed through
@@ -129,23 +126,30 @@ function validate_mm_microservice() {
     fi
 }
 
-function stop_docker() {
-    cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down --remove-orphans
+
+function stop_service() {
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose/
+    docker compose down || true
+
     cid=$(docker ps -aq --filter "name=redis-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {
 
-    stop_docker
-    build_docker_images
 
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+
+    export PATH="${HOME}/miniforge3/bin:$PATH"
+    source activate && sleep 1s
+
+    echo "Test normal env ..."
     # test text retriever
     start_service
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
     validate_microservice "$test_embedding" "$service_name"
-    stop_docker
+    stop_service
 
     # test multimodal retriever
     start_multimodal_service
@@ -154,8 +158,27 @@ function main() {
     validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
 
     # clean env
-    stop_docker
-    echo y | docker system prune
+    stop_service
+
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    # test text retriever
+    start_service
+    test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
+    validate_microservice "$test_embedding" "$service_name"
+    stop_service
+
+    # test multimodal retriever
+    start_multimodal_service
+    test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
+    validate_microservice "$test_embedding_multi" "$service_name_mm"
+    validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
+
+    # clean env
+    stop_service
+
+    docker system prune -f
+
 
 }
 
