@@ -3,6 +3,7 @@ aiohttp
 datasets
 docarray[full]
 fastapi
+faster-whisper
 mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -12,6 +13,9 @@ pydantic==2.7.2
 pydub
 python-multipart
 shortuuid
+soundfile
+stanza
 transformers
-uvicorn
+trl==0.11.0 
+uvicorn[standard]
 zhconv
