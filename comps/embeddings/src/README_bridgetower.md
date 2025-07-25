@@ -105,3 +105,34 @@ curl -X POST http://0.0.0.0:6600/v1/embeddings \
 ```
 
 This request will return an embedding representing the semantic meaning of the input text.
+
+## Running in the air gapped environment
+
+The following steps are common for running the dataprep microservice in an air gapped environment (a.k.a. environment with no internet access).
+
+1. Download the necessary data
+
+```shell
+# Download model
+export DATA_PATH="<model data directory>"
+huggingface-cli download --cache-dir $DATA_PATH BridgeTower/bridgetower-large-itm-mlm-itc
+# Download image for warmup
+cd $DATA_PATH
+wget https://llava-vl.github.io/static/images/view.jpg
+```
+
+2. launch the `embedding-multimodal-bridgetower` microservice with the following settings:
+
+- For Gaudi HPU:
+
+```bash
+export DATA_PATH="<model data directory>"
+docker compose up multimodal-bridgetower-embedding-gaudi-serving-offline multimodal-bridgetower-embedding-gaudi-server-offline -d
+```
+
+- For Xeon CPU:
+
+```bash
+export DATA_PATH="<model data directory>"
+docker compose up multimodal-bridgetower-embedding-serving-offline multimodal-bridgetower-embedding-server-offline -d
+```
