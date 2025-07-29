@@ -15,6 +15,7 @@ langchain-elasticsearch
 langchain-mariadb
 langchain-openai
 langchain-pinecone
+langchain-sqlserver==0.1.1
 langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
@@ -41,6 +42,7 @@ psycopg2-binary
 pydantic
 pymilvus==2.5.6
 pymupdf
+pyodbc==5.2.0
 pytesseract
 python-docx
 python-multipart
