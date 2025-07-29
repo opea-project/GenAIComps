@@ -130,7 +130,6 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
     -H 'Content-Type: application/json'
   ```
-
   - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash
