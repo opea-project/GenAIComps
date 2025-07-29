@@ -1,0 +1,38 @@
+# Copyright (C) 2025 Huawei Technologies Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+# Base image for GenAIComps based OPEA Python applications
+# Build: docker build -t opea/comps-base:{version}-openeuler -f Dockerfile.openEuler .
+
+ARG IMAGE_NAME=openeuler/python
+ARG IMAGE_TAG=3.11.13-oe2403lts
+
+FROM ${IMAGE_NAME}:${IMAGE_TAG} AS base
+
+ENV HOME=/home/user
+
+RUN yum update -y && \
+    yum upgrade -y && \
+    yum install -y shadow && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p $HOME && \
+    chown -R user $HOME
+
+WORKDIR $HOME
+
+COPY *.toml *.py *.txt *.md LICENSE ./
+
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    $uvpip -r requirements.txt
+
+COPY comps/ comps/
+
+ENV PYTHONPATH=$PYTHONPATH:$HOME
+
+USER user
+
+ENTRYPOINT ["sh", "-c", "set && ls -la"]
