@@ -9,19 +9,20 @@ import os
 import re
 from collections import defaultdict
 
-import actions
-import commentMore
 import matplotlib.pyplot as plt
 import numpy as np
 
 parser = argparse.ArgumentParser(description="Plot evaluation metrics")
 parser.add_argument("--model_name", type=str, default="Qwen2-VL-2B-Instruct", help="Model name")
 parser.add_argument("--experiment_name", type=str, default="finetune_onlyplot_evalloss", help="Experiment name")
+parser.add_argument(
+    "--eval_folder", type=str, default="eval_val_500_limit_20s", help="Directory containing evaluation results"
+)
 args = parser.parse_args()
 model_name = args.model_name
 experiment_name = args.experiment_name
-experiment_name = "finetune_onlyplot_evalloss"
-eval_output_dir = f"saves/{model_name}/lora/{experiment_name}/eval"
+eval_folder = args.eval_folder
+eval_output_dir = f"saves/{model_name}/lora/{experiment_name}/{eval_folder}"
 eval_loss_dir = f"saves/{model_name}/lora/{experiment_name}"
 
 plot_output_dir = os.path.join(eval_output_dir, "plots")
