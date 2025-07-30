@@ -99,7 +99,7 @@ class OpeaMARIADBVectorRetriever(OpeaComponent):
             )
         else:
             # create embeddings using local embedding model
-            logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{EMBED_MODEL}")
+            logger.info(f"[ init embedder ] EMBEDDING_MODEL:{EMBED_MODEL}")
             embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embeddings
 
