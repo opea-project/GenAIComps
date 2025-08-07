@@ -11,11 +11,12 @@ export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     cd $WORKPATH
+    dockerfile_name="comps/rerankings/src/$1"
     docker build --no-cache \
           -t opea/reranking:comps \
           --build-arg https_proxy=$https_proxy \
           --build-arg http_proxy=$http_proxy \
-          -f comps/rerankings/src/Dockerfile .
+          -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/reranking built fail"
         exit 1
@@ -54,23 +55,28 @@ function validate_microservice() {
     fi
 }
 
-function stop_docker() {
-    cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml down --remove-orphans
+function stop_service() {
+    cd $WORKPATH/comps/rerankings/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
 
-    stop_docker
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
 
-    build_docker_images
+    echo "Test normal env ..."
     start_service
-
     validate_microservice
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
 
+    docker system prune -f
 }
 
 main
