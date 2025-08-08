@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-        node: [xeon, gaudi]
+        node: [gaudi]
     runs-on: docker-build-${{ matrix.node }}
     continue-on-error: true
     steps:
