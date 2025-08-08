@@ -15,21 +15,18 @@ The Avatar Animation service consists of two primary microservices:
 - **Wav2Lip Server**: This microservice is the core engine for lip synchronization. It takes an audio file and a face image/video as input and generates a video where the lip movements match the provided audio. It can be deployed on both CPU and HPU.
 - **Animation Server**: This microservice acts as an orchestrator or gateway. It exposes a single endpoint for the user, receives the request, forwards it to the Wav2Lip server for processing, and then returns the final generated video to the user.
 
-
-
 ## Deployment Options
 
 For detailed, step-by-step instructions on how to deploy the Avatar Animation microservice using Docker Compose on different Intel platforms, please refer to the deployment guide. The guide contains all necessary steps, including building images, configuring the environment, and running the service.
 
-| Platform     | Deployment Method | Link                                                              |
-|--------------|-------------------|-------------------------------------------------------------------|
-| Intel Xeon/Gaudi2   | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md)         |
-
+| Platform          | Deployment Method | Link                                                       |
+| ----------------- | ----------------- | ---------------------------------------------------------- |
+| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
 
 ## Validated Configurations
 
 The following configurations have been validated for the Avatar Animation microservice.
 
-| **Deploy Method** | **Core Models** | **Platform** |
-|-------------------|-----------------|--------------|
-| Docker Compose    | Wav2Lip, GFPGAN | Intel Xeon/Gaudi2   |
+| **Deploy Method** | **Core Models** | **Platform**      |
+| ----------------- | --------------- | ----------------- |
+| Docker Compose    | Wav2Lip, GFPGAN | Intel Xeon/Gaudi2 |
