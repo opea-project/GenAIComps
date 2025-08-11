@@ -1,5 +1,10 @@
 # Dataprep Microservice with ArangoDB
 
+## Table of contents
+
+1. [🚀Start Microservice with Docker](#start-microservice-with-docker)
+2. [🚀Consume Dataprep Service](#consume-dataprep-service)
+
 ## 🚀Start Microservice with Docker
 
 ### Start ArangoDB Server
@@ -49,7 +54,7 @@ docker compose up dataprep-arangodb -d
 
 See below for additional environment variables that can be set.
 
-## 🚀3. Consume Dataprep Service
+## 🚀Consume Dataprep Service
 
 ```bash
 curl http://${your_ip}:6007/v1/health_check \
