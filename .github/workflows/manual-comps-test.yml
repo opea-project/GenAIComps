@@ -16,7 +16,7 @@ on:
         required: false
         type: boolean
       image_build_nodes:
-        default: "gaudi,xeon"
+        default: "gaudi"
         description: "Build test required images for Comps on gaudi,xeon"
         required: true
         type: string
