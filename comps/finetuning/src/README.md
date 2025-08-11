@@ -2,6 +2,13 @@
 
 Fine-tuning microservice involves adapting a model to a specific task or dataset to improve its performance on that task, we currently supported instruction tuning for LLMs, finetuning for reranking and embedding models.
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Python (Option 1)](#1-Start-Microservice-with-Python-Option-1)
+2. [🚀2. Start Microservice with Docker (Option 2)](#2-Start-Microservice-with-Docker-Option-2)
+3. [🚀3. Consume Finetuning Service](#3-Consume-Finetuning-Service)
+4. [🚀4. Descriptions for Finetuning parameters](#4-Descriptions-for-Finetuning-parameters)
+
 ## 🚀1. Start Microservice with Python (Option 1)
 
 ### 1.1 Install Requirements
@@ -265,7 +272,7 @@ curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Typ
 
 ### 3.4 Leverage fine-tuned model
 
-After fine-tuning job is done, fine-tuned model can be chosen from listed checkpoints, then the fine-tuned model can be used in other microservices. For example, fine-tuned reranking model can be used in [reranks](../../rerankings/src/README.md) microservice by assign its path to the environment variable `RERANK_MODEL_ID`, fine-tuned embedding model can be used in [embeddings](../../embeddings/src/README.md) microservice by assign its path to the environment variable `model`, LLMs after instruction tuning can be used in [llms](../../llms/src/text-generation/README.md) microservice by assign its path to the environment variable `your_hf_llm_model`.
+After fine-tuning job is done, fine-tuned model can be chosen from listed checkpoints, then the fine-tuned model can be used in other microservices. For example, fine-tuned reranking model can be used in [reranks](../../rerankings/src/README.md) microservice by assign its path to the environment variable `RERANK_MODEL_ID`, fine-tuned embedding model can be used in [embeddings](../../embeddings/README.md) microservice by assign its path to the environment variable `model`, LLMs after instruction tuning can be used in [llms](../../llms/src/text-generation/README.md) microservice by assign its path to the environment variable `your_hf_llm_model`.
 
 ### 3.5 Xtune
 

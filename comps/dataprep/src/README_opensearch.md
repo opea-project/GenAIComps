@@ -2,6 +2,12 @@
 
 For dataprep microservice for text input, we provide here the `Langchain` framework.
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Docker](#1-start-microservice-with-docker)
+2. [🚀2. Status Microservice](#2-status-microservice)
+3. [🚀3. Consume Microservice](#3-consume-microservice)
+
 ## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start OpenSearch Stack Server
