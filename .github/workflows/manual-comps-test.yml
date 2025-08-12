@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Comps CD workflow on manual event
+
+permissions: read-all
 on:
   workflow_dispatch:
     inputs:

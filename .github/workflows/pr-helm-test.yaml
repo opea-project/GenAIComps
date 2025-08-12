@@ -3,6 +3,7 @@
 
 name: Microservice Test With Helm Charts
 
+permissions: read-all
 on:
   pull_request_target:
     branches: [main]
