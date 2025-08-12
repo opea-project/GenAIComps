@@ -1,4 +1,4 @@
-# Plan Execute
+# Plan Execute Agent Microservice
 
 This strategy is a practise provided with [LangGraph](https://github.com/langchain-ai/langgraph/blob/main/examples/plan-and-execute/plan-and-execute.ipynb?ref=blog.langchain.dev)
 
