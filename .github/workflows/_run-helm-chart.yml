@@ -132,7 +132,7 @@ jobs:
             echo "ERROR: Invalid service name format: $service"
             exit 1
           fi
-          
+
           service_name="${service,,}"  # third_parties/bridgetower
           if [[ "${service,,}" == *"third_parties"* ]]; then
             CHART_NAME="$(echo "${service,,}" | cut -d'/' -f2)"  # bridgetower
@@ -140,13 +140,13 @@ jobs:
             CHART_NAME="${service_name}"  # web_retrievers
           fi
           CHART_NAME=$(echo "$CHART_NAME" | tr -cd 'a-z0-9')
-          
+
           # Validate CHART_NAME is not empty after sanitization
           if [[ -z "$CHART_NAME" ]]; then
             echo "ERROR: Chart name is empty after sanitization"
             exit 1
           fi
-          
+
           echo "service_name=${service_name}" >> $GITHUB_ENV
           echo "CHART_NAME=${CHART_NAME}" >> $GITHUB_ENV
           echo "RELEASE_NAME=${CHART_NAME}$(date +%d%H%M%S)" >> $GITHUB_ENV
@@ -165,7 +165,7 @@ jobs:
             echo "ERROR: Invalid service_name format for path construction"
             exit 1
           fi
-          
+
           readme_path="comps/${service_name}/deployment/kubernetes/README.md"
           if [[ -f "$readme_path" ]]; then
             template_link=$(grep 'helm install' "$readme_path" | awk -F' ' '{print $4}' | head -n 1)
@@ -186,13 +186,13 @@ jobs:
           value_file: ${{ matrix.value_file }}
         run: |
           set -xe
-          
+
           # Validate value_file input
           if [[ ! "$value_file" =~ ^[a-zA-Z0-9_.-]+\.yaml$ ]]; then
             echo "ERROR: Invalid value file format: $value_file"
             exit 1
           fi
-          
+
           echo "should_cleanup=true" >> $GITHUB_ENV
           value_file_path="${{ github.workspace }}/${{ env.CHART_FOLDER }}/${value_file}"
           if [[ ! -f "$value_file_path" ]]; then
@@ -221,7 +221,7 @@ jobs:
               ROLLOUT_TIMEOUT_SECONDS=900s
             fi
           done
-          
+
           # oci://ghcr.io/opea-project/charts/${CHART_NAME} \
           if ! helm install --create-namespace --namespace "$NAMESPACE" "$RELEASE_NAME" \
             "${template_link}" \
