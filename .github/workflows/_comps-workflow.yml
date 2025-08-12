@@ -114,6 +114,9 @@ jobs:
   ####################################################################################################
   test-service-compose:
     if: ${{ fromJSON(inputs.test_compose) }}
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
