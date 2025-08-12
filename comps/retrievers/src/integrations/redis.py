@@ -54,7 +54,8 @@ class OpeaRedisRetriever(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
-        self.embeddings = asyncio.run(self._initialize_embedder())
+        # self.embeddings = asyncio.run(self._initialize_embedder())
+        self.embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         self.client = asyncio.run(self._initialize_client())
         health_status = self.check_health()
         if not health_status:
