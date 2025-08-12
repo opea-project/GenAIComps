@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -x
-
+#
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
