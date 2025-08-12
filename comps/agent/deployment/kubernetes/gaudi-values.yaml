@@ -6,7 +6,7 @@
 
 tgi:
   enabled: false
-#
+
 vllm:
   enabled: true
   accelDevice: "gaudi"
