@@ -65,10 +65,6 @@ docker compose down
 
 ---
 
-
-
-
-
 ## 🚀 2. Manual Step-by-Step Deployment (Advanced)
 
 This section provides detailed instructions for building the Docker images and running each microservice container individually.
@@ -143,7 +139,6 @@ curl http://localhost:9099/v1/audio/transcriptions \
 python check_asr_server.py
 ```
 
-
 ### 2.6. Clean Up the Deployment
 
 To stop and remove the containers you started manually, use the `docker stop` and `docker rm` commands.
@@ -160,8 +155,6 @@ To stop and remove the containers you started manually, use the `docker stop` an
   docker stop whisper-gaudi-service asr-whisper-gaudi
   docker rm whisper-gaudi-service asr-whisper-gaudi
   ```
-
-
 
 ## 🚀 3. Start Microservice with Python
 
