@@ -10,7 +10,6 @@ ARG REPO_VER=v1.17.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
-    libgl1-mesa-glx \
     libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
