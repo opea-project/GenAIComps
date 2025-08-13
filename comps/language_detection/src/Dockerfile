@@ -9,7 +9,6 @@ ENV LANG=en_US.UTF-8
 RUN apt-get update -y && \
     apt-get install build-essential -y && \
     apt-get install -y --no-install-recommends --fix-missing \
-    libgl1-mesa-glx \
     libjemalloc-dev \
     vim && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
