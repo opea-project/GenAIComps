@@ -113,6 +113,10 @@ function validate_finetune() {
 	    break
 	elif [[ "$STATUS" == "failed" ]]; then
 	    echo "training: failed."
+        docker logs $DOCKER_NAME 2>&1 | tee ${LOG_PATH}/finetuning-job.log
+        RAY_JOB_ID=$(grep -o 'raysubmit_[A-Za-z0-9]\+' ${LOG_PATH}/finetuning-job.log | tail -n 1)
+        echo "Log for failure."
+        docker exec $DOCKER_NAME python -c "from ray.job_submission import JobSubmissionClient;client = JobSubmissionClient();print(client.get_job_logs('$RAY_JOB_ID'))"
 	    exit 1
 	else
 	    echo "training: '$STATUS'"
