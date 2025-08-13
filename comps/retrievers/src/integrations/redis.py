@@ -7,9 +7,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import Union
 
-from fastapi import HTTPException
-from langchain.vectorstores import Redis
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_community.vectorstores import Redis
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import (
@@ -27,11 +25,9 @@ from .config import (
     BRIDGE_TOWER_EMBEDDING,
     EMBED_MODEL,
     ENABLE_SCHEMA,
-    HF_TOKEN,
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
-    TEI_EMBEDDING_ENDPOINT,
 )
 
 logger = CustomLogger("redis_retrievers")
