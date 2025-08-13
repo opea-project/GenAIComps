@@ -22,6 +22,7 @@ else
     bash clip_finetune/prepare_clip_finetune.sh
     bash adaclip_finetune/prepare_adaclip_finetune.sh
     mv llama_factory/src .
+    mv llama_factory/*.py .
     bash llama_factory/prepare_llama_factory.sh
     rm -rf llama_factory
     rsync -avPr clip_finetune src/llamafactory/

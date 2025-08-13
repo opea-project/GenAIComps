@@ -11,7 +11,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     build-essential \
     default-jre \
     libcairo2 \
-    libgl1-mesa-glx \
     libjemalloc-dev \
     libmariadb-dev \
     libpq-dev \
