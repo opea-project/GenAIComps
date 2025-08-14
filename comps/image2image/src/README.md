@@ -12,7 +12,7 @@ The Image-to-Image microservice generates an image based on a provided source im
 
 The Image-to-Image service is a single microservice that exposes an API endpoint. It receives a request containing a source image URL and a text prompt, processes it using the Stable Diffusion model, and returns the generated image.
 
--   **Image-to-Image Server**: This microservice is the core engine for the image generation task. It can be deployed on both CPU and HPU.
+- **Image-to-Image Server**: This microservice is the core engine for the image generation task. It can be deployed on both CPU and HPU.
 
 ## Deployment Options
 
@@ -26,6 +26,6 @@ For detailed, step-by-step instructions on how to deploy the Image-to-Image micr
 
 The following configurations have been validated for the Image-to-Image microservice.
 
-| **Deploy Method** | **Core Models** | **Platform**      |
-| ----------------- | --------------- | ----------------- |
+| **Deploy Method** | **Core Models**  | **Platform**      |
+| ----------------- | ---------------- | ----------------- |
 | Docker Compose    | Stable Diffusion | Intel Xeon/Gaudi2 |
