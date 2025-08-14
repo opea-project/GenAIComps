@@ -55,10 +55,6 @@ function validate_microservice() {
 
 }
 
-function stop_docker() {
-    docker ps -a --filter "name=speecht5-service" --filter "name=tts-speecht5-service" --format "{{.Names}}" | xargs -r docker stop
-}
-
 function stop_service() {
     cd $WORKPATH/comps/tts/deployment/docker_compose/
     docker compose down || true

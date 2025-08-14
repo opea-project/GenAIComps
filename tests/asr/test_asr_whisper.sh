@@ -71,10 +71,6 @@ function validate_microservice() {
 
 }
 
-function stop_docker() {
-    docker ps -a --filter "name=whisper-service" --filter "name=asr-service" --format "{{.Names}}" | xargs -r docker stop
-}
-
 function stop_service() {
     cd $WORKPATH/comps/asr/deployment/docker_compose/
     docker compose down || true
