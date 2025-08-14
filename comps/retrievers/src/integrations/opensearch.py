@@ -6,8 +6,6 @@ import os
 from typing import Callable, List, Union
 
 import numpy as np
-from fastapi import HTTPException
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from langchain_huggingface import HuggingFaceEmbeddings
 from pydantic import conlist
@@ -17,11 +15,9 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalReque
 
 from .config import (
     EMBED_MODEL,
-    HF_TOKEN,
     OPENSEARCH_INDEX_NAME,
     OPENSEARCH_INITIAL_ADMIN_PASSWORD,
     OPENSEARCH_URL,
-    TEI_EMBEDDING_ENDPOINT,
 )
 
 logger = CustomLogger("opensearch_retrievers")
@@ -39,49 +35,21 @@ class OpeaOpensearchRetriever(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
 
-        self.embedder = self._initialize_embedder()
         self.opensearch_url = OPENSEARCH_URL
         self.opensearch_index_name = OPENSEARCH_INDEX_NAME
+        self.embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         self.vector_db = self._initialize_client()
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaOpensearchRetriever health check failed.")
-
-    def _initialize_embedder(self):
-        if TEI_EMBEDDING_ENDPOINT:
-            # create embeddings using TEI endpoint service
-            if logflag:
-                logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HF_TOKEN:
-                raise HTTPException(
-                    status_code=400,
-                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
-                )
-            import requests
-
-            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
-                )
-            model_id = response.json()["model_id"]
-            embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
-            )
-        else:
-            # create embeddings using local embedding model
-            if logflag:
-                logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{EMBED_MODEL}")
-            embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-        return embeddings
 
     def _initialize_client(self):
         """Initializes the opensearch client."""
         auth = ("admin", OPENSEARCH_INITIAL_ADMIN_PASSWORD)
         vector_db = OpenSearchVectorSearch(
             opensearch_url=self.opensearch_url,
-            index_name=self.opensearch_index_name,
             embedding_function=self.embedder,
+            index_name=self.opensearch_index_name,
             http_auth=auth,
             use_ssl=True,
             verify_certs=False,
