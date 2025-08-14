@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: Dockerfile
     image: ${REGISTRY:-opea}/comps-base:${TAG:-latest}
+  comps-base-openeuler:
+    build:
+      dockerfile: Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/comps-base:${TAG:-latest}-openeuler
