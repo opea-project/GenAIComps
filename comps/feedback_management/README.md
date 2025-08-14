@@ -2,7 +2,6 @@
 
 The Feedback Management microservice facilitates the storage and retrieval of users'feedback data by establishing a connection with the databases. This microservice is designed to seamlessly integrate with OPEA applications, enabling data persistence and efficient management of feedback data.
 
----
 
 ## 🛠️ Features
 
@@ -11,12 +10,12 @@ The Feedback Management microservice facilitates the storage and retrieval of us
 - **Update Feedback**: Update feedback data info in the database based on id.
 - **Delete Feedback**: Remove feedback record from database.
 
----
 
-## ⚙️ Implementation
+## ⚙️ Deployment Options
 
-The Feedback Management microservice able to support various database backends for storing the feedback data.
+To get detailed, step-by-step instructions on deploying the `feedback_management` microservice, you should consult the deployment guide. This guide will walk you through all the necessary steps, from building the Docker images to configuring your environment and running the service.
 
-### Feedback Management with MongoDB
-
-For more detail, please refer to this [README](./src/README.md)
+| Platform          | Deployment Method | Database | Link                                                       |
+| ----------------- | ----------------- | ---------| ---------------------------------------------------------- |
+| CPU               | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)  |
+| CPU               | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)  |
