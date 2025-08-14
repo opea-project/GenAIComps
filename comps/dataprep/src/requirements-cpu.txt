@@ -1226,7 +1226,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-transformers==4.52.4
+transformers==4.53.1
     # via
     #   docling-core
     #   docling-ibm-models
