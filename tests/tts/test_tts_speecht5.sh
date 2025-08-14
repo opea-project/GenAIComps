@@ -77,7 +77,7 @@ function main() {
     stop_service
 
     docker system prune -f
-    
+
 }
 
 main
