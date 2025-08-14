@@ -161,6 +161,81 @@ cd src/llamafactory/adaclip_finetune
 # Please see README.md in src/llamafactory/adaclip_finetune for detail
 ```
 
+### Qwen2-VL Training and Hyperparameter Optimization
+
+```bash
+# Please see Qwen2-VL_README.md in doc for detail, bolow are simple use
+```
+
+#### Step 1: Finetune qwen2-vl with logging eval loss
+
+If you want to finetune with plotting eval loss, please set eval_strategy as steps, eval_stepsand eval_dataset:
+
+```
+# Finetune qwen2-vl with logging eval loss
+export DATA='where you can find dataset_info.json'
+export dataset=activitynet_qa_2000_limit_20s                    # to point which dataset llamafactory will use
+export eval_dataset=activitynet_qa_val_500_limit_20s
+llamafactory-cli train \
+    --stage sft \
+    --do_train True \
+    --model_name_or_path $models/Qwen2-VL-7B-Instruct-GPTQ-Int8 \
+    --preprocessing_num_workers 16 \
+    --finetuning_type lora \
+    --template qwen2_vl \
+    --flash_attn auto \
+    --dataset_dir $DATA \
+    --dataset $dataset \
+    --cutoff_len 2048 \
+    --learning_rate 5e-05 \
+    --num_train_epochs 20.0 \
+    --max_samples 100000 \
+    --per_device_train_batch_size 2 \
+    --gradient_accumulation_steps 8 \
+    --lr_scheduler_type cosine \
+    --max_grad_norm 1.0 \
+    --logging_steps 10 \
+    --save_steps 100 \
+    --warmup_steps 100 \
+    --packing False \
+    --report_to none \
+    --output_dir saves/Qwen2-VL-7B-Instruct-GPTQ-Int8/lora/finetune_test_valmetrics_evalstep8 \
+    --bf16 True \
+    --plot_loss True \
+    --ddp_timeout 180000000 \
+    --optim adamw_torch \
+    --video_fps 0.1 \
+    --per_device_eval_batch_size 1 \
+    --eval_strategy steps \
+    --eval_steps 100 \
+    --eval_dataset ${eval_dataset} \
+    --predict_with_generate true \
+    --lora_rank 8 \
+    --lora_alpha 16 \
+    --lora_dropout 0 \
+    --lora_target all
+```
+
+#### step 2: Evaluation metrics calculation and plotting
+
+If you want to plot eval metrics:
+Change `MODEL_NAME`,`EXPERIENT_NAME`,`EVAL_DATASET` as you need and run evaluation metrics calculation sctrpt:
+
+```
+export MODEL_DIR = where can find eval model
+export MODEL_NAME="Qwen2-VL-2B-Instruct"
+export EXPERIENT_NAME="finetune_onlyplot_evalloss_5e-6"
+export EVAL_DATASET=activitynet_qa_val_500_limit_20s
+chmod a+x ./doc/run_eval.sh
+./doc/run_eval.sh
+```
+
+Change `model_name` and `experiment_name` then run:
+
+```
+python plot_metrics.py --model_name your_model_name --experiment_name your_experiment_name
+```
+
 ### DeepSeek-R1 Distillation(not main function)
 
 Please see [doc](./doc/DeepSeek-R1_distillation_best_practice-v1.3.pdf) for details

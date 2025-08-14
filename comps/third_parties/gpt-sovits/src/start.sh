@@ -23,4 +23,6 @@ else
   exit 1
 fi
 
+export NLTK_DATA=/home/user/nltk_data
+
 python api.py --default_refer_path ./welcome_cn.wav --default_refer_text "欢迎使用" --default_refer_language "zh"
