@@ -16,7 +16,6 @@ ENV PYTHON=/usr/bin/python3.11
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     git \
-    libgl1-mesa-glx \
     libglib2.0-0 \
     libx264-dev \
     nasm \

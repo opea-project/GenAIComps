@@ -104,14 +104,11 @@ services:
     container_name: retriever-opensearch
     environment:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_OPENSEARCH}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       OPENSEARCH_INDEX_NAME: ${INDEX_NAME}
     depends_on:
       opensearch-vector-db:
-        condition: service_healthy
-      tei-embedding-serving:
         condition: service_healthy
 
   retriever-pinecone:
@@ -175,7 +172,6 @@ services:
     environment:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_REDIS}
       RETRIEVER_TYPE: ${RETRIEVER_TYPE:-redis}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       REDIS_URL: ${REDIS_URL}
       BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
     depends_on:
