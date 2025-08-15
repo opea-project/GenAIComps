@@ -10,11 +10,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 finetuning_service_port=8015
 ray_port=8265
 service_name="finetuning"
+TAG="comp"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/src/Dockerfile .
+    docker build -t opea/finetuning:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/finetuning built fail"
         exit 1
@@ -25,6 +26,7 @@ function build_docker_images() {
 
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
+    export TAG=$TAG
     cd $WORKPATH/comps/finetuning/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
@@ -113,6 +115,10 @@ function validate_finetune() {
 	    break
 	elif [[ "$STATUS" == "failed" ]]; then
 	    echo "training: failed."
+        docker logs $DOCKER_NAME 2>&1 | tee ${LOG_PATH}/finetuning-job.log
+        RAY_JOB_ID=$(grep -o 'raysubmit_[A-Za-z0-9]\+' ${LOG_PATH}/finetuning-job.log | tail -n 1)
+        echo "Log for failure."
+        docker exec $DOCKER_NAME python -c "from ray.job_submission import JobSubmissionClient;client = JobSubmissionClient();print(client.get_job_logs('$RAY_JOB_ID'))"
 	    exit 1
 	else
 	    echo "training: '$STATUS'"
@@ -224,6 +230,39 @@ EOF
         "finetuning" \
         '{"id":"ft-job' \
         '{"training_file": "test_data_dpo.jsonl","model": "facebook/opt-125m","General":{"task":"dpo"}}'
+
+    ##########################
+    #    reasoning SFT test  #
+    ##########################
+    # test /v1/dataprep upload file
+    cat <<EOF > test_data_reasoning.jsonl
+[
+    {
+        "Question": "Given the symptoms of sudden weakness in the left arm and leg, recent long-distance travel, and the presence of swollen and tender right lower leg, what specific cardiac abnormality is most likely to be found upon further evaluation that could explain these findings?",
+        "Complex_CoT": "Okay, let's see what's going on here. We've got sudden weakness in the person's left arm and leg - and that screams something neuro-related, maybe a stroke?\n\nBut wait, there's more. The right lower leg is swollen and tender, which is like waving a big flag for deep vein thrombosis, especially after a long flight or sitting around a lot.\n\nSo, now I'm thinking, how could a clot in the leg end up causing issues like weakness or stroke symptoms?\n\nOh, right! There's this thing called a paradoxical embolism. It can happen if there's some kind of short circuit in the heart - like a hole that shouldn't be there.\n\nLet's put this together: if a blood clot from the leg somehow travels to the left side of the heart, it could shoot off to the brain and cause that sudden weakness by blocking blood flow there.\n\nHmm, but how would the clot get from the right side of the heart to the left without going through the lungs and getting filtered out?\n\nHere's where our cardiac anomaly comes in: a patent foramen ovale or PFO. That's like a sneaky little shortcut in the heart between the right and left atria.\n\nAnd it's actually pretty common, found in about a quarter of adults, which definitely makes it the top suspect here.\n\nSo with all these pieces - long travel, leg clot, sudden weakness - a PFO fits the bill perfectly, letting a clot cross over and cause all this.\n\nEverything fits together pretty neatly, so I'd bet PFO is the heart issue waiting to be discovered. Yeah, that really clicks into place!",
+        "Response": "The specific cardiac abnormality most likely to be found in this scenario is a patent foramen ovale (PFO). This condition could allow a blood clot from the venous system, such as one from a deep vein thrombosis in the leg, to bypass the lungs and pass directly into the arterial circulation. This can occur when the clot moves from the right atrium to the left atrium through the PFO. Once in the arterial system, the clot can travel to the brain, potentially causing an embolic stroke, which would explain the sudden weakness in the left arm and leg. The connection between the recent travel, which increases the risk of deep vein thrombosis, and the neurological symptoms suggests the presence of a PFO facilitating a paradoxical embolism."
+    },
+    {
+        "Question": "A 33-year-old woman is brought to the emergency department 15 minutes after being stabbed in the chest with a screwdriver. Given her vital signs of pulse 110/min, respirations 22/min, and blood pressure 90/65 mm Hg, along with the presence of a 5-cm deep stab wound at the upper border of the 8th rib in the left midaxillary line, which anatomical structure in her chest is most likely to be injured?",
+        "Complex_CoT": "Okay, let's figure out what's going on here. A woman comes in with a stab wound from a screwdriver. It's in her chest, upper border of the 8th rib, left side, kind of around the midaxillary line. First thought, that's pretty close to where the lung sits, right?\n\nLet's talk about location first. This spot is along the left side of her body. Above the 8th rib, like that, is where a lot of important stuff lives, like the bottom part of the left lung, possibly the diaphragm too, especially considering how deep the screwdriver went.\n\nThe wound is 5 cm deep. That sounds pretty deep. I mean, it could definitely reach down to the lung tissue or maybe the diaphragm. Given that it's midaxillary, we're in the territory where the lower lobe of the left lung hangs out. It's also possible there's some intersection with where the diaphragm begins, but the lung feels more probable somehow.\n\nNow, her vitals are concerning: elevated heart rate and low blood pressure. This is serious. My gut says that this kind of vital sign picture could mean something like pneumothorax or maybe hemothorax. Both can happen if the lung gets punctured, and they can make the blood pressure drop and the heart rate skyrocket since she's obviously distressed.\n\nSo, putting it all together, the most obvious culprit is the lower lobe of the left lung. The wound's depth and her condition point that way. And, yeah, this adds up with pneumothorax or maybe blood collecting in the chest—the kind of stuff that can really mess with breathing and circulation.\n\nAlright, with this in mind, it sure seems like the lung is the most likely thing that got hurt here. Makes sense given the situation, where the wound is, considering her symptoms, and the whole setup.",
+        "Response": "In this scenario, the most likely anatomical structure to be injured is the lower lobe of the left lung. The location of the stab wound—at the upper border of the 8th rib in the left midaxillary line—indicates proximity to the lower lobe of the lung. The depth of the wound (5 cm) suggests it is sufficient to reach lung tissue. Her vital signs of elevated heart rate and low blood pressure could signal complications like a pneumothorax or hemothorax, common consequences of lung trauma that would result from a penetrating injury in this area. Given these considerations, the lower lobe of the left lung is the most probable structure injured."
+    }
+]
+EOF
+    validate_upload \
+        "http://${ip_address}:$finetuning_service_port/v1/files" \
+        "dpo - upload" \
+        "finetuning" \
+        "fine-tune" \
+        "test_data_reasoning.jsonl"
+
+    # test /v1/fine_tuning/jobs
+    validate_finetune \
+        "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
+        "reasoning - finetuning" \
+        "finetuning" \
+        '{"id":"ft-job' \
+        '{"training_file": "test_data_reasoning.jsonl","model": "Qwen/Qwen2.5-0.5B","General":{"task":"reasoning"}}'
 
 }
 
