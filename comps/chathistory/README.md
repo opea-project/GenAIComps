@@ -6,8 +6,6 @@ It can be integrated into application by making HTTP requests to the provided AP
 
 ![Flow Chart](./assets/img/chathistory_flow.png)
 
----
-
 ## 🛠️ Features
 
 - **Store Chat Conversations**: Save chat messages user information, and metadata associated with each conversation.
@@ -15,12 +13,11 @@ It can be integrated into application by making HTTP requests to the provided AP
 - **Update Chat Conversations**: Modify existing chat conversations by adding new messages or updating existing ones.
 - **Delete Chat Conversations**: Remove chat conversations record from database.
 
----
+## ⚙️ Deployment Options
 
-## ⚙️ Implementation
+To get detailed, step-by-step instructions on deploying the `chathistory` microservice, you should consult the deployment guide. This guide will walk you through all the necessary steps, from building the Docker images to configuring your environment and running the service.
 
-The Chat History microservice able to support various database backends for storing the chat conversations.
-
-### Chat History with MongoDB
-
-For more detail, please refer to this [README](src/README.md)
+| Platform | Deployment Method | Database | Link                                                      |
+| -------- | ----------------- | -------- | --------------------------------------------------------- |
+| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
+| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
