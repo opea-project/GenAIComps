@@ -1,71 +1,31 @@
 # Image-to-Video Microservice
 
-Image-to-Video is a task that generate video conditioning on the provided image(s). This microservice supports image-to-video task by using Stable Video Diffusion (SVD) model.
+The Image-to-Video microservice generates a video based on a provided source image. This service utilizes the Stable Video Diffusion (SVD) model to perform the video generation task. It takes a source image as input and produces a short video clip as output.
 
-# 🚀1. Start Microservice with Python (Option 1)
+## Table of contents
 
-## 1.1 Install Requirements
+1.  [Architecture](#architecture)
+2.  [Deployment Options](#deployment-options)
+3.  [Validated Configurations](#validated-configurations)
 
-```bash
-pip install -r src/requirements.txt
-```
+## Architecture
 
-## 1.2 Start Image-to-Video Microservice
+The Image-to-Video service is a single microservice that exposes an API endpoint. It receives a request containing a source image, processes it using the Stable Video Diffusion model, and returns the generated video.
 
-```bash
-cd ..
-# Start the OPEA Microservice
-python opea_image2video_microservice.py
-```
+- **Image-to-Video Server**: This microservice is the core engine for the video generation task. It can be deployed on both CPU and HPU.
 
-# 🚀2. Start Microservice with Docker (Option 2)
+## Deployment Options
 
-## 2.1 Build Images
+For detailed, step-by-step instructions on how to deploy the Image-to-Video microservice using Docker Compose on different Intel platforms, please refer to the deployment guide. The guide contains all necessary steps, including building images, configuring the environment, and running the service.
 
-Build Image-to-Video Service image on Xeon with below command:
+| Platform          | Deployment Method | Link                                                       |
+| ----------------- | ----------------- | ---------------------------------------------------------- |
+| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
 
-```bash
-cd ../..
-docker build -t opea/image2video:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/src/Dockerfile .
-```
+## Validated Configurations
 
-Build Image-to-Video Service image on Gaudi with below command:
+The following configurations have been validated for the Image-to-Video microservice.
 
-```bash
-cd ../..
-docker build -t opea/image2video-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/src/Dockerfile.intel_hpu .
-```
-
-## 2.2 Start Image-to-Video Service
-
-Start SVD server on Xeon with below command:
-
-```bash
-docker run --ipc=host -p 9369:9369 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/image2video:latest
-```
-
-Or use docker compose with below command:
-
-```bash
-cd ../deployment/docker_compose
-docker compose -f compose.yaml up image2video -d
-```
-
-Start SVD server on Gaudi with below command:
-
-```bash
-docker run -p 9369:9369 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/image2video-gaudi:latest
-```
-
-Or use docker compose with below command:
-
-```bash
-cd ../deployment/docker_compose
-docker compose -f compose.yaml up image2video-gaudi -d
-```
-
-## 2.3 Test
-
-```bash
-http_proxy="" curl http://localhost:9369/v1/image2video -XPOST -d '{"images_path":[{"image_path":"https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/svd/rocket.png"}]}' -H 'Content-Type: application/json'
-```
+| **Deploy Method** | **Core Models**              | **Platform**      |
+| ----------------- | ---------------------------- | ----------------- |
+| Docker Compose    | Stable Video Diffusion (SVD) | Intel Xeon/Gaudi2 |

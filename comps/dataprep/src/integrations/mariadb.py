@@ -196,7 +196,7 @@ class OpeaMariaDBDataprep(OpeaComponent):
             )
         else:
             # create embeddings using local embedding model
-            logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{EMBED_MODEL}")
+            logger.info(f"[ init embedder ] EMBED_MODEL:{EMBED_MODEL}")
             embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embeddings
 

@@ -35,8 +35,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     else \
       $uvpip -r GPT-SoVITS/requirements.txt; \
     fi
+RUN pip install --no-cache-dir soxr soundfile librosa
 
-RUN python -m nltk.downloader averaged_perceptron_tagger_eng cmudict && \
+RUN python -m nltk.downloader averaged_perceptron_tagger averaged_perceptron_tagger_eng averaged_perceptron_tagger_eng cmudict punkt && \
     mv /root/nltk_data /home/user/ && \
     mv GPT-SoVITS /home/user/
 
@@ -46,5 +47,8 @@ RUN chown -R user /home/user/
 
 USER user
 WORKDIR /home/user/GPT-SoVITS
+
+# air gapped support
+RUN curl -sLJO https://github.com/intel/intel-extension-for-transformers/raw/refs/heads/main/intel_extension_for_transformers/neural_chat/assets/audio/welcome_cn.wav
 
 ENTRYPOINT ["bash", "start.sh"]

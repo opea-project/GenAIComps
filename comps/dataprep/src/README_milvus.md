@@ -1,5 +1,11 @@
 # Dataprep Microservice with Milvus
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Docker](#1-start-microservice-with-docker)
+2. [🚀2. Consume Microservice](#2-consume-microservice)
+3. [🚀3. Troubleshooting](#3-troubleshooting)
+
 ## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start Milvus Server

@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/retrievers/src/Dockerfile
     image: ${REGISTRY:-opea}/retriever:${TAG:-latest}
+  retriever-openeuler:
+    build:
+      dockerfile: comps/retrievers/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/retriever:${TAG:-latest}-openeuler

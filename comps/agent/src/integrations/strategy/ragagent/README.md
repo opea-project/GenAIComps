@@ -1,4 +1,4 @@
-# RAG Agent
+# RAG Agent Microservice
 
 This agent is specifically designed to improve answer quality over conventional RAG.
 This agent strategy includes steps listed below:
