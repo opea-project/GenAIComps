@@ -28,6 +28,7 @@ services:
       MONGO_PORT: ${MONGO_PORT}
       DB_NAME: ${DB_NAME}
       COLLECTION_NAME: ${COLLECTION_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
     restart: unless-stopped
 
 networks:
