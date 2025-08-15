@@ -22,14 +22,14 @@ The language-detection service consists of a primary microservices:
 
 For detailed, step-by-step instructions on how to deploy the language-detection microservice using Docker Compose on different Intel platforms, please refer to the deployment guide. The guide contains all necessary steps, including building images, configuring the environment, and running the service.
 
-| Platform          | Deployment Method | Link                                                       |
-| ----------------- | ----------------- | ---------------------------------------------------------- |
-| Intel Xeon        | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
+| Platform   | Deployment Method | Link                                                       |
+| ---------- | ----------------- | ---------------------------------------------------------- |
+| Intel Xeon | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
 
 ## Validated Configurations
 
 The following configurations have been validated for the language-detection microservice.
 
-| **Deploy Method** | **Platform**      |
-| ----------------- | ----------------- |
-| Docker Compose    | Intel Xeon        |
+| **Deploy Method** | **Platform** |
+| ----------------- | ------------ |
+| Docker Compose    | Intel Xeon   |

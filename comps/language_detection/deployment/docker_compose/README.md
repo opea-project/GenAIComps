@@ -150,10 +150,10 @@ Reference to（[validate the service](#13-validate-the-service)）
 
 To stop and remove the containers you started manually, use the `docker stop` and `docker rm` commands.
 
-  ```bash
-  docker stop language-detection
-  docker rm language-detection
-  ```
+```bash
+docker stop language-detection
+docker rm language-detection
+```
 
 ---
 
