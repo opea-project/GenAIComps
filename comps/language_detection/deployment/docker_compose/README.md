@@ -144,7 +144,7 @@ docker run -d --name="language-detection-microservice" \
 
 ### 2.5. Validate the Service
 
-Verification method reference （##-1.3-validate-the-service）
+Reference to（[validate the service](#13-validate-the-service)）
 
 ### 2.6. Clean Up the Deployment
 
