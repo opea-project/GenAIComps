@@ -34,11 +34,8 @@ function build_vllm_image() {
     rm -rf $WORKPATH/vllm  # Remove existing vllm directory if it exists
     cd $WORKPATH
 
-    # Pull the last tagged version of vLLM.
-    git clone https://github.com/vllm-project/vllm.git && cd vllm
-    VLLM_VER="$(git describe --tags "$(git rev-list --tags --max-count=1)" )"
-    echo "Checked out vLLM tag ${VLLM_VER}"
-    git checkout ${VLLM_VER} &> /dev/null
+    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
 
     docker build --no-cache -f docker/Dockerfile.cpu -t opea/vllm-cpu:test .
     cd $WORKPATH

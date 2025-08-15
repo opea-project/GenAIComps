@@ -57,7 +57,9 @@ jobs:
           merged_commit=$(git log -1 --format='%H')
 
           changed_files="$(git diff --name-only ${base_commit} ${merged_commit})" || true
+          changed_vllm_envs="$(git diff -U0 ${base_commit} ${merged_commit} -- '.github/env/_vllm_versions.sh')" || true
           export changed_files_full=$changed_files
+          export changed_vllm_envs=$changed_vllm_envs
 
           export WORKSPACE=${{ github.workspace }}
           bash .github/workflows/scripts/get_test_matrix.sh
