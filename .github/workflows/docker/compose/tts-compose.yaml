@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/tts/src/Dockerfile
     image: ${REGISTRY:-opea}/tts:${TAG:-latest}
+  tts-openeuler:
+    build:
+      dockerfile: comps/tts/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/tts:${TAG:-latest}-openeuler

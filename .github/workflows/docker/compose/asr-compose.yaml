@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/asr/src/Dockerfile
     image: ${REGISTRY:-opea}/asr:${TAG:-latest}
+  asr-openeuler:
+    build:
+      dockerfile: comps/asr/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/asr:${TAG:-latest}-openeuler
