@@ -150,14 +150,14 @@ function find_test_3() {
 
 function find_test_4() {
     find_test=$(grep -rl ".github/env/_vllm_versions.sh" ./tests) || true
-    if [[ $(echo $changed_vllm_envs | grep -E '^\+export VLLM_VER=') ]]; then
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_VER=') ]]; then
         # if changed vllm version, run all vllm tests
         find_vllm_test=$(grep -rl "VLLM_VER" ${find_test}) || true
         if [ "$find_vllm_test" ]; then
             fill_in_matrix "$find_vllm_test"
         fi
     fi
-    if [[ $(echo $changed_vllm_envs | grep -E '^\+export VLLM_FORK_VER=') ]]; then
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_FORK_VER=') ]]; then
         # if changed vllm-fork version, run all vllm-fork tests
         find_vllm_fork_test=$(grep -rl "VLLM_FORK_VER" ${find_test}) || true
         if [ "$find_vllm_fork_test" ]; then
