@@ -216,7 +216,7 @@ function main() {
         echo "changed_vllm_envs=${changed_vllm_envs}"
         find_test_4
         echo "run_matrix=${run_matrix}"
-        echo "===========finish find_vllm_env============"
+        echo "===========finish find_test_4============"
     fi
     set +x
 
