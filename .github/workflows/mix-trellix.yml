@@ -3,6 +3,7 @@
 
 name: Trellix Command Line Scanner
 
+permissions: read-all
 on:
   workflow_dispatch:
   schedule:

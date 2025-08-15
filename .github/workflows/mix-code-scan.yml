@@ -3,6 +3,8 @@
 
 name: Code Scan
 
+permissions: read-all
+
 on:
   pull_request:
     branches: [main]
@@ -68,7 +70,6 @@ jobs:
   shell-check:
     runs-on: ubuntu-latest
     permissions:
-      security-events: write
       actions: read
       contents: read
     steps:
@@ -79,12 +80,15 @@ jobs:
 
       - name: Get changed shell files
         id: get-changed-files
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
-          base_commit="${{ github.event.pull_request.base.sha }}"
-          merged_commit="${{ github.sha }}"
+          base_commit="$PR_BASE_SHA"
+          merged_commit="$GITHUB_SHA"
           echo "base_commit=${base_commit}" >> $GITHUB_ENV
           echo "merged_commit=${merged_commit}" >> $GITHUB_ENV
-          changed_files="$(git diff --name-only --diff-filter=AM ${base_commit} ${merged_commit} | grep -E '\.sh$'  | tr '\n' ' ')" || true
+          changed_files="$(git diff --name-only --diff-filter=AM "${base_commit}" "${merged_commit}" | grep -E '\.sh$'  | tr '\n' ' ')" || true
           echo "changed_files=${changed_files}"
           echo "changed_files=${changed_files}" >> $GITHUB_ENV
 

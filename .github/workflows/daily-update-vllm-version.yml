@@ -3,6 +3,8 @@
 
 name: Daily update vLLM & vLLM-fork version
 
+permissions: read-all
+
 on:
   schedule:
     - cron: "30 22 * * *"
@@ -27,7 +29,6 @@ jobs:
             ver_name: VLLM_FORK_VER
       fail-fast: false
     permissions:
-      contents: write
       pull-requests: write
     steps:
       - name: Checkout repository

@@ -3,6 +3,8 @@
 
 name: Check hyperlinks and relative path validity
 
+permissions: read-all
+
 on:
   pull_request:
     branches: [main]
@@ -30,21 +32,23 @@ jobs:
         #               "https://platform.openai.com/docs/api-reference/"
         #               "https://openai.com/index/whisper/"
         #               "https://platform.openai.com/docs/api-reference/chat/create")
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          cd ${{github.workspace}}
+          cd "${{github.workspace}}"
           fail="FALSE"
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '/\.md$/ {print $NF}')"
+          changed_files="$(git diff --name-status --diff-filter=ARM "$PR_BASE_SHA" "${merged_commit}" | awk '/\.md$/ {print $NF}')"
           if  [ -n "$changed_files" ]; then
             for changed_file in $changed_files; do
-              echo $changed_file
+              echo "$changed_file"
               url_lines=$(grep -H -Eo '\]\(http[s]?://[^)]+\)' "$changed_file" | grep -Ev 'GenAIComps/blob/main') || true
               if [ -n "$url_lines" ]; then
                 for url_line in $url_lines; do
                   url=$(echo "$url_line"|cut -d '(' -f2 | cut -d ')' -f1|sed 's/\.git$//')
                   path=$(echo "$url_line"|cut -d':' -f1 | cut -d'/' -f2-)
                   if [[ "$url" == "https://platform.openai.com/docs/api-reference/"* || "https://www.docker.com/get-started" == "$url" || "https://openai.com/index/whisper/" == "$url" ]]; then
-                    echo "Link "$url" from ${{github.workspace}}/$path need to be verified by a real person."
+                    echo "Link $url from ${{github.workspace}}/$path need to be verified by a real person."
                   else
                     response=$(curl -L -s -o /dev/null -w "%{http_code}" "$url")
                     if [ "$response" -ne 200 ]; then
@@ -84,20 +88,24 @@ jobs:
           fetch-depth: 0
 
       - name: Checking Relative Path Validity
+        env:
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          cd ${{github.workspace}}
+          cd "${{github.workspace}}"
           fail="FALSE"
-          repo_name=${{ github.event.pull_request.head.repo.full_name }}
+          repo_name="$PR_HEAD_REPO"
           if [ "$(echo "$repo_name"|cut -d'/' -f1)" != "opea-project" ]; then
-            owner=$(echo "${{ github.event.pull_request.head.repo.full_name }}" |cut -d'/' -f1)
-            branch="https://github.com/$owner/GenAIComps/tree/${{ github.event.pull_request.head.ref }}"
+            owner=$(echo "$PR_HEAD_REPO" |cut -d'/' -f1)
+            branch="https://github.com/${owner}/GenAIComps/tree/${PR_HEAD_REF}"
           else
-            branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
+            branch="https://github.com/opea-project/GenAIComps/blob/${PR_HEAD_REF}"
           fi
           link_head="https://github.com/opea-project/GenAIComps/blob/main"
 
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '/\.md$/ {print $NF}')"
+          changed_files="$(git diff --name-status --diff-filter=ARM "$PR_BASE_SHA" "${merged_commit}" | awk '/\.md$/ {print $NF}')"
           png_lines=$(grep -Eo '\]\([^)]+\)' --include='*.md' -r .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
             for png_line in $png_lines; do

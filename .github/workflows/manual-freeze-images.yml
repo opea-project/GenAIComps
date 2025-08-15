@@ -3,6 +3,7 @@
 
 name: Freeze base images and 3rd part images on manual event
 
+permissions: read-all
 on:
   workflow_dispatch:
 

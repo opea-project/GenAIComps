@@ -8,6 +8,7 @@ on:
       - "**/docker_compose/*.yaml"
 
 name: Create an issue to GenAIInfra on push
+permissions: read-all
 jobs:
   job1:
     name: Create issue

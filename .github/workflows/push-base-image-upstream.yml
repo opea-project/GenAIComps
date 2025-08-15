@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 name: Build and upstream latest base image on push event
 
+permissions: read-all
 on:
   push:
     branches: ["main"]
