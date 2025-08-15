@@ -13,9 +13,12 @@ if [[ $llm_name == *"Phi-4-multimodal-instruct"* ]]; then
     echo -e "Patching into the multimodal models"
     cp patch/phi4-multimodal-patch/*.py $llm_name/
     export PT_HPU_LAZY_MODE=1
+    export TRANSFORMERS_NO_FLASH_ATTENTION=1
+    export FLASH_ATTENTION_FORCE_DISABLE=1
+    rm -rf ~/.cache/huggingface/modules/transformers_modules/* s
 elif [[ $llm_name == *"Phi-4-mini-instruct"* ]]; then
     cd $WORKPATH
-    git clone -b transformers_future https://github.com/huggingface/optimum-habana
+    git clone -b v1.18.0 --single-branch https://github.com/huggingface/optimum-habana
     cd optimum-habana
     cp ../patch/optimum-habana-phi4.patch .
     git apply optimum-habana-phi4.patch
