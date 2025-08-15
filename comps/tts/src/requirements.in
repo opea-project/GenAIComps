@@ -1,10 +1,12 @@
 aiohttp
 docarray[full]
 fastapi
-mcp
+mcp==1.10.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+# Security update for CVE fix
+pillow==11.3.0
 prometheus-fastapi-instrumentator
 pydantic==2.9.1
 pyyaml
