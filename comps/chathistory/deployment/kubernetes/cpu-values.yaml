@@ -3,3 +3,6 @@
 
 mongodb:
   enabled: true
+
+chathistory:
+  ENABLE_MCP: false
