@@ -161,6 +161,24 @@ function find_test_3() {
     done
 }
 
+function find_test_4() {
+    find_test=$(grep -rl ".github/env/_vllm_versions.sh" ./tests) || true
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_VER=') ]]; then
+        # if changed vllm version, run all vllm tests
+        find_vllm_test=$(grep -rl "VLLM_VER" ${find_test}) || true
+        if [ "$find_vllm_test" ]; then
+            fill_in_matrix "$find_vllm_test"
+        fi
+    fi
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_FORK_VER=') ]]; then
+        # if changed vllm-fork version, run all vllm-fork tests
+        find_vllm_fork_test=$(grep -rl "VLLM_FORK_VER" ${find_test}) || true
+        if [ "$find_vllm_fork_test" ]; then
+            fill_in_matrix "$find_vllm_fork_test"
+        fi
+    fi
+}
+
 
 function main() {
 
@@ -190,6 +208,17 @@ function main() {
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_3============"
+
+    # add test case when '.github/env/_vllm_versions.sh' code change
+    set -x
+    if [[ "$changed_vllm_envs" ]]; then
+        echo "===========start find_test_4============"
+        echo "changed_vllm_envs=${changed_vllm_envs}"
+        find_test_4
+        echo "run_matrix=${run_matrix}"
+        echo "===========finish find_test_4============"
+    fi
+    set +x
 
     run_matrix=$run_matrix"]}"
     echo "run_matrix=${run_matrix}"
