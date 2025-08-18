@@ -1,22 +1,23 @@
-# Use a base image
-# FROM python:3.11-slim
+# ---- Stage 1: ffmpeg ----
+FROM jrottenberg/ffmpeg:6.1-ubuntu2004 as ffmpeg
+
+# ---- Stage 2: main image ----
 FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
 ARG REPO_VER=n7.1.1
+
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
 ENV PYTHON=/usr/bin/python3.10
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Copy ffmpeg from Stage 1
+COPY --from=ffmpeg /usr/local /usr/local
 
 # Install dependencies
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends --fix-missing \
-        ffmpeg \
-        libavcodec-dev \
-        libavdevice-dev \
-        libavfilter-dev \
-        libavformat-dev \
-        libavutil-dev && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
