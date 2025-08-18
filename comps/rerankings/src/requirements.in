@@ -15,5 +15,5 @@ haystack-ai
 langchain
 langchain-community
 openai
-Pillow
+Pillow==11.3.0
 pydub
