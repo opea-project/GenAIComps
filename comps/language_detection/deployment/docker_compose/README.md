@@ -161,13 +161,13 @@ To stop and remove the containers you started manually, use the `docker stop` an
 
 To start the Language Detection microservice, you need to install python packages first.
 
-#### 3.1. Install Requirements
+### 3.1. Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 3.2. Start Microservice
+### 3.2. Start Microservice
 
 ```bash
 python opea_language_detection_microservice.py
