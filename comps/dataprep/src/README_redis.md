@@ -45,7 +45,7 @@ curl localhost:$your_port/embed \
 After checking that it works, set up environment variables.
 
 ```bash
-export TEI_ENDPOINT="http://localhost:$your_port"
+export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
 ```
 
 ### 1.4 Build Docker Image
