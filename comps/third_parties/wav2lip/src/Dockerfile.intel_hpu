@@ -7,11 +7,8 @@ ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
 ENV PYTHON=/usr/bin/python3.10
 
-# Install dependencies (new ffmpeg from PPA)
+# Install dependencies
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends software-properties-common && \
-    add-apt-repository ppa:jonathonf/ffmpeg-4 -y && \
-    apt-get update -y && \
     apt-get install -y --no-install-recommends --fix-missing \
         ffmpeg \
         libavcodec-dev \
