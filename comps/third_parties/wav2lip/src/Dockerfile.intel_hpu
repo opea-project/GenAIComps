@@ -9,26 +9,13 @@ ENV PYTHON=/usr/bin/python3.10
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    build-essential \
-    libx264-dev \
-    nasm \
-    pkg-config \
-    yasm && \
+    ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
 COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Install ffmpeg with x264 software codec
-RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg && \
-    cd /home/user/comps/animation/FFmpeg && \
-    ./configure --enable-gpl --enable-libx264 --disable-debug --disable-doc --disable-ffprobe --disable-ffplay && \
-    make -j"$(nproc-1)" && \
-    make install && \
-    hash -r && chmod +x "$(which ffmpeg)" && \
-    rm -rf .git
 
 # Upgrade pip
 ARG uvpip='uv pip install --system --no-cache-dir'
