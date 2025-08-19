@@ -2,11 +2,11 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Environment Setup](#environment-setup)
-* [Start Microservice with Docker](#start-microservice-with-docker)
-* [Get Status of Microservice](#get-status-of-microservice)
-* [Consume Prompt Injection Detection Service](#consume-prompt-injection-detection-service)
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice with Docker](#start-microservice-with-docker)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Prompt Injection Detection Service](#consume-prompt-injection-detection-service)
 
 ## Introduction
 

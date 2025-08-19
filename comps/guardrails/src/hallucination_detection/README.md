@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Start Microservice](#start-microservice)
-* [Set up Microservice](#set-up-microservice)
-* [Consume Guardrail Micorservice](#consume-guardrail-micorservice)
+- [Introduction](#introduction)
+- [Start Microservice](#start-microservice)
+- [Set up Microservice](#set-up-microservice)
+- [Consume Guardrail Micorservice](#consume-guardrail-micorservice)
 
 ## Introduction
 

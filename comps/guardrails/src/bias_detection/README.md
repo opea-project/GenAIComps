@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Future Development](#future-development)
-* [Start Microservice](#start-microservice)
-* [Consume Microservice](#consume-microservice)
+- [Introduction](#introduction)
+- [Future Development](#future-development)
+- [Start Microservice](#start-microservice)
+- [Consume Microservice](#consume-microservice)
 
 ## Introduction
 

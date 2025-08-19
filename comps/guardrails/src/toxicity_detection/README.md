@@ -2,12 +2,12 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Environment Setup](#environment-setup)
-* [Start Microservice with Python（Option 1）](#start-microservice-with-pythonoption-1)
-* [Start Microservice with Docker (Option 2)](#start-microservice-with-docker-option-2)
-* [Get Status of Microservice](#get-status-of-microservice)
-* [Consume Microservice Pre-LLM/Post-LLM](#consume-microservice-pre-llmpost-llm)
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice with Python（Option 1）](#start-microservice-with-pythonoption-1)
+- [Start Microservice with Docker (Option 2)](#start-microservice-with-docker-option-2)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Microservice Pre-LLM/Post-LLM](#consume-microservice-pre-llmpost-llm)
 
 ## Introduction
 

@@ -2,9 +2,9 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Start Microservice with Docker](#start-microservice-with-docker)
-* [Consume Factuality Check Service](#consume-factuality-check-service)
+- [Introduction](#introduction)
+- [Start Microservice with Docker](#start-microservice-with-docker)
+- [Consume Factuality Check Service](#consume-factuality-check-service)
 
 ## Introduction
 

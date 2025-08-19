@@ -2,11 +2,11 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Environment Setup](#environment-setup)
-* [Start Microservice](#start-microservice)
-* [Get Status of Microservice](#get-status-of-microservice)
-* [Consume Microservice](#consume-microservice)
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice](#start-microservice)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Microservice](#consume-microservice)
 
 ## Introduction
 

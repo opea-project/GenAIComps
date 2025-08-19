@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Setups](#setups)
-* [Start Microservice](#start-microservice)
-* [Consume Microservice](#consume-microservice)
+- [Introduction](#introduction)
+- [Setups](#setups)
+- [Start Microservice](#start-microservice)
+- [Consume Microservice](#consume-microservice)
 
 ## Introduction
 
