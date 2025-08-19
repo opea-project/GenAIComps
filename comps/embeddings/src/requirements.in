@@ -6,7 +6,7 @@ openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-Pillow
+Pillow==11.3.0
 predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 PyYAML
