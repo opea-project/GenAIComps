@@ -57,7 +57,7 @@ class OpeaDocSumvLLM(OpeaDocSum):
         self.client = VLLMOpenAI(
             openai_api_key="EMPTY",
             openai_api_base=self.llm_endpoint + "/v1",
-            model_name=MODEL_NAME,
+            model_name=input.model,
             default_headers=headers,
             max_tokens=input.max_tokens if input.max_tokens else 1024,
             top_p=input.top_p if input.top_p else 0.95,
