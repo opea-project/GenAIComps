@@ -10,7 +10,6 @@ ARG REPO_VER=v1.17.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
-    libgl1-mesa-glx \
     libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
@@ -24,7 +23,7 @@ COPY comps /home/user/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    pip install --no-cache-dir optimum-habana && \
+    pip install --no-cache-dir optimum-habana==1.18.1 && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 RUN git clone ${REPO} --depth 1 --branch ${REPO_VER} /home/user/optimum-habana && rm -rf /home/user/optimum-habana/.git
@@ -34,7 +33,7 @@ RUN $uvpip -r requirements.txt
 
 WORKDIR /home/user/comps/llms/src/text-generation/
 RUN $uvpip -r requirements.txt && \
-    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.4 transformers==4.49.0
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.4 transformers==4.51.0
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs

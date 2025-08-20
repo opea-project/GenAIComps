@@ -33,4 +33,8 @@ USER user
 
 WORKDIR /home/user/comps/third_parties/speecht5/src
 
+# air gapped support
+RUN curl -sLJO https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/spk_embed_default.pt
+RUN curl -sLJO https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/spk_embed_male.pt
+
 ENTRYPOINT ["python", "speecht5_server.py", "--device", "hpu"]

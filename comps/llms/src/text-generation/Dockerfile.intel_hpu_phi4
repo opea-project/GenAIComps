@@ -8,7 +8,6 @@ ENV LANG=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
-    libgl1-mesa-glx \
     libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
@@ -22,15 +21,13 @@ COPY comps /home/user/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
+    pip install --no-cache-dir optimum-habana==1.18.0 && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
-
-RUN $uvpip git+https://github.com/huggingface/optimum-habana.git@transformers_future
 
 WORKDIR /home/user/comps/llms/src/text-generation
 RUN $uvpip -r requirements.txt && \
-    $uvpip soundfile peft backoff && \
-    $uvpip numpy==1.26.4 transformers==4.51.3
+    $uvpip soundfile backoff && \
+    $uvpip numpy==1.26.4 transformers==4.49.0 tokenizers==0.21.1 peft==0.13.2 accelerate==1.7.0
 
 ENV PYTHONPATH=/root:/home/user
 ENV HABANA_LOGS=/home/user/logs

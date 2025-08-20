@@ -1,9 +1,18 @@
-# SQL Agents
+# SQL Agent Microservice
 
 We currently have two types of SQL agents:
 
 1. `sql_agent_llama`: for using with open-source LLMs, especially `meta-llama/Llama-3.1-70B-Instruct` model.
 2. `sql_agent`: for using with OpenAI models, we developed and validated with GPT-4o-mini.
+
+## Table of Contents
+
+1. [Overview of sql_agent_llama](#overview-of-sql_agent_llama)
+   - [Database schema](#database-schema)
+   - [Hints module](#hints-module)
+   - [Output parser](#output-parser)
+2. [Overview of sql_agent](#overview-of-sql_agent)
+3. [Limitations](#limitations)
 
 ## Overview of sql_agent_llama
 
@@ -12,15 +21,15 @@ The agent node takes user question, hints (optional) and history (when available
 
 ![SQL Agent Llama Architecture](../../../sql_agent_llama.png)
 
-### Database schema:
+### Database schema
 
 We use langchain's [SQLDatabase](https://python.langchain.com/docs/integrations/tools/sql_database/) API to get table names and schemas from the SQL database. User just need to specify `db_path` and `db_name`. The table schemas are incorporated into the prompts for the agent.
 
-### Hints module:
+### Hints module
 
 If you want to use the hints module, you need to prepare a csv file that has 3 columns: `table_name`, `column_name`, `description`, and make this file available to the agent microservice. The `description` should include useful information (for example, domain knowledge) about a certain column in a table in the database. The hints module will pick up to five relevant columns together with their descriptions based on the user question using similarity search. The hints module will then pass these column descriptions to the agent node.
 
-### Output parser:
+### Output parser
 
 Due to the current limitations of open source LLMs and serving frameworks (tgi and vllm) in generating tool call objects, we developed and optimized a custom output parser, together with our specially designed prompt templates. The output parser has 3 functions:
 
