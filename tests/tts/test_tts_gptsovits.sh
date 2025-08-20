@@ -37,7 +37,7 @@ function start_service() {
     export TTS_COMPONENT_NAME=OPEA_GPTSOVITS_TTS
 
     docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gpt-sovits-service tts-gptsovits -d
-    sleep 15
+    sleep 2m
 }
 
 function validate_microservice() {
@@ -54,7 +54,9 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=gpt-sovits-service" --filter "name=tts-gpt-sovits-service" --format "{{.Names}}" | xargs -r docker stop
+    pushd $WORKPATH/comps/tts/deployment/docker_compose
+    docker compose -f compose.yaml down
+    popd
 }
 
 function main() {

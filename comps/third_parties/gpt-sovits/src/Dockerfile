@@ -35,8 +35,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     else \
       $uvpip -r GPT-SoVITS/requirements.txt; \
     fi
+RUN pip install --no-cache-dir soxr soundfile librosa
 
-RUN python -m nltk.downloader averaged_perceptron_tagger averaged_perceptron_tagger_eng cmudict && \
+RUN python -m nltk.downloader averaged_perceptron_tagger averaged_perceptron_tagger_eng averaged_perceptron_tagger_eng cmudict punkt && \
     mv /root/nltk_data /home/user/ && \
     mv GPT-SoVITS /home/user/
 

@@ -2,6 +2,13 @@
 
 The Dataprep Microservice aims to preprocess the data from various sources (either structured or unstructured data) to text data, and convert the text data to embedding vectors then store them in the database.
 
+## Table of contents
+
+1. [Install Requirements](#install-requirements)
+2. [Summarizing Image Data with LVM](#summarizing-image-data-with-lvm)
+3. [Dataprep Microservice on Various Databases](#dataprep-microservice-on-various-databases)
+4. [Running in the air gapped environment](#running-in-the-air-gapped-environment)
+
 ## Install Requirements
 
 ```bash
@@ -9,65 +16,33 @@ apt-get update
 apt-get install libreoffice
 ```
 
-## Use LVM (Large Vision Model) for Summarizing Image Data
+## Summarizing Image Data with LVM
 
-Occasionally unstructured data will contain image data, to convert the image data to the text data, LVM can be used to summarize the image. To leverage LVM, please refer to this [readme](../lvms/README.md) to start the LVM microservice first and then set the below environment variable, before starting any dataprep microservice.
+Occasionally unstructured data will contain image data, to convert the image data to the text data, LVM (Large Vision Model) can be used to summarize the image. To leverage LVM, please refer to this [readme](../lvms/README.md) to start the LVM microservice first and then set the below environment variable, before starting any dataprep microservice.
 
 ```bash
 export SUMMARIZE_IMAGE_VIA_LVM=1
 ```
 
-## Dataprep Microservice with Redis
+## Dataprep Microservice on Various Databases
 
-For details, please refer to this [readme](src/README_redis.md)
+Dataprep microservice are supported on various databases, as shown in the table below, for details, please refer to the respective readme listed below.
 
-## Dataprep Microservice with Milvus
-
-For details, please refer to this [readme](src/README_milvus.md)
-
-## Dataprep Microservice with Qdrant
-
-For details, please refer to this [readme](src/README_qdrant.md)
-
-## Dataprep Microservice with Pinecone
-
-For details, please refer to this [readme](src/README_pinecone.md)
-
-## Dataprep Microservice with PGVector
-
-For details, please refer to this [readme](src/README_pgvector.md)
-
-## Dataprep Microservice with VDMS
-
-For details, please refer to this [readme](src/README_vdms.md)
-
-## Dataprep Microservice with Multimodal
-
-For details, please refer to this [readme](src/README_multimodal.md)
-
-## Dataprep Microservice with ElasticSearch
-
-For details, please refer to this [readme](src/README_elasticsearch.md)
-
-## Dataprep Microservice with OpenSearch
-
-For details, please refer to this [readme](src/README_opensearch.md)
-
-## Dataprep Microservice with neo4j
-
-For details, please refer to this [readme](src/README_neo4j_llamaindex.md)
-
-## Dataprep Microservice for financial domain data
-
-For details, please refer to this [readme](src/README_finance.md)
-
-## Dataprep Microservice with MariaDB Vector
-
-For details, please refer to this [readme](src/README_mariadb.md)
-
-## Dataprep Microservice with ArangoDB
-
-For details, please refer to this [readme](src/README_arangodb.md)
+| Databases               | Readme                                                                   |
+| :---------------------- | :----------------------------------------------------------------------- |
+| `Redis`                 | [Dataprep Microservice with Redis](src/README_redis.md)                  |
+| `Milvus`                | [Dataprep Microservice with Milvus](src/README_milvus.md)                |
+| `Qdrant`                | [Dataprep Microservice with Qdrant](src/README_qdrant.md)                |
+| `Pinecone`              | [Dataprep Microservice with Pinecone](src/README_pinecone.md)            |
+| `PGVector`              | [Dataprep Microservice with PGVector](src/README_pgvector.md)            |
+| `VDMS`                  | [Dataprep Microservice with VDMS](src/README_vdms.md)                    |
+| `Multimodal`            | [Dataprep Microservice with Multimodal](src/README_multimodal.md)        |
+| `ElasticSearch`         | [Dataprep Microservice with ElasticSearch](src/README_elasticsearch.md)  |
+| `OpenSearch`            | [Dataprep Microservice with OpenSearch](src/README_opensearch.md)        |
+| `neo4j`                 | [Dataprep Microservice with neo4j](src/README_neo4j_llamaindex.md)       |
+| `financial domain data` | [Dataprep Microservice for financial domain data](src/README_finance.md) |
+| `MariaDB`               | [Dataprep Microservice with MariaDB Vector](src/README_mariadb.md)       |
+| `ArangoDB`              | [Dataprep Microservice with ArangoDB Vector](src/README_arangodb.md)     |
 
 ## Running in the air gapped environment
 

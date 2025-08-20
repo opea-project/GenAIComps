@@ -131,11 +131,18 @@ if __name__ == "__main__":
 
     # warmup
     print("Warmup...")
-    image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
+    is_offline = os.getenv("HF_HUB_OFFLINE") == "1"
+    if is_offline:
+        image_paths = ["/data/view.jpg"]
+    else:
+        image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
     example_prompts = ["This is test image!"]
     images = []
     for image_path in image_paths:
-        images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
+        if is_offline:
+            images.append(PIL.Image.open(image_path))
+        else:
+            images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
     for i in range(args.warmup):
         embedder.embed_image_text_pairs(
             example_prompts,

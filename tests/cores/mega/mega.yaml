@@ -15,7 +15,7 @@ micro_services:
     envs:
       - REDIS_URL: redis://redis-vector-db:6379
       - INDEX_NAME: "rag-redis"
-      - TEI_ENDPOINT: embedding-server:8090
+      - TEI_EMBEDDING_ENDPOINT: embedding-server:8090
     dependencies:
       - redis-vector-db
   - service_name: embedding-server

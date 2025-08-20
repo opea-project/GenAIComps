@@ -38,14 +38,14 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create Issue
-        uses: daisy-ycguo/create-issue-action@stable
+        uses: dacbd/create-issue-action@main
         with:
           token: ${{ secrets.ACTION_TOKEN }}
           owner: opea-project
           repo: GenAIInfra
           title: |
             [ci-auto] GenAIComps ${{ env.examples }} docker compose file got changed.
-          assignees: lianhao
+          assignees: poussa
           labels: helm
           body: |
             ## GenAIComps ${{ env.examples }} docker compose file got changed

@@ -12,8 +12,7 @@ services:
       - host_ip=${host_ip}
       - cluster.name=opensearch-cluster
       - node.name=opensearch-vector-db
-      - discovery.seed_hosts=opensearch-vector-db
-      - cluster.initial_master_nodes=opensearch-vector-db
+      - discovery.type=single-node
       - bootstrap.memory_lock=true  # along with the memlock settings below, disables swapping
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}  # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
@@ -22,7 +21,7 @@ services:
         soft: -1
         hard: -1
       nofile:
-        soft: 65536  # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        soft: 262144
         hard: 262144
     ports:
       - "${OPENSEARCH_PORT1:-9200}:9200"

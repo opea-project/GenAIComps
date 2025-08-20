@@ -21,7 +21,7 @@ jobs:
   image-build:
     strategy:
       matrix:
-        node: [xeon, gaudi]
+        node: [gaudi]
     runs-on: docker-build-${{ matrix.node }}
     continue-on-error: true
     steps:

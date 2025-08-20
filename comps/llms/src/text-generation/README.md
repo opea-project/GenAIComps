@@ -1,4 +1,4 @@
-# LLM text generation Microservice
+# LLM Text Generation Microservice
 
 This microservice, designed for Language Model Inference (LLM), processes input consisting of a query string and associated reranked documents. It constructs a prompt based on the query and documents, which is then used to perform inference with a large language model. The service delivers the inference results as output.
 
@@ -6,47 +6,61 @@ A prerequisite for using this microservice is that users must have a LLM text ge
 
 Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 
+---
+
+## Table of Contents
+
+1. [Validated LLM Models](#validated-llm-models)
+2. [Start Microservice](#start-microservice)
+3. [Consume Microservice](#consume-microservice)
+
+---
+
 ## Validated LLM Models
 
-| Model                                                                                                                 | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana | SGLANG-CPU |
-| --------------------------------------------------------------------------------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- | ---------- |
-| [Intel/neural-chat-7b-v3-3]                                                                                           | ✓         | ✓        | ✓          | ✓        | ✓              | -          |
-| [meta-llama/Llama-2-7b-chat-hf]                                                                                       | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
-| [meta-llama/Llama-2-70b-chat-hf]                                                                                      | ✓         | -        | ✓          | -        | ✓              | ✓          |
-| [meta-llama/Meta-Llama-3-8B-Instruct]                                                                                 | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
-| [meta-llama/Meta-Llama-3-70B-Instruct]                                                                                | ✓         | -        | ✓          | -        | ✓              | ✓          |
-| [Phi-3]                                                                                                               | x         | Limit 4K | Limit 4K   | Limit 4K | ✓              | -          |
-| [Phi-4]                                                                                                               | x         | x        | x          | x        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]                                                                           | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
-| [mistralai/Mistral-Small-24B-Instruct-2501]                                                                           | ✓         | -        | ✓          | -        | ✓              | -          |
-| [mistralai/Mistral-Large-Instruct-2411]                                                                               | x         | -        | ✓          | -        | ✓              | -          |
-| [meta-llama/Llama-4-Scout-17B-16E-Instruct](https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct)         | -         | -        | -          | -        | -              | ✓          |
-| [meta-llama/Llama-4-Maverick-17B-128E-Instruct](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct) | -         | -        | -          | -        | -              | ✓          |
+| Model                                           | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana | SGLANG-CPU |
+| ----------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- | ---------- |
+| [Intel/neural-chat-7b-v3-3]                     | ✓         | ✓        | ✓          | ✓        | ✓              | -          |
+| [meta-llama/Llama-2-7b-chat-hf]                 | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
+| [meta-llama/Llama-2-70b-chat-hf]                | ✓         | -        | ✓          | -        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-8B-Instruct]           | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-70B-Instruct]          | ✓         | -        | ✓          | -        | ✓              | ✓          |
+| [Phi-3]                                         | ✗         | Limit 4K | Limit 4K   | Limit 4K | ✓              | -          |
+| [Phi-4]                                         | ✗         | ✗        | ✗          | ✗        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]      | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]     | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]      | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]      | ✓         | -        | ✓          | -        | ✓              | -          |
+| [mistralai/Mistral-Small-24B-Instruct-2501]     | ✓         | -        | ✓          | -        | ✓              | -          |
+| [mistralai/Mistral-Large-Instruct-2411]         | ✗         | -        | ✓          | -        | ✓              | -          |
+| [meta-llama/Llama-4-Scout-17B-16E-Instruct]     | -         | -        | -          | -        | -              | ✓          |
+| [meta-llama/Llama-4-Maverick-17B-128E-Instruct] | -         | -        | -          | -        | -              | ✓          |
 
 ### System Requirements for LLM Models
 
-| Model                                       | Minimum number of Gaudi cards |
-| ------------------------------------------- | ----------------------------- |
-| [Intel/neural-chat-7b-v3-3]                 | 1                             |
-| [meta-llama/Llama-2-7b-chat-hf]             | 1                             |
-| [meta-llama/Llama-2-70b-chat-hf]            | 2                             |
-| [meta-llama/Meta-Llama-3-8B-Instruct]       | 1                             |
-| [meta-llama/Meta-Llama-3-70B-Instruct]      | 2                             |
-| [Phi-3]                                     | x                             |
-| [Phi-4]                                     | x                             |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]  | 1                             |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]  | 2                             |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
-| [mistralai/Mistral-Small-24B-Instruct-2501] | 1                             |
-| [mistralai/Mistral-Large-Instruct-2411]     | 4                             |
+| Model                                     | Minimum Number of Gaudi Cards |
+| ----------------------------------------- | ----------------------------- |
+| Intel/neural-chat-7b-v3-3                 | 1                             |
+| meta-llama/Llama-2-7b-chat-hf             | 1                             |
+| meta-llama/Llama-2-70b-chat-hf            | 2                             |
+| meta-llama/Meta-Llama-3-8B-Instruct       | 1                             |
+| meta-llama/Meta-Llama-3-70B-Instruct      | 2                             |
+| Phi-3                                     | -                             |
+| Phi-4                                     | -                             |
+| deepseek-ai/DeepSeek-R1-Distill-Llama-8B  | 1                             |
+| deepseek-ai/DeepSeek-R1-Distill-Llama-70B | 8                             |
+| deepseek-ai/DeepSeek-R1-Distill-Qwen-14B  | 2                             |
+| deepseek-ai/DeepSeek-R1-Distill-Qwen-32B  | 4                             |
+| mistralai/Mistral-Small-24B-Instruct-2501 | 1                             |
+| mistralai/Mistral-Large-Instruct-2411     | 4                             |
 
-> NOTE: Detailed system requirements coming soon.
+> **Note:** Detailed hardware requirements will be provided soon.
 
-## Support integrations
+---
+
+## Start Microservice
+
+### Support integrations
 
 In this microservices, we have supported following backend LLM service as integrations, we will include TGI/vLLM/Ollama in this readme, for others, please refer to corresponding readmes.
 
@@ -57,9 +71,9 @@ In this microservices, we have supported following backend LLM service as integr
 - [Native](./README_native.md), based on optimum habana
 - [Predictionguard](./README_predictionguard.md)
 
-## Clone OPEA GenAIComps
+### Clone OPEA GenAIComps
 
-Clone this repository at your desired location and set an environment variable for easy setup and usage throughout the instructions.
+### Clone Repository
 
 ```bash
 git clone https://github.com/opea-project/GenAIComps.git
@@ -67,26 +81,23 @@ git clone https://github.com/opea-project/GenAIComps.git
 export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 ```
 
-## Prerequisites
+### Prerequisites
 
-For TGI/vLLM, You must create a user account with [HuggingFace] and obtain permission to use the gated LLM models by adhering to the guidelines provided on the respective model's webpage. The environment variables `LLM_MODEL` would be the HuggingFace model id and the `HF_TOKEN` is your HuggugFace account's "User Access Token".
+- Obtain access to HuggingFace models and tokens:
+  - [Create HuggingFace Account](https://huggingface.co/)
+  - Set `HF_TOKEN` and `LLM_MODEL` as environment variables.
 
-## 🚀Start Microservice with Docker
+### Build Docker Image
 
-In order to start the microservices with docker, you need to build the docker images first for the microservice.
+#### Backend LLM Image
 
-### 1. Build Docker Image
+- For vLLM, refer to the [vLLM Build Guide](../../../third_parties/vllm/) to build the Docker images first.
 
-#### 1.1 Prepare backend LLM docker image.
+- TGI and Ollama are not needed.
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
-
-No need for TGI or Ollama.
-
-#### 1.2 Prepare TextGen docker image.
+#### Build TextGen Microservice Image
 
 ```bash
-# Build the microservice docker
 cd ${OPEA_GENAICOMPS_ROOT}
 
 docker build \
@@ -96,16 +107,11 @@ docker build \
   -f comps/llms/src/text-generation/Dockerfile .
 ```
 
-### 2. Start LLM Service with the built image
+### Run Docker Service
 
-To start a docker container, you have two options:
+You can start the service using either the CLI or Docker Compose. The `compose_text-generation.yaml` file will automatically start both endpoint and the microservice docker.
 
-- A. Run Docker with CLI
-- B. Run Docker with Docker Compose
-
-You can choose one as needed. If you start an LLM microservice with docker compose, the `compose_text-generation.yaml` file will automatically start both endpoint and the microservice docker.
-
-#### 2.1 Setup Environment Variables
+#### Setup Environment Variables
 
 In order to start services, you need to setup the following environment variables first.
 
@@ -118,13 +124,11 @@ export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 ```
 
-#### 2.2 Run Docker with CLI (Option A)
+#### Option A: Run Docker with CLI
 
-Step 1: Start the backend LLM service
+1: Start backend LLM service ([TGI](../../../third_parties/tgi/), [vLLM](../../../third_parties/vllm/), [Ollama](../../../third_parties/ollama/)).
 
-Please refer to [TGI](../../../third_parties/tgi/), [vLLM](../../../third_parties/vllm/), [Ollama](../../../third_parties/ollama/) guideline to start a backend LLM service.
-
-Step 2: Start the TextGen microservices
+2: Start TextGen Microservice:
 
 ```bash
 export LLM_COMPONENT_NAME="OpeaTextGenService"
@@ -142,7 +146,7 @@ docker run \
   opea/llm-textgen:latest
 ```
 
-#### 2.3 Run Docker with Docker Compose (Option B)
+#### Option B: Run with Docker Compose
 
 Set `service_name` to match backend service.
 
@@ -157,9 +161,11 @@ cd ../../deployment/docker_compose/
 docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
 
-## 🚀3. Consume LLM Service
+---
 
-### 3.1 Check Service Status
+## Consume Microservice
+
+### Check Service Status
 
 ```bash
 curl http://${host_ip}:${TEXTGEN_PORT}/v1/health_check\
@@ -167,7 +173,7 @@ curl http://${host_ip}:${TEXTGEN_PORT}/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-### 3.1 Verify microservice
+### Verify microservice
 
 You can set the following model parameters according to your actual needs, such as `max_tokens`, `stream`.
 
