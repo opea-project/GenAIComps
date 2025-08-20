@@ -20,6 +20,7 @@ async def validate_svc(ip_address, service_port):
 
     async with sse_client(endpoint + "/sse") as streams:
         async with ClientSession(*streams) as session:
+            result = await session.initialize()
             input_dict = {
                 "request": {
                     "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",

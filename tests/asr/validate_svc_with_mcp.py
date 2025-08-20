@@ -20,6 +20,7 @@ async def validate_svc(ip_address, service_port):
 
     async with sse_client(endpoint + "/sse") as streams:
         async with ClientSession(*streams) as session:
+            result = await session.initialize()
             url = "https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
             response = requests.get(url)
             response.raise_for_status()  # Ensure the download succeeded

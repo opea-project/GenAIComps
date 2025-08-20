@@ -20,6 +20,7 @@ async def validate_svc(ip_address, service_port):
 
     async with sse_client(endpoint + "/sse") as streams:
         async with ClientSession(*streams) as session:
+            result = await session.initialize()
             dummy_embedding = [random.uniform(-1, 1) for _ in range(768)]
             input_dict = {"input": {"text": "What is OPEA?", "embedding": dummy_embedding}}
             tool_result = await session.call_tool(

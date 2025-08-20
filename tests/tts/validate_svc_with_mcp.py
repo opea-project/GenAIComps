@@ -20,6 +20,7 @@ async def validate_svc(ip_address, service_port):
 
     async with sse_client(endpoint + "/sse") as streams:
         async with ClientSession(*streams) as session:
+            result = await session.initialize()
             input_dict = {"request": {"input": "Hi there, welcome to OPEA."}}
             tool_result = await session.call_tool(
                 "text_to_speech",
