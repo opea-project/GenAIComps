@@ -4,7 +4,7 @@
 
 set -x
 
-WORKPATH=$(dirname "$(dirname "$PWD")")
+WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
