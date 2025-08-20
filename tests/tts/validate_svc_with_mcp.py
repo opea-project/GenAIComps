@@ -14,7 +14,7 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 
 
-async def validate_svc(ip_address, service_port, service_type):
+async def validate_svc(ip_address, service_port):
 
     endpoint = f"http://{ip_address}:{service_port}"
 
