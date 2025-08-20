@@ -7,6 +7,12 @@ This `dataprep` microservice accepts the following from the user and ingests the
 - Audio (wav files)
 - PDFs (with text and images)
 
+## Table of contents
+
+1. [🚀1. Start Microservice with Docker](#1-start-microservice-with-docker)
+2. [🚀2. Status Microservice](#2-status-microservice)
+3. [🚀3. Consume Microservice](#3-consume-microservice)
+
 ## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start Redis Stack Server
@@ -17,7 +23,7 @@ Please refer to this [readme](../../third_parties/redis/src/README.md).
 
 This is required only if you are going to consume the _generate_captions_ API of this microservice as described [here](#43-consume-generate_captions-api).
 
-Please refer to this [readme](../../lvms/src/README.md) to start the LVM microservice.
+Please refer to this [readme](../../lvms/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
 
 ```bash

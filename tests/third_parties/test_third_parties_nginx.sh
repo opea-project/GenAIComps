@@ -10,7 +10,8 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/nginx:comps -f comps/third_parties/nginx/src/Dockerfile .
+    dockerfile_name="comps/third_parties/nginx/src/$1"
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/nginx:comps -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/nginx built fail"
         exit 1
@@ -57,21 +58,28 @@ function validate_service() {
     fi
 }
 
-function stop_docker() {
+function stop_service() {
     cid=$(docker ps -aq --filter "name=test-comps-nginx*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {
 
-    stop_docker
-    build_docker_images
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+
+    echo "Test normal env ..."
     start_service
-
     validate_service
+    stop_service
 
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_service
+    stop_service
 
+    docker system prune -f
 }
 
 main

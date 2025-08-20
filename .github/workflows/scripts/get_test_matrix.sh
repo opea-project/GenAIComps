@@ -54,10 +54,23 @@ function find_test_1() {
                     done
                 fi
                 if [ "$run_all_interation" = "true" ]; then
+                    set -x
                     find_test=$(find ./tests -type f -name "test_${service_name}*.sh") || true
                     if [ "$find_test" ]; then
-                        fill_in_matrix "$find_test"
+                        # limit test case. If the changed file only to be Dockerfile.openEuler, then only run the script integrate related test.
+                        check_files_except_openeuler_docker=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -vE 'Dockerfile.openEuler' | sort -u) || true
+                        if [ -z "$check_files_except_openeuler_docker" ]; then
+                            for test in ${find_test}; do
+                                find_dockerfile=$(grep -rl "openEuler" $test) || true
+                                if [ "$find_dockerfile" ]; then
+                                    fill_in_matrix "$test"
+                                fi
+                            done
+                        else
+                            fill_in_matrix "$find_test"
+                        fi
                     fi
+                    set +x
                 fi
             elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
                 # new org with `src` and `third_parties` folder
@@ -148,6 +161,24 @@ function find_test_3() {
     done
 }
 
+function find_test_4() {
+    find_test=$(grep -rl ".github/env/_vllm_versions.sh" ./tests) || true
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_VER=') ]]; then
+        # if changed vllm version, run all vllm tests
+        find_vllm_test=$(grep -rl "VLLM_VER" ${find_test}) || true
+        if [ "$find_vllm_test" ]; then
+            fill_in_matrix "$find_vllm_test"
+        fi
+    fi
+    if [[ $(echo $changed_vllm_envs | grep -E 'export VLLM_FORK_VER=') ]]; then
+        # if changed vllm-fork version, run all vllm-fork tests
+        find_vllm_fork_test=$(grep -rl "VLLM_FORK_VER" ${find_test}) || true
+        if [ "$find_vllm_fork_test" ]; then
+            fill_in_matrix "$find_vllm_fork_test"
+        fi
+    fi
+}
+
 
 function main() {
 
@@ -177,6 +208,17 @@ function main() {
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_3============"
+
+    # add test case when '.github/env/_vllm_versions.sh' code change
+    set -x
+    if [[ "$changed_vllm_envs" ]]; then
+        echo "===========start find_test_4============"
+        echo "changed_vllm_envs=${changed_vllm_envs}"
+        find_test_4
+        echo "run_matrix=${run_matrix}"
+        echo "===========finish find_test_4============"
+    fi
+    set +x
 
     run_matrix=$run_matrix"]}"
     echo "run_matrix=${run_matrix}"

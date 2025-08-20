@@ -1,5 +1,13 @@
 # Prompt Injection and Jailbreak Detection Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice with Docker](#start-microservice-with-docker)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Prompt Injection Detection Service](#consume-prompt-injection-detection-service)
+
 ## Introduction
 
 Prompt injection refers to a type of attack where a malicious user manipulates the input prompts given to an LLM to alter its intended behavior.
@@ -8,14 +16,14 @@ LLMs are often trained to avoid harmful behaviors; such as responding to prompts
 
 Please choose one of the two microservices for prompt injection detection based on your specific use case. If you wish to run both for experimental or comparison purposes, make sure to modify the port configuration of one service to avoid conflicts, as they are configured to use the same port by default.
 
-## Prompt Guard Microservice
+### Prompt Guard Microservice
 
 The Prompt Injection and Jailbreak Detection Microservice safeguards LLMs from malicious prompts by identifying and filtering out attempts at prompt injection and jailbreaking, ensuring secure and reliable interactions.
 
 This microservice uses [`meta-llama/Prompt-Guard-86M`](https://huggingface.co/meta-llama/Prompt-Guard-86M), a multi-label classifier model trained on a large corpus of attack scenarios. It categorizes input prompts into three categories: benign, injection, and jailbreak.
 It is important to note that there can be overlap between these categories. For instance, an injected input may frequently employ direct jailbreaking techniques. In such cases, the input will be classified as a jailbreak.
 
-## Prompt Injection Detection Prediction Guard Microservice
+### Prompt Injection Detection Prediction Guard Microservice
 
 [Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
 
@@ -33,7 +41,7 @@ git clone https://github.com/opea-project/GenAIComps.git
 export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 ```
 
-## Setup Environment Variables
+### Setup Environment Variables
 
 Setup the following environment variables first
 
@@ -61,11 +69,11 @@ export PROMPT_INJECTION_COMPONENT_NAME="PREDICTIONGUARD_PROMPT_INJECTION"
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
-## 🚀1. Start Microservice with Docker
+## Start Microservice with Docker
 
 ### For Prompt Guard Microservice
 
-### 1.1 Build Docker Image
+#### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
@@ -76,14 +84,14 @@ docker build \
     -f comps/guardrails/src/prompt_injection/Dockerfile .
 ```
 
-### 1.2.a Run Docker with Compose (Option A)
+#### Run Docker with Compose (Option A)
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose
 docker compose up -d prompt-injection-guardrail-server
 ```
 
-### 1.2.b Run Docker with CLI (Option B)
+#### Run Docker with CLI (Option B)
 
 ```bash
 docker run -d --name="prompt-injection-guardrail-server" -p ${PROMPT_INJECTION_DETECTION_PORT}:9085 \
@@ -97,20 +105,20 @@ docker run -d --name="prompt-injection-guardrail-server" -p ${PROMPT_INJECTION_D
 
 ### For Prediction Guard Microservice
 
-### 1.1 Build Docker Image
+#### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
 docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/src/prompt_injection/Dockerfile .
 ```
 
-### 1.2 Start Service
+#### Start Service
 
 ```bash
 docker run -d --name="guardrails-injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/guardrails-injection-predictionguard:latest
 ```
 
-### 🚀2. Get Status of Microservice
+## Get Status of Microservice
 
 If you are using the Prompt Guard Microservice, you can view the logs by running:
 
@@ -124,7 +132,7 @@ In case you are using the Prediction Guard Microservice, you can view the logs b
 docker container logs -f guardrails-injection-predictionguard
 ```
 
-### 🚀3. Consume Prompt Injection Detection Service
+## Consume Prompt Injection Detection Service
 
 Once microservice starts, users can use example (bash) below to apply prompt injection detection:
 

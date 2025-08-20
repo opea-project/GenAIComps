@@ -27,12 +27,12 @@ function start_service() {
     cd $WORKPATH
 
     # tei endpoint
-    tei_endpoint=5436
+    TEI_EMBEDDING_ENDPOINT=5436
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-vectorstore-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v $DATA_PATH:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
+    docker run -d --name="test-comps-vectorstore-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $TEI_EMBEDDING_ENDPOINT:80 -v $DATA_PATH:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 
     sleep 30s
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDING_ENDPOINT}"
 
     result=$(http_proxy=''
     curl $TEI_EMBEDDING_ENDPOINT     -X POST     -d '{"inputs":"Hey,"}'     -H 'Content-Type: application/json')
