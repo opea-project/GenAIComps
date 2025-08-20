@@ -1,5 +1,13 @@
 # PII Detection Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice](#start-microservice)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Microservice](#consume-microservice)
+
 ## Introduction
 
 In today's digital landscape, safeguarding personal information has become paramount, necessitating robust mechanisms to detect and protect personally identifiable information (PII). PII detection guardrails serve as essential tools in this endeavor, providing automated systems and protocols designed to identify, manage, and secure sensitive data. These guardrails leverage classical machine learning, LLMs, natural language processing (NLP) algorithms, and pattern recognition to accurately pinpoint PII ensuring compliance with privacy regulations and minimizing the risk of data breaches. By implementing PII detection guardrails, organizations can enhance their data protection strategies, foster trust with stakeholders, and uphold the integrity of personal information.
@@ -65,26 +73,28 @@ export PII_DETECTION_COMPONENT_NAME="PREDICTIONGUARD_PII_DETECTION"
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
-## 🚀1. Start Microservice with Python（Option 1）
+## Start Microservice
 
-### 1.1 Install Requirements
+### Start Microservice with Python（Option 1）
+
+#### Install Requirements
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/src/pii_detection
 pip install -r requirements.txt
 ```
 
-### 1.2 Start PII Detection Microservice with Python Script
+#### Start PII Detection Microservice with Python Script
 
 ```bash
 python opea_pii_detection_microservice.py
 ```
 
-## 🚀2. Start Microservice with Docker (Option 2)
+### Start Microservice with Docker (Option 2)
 
-### For native OPEA Microservice
+#### For native OPEA Microservice
 
-#### 2.1 Build Docker Image
+##### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
@@ -95,14 +105,14 @@ docker build \
   -f comps/guardrails/src/pii_detection/Dockerfile .
 ```
 
-#### 2.2.a Run Docker with Compose (Option A)
+##### Run Docker with Compose (Option A)
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose
 docker compose up -d guardrails-pii-detection-server
 ```
 
-#### 2.2.b Run Docker with CLI (Option B)
+##### Run Docker with CLI (Option B)
 
 ```bash
 docker run -d --rm \
@@ -115,9 +125,9 @@ docker run -d --rm \
      opea/guardrails-toxicity-detection:latest
 ```
 
-### For Prediction Guard Microservice
+#### For Prediction Guard Microservice
 
-#### 2.1 Build Docker Image
+##### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
@@ -128,14 +138,14 @@ docker build \
   -f comps/guardrails/src/pii_detection/Dockerfile .
 ```
 
-#### 2.2.a Run Docker with Compose (Option A)
+##### Run Docker with Compose (Option A)
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose
 docker compose up -d pii-predictionguard-server
 ```
 
-#### 2.2.b Run Docker with CLI (Option B)
+##### Run Docker with CLI (Option B)
 
 ```bash
 docker run -d \
@@ -146,7 +156,7 @@ docker run -d \
   opea/guardrails-pii-predictionguard:latest
 ```
 
-## 🚀3. Get Status of Microservice
+## Get Status of Microservice
 
 ### For native OPEA Microservice
 
@@ -160,7 +170,7 @@ docker container logs -f guardrails-pii-detection-server
 docker container logs -f  pii-predictionguard-server
 ```
 
-## 🚀4. Consume Microservice
+## Consume Microservice
 
 Once microservice starts, users can use examples (bash or python) below to apply PII detection
 

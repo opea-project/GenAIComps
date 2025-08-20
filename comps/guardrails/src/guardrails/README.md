@@ -1,5 +1,14 @@
 # Guardrails Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Setups](#setups)
+- [Start Microservice](#start-microservice)
+- [Consume Microservice](#consume-microservice)
+
+## Introduction
+
 To fortify AI initiatives in production, this microservice introduces guardrails designed to encapsulate LLMs, ensuring the enforcement of responsible behavior. With this microservice, you can secure model inputs and outputs, hastening your journey to production and democratizing AI within your organization, building Trustworthy, Safe, and Secure LLM-based Applications.
 
 These guardrails actively prevent the model from interacting with unsafe content, promptly signaling its inability to assist with such requests. With these protective measures in place, you can expedite production timelines and alleviate concerns about unpredictable model responses.
@@ -11,7 +20,7 @@ The Guardrails Microservice now offers two primary types of guardrails:
 
 **This microservice supports Meta's [Llama Guard](https://huggingface.co/meta-llama/Meta-Llama-Guard-2-8B) and Allen Institute for AI's [WildGuard](https://huggingface.co/allenai/wildguard) models.**
 
-## Llama Guard
+### Llama Guard
 
 Any content that is detected in the following categories is determined as unsafe:
 
@@ -22,7 +31,7 @@ Any content that is detected in the following categories is determined as unsafe
 - Regulated or Controlled Substances
 - Suicide & Self Harm
 
-## WildGuard
+### WildGuard
 
 `allenai/wildguard` was fine-tuned from `mistralai/Mistral-7B-v0.3` on their own [`allenai/wildguardmix`](https://huggingface.co/datasets/allenai/wildguardmix) dataset. Any content that is detected in the following categories is determined as unsafe:
 
@@ -31,7 +40,9 @@ Any content that is detected in the following categories is determined as unsafe
 - Harmful Language
 - Malicious Uses
 
-## Clone OPEA GenAIComps and set initial environment variables
+## Setups
+
+### Clone OPEA GenAIComps and set initial environment variables
 
 ```bash
 git clone https://github.com/opea-project/GenAIComps.git
@@ -39,7 +50,7 @@ export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 export GUARDRAIL_PORT=9090
 ```
 
-## Start up the HuggingFace Text Generation Inference (TGI) Server
+### Start up the HuggingFace Text Generation Inference (TGI) Server
 
 Before starting the guardrail service, we first need to start the TGI server that will be hosting the guardrail model.
 
@@ -101,11 +112,13 @@ curl localhost:${LLM_ENDPOINT_PORT}/generate \
 
 Check the logs again with the `logs` command to confirm that the curl request resulted in `Success`.
 
-### 🚀1. Start Microservice with Python (Option 1)
+## Start Microservice
+
+### Start Microservice with Python (Option 1)
 
 To start the Guardrails microservice, you need to install python packages first.
 
-#### 1.1 Install Requirements
+#### Install Requirements
 
 ```bash
 pip install $OPEA_GENAICOMPS_ROOT
@@ -113,17 +126,17 @@ cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/src/guardrails
 pip install -r requirements.txt
 ```
 
-#### 1.2 Start Guardrails Service
+#### Start Guardrails Service
 
 ```bash
 python opea_guardrails_microservice.py
 ```
 
-### 🚀2. Start Microservice with Docker (Option 2)
+### Start Microservice with Docker (Option 2)
 
 With the TGI server already running, now we can start the guardrail service container.
 
-#### 2.1 Build Docker Image
+#### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
@@ -133,7 +146,7 @@ docker build -t opea/guardrails:latest \
   -f comps/guardrails/src/guardrails/Dockerfile .
 ```
 
-#### 2.2.a Run with Docker Compose (Option A)
+#### Run with Docker Compose (Option A)
 
 **To run with LLama Guard:**
 
@@ -147,7 +160,7 @@ docker compose -f $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compo
 docker compose -f $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose/compose.yaml up -d wildguard-guardrails-server
 ```
 
-#### 2.2.b Run Docker with CLI (Option B)
+#### Run Docker with CLI (Option B)
 
 **To run with LLama Guard:**
 
@@ -180,9 +193,9 @@ docker run -d \
   opea/guardrails:latest
 ```
 
-### 🚀3. Consume Guardrails Service
+## Consume Microservice
 
-#### 3.1 Check Service Status
+### Check Service Status
 
 ```bash
 curl http://localhost:${GUARDRAIL_PORT}/v1/health_check\
@@ -190,7 +203,7 @@ curl http://localhost:${GUARDRAIL_PORT}/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-#### 3.2 Consume Guardrails Service
+### Consume Guardrails Service
 
 ```bash
 curl http://localhost:${GUARDRAIL_PORT}/v1/guardrails\
