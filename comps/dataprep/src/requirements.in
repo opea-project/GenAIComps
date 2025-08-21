@@ -24,6 +24,7 @@ langchain-mariadb
 langchain-openai
 langchain-pinecone
 langchain-redis
+langchain-sqlserver==0.1.1
 langchain-text-splitters
 langchain-vdms>=0.1.4
 langchain_huggingface
@@ -56,6 +57,7 @@ protobuf==4.24.2
 psycopg2
 pymilvus==2.5.6
 pymupdf
+pyodbc==5.2.0
 pyspark
 pytesseract
 python-bidi
