@@ -1,5 +1,12 @@
 # Bias Detection Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Future Development](#future-development)
+- [Start Microservice](#start-microservice)
+- [Consume Microservice](#consume-microservice)
+
 ## Introduction
 
 Bias Detection Microservice allows AI Application developers to safeguard user input and LLM output from biased language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for bias classification (e.g. DistilledBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance making it readily deployable on both Intel Gaudi and Xeon.
@@ -14,46 +21,52 @@ Bias erodes our collective trust and fuels social conflict. Bias can be defined 
 
 - Add a "neutralizing bias" microservice to neutralizing any detected bias in the RAG serving, guarding the RAG usage.
 
-## 🚀1. Start Microservice with Python（Option 1）
+## Start Microservice
 
-### 1.1 Install Requirements
+### Start Microservice with Python（Option 1）
+
+#### Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 1.2 Start Bias Detection Microservice with Python Script
+#### Start Bias Detection Microservice with Python Script
 
 ```bash
 python bias_detection.py
 ```
 
-## 🚀2. Start Microservice with Docker (Option 2)
+### Start Microservice with Docker (Option 2)
 
-### 2.1 Prepare bias detection model
+#### Prepare bias detection model
 
+```bash
 export HF_TOKEN=${HF_TOKEN}
+```
 
-### 2.2 Build Docker Image
+#### Build Docker Image
 
 ```bash
 cd ../../../ # back to GenAIComps/ folder
 docker build -t opea/guardrails-bias-detection:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/bias_detection/Dockerfile .
 ```
 
-### 2.3 Run Docker Container with Microservice
+#### Run Docker Container with Microservice
 
 ```bash
 docker run -d --rm --runtime=runc --name="guardrails-bias-detection" -p 9092:9092 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=${HF_TOKEN} opea/guardrails-bias-detection:latest
 ```
 
-## 🚀3. Get Status of Microservice
+### Consume Microservice
+
+#### Get Status of Microservice
 
 ```bash
 docker container logs -f guardrails-bias-detection
 ```
 
-## 🚀4. Consume Microservice Pre-LLM/Post-LLM
+#### Consume Microservice Pre-LLM/Post-LLM
 
 Once microservice starts, users can use examples (bash or python) below to apply bias detection for both user's query (Pre-LLM) or LLM's response (Post-LLM)
 

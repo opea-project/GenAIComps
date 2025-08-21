@@ -1,103 +1,31 @@
 # Image-to-Image Microservice
 
-Image-to-Image is a task that generate image conditioning on the provided image and text. This microservice supports image-to-image task by using Stable Diffusion (SD) model.
+The Image-to-Image microservice generates an image based on a provided source image and a descriptive text prompt. This service utilizes a Stable Diffusion (SD) model to perform the image generation task. It takes a source image and text as input and produces a new, modified image as output.
 
-# 🚀1. Start Microservice with Python (Option 1)
+## Table of contents
 
-## 1.1 Install Requirements
+1.  [Architecture](#architecture)
+2.  [Deployment Options](#deployment-options)
+3.  [Validated Configurations](#validated-configurations)
 
-```bash
-pip install -r requirements.txt
-```
+## Architecture
 
-## 1.2 Start Image-to-Image Microservice
+The Image-to-Image service is a single microservice that exposes an API endpoint. It receives a request containing a source image URL and a text prompt, processes it using the Stable Diffusion model, and returns the generated image.
 
-Select Stable Diffusion (SD) model and assign its name to a environment variable as below:
+- **Image-to-Image Server**: This microservice is the core engine for the image generation task. It can be deployed on both CPU and HPU.
 
-```bash
-# SDXL
-export MODEL=stabilityai/stable-diffusion-xl-refiner-1.0
-```
+## Deployment Options
 
-Set huggingface token:
+For detailed, step-by-step instructions on how to deploy the Image-to-Image microservice using Docker Compose on different Intel platforms, please refer to the deployment guide. The guide contains all necessary steps, including building images, configuring the environment, and running the service.
 
-```bash
-export HF_TOKEN=<your huggingface token>
-```
+| Platform          | Deployment Method | Link                                                       |
+| ----------------- | ----------------- | ---------------------------------------------------------- |
+| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
 
-Start the OPEA Microservice:
+## Validated Configurations
 
-```bash
-python opea_image2image_microservice.py --bf16 --model_name_or_path $MODEL --token $HF_TOKEN
-```
+The following configurations have been validated for the Image-to-Image microservice.
 
-# 🚀2. Start Microservice with Docker (Option 2)
-
-## 2.1 Build Images
-
-Select Stable Diffusion (SD) model and assign its name to a environment variable as below:
-
-```bash
-# SDXL
-export MODEL=stabilityai/stable-diffusion-xl-refiner-1.0
-```
-
-### 2.1.1 Image-to-Image Service Image on Xeon
-
-Build image-to-image service image on Xeon with below command:
-
-```bash
-cd ../..
-docker build -t opea/image2image:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2image/src/Dockerfile .
-```
-
-### 2.1.2 Image-to-Image Service Image on Gaudi
-
-Build image-to-image service image on Gaudi with below command:
-
-```bash
-cd ../..
-docker build -t opea/image2image-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2image/src/Dockerfile.intel_hpu .
-```
-
-## 2.2 Start Image-to-Image Service with Docker
-
-### 2.2.1 Start Image-to-Image Service on Xeon
-
-Start image-to-image service on Xeon with below command:
-
-```bash
-docker run --ipc=host -p 9389:9389 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/image2image:latest
-```
-
-### 2.2.2 Start Image-to-Image Service on Gaudi
-
-Start image-to-image service on Gaudi with below command:
-
-```bash
-docker run -p 9389:9389 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/image2image-gaudi:latest
-```
-
-# 🚀3. Start Image-to-Image with Docker Compose
-
-Alternatively, you can also start the Image-to-Image microservice with Docker Compose.
-
-- Xeon CPU
-
-```bash
-cd comps/image2image/deployment/docker_compose
-docker compose -f compose.yaml up image2image -d
-```
-
-- Gaudi2 HPU
-
-```bash
-cd comps/image2image/deployment/docker_compose
-docker compose -f compose.yaml up image2image-gaudi -d
-```
-
-# 4 Test Image-to-Image Service
-
-```bash
-http_proxy="" curl http://localhost:9389/v1/image2image -XPOST -d '{"image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png", "prompt":"a photo of an astronaut riding a horse on mars", "num_images_per_prompt":1}' -H 'Content-Type: application/json'
-```
+| **Deploy Method** | **Core Models**  | **Platform**      |
+| ----------------- | ---------------- | ----------------- |
+| Docker Compose    | Stable Diffusion | Intel Xeon/Gaudi2 |

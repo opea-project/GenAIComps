@@ -112,6 +112,7 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
   curl http://localhost:8000/v1/reranking -X POST -H 'Content-Type: application/json' \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}'
   ```
+
   - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash

@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Image Build
-# permissions: read-all
+
+permissions: read-all
 on:
   workflow_call:
     inputs:

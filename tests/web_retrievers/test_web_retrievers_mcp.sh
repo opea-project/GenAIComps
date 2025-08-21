@@ -35,7 +35,7 @@ function start_service() {
 
 function validate_microservice() {
     pip install mcp
-    python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $WEB_RETRIEVER_PORT "web_retriever"
+    python3 ${WORKPATH}/tests/web_retrievers/validate_svc_with_mcp.py $ip_address $WEB_RETRIEVER_PORT
     if [ $? -ne 0 ]; then
         docker logs tei-embedding-server
         docker logs web-retriever-service

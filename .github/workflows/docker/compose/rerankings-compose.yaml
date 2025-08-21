@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/rerankings/src/Dockerfile
     image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
+  reranking-openeuler:
+    build:
+      dockerfile: comps/rerankings/src/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/reranking:${TAG:-latest}-openeuler

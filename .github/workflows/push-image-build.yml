@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 name: Build latest images on push event
 
+permissions: read-all
 on:
   push:
     branches: ["main"]
@@ -62,7 +63,7 @@ jobs:
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-        node: [xeon, gaudi]
+        node: [gaudi]
     runs-on: docker-build-${{ matrix.node }}
     continue-on-error: true
     steps:

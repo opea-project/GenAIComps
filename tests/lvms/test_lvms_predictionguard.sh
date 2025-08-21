@@ -40,7 +40,7 @@ function start_service() {
 function validate_microservice() {
     result=$(http_proxy="" curl http://${ip_address}:${PREDICTIONGUARD_PORT}/v1/lvm \
         -X POST \
-        -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt": "Describe the image.", "max_new_tokens": 100}' \
+        -d '{"image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1920px-Image_created_with_a_mobile_phone.png", "prompt": "Describe the image.", "max_new_tokens": 100}' \
         -H 'Content-Type: application/json')
 
     if [[ $result == *"text"* ]]; then

@@ -104,7 +104,7 @@ For example, if we run `meta-llama/Meta-Llama-3-70b` with 8 cards, we can use fo
 bash ./launch_vllm_service.sh 8008 meta-llama/Meta-Llama-3-70b hpu 8
 ```
 
-### 2.3 vLLM with OpenVINO (on Intel GPU and CPU)
+### 2.3 vLLM with OpenVINO (on Intel CPU)
 
 vLLM powered by OpenVINO supports all LLM models from [vLLM supported models list](https://github.com/vllm-project/vllm/blob/main/docs/models/supported_models.md) and can perform optimal model serving on Intel GPU and all x86-64 CPUs with, at least, AVX2 support, as well as on both integrated and discrete Intel® GPUs (starting from Intel® UHD Graphics generation). OpenVINO vLLM backend supports the following advanced vLLM features:
 
@@ -121,14 +121,6 @@ bash ./build_docker_vllm_openvino.sh
 
 Once it successfully builds, you will have the `vllm-openvino` image. It can be used to spawn a serving container with OpenAI API endpoint or you can work with it interactively via bash shell.
 
-To build the docker image for Intel GPU, run the command
-
-```bash
-bash ./build_docker_vllm_openvino.sh gpu
-```
-
-Once it successfully builds, you will have the `opea/vllm-arc:latest` image. It can be used to spawn a serving container with OpenAI API endpoint or you can work with it interactively via bash shell.
-
 #### Launch vLLM service
 
 For gated models, such as `LLAMA-2`, you will have to pass -e HUGGING_FACE_HUB_TOKEN=\<token\> to the docker run command above with a valid Hugging Face Hub read token.
@@ -143,12 +135,6 @@ To start the model server for Intel CPU:
 
 ```bash
 bash launch_vllm_service_openvino.sh
-```
-
-To start the model server for Intel GPU:
-
-```bash
-bash launch_vllm_service_openvino.sh -d gpu
 ```
 
 #### Performance tips
@@ -175,17 +161,6 @@ OpenVINO best known configuration is:
 
     $ VLLM_OPENVINO_KVCACHE_SPACE=100 VLLM_OPENVINO_CPU_KV_CACHE_PRECISION=u8 VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
         python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json --enable-chunked-prefill --max-num-batched-tokens 256
-
-##### GPU performance tips
-
-GPU device implements the logic for automatic detection of available GPU memory and, by default, tries to reserve as much memory as possible for the KV cache (taking into account `gpu_memory_utilization` option). However, this behavior can be overridden by explicitly specifying the desired amount of memory for the KV cache using `VLLM_OPENVINO_KVCACHE_SPACE` environment variable (e.g, `VLLM_OPENVINO_KVCACHE_SPACE=8` means 8 GB space for KV cache).
-
-Currently, the best performance using GPU can be achieved with the default vLLM execution parameters for models with quantized weights (8 and 4-bit integer data types are supported) and `preemption-mode=swap`.
-
-OpenVINO best known configuration for GPU is:
-
-    $ VLLM_OPENVINO_DEVICE=GPU VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
-        python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json
 
 ### 2.4 vLLM with ROCm (on AMD GPU)
 

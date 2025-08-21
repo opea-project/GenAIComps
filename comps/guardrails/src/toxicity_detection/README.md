@@ -1,5 +1,14 @@
 # Toxicity Detection Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Start Microservice with Python（Option 1）](#start-microservice-with-pythonoption-1)
+- [Start Microservice with Docker (Option 2)](#start-microservice-with-docker-option-2)
+- [Get Status of Microservice](#get-status-of-microservice)
+- [Consume Microservice Pre-LLM/Post-LLM](#consume-microservice-pre-llmpost-llm)
+
 ## Introduction
 
 Toxicity Detection Microservice allows AI Application developers to safeguard user input and LLM output from harmful language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for toxicity classification (e.g. DistillBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance. This [article](https://huggingface.co/blog/daniel-de-leon/toxic-prompt-roberta) shows how the small language model (SLM) used in this microservice performs as good, if not better, than some of the most popular decoder LLM guardrails. This microservice uses [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta) that was fine-tuned on Gaudi2 with ToxicChat and Jigsaw Unintended Bias datasets.
@@ -42,24 +51,24 @@ export TOXICITY_DETECTION_COMPONENT_NAME="PREDICTIONGUARD_TOXICITY_DETECTION"
 
 ### Set environment variables
 
-## 🚀1. Start Microservice with Python（Option 1）
+## Start Microservice with Python（Option 1）
 
-### 1.1 Install Requirements
+### Install Requirements
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/src/toxicity_detection
 pip install -r requirements.txt
 ```
 
-### 1.2 Start Toxicity Detection Microservice with Python Script
+### Start Toxicity Detection Microservice with Python Script
 
 ```bash
 python toxicity_detection.py
 ```
 
-## 🚀2. Start Microservice with Docker (Option 2)
+## Start Microservice with Docker (Option 2)
 
-### 2.1 Build Docker Image
+### Build Docker Image
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
@@ -70,14 +79,14 @@ docker build \
     -f comps/guardrails/src/toxicity_detection/Dockerfile .
 ```
 
-### 2.2.a Run Docker with Compose (Option A)
+### Run Docker with Compose (Option A)
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose
 docker compose up -d guardrails-toxicity-detection-server
 ```
 
-### 2.2.b Run Docker with CLI (Option B)
+### Run Docker with CLI (Option B)
 
 ```bash
 docker run -d --rm \
@@ -91,13 +100,13 @@ docker run -d --rm \
      opea/guardrails-toxicity-detection:latest
 ```
 
-## 🚀3. Get Status of Microservice
+## Get Status of Microservice
 
 ```bash
 docker container logs -f guardrails-toxicity-detection-server
 ```
 
-## 🚀4. Consume Microservice Pre-LLM/Post-LLM
+## Consume Microservice Pre-LLM/Post-LLM
 
 Once microservice starts, users can use examples (bash or python) below to apply toxicity detection for both user's query (Pre-LLM) or LLM's response (Post-LLM)
 
