@@ -8,8 +8,8 @@ from pydantic import BaseModel
 
 from comps import CustomLogger
 from comps.chathistory.src.document_store import DocumentStore
-from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.mega.constants import MCPFuncType
+from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("chathistory_mongo")

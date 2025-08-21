@@ -24,9 +24,11 @@ The Chat History microservice supports MCP integration, allowing AI agents to di
 ### MCP Configuration
 
 #### Environment Variables
+
 - `ENABLE_MCP`: Set to `true`, `1`, or `yes` to enable MCP support (default: `false`)
 
 #### Docker Compose
+
 ```yaml
 services:
   chathistory-mongo:
@@ -35,6 +37,7 @@ services:
 ```
 
 #### Kubernetes
+
 ```yaml
 chathistory:
   ENABLE_MCP: true
@@ -66,6 +69,7 @@ tools = await tools_manager.get_available_tools()
 ### MCP Endpoint
 
 When MCP is enabled, the service exposes an additional SSE endpoint:
+
 - `/sse` - Server-Sent Events endpoint for MCP communication
 
 ---
