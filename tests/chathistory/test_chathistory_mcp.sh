@@ -4,7 +4,7 @@
 
 set -x
 
-WORKPATH=$(dirname "$PWD")
+WORKPATH=$(cd "$(dirname "$0")/../.." && pwd)
 ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
@@ -30,6 +30,7 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
+    export ENABLE_MCP=True
     cd comps/chathistory/deployment/docker_compose/
     docker compose up -d
     sleep 10s
@@ -37,7 +38,7 @@ function start_service() {
 
 function validate_microservice() {
     pip install mcp
-    python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $CHATHISTORY_PORT "chathistory"
+    python3 ${WORKPATH}/tests/chathistory/validate_mcp.py $ip_address $CHATHISTORY_PORT
     if [ $? -ne 0 ]; then
         docker logs mongodb
         docker logs chathistory-mongo-server
