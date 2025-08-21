@@ -42,7 +42,7 @@ function start_service() {
 
 function validate_microservice() {
     pip install mcp
-    python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $TTS_PORT "tts"
+    python3 ${WORKPATH}/tests/tts/validate_svc_with_mcp.py $ip_address $TTS_PORT
     if [ $? -ne 0 ]; then
         docker logs speecht5-service
         docker logs tts-speecht5-service

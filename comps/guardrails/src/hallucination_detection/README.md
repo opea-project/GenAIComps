@@ -1,5 +1,12 @@
 # Hallucination Detection Microservice
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Start Microservice](#start-microservice)
+- [Set up Microservice](#set-up-microservice)
+- [Consume Guardrail Micorservice](#consume-guardrail-micorservice)
+
 ## Introduction
 
 Hallucination in AI, particularly in large language models (LLMs), spans a wide range of issues that can impact reliability, trustworthiness, and utility of AI-generated content. The content could be plausible-sounding but factually incorrect, irrelevant, or entirely fabricated. This phenomenon occurs when the model generates outputs that are not grounded in the input context, training data, or real-world knowledge. While LLMs excel at generating coherent responses, hallucinations pose a critical challenge for applications that demand accuracy, reliability, and trustworthiness.
@@ -7,11 +14,8 @@ Hallucination in AI, particularly in large language models (LLMs), spans a wide 
 ### Forms of Hallucination
 
 - **Factual Errors**: The AI generates responses containing incorrect or fabricated facts. _Example_: Claiming a historical event occurred when it did not.
-
 - **Logical Inconsistencies**: Outputs that fail to follow logical reasoning or contradict themselves. _Example_: Stating that a person is alive in one sentence and deceased in another.
-
 - **Context Misalignment**: Responses that diverge from the input prompt or fail to address the intended context. _Example_: Providing irrelevant information or deviating from topic.
-
 - **Fabricated References**: Creating citations, statistics, or other details that appear authentic but lack real-world grounding. _Example_: Inventing a study or paper that doesn't exist.
 
 ### Importance of Hallucination Detection
@@ -31,9 +35,9 @@ Therefore, we focus on detecting contextualized hallucinations with the followin
 - Using LLM-as-a-judge to evaluate hallucinations.
 - Detect whether Context-Question-Answer triplet contains hallucinations.
 
-## 🚀1. Start Microservice based on vLLM endpoint on Intel Gaudi Accelerator
+## Start Microservice
 
-### 1.1 Environment Setup
+### Environment Setup
 
 ### Clone OPEA GenAIComps and Setup Environment
 
@@ -52,44 +56,46 @@ export LLM_MODEL="PatronusAI/Llama-3-Patronus-Lynx-8B-Instruct"
 
 For gated models such as `LLAMA-2`, you will have to pass the environment HF_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
 
-### 1.2 Launch vLLM Service on Gaudi Accelerator
+### Launch vLLM Service on Gaudi Accelerator
 
-#### Launch vLLM service on a single node
+Launch vLLM service on a single node
 
 ```bash
 bash ./launch_vllm_service.sh ${port_number} ${LLM_MODEL} hpu 1
 ```
 
-## 2. Set up Hallucination Microservice
+## Set up Microservice
 
 Then we wrap the vLLM Service into Hallucination Microservice.
 
-### 2.1 Build Docker
+### Build Docker
 
 ```bash
 cd $OPEA_GENAICOMPS_ROOT
 bash comps/guardrails/src/hallucination_detection/build_docker_hallucination_microservice.sh
 ```
 
-### 2.2 Launch Hallucination Microservice
+### Launch Hallucination Microservice
 
 ```bash
 bash comps/guardrails/src/hallucination_detection/launch_hallucination_microservice.sh
 ```
 
-## 🚀3. Get Status of Hallucination Microservice
+## Consume Guardrail Micorservice
+
+### Get Status of Hallucination Microservice
 
 ```bash
 docker container logs -f hallucination-detection
 ```
 
-## 🚀4. Consume Guardrail Micorservice Post-LLM
+### Consume Guardrail Micorservice Post-LLM
 
 Once microservice starts, users can use examples (bash or python) below to apply hallucination detection for LLM's response (Post-LLM)
 
 **Bash:**
 
-<span style="font-size:20px">_Case without Hallucination (Valid Output)_</span>
+`<span style="font-size:20px">`_Case without Hallucination (Valid Output)_
 
 ```bash
 DOCUMENT=".......An important part of CDC’s role during a public health emergency is to develop a test for the pathogen and equip state and local public health labs with testing capacity. CDC developed an rRT-PCR test to diagnose COVID-19. As of the evening of March 17, 89 state and local public health labs in 50 states......"
@@ -115,7 +121,7 @@ Example Output:
 {"REASONING": ['The CONTEXT mentions that the CDC developed an rRT-PCR test to diagnose COVID-19.', 'The CONTEXT does not describe what rRT-PCR stands for or how the test works.', 'The ANSWER simply states that the test is an rRT-PCR test.', 'The ANSWER does not provide additional information about the test, such as its full form or methodology.', 'Given the QUESTION about what kind of test can diagnose COVID-19, the ANSWER is faithful to the CONTEXT because it correctly identifies the type of test developed by the CDC, even though it lacks detailed explanation.'], "SCORE": PASS}
 ```
 
-<span style="font-size:20px">_Case with Hallucination (Invalid or Inconsistent Output)_</span>
+`<span style="font-size:20px">`_Case with Hallucination (Invalid or Inconsistent Output)_
 
 ```bash
 DOCUMENT="750 Seventh Avenue is a 615 ft (187m) tall Class-A office skyscraper in New York City. 101 Park Avenue is a 629 ft tall skyscraper in New York City, New York."

@@ -45,7 +45,7 @@ jobs:
           repo: GenAIInfra
           title: |
             [ci-auto] GenAIComps ${{ env.examples }} docker compose file got changed.
-          assignees: lianhao
+          assignees: poussa
           labels: helm
           body: |
             ## GenAIComps ${{ env.examples }} docker compose file got changed
