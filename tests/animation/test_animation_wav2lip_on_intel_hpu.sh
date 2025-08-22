@@ -61,8 +61,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs wav2lip-server
-        docker logs animation-server
+        docker logs wav2lip-gaudi-server
+        docker logs animation-gaudi-server
         exit 1
     fi
 }
