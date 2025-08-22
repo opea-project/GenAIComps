@@ -9,7 +9,7 @@ milvus:
   enabled: false
 qdrant:
   enabled: true
-  tag: "v1.13.1"
+  tag: "v1.15.3"
   config:
     cluster:
       enabled: false
