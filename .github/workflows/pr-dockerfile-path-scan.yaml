@@ -3,6 +3,7 @@
 
 name: Compose file and dockerfile path checking
 
+permissions: read-all
 on:
   pull_request:
     branches: [main]

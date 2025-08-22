@@ -3,6 +3,7 @@
 
 name: Freeze-requirements
 
+permissions: read-all
 on:
   workflow_dispatch:
 
