@@ -18,8 +18,6 @@ anyio==4.10.0
     #   mcp
     #   sse-starlette
     #   starlette
-async-timeout==5.0.1 ; python_full_version < '3.11'
-    # via aiohttp
 attrs==25.3.0
     # via
     #   aiohttp
@@ -154,7 +152,7 @@ multiprocess==0.70.16
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.4.2 ; python_full_version < '3.11'
+networkx==3.5
     # via
     #   torch
     #   trimesh
@@ -417,10 +415,8 @@ typing-extensions==4.14.1
     # via
     #   aiosignal
     #   anyio
-    #   exceptiongroup
     #   fastapi
     #   huggingface-hub
-    #   multidict
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -433,7 +429,6 @@ typing-extensions==4.14.1
     #   torch
     #   typing-inspect
     #   typing-inspection
-    #   uvicorn
 typing-inspect==0.9.0
     # via docarray
 typing-inspection==0.4.1
