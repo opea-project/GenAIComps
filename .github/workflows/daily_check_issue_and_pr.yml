@@ -3,6 +3,7 @@
 
 name: Check stale issue and pr
 
+permissions: read-all
 on:
   schedule:
     - cron: "30 22 * * *"

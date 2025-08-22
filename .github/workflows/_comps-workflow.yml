@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Comps jobs
-# permissions: read-all
+
+permissions: read-all
 on:
   workflow_call:
     inputs:
@@ -113,6 +114,22 @@ jobs:
   ####################################################################################################
   test-service-compose:
     if: ${{ fromJSON(inputs.test_compose) }}
+    permissions:
+      actions: read
+      attestations: read
+      checks: read
+      contents: read
+      deployments: read
+      discussions: read
+      id-token: write
+      issues: read
+      models: read
+      packages: read
+      pages: read
+      pull-requests: read
+      repository-projects: read
+      security-events: read
+      statuses: read
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
