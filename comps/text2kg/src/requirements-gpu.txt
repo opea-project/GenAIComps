@@ -419,7 +419,7 @@ pandas==2.3.0
     #   -r ./comps/text2kg/src/requirements.in
     #   docarray
     #   llama-index-readers-file
-pillow==11.2.1
+pillow==11.3.0
     # via
     #   docarray
     #   llama-index-core
@@ -591,7 +591,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.52.4
+transformers==4.53.1
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   llama-index-llms-huggingface
