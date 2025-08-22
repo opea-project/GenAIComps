@@ -13,7 +13,7 @@ anyio==4.9.0
     #   httpx
     #   openai
     #   starlette
-async-timeout==4.0.3 ; python_full_version < '3.11'
+async-timeout==4.0.3
     # via
     #   aiohttp
     #   langchain
@@ -29,33 +29,26 @@ certifi==2025.6.15
     #   httpcore
     #   httpx
     #   requests
-cffi==1.17.1 ; platform_python_implementation == 'PyPy'
-    # via zstandard
 charset-normalizer==3.4.2
     # via
     #   requests
     #   trimesh
-click==8.2.1
+click==8.1.8
     # via uvicorn
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via
-    #   click
-    #   colorlog
-    #   tqdm
 colorlog==6.9.0
     # via trimesh
 dataclasses-json==0.6.7
     # via langchain-community
 distro==1.9.0
     # via openai
-docarray==0.41.0
-    # via -r ./comps/struct2graph/src/requirements.in
-embreex==2.17.7.post6 ; platform_machine == 'x86_64'
+docarray[full]==0.41.0
+    # via -r requirements.in
+embreex==2.17.7.post6
     # via trimesh
-exceptiongroup==1.3.0 ; python_full_version < '3.11'
+exceptiongroup==1.3.0
     # via anyio
 fastapi==0.115.13
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 frozenlist==1.7.0
     # via
     #   aiohttp
@@ -66,7 +59,7 @@ googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.2.3 ; (python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'WIN32') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'ppc64le') or (python_full_version < '3.14' and platform_machine == 'win32') or (python_full_version < '3.14' and platform_machine == 'x86_64')
+greenlet==3.2.3
     # via sqlalchemy
 grpcio==1.73.0
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -75,7 +68,7 @@ h11==0.16.0
     #   httpcore
     #   uvicorn
 hanging-threads==2.0.7
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
@@ -92,10 +85,12 @@ idna==3.10
     #   requests
     #   yarl
 importlib-metadata==8.7.0
-    # via opentelemetry-api
-jax==0.6.2
+    # via
+    #   jax
+    #   opentelemetry-api
+jax==0.4.30
     # via docarray
-jaxlib==0.6.2
+jaxlib==0.4.30
     # via jax
 jiter==0.10.0
     # via openai
@@ -111,11 +106,11 @@ jsonschema-specifications==2025.4.1
     # via jsonschema
 langchain==0.3.25
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   langchain-community
     #   langchain-neo4j
 langchain-community==0.3.25
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 langchain-core==0.3.65
     # via
     #   langchain
@@ -123,7 +118,7 @@ langchain-core==0.3.65
     #   langchain-neo4j
     #   langchain-text-splitters
 langchain-neo4j==0.4.0
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 langchain-text-splitters==0.3.8
     # via langchain
 langsmith==0.3.45
@@ -157,35 +152,16 @@ mypy-extensions==1.1.0
     # via typing-inspect
 neo4j==5.28.1
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   langchain-neo4j
     #   neo4j-graphrag
 neo4j-graphrag==1.7.0
     # via langchain-neo4j
-networkx==3.4.2 ; python_full_version < '3.11'
+networkx==3.2.1
     # via trimesh
-networkx==3.5 ; python_full_version >= '3.11'
-    # via trimesh
-numpy==2.2.6 ; python_full_version < '3.11'
+numpy==2.0.2
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
-    #   docarray
-    #   embreex
-    #   jax
-    #   jaxlib
-    #   langchain-community
-    #   manifold3d
-    #   mapbox-earcut
-    #   ml-dtypes
-    #   pandas
-    #   pycollada
-    #   scipy
-    #   shapely
-    #   trimesh
-    #   vhacdx
-numpy==2.3.0 ; python_full_version >= '3.11'
-    # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   docarray
     #   embreex
     #   jax
@@ -201,16 +177,16 @@ numpy==2.3.0 ; python_full_version >= '3.11'
     #   trimesh
     #   vhacdx
 openai==1.88.0
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 opentelemetry-api==1.34.1
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-otlp==1.34.1
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 opentelemetry-exporter-otlp-proto-common==1.34.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -226,7 +202,7 @@ opentelemetry-proto==1.34.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.34.1
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.55b1
@@ -244,16 +220,16 @@ packaging==24.2
     #   marshmallow
 pandas==2.3.0
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   docarray
-pillow==11.2.1
+pillow==11.3.0
     # via
     #   docarray
     #   trimesh
 prometheus-client==0.22.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 propcache==0.3.2
     # via
     #   aiohttp
@@ -264,16 +240,14 @@ protobuf==5.29.5
     #   googleapis-common-protos
     #   opentelemetry-proto
 psycopg2-binary==2.9.10
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 pyarrow==20.0.0
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 pycollada==0.9
     # via trimesh
-pycparser==2.22 ; platform_python_implementation == 'PyPy'
-    # via cffi
 pydantic==2.11.7
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   docarray
     #   fastapi
     #   langchain
@@ -329,15 +303,15 @@ rpds-py==0.25.1
     #   referencing
 rtree==1.4.0
     # via trimesh
-scipy==1.15.3
+scipy==1.13.1
     # via
     #   jax
     #   jaxlib
     #   trimesh
-shapely==2.1.1
+shapely==2.0.7
     # via trimesh
 shortuuid==1.0.13
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 sniffio==1.3.1
@@ -346,7 +320,7 @@ sniffio==1.3.1
     #   openai
 sqlalchemy==2.0.41
     # via
-    #   -r ./comps/struct2graph/src/requirements.in
+    #   -r requirements.in
     #   langchain
     #   langchain-community
 starlette==0.46.2
@@ -361,7 +335,7 @@ tenacity==9.1.2
     #   langchain-core
 tqdm==4.67.1
     # via openai
-trimesh==4.6.12
+trimesh[easy]==4.6.12
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
@@ -388,6 +362,7 @@ typing-extensions==4.14.0
     #   referencing
     #   rich
     #   sqlalchemy
+    #   starlette
     #   typing-inspect
     #   typing-inspection
     #   uvicorn
@@ -406,7 +381,7 @@ urllib3==2.4.0
     #   requests
     #   types-requests
 uvicorn==0.34.3
-    # via -r ./comps/struct2graph/src/requirements.in
+    # via -r requirements.in
 vhacdx==0.0.8.post2
     # via trimesh
 xxhash==3.5.0
