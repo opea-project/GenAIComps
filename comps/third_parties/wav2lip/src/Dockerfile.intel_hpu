@@ -1,34 +1,32 @@
-# Use a base image
-# FROM python:3.11-slim
+# ---- Stage 1: ffmpeg ----
+FROM jrottenberg/ffmpeg:6.1-ubuntu2204 as ffmpeg
+
+# ---- Stage 2: main image ----
 FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
 ARG REPO_VER=n7.1.1
+
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
 ENV PYTHON=/usr/bin/python3.10
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Copy ffmpeg from Stage 1
+COPY --from=ffmpeg /usr/local /usr/local
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    build-essential \
-    libx264-dev \
-    nasm \
-    pkg-config \
-    yasm && \
-    rm -rf /var/lib/apt/lists/*
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get install -y wget && \
+    wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb && \
+    apt-get install -y ./libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb && \
+    rm -f libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
 COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Install ffmpeg with x264 software codec
-RUN git clone --depth 1 --branch ${REPO_VER} https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg && \
-    cd /home/user/comps/animation/FFmpeg && \
-    ./configure --enable-gpl --enable-libx264 --disable-debug --disable-doc --disable-ffprobe --disable-ffplay && \
-    make -j"$(nproc-1)" && \
-    make install && \
-    hash -r && chmod +x "$(which ffmpeg)" && \
-    rm -rf .git
 
 # Upgrade pip
 ARG uvpip='uv pip install --system --no-cache-dir'
