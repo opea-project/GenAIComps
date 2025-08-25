@@ -13,8 +13,10 @@ cd $WORKPATH
 
 
 function build_docker_images() {
+    cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/whisper:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/whisper/src/Dockerfile .
+    dockerfile_name="comps/third_parties/whisper/src/$1"
+    docker build --no-cache -t opea/whisper:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f ${dockerfile_name} .
 
     if [ $? -ne 0 ]; then
         echo "opea/whisper built fail"
@@ -23,7 +25,8 @@ function build_docker_images() {
         echo "opea/whisper built successful"
     fi
 
-    docker build --no-cache -t opea/asr:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/Dockerfile .
+    dockerfile_name="comps/asr/src/$1"
+    docker build --no-cache -t opea/asr:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f ${dockerfile_name} .
 
     if [ $? -ne 0 ]; then
         echo "opea/asr built fail"
@@ -68,22 +71,28 @@ function validate_microservice() {
 
 }
 
-function stop_docker() {
-    docker ps -a --filter "name=whisper-service" --filter "name=asr-service" --format "{{.Names}}" | xargs -r docker stop
+function stop_service() {
+    cd $WORKPATH/comps/asr/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
 
-    stop_docker
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
 
-    build_docker_images
+    echo "Test normal env ..."
     start_service
-
     validate_microservice
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
 
+    docker system prune -f
 }
 
 main
