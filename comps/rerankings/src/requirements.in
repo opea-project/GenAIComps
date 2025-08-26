@@ -6,6 +6,7 @@ huggingface-hub==0.30.2
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+Pillow==11.3.0
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid

@@ -9,8 +9,11 @@ llm_guard
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pillow==11.3.0
 presidio_anonymizer
 prometheus-fastapi-instrumentator
 sentencepiece
 shortuuid
+torch==2.6.0
+transformers==4.48.0
 uvicorn

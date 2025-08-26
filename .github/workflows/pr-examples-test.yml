@@ -3,6 +3,7 @@
 
 name: Example-test
 
+permissions: read-all
 on:
   pull_request_target:
     branches: ["main", "**uv"]

@@ -30,6 +30,7 @@ function start_service() {
     export TEXTGEN_PORT=10512 #10500-10599
     export host_ip=${host_ip}
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export HF_TOKEN=${HF_TOKEN}
     export LOGFLAG=True
     export DATA_PATH=${model_cache:-./data}
 
@@ -85,7 +86,7 @@ function validate_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml down --remove-orphans
+    docker compose -f compose_text-generation.yaml down ${service_name}
 }
 
 function main() {
