@@ -60,7 +60,7 @@ beartype==0.18.5 ; python_full_version < '3.13'
     # via
     #   graspologic
     #   pathway
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via bs4
 bleach==6.2.0 ; python_full_version >= '3.13'
     # via panel
@@ -200,7 +200,7 @@ future==1.0.0
     #   hyppo
 gensim==4.3.2
     # via graspologic
-geographiclib==2.0 ; python_full_version >= '3.13'
+geographiclib==2.1 ; python_full_version >= '3.13'
     # via geopy
 geopy==2.4.1 ; python_full_version >= '3.13'
     # via pathway
@@ -276,7 +276,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-h2==4.2.0
+h2==4.3.0
     # via httpx
 h3==4.3.1 ; python_full_version >= '3.13'
     # via pathway
@@ -410,7 +410,7 @@ langchain-mariadb==0.0.17
     # via -r ./comps/retrievers/src/requirements.in
 langchain-milvus==0.1.10
     # via -r ./comps/retrievers/src/requirements.in
-langchain-openai==0.3.30
+langchain-openai==0.3.31
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   langchain-pinecone
@@ -469,7 +469,7 @@ llvmlite==0.44.0
     # via
     #   numba
     #   pynndescent
-lxml==6.0.0
+lxml==6.0.1
     # via
     #   python-docx
     #   python-pptx
@@ -519,7 +519,7 @@ multidict==6.6.4
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-narwhals==2.1.2 ; python_full_version >= '3.13'
+narwhals==2.2.0 ; python_full_version >= '3.13'
     # via bokeh
 neo4j==5.28.2
     # via
@@ -593,7 +593,7 @@ numpy==1.26.4
     #   trimesh
     #   umap-learn
     #   vhacdx
-openai==1.100.1
+openai==1.101.0
     # via
     #   haystack-ai
     #   langchain-openai
@@ -663,7 +663,7 @@ packaging==24.2
     #   scikit-image
     #   statsmodels
     #   transformers
-pandas==2.3.1
+pandas==2.3.2
     # via
     #   bokeh
     #   docarray
@@ -680,7 +680,7 @@ param==2.2.1 ; python_full_version >= '3.13'
     # via
     #   panel
     #   pyviz-comms
-parso==0.8.4 ; python_full_version >= '3.13'
+parso==0.8.5 ; python_full_version >= '3.13'
     # via jedi
 pathway==0.3.3 ; python_full_version < '3.13'
     # via -r ./comps/retrievers/src/requirements.in
@@ -723,7 +723,7 @@ pluggy==1.6.0
     # via pytest
 portalocker==2.10.1
     # via qdrant-client
-posthog==6.6.0
+posthog==6.6.1
     # via haystack-ai
 pot==0.9.5
     # via graspologic
@@ -814,7 +814,7 @@ pymilvus==2.5.6
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   langchain-milvus
-pymupdf==1.26.3
+pymupdf==1.26.4
     # via -r ./comps/retrievers/src/requirements.in
 pynndescent==0.5.13
     # via umap-learn
@@ -1024,7 +1024,7 @@ sqlglot==10.6.1 ; python_full_version < '3.13'
     # via pathway
 stack-data==0.6.3 ; python_full_version >= '3.13'
     # via ipython
-starlette==0.47.2
+starlette==0.47.3
     # via
     #   fastapi
     #   prometheus-fastapi-instrumentator
@@ -1080,7 +1080,7 @@ traitlets==5.14.3 ; python_full_version >= '3.13'
     #   ipython
     #   ipywidgets
     #   matplotlib-inline
-transformers==4.55.2
+transformers==4.55.4
     # via
     #   llama-index-llms-openai-like
     #   sentence-transformers
@@ -1090,7 +1090,7 @@ types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250809
     # via docarray
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   aiosignal
     #   aiosqlite
@@ -1133,7 +1133,7 @@ tzdata==2025.2
     # via pandas
 uc-micro-py==1.0.3 ; python_full_version >= '3.13'
     # via linkify-it-py
-ujson==5.10.0
+ujson==5.11.0
     # via pymilvus
 umap-learn==0.5.9.post2
     # via graspologic
