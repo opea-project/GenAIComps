@@ -115,7 +115,7 @@ class TestHandleMessage(unittest.IsolatedAsyncioTestCase):
             {"role": "user", "content": ""},
         ]
         prompt = handle_message(messages)
-        self.assertEqual(prompt, "user:assistant: opea project! \n")
+        self.assertEqual(prompt, "user: hello, \nassistant: opea project! \nuser:")
 
     def test_handle_string_message(self):
         messages = "hello, "

@@ -118,7 +118,7 @@ def handle_message(messages):
     if isinstance(messages, str):
         prompt = messages
     else:
-        messages_dict = {}
+        messages_list = []
         system_prompt = ""
         prompt = ""
         for message in messages:
@@ -134,19 +134,19 @@ def handle_message(messages):
                         item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"
                     ]
                     if image_list:
-                        messages_dict[msg_role] = (text, image_list)
+                        messages_list.append((msg_role, (text, image_list)))
                     else:
-                        messages_dict[msg_role] = text
+                        messages_list.append((msg_role, text))
                 else:
-                    messages_dict[msg_role] = message["content"]
+                    messages_list.append((msg_role, message["content"]))
             elif msg_role == "assistant":
-                messages_dict[msg_role] = message["content"]
+                messages_list.append((msg_role, message["content"]))
             else:
                 raise ValueError(f"Unknown role: {msg_role}")
 
         if system_prompt:
             prompt = system_prompt + "\n"
-        for role, message in messages_dict.items():
+        for role, message in messages_list:
             if isinstance(message, tuple):
                 text, image_list = message
                 if text:

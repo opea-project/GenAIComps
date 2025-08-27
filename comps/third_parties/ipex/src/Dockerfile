@@ -56,9 +56,6 @@ RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda
     cd ./llm && \
     bash tools/env_setup.sh 9 && \
     python -m pip cache purge && \
-    mv ./oneCCL_release /opt/oneCCL && \
-    chown -R root:root /opt/oneCCL && \
-    sed -i "s|ONECCL_PATH=.*|ONECCL_PATH=/opt/oneCCL|" ./tools/env_activate.sh && \
     pip install --no-cache-dir backoff fastapi uvicorn
 ARG PORT_SSH=22
 RUN mkdir /var/run/sshd && \
