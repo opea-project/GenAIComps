@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Clean up Working Directory
         run: |
-          echo "Build opea/comps-base:latest !"
+          echo "Build opea/comps-base:latest, opea/comps-base:latest-openeuler !"
           sudo rm -rf ${{github.workspace}}/*
 
       - name: Checkout out Repo
