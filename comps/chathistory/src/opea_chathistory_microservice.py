@@ -8,11 +8,13 @@ from pydantic import BaseModel
 
 from comps import CustomLogger
 from comps.chathistory.src.document_store import DocumentStore
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("chathistory_mongo")
 logflag = os.getenv("LOGFLAG", False)
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 class ChatMessage(BaseModel):
@@ -45,6 +47,9 @@ def get_first_string(value):
     host="0.0.0.0",
     input_datatype=ChatMessage,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Create or update chat conversation history for AI agent workflows",
 )
 async def create_documents(document: ChatMessage):
     """Creates or updates a document in the document store.
@@ -83,6 +88,9 @@ async def create_documents(document: ChatMessage):
     host="0.0.0.0",
     input_datatype=ChatId,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Retrieve chat conversation history for AI agent workflows",
 )
 async def get_documents(document: ChatId):
     """Retrieves documents from the document store based on the provided ChatId.
@@ -117,6 +125,9 @@ async def get_documents(document: ChatId):
     host="0.0.0.0",
     input_datatype=ChatId,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Delete chat conversation history for AI agent workflows",
 )
 async def delete_documents(document: ChatId):
     """Deletes a document from the document store based on the provided ChatId.

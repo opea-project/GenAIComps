@@ -27,6 +27,7 @@ services:
       MONGO_HOST: ${MONGO_HOST}
       MONGO_PORT: ${MONGO_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
     restart: unless-stopped
 
 networks:
