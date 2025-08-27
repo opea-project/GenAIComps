@@ -10,6 +10,7 @@ langchainhub
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pillow>=11.3.0
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
