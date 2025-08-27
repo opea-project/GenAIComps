@@ -903,7 +903,7 @@ python-multipart==0.0.20
     # via -r ./comps/retrievers/src/requirements.in
 python-pptx==1.0.2
     # via -r ./comps/retrievers/src/requirements.in
-python-sat==1.8.dev20
+python-sat==1.8.dev19
     # via pathway
 pytz==2025.2
     # via
