@@ -25,14 +25,14 @@ COPY comps /root/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    pip install --no-cache-dir optimum-habana && \
+    pip install --no-cache-dir optimum-habana==1.17.0 && \
     $uvpip git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
 
 RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}
 
 WORKDIR /root/comps/text2cypher/src
 RUN $uvpip -r requirements-cpu.txt && \
-    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3 transformers==4.49.0
 
 # Set environment variables
 ENV PYTHONPATH=/root:/usr/lib/habanalabs/:/root/optimum-habana
