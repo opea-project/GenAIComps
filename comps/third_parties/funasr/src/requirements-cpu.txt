@@ -1,0 +1,15 @@
+aiohttp
+datasets
+docarray[full]
+fastapi
+funasr
+mcp
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+pydantic==2.7.2
+pydub
+python-multipart
+shortuuid
+uvicorn
