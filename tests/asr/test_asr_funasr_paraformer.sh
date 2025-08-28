@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
-export FUNASR_PARAFORMER_PORT=10100
+export FUNASR_PARAFORMER_PORT=10102
 export ASR_PORT=10101
 cd $WORKPATH
 

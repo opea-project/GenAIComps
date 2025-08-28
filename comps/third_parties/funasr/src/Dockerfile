@@ -18,8 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 COPY --chown=user:user comps /home/user/comps
 
-RUN pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu && \
-    pip install -r /home/user/comps/third_parties/funasr/src/requirements-cpu.txt
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    $uvpip torch torchaudio --index-url https://download.pytorch.org/whl/cpu ; \
+    $uvpip -r /home/user/comps/third_parties/funasr/src/requirements-cpu.txt 
+
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 USER user

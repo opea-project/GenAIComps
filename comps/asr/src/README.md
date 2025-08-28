@@ -20,8 +20,8 @@ For detailed, step-by-step instructions on how to deploy the ASR microservice us
 
 | Platform          | Deployment Method | Link                                                       |
 | ----------------- | ----------------- | ---------------------------------------------------------- |
-| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README.md) |
-| Intel Core        | Docker Compose    | [Deployment Guide](../deployment/docker_compose/README_paraformer.md) |
+| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](./README_whisper.md) |
+| Intel Core        | Docker Compose    | [Deployment Guide](./README_paraformer.md) |
 
 ## Validated Configurations
 
