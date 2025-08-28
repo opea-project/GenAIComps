@@ -18,9 +18,9 @@ ASR (Audio-Speech-Recognition) microservice helps users convert speech to text. 
 
 For detailed, step-by-step instructions on how to deploy the ASR microservice using Docker Compose on different Intel platforms, please refer to the deployment guide. The guide contains all necessary steps, including building images, configuring the environment, and running the service.
 
-| Platform          | Deployment Method | Link                                                       |
-| ----------------- | ----------------- | ---------------------------------------------------------- |
-| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](./README_whisper.md) |
+| Platform          | Deployment Method | Link                                       |
+| ----------------- | ----------------- | ------------------------------------------ |
+| Intel Xeon/Gaudi2 | Docker Compose    | [Deployment Guide](./README_whisper.md)    |
 | Intel Core        | Docker Compose    | [Deployment Guide](./README_paraformer.md) |
 
 ## Validated Configurations
