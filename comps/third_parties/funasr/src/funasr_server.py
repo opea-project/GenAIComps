@@ -10,9 +10,9 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import Response
+from funasr_paraformer_model import Paraformer
 from pydub import AudioSegment
 from starlette.middleware.cors import CORSMiddleware
-from funasr_paraformer_model import Paraformer
 
 from comps import CustomLogger
 from comps.cores.proto.api_protocol import AudioTranscriptionResponse
@@ -68,9 +68,7 @@ async def audio_transcriptions(
     audio_content = await file.read()
     # validate the request parameters
     if model != asr.model_name:
-        raise Exception(
-            f"ASR model mismatch! Please make sure you pass --model_name to {model}"
-        )
+        raise Exception(f"ASR model mismatch! Please make sure you pass --model_name to {model}")
     if prompt is not None or response_format != "json" or temperature != 0 or timestamp_granularities is not None:
         logger.warning(
             "Currently parameters 'prompt', 'response_format', 'temperature', 'timestamp_granularities' are not supported!"
