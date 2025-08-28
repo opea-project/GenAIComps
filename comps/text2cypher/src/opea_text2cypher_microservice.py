@@ -14,10 +14,14 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.text2cypher.src.integrations.gaudiutils import setup_parser
 from comps.text2cypher.src.integrations.native import Input, Neo4jConnection, OpeaText2Cypher
 
 logger = CustomLogger("opea_text2cypher_microservice")
+
+# Enable MCP support based on environment variable
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 @register_microservice(
@@ -26,6 +30,9 @@ logger = CustomLogger("opea_text2cypher_microservice")
     endpoint="/v1/text2cypher",
     host="0.0.0.0",
     port=9097,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Convert natural language questions to Cypher queries for Neo4j graph databases. Enables AI agents to query knowledge graphs using natural language.",
 )
 @register_statistics(names=["opea_service@text2cypher"])
 async def text2cypher(input: Input):
