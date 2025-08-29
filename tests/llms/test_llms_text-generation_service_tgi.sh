@@ -18,7 +18,8 @@ service_name="textgen-service-tgi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
+    dockerfile_name="comps/llms/src/text-generation/$1"
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "${dockerfile_name}" .
     if [ $? -ne 0 ]; then
         echo "opea/llm-textgen built fail"
         exit 1
@@ -112,25 +113,32 @@ function validate_microservice_with_openai() {
     fi
 }
 
-function stop_docker() {
+function stop_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
 function main() {
 
-    stop_docker
-
-    build_docker_images
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
+    echo "Test normal env ..."
     pip install --no-cache-dir openai pydantic
     start_service
 
     validate_microservices
     validate_microservice_with_openai
 
-    stop_docker
-    echo y | docker system prune
+    stop_service
 
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservices
+    validate_microservice_with_openai
+    stop_service
+
+    docker system prune -f
 }
 
 main

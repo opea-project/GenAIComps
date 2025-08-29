@@ -7,6 +7,10 @@ services:
     build:
       dockerfile: comps/llms/src/text-generation/Dockerfile
     image: ${REGISTRY:-opea}/llm-textgen:${TAG:-latest}
+  llm-textgen-openeuler:
+    build:
+      dockerfile: comps/llms/src/text-generation/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/llm-textgen:${TAG:-latest}-openeuler
   llm-textgen-gaudi:
     build:
       dockerfile: comps/llms/src/text-generation/Dockerfile.intel_hpu
