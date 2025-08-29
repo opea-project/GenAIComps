@@ -35,6 +35,7 @@ function start_service() {
 }
 
 function validate_microservice() {
+    # Test create API
     result=$(curl -X 'POST' \
   http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/create \
   -H 'accept: application/json' \
@@ -43,7 +44,24 @@ function validate_microservice() {
     "prompt_text": "test prompt", "user": "test"
 }')
     echo $result
+    id=""
     if [[ ${#result} -eq 26 ]]; then
+        echo "Correct result."
+        id="${result//\"/}"
+    else
+        echo "Incorrect result."
+        docker logs promptregistry-mongo-server
+        exit 1
+    fi
+
+    # Test get_by_id API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "prompt_id": "'${id}'"}')
+    echo $result
+    if [[ $result == '{"prompt_text":"'* ]]; then
         echo "Correct result."
     else
         echo "Incorrect result."
@@ -51,6 +69,50 @@ function validate_microservice() {
         exit 1
     fi
 
+    # Test get_by_user API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test"}')
+    echo $result
+    if [[ $result == '[{"prompt_text":"'* ]]; then
+        echo "Correct result."
+    else
+        echo "Incorrect result."
+        docker logs promptregistry-mongo-server
+        exit 1
+    fi
+
+    # Test search API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "prompt_text": "test prompt"}')
+    echo $result
+    if [[ $result == '[{"id":"'* ]]; then
+        echo "Correct result."
+    else
+        echo "Incorrect result."
+        docker logs promptregistry-mongo-server
+        exit 1
+    fi
+
+    # Test delete API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/delete \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "prompt_id": "'${id}'"}')
+    echo $result
+    if [[ $result == "true" ]]; then
+        echo "Correct result."
+    else
+        echo "Incorrect result."
+        docker logs promptregistry-mongo-server
+        exit 1
+    fi
 }
 
 function stop_docker() {

@@ -35,6 +35,7 @@ function start_service() {
 }
 
 function validate_microservice() {
+    # Test create API
     result=$(curl -X 'POST' \
   http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/create \
   -H 'accept: application/json' \
@@ -45,7 +46,24 @@ function validate_microservice() {
   }
 }')
     echo $result
+    id=""
     if [[ ${#result} -eq 26 ]]; then
+        echo "Result correct."
+        id="${result//\"/}"
+    else
+        echo "Result wrong."
+        docker logs chathistory-mongo-server
+        exit 1
+    fi
+
+    # Test get_by_id API
+    result=$(curl -X 'POST' \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "id": "'${id}'"}')
+    echo $result
+    if [[ $result == *'{"messages":"test Messages"'* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
@@ -53,6 +71,55 @@ function validate_microservice() {
         exit 1
     fi
 
+    # Test get_by_user API
+    result=$(curl -X 'POST' \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test"}')
+    echo $result
+    if [[ $result == '[{"first_query":"test Messages"'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs chathistory-mongo-server
+        exit 1
+    fi
+
+    # Test update API
+    result=$(curl -X 'POST' \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/create \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "data": {
+    "messages": "test Messages update", "user": "test"
+  }, 
+  "id": "'${id}'"
+}')
+    echo $result
+    if [[ $result == *'true'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs chathistory-mongo-server
+        exit 1
+    fi
+
+    # Test delete API
+    result=$(curl -X 'POST' \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/delete \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "id": "'${id}'"}')
+    echo $result
+    if [[ $result == *'true'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs chathistory-mongo-server
+        exit 1
+    fi
 }
 
 function stop_docker() {

@@ -46,7 +46,7 @@ class MongoDBStore(OpeaStore):
             bool: True if the connection is healthy, False otherwise.
         """
         try:
-            self.collection.count_documents()
+            self.collection.count_documents({}, limit=1)
             logger.info("MongoDB Health check succeed!")
             return True
         except Exception as e:
@@ -64,9 +64,10 @@ class MongoDBStore(OpeaStore):
             bool | dict: The result of the save operation.
         """
         try:
-            inserted_data = await self.collection.insert_one(
-                doc.model_dump(by_alias=True, mode="json", exclude={"doc_id"})
-            )
+            if "doc_id" in doc:
+                del doc["doc_id"]
+
+            inserted_data = await self.collection.insert_one(doc)
             doc_id = str(inserted_data.inserted_id)
             logger.info(f"Inserted document: {doc_id}")
             return doc_id
@@ -87,7 +88,7 @@ class MongoDBStore(OpeaStore):
         """
         try:
             inserted_data = await self.collection.insert_many(
-                doc.model_dump(by_alias=True, mode="json", exclude={"doc_id"}) for doc in docs
+               [{key: value for key, value in doc.items() if key != "doc_id"} for doc in docs]
             )
             doc_ids = str(inserted_data.inserted_ids)
             logger.info(f"Inserted documents: {doc_ids}")
@@ -111,14 +112,14 @@ class MongoDBStore(OpeaStore):
             doc_id = doc.get("doc_id", None)
             _id = ObjectId(doc_id)
             first_query = doc.get("first_query", None)
-            data = doc.get("data", None)
+            data_dict = doc.get("data", None)
             if first_query:
-                data = {"data": data.model_dump(by_alias=True, mode="json"), "first_query": first_query}
+                data = {"data": data_dict, "first_query": first_query}
             else:
-                data = {"data": data.model_dump(by_alias=True, mode="json")}
+                data = {"data": data_dict}
 
             updated_result = await self.collection.update_one(
-                {"_id": _id, "data.user": self.user},
+                {"_id": _id, "user": self.user},
                 {"$set": data},
             )
 
@@ -166,11 +167,11 @@ class MongoDBStore(OpeaStore):
         """
         try:
             _id = ObjectId(id)
-            response: dict | None = await self.collection.find_one({"_id": _id, "chat_data.user": self.user})
+            response: dict | None = await self.collection.find_one({"_id": _id, "user": self.user})
             if response:
                 del response["_id"]
                 logger.info(f"Retrieved document: {id}")
-                return response["data"]
+                return response
             return None
 
         except BsonError.InvalidId as e:
@@ -195,10 +196,10 @@ class MongoDBStore(OpeaStore):
             responses = []
             for id in ids:
                 _id = ObjectId(id)
-                response: dict | None = await self.collection.find_one({"_id": _id, "chat_data.user": self.user})
+                response: dict | None = await self.collection.find_one({"_id": _id, "user": self.user})
                 if response:
                     del response["_id"]
-                    responses.append(response["data"])
+                    responses.append(response)
             logger.info(f"Retrieved documents: {response}")
             return responses
 
@@ -227,9 +228,8 @@ class MongoDBStore(OpeaStore):
             responses = []
             if user is None:
                 user = self.user
-            cursor = await self.collection.find({"user": user}, {"data": 0})
-
-            async for document in cursor:
+                
+            async for document in self.collection.find({"user": user}, {"data": 0}):
                 document["doc_id"] = str(document["_id"])
                 del document["_id"]
                 responses.append(document)
@@ -256,7 +256,7 @@ class MongoDBStore(OpeaStore):
         """
         try:
             _id = ObjectId(id)
-            result = await self.collection.delete_one({"_id": _id, "chat_data.user": self.user})
+            result = await self.collection.delete_one({"_id": _id, "user": self.user})
 
             delete_count = result.deleted_count
             logger.info(f"Deleted {delete_count} documents!")
@@ -286,7 +286,7 @@ class MongoDBStore(OpeaStore):
             Exception: If any errors occurs during delete process.
         """
         try:
-            result = await self.collection.delete_many({"_id": {"$in": ids}, "chat_data.user": self.user})
+            result = await self.collection.delete_many({"_id": {"$in": ids}, "user": self.user})
 
             delete_count = result.deleted_count
             logger.info(f"Deleted {delete_count} documents!")
@@ -317,15 +317,17 @@ class MongoDBStore(OpeaStore):
             # Create a text index if not already created
             self.collection.create_index([("$**", "text")])
             # Perform text search
-            results = await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}})
-            sorted_results = results.sort([("score", {"$meta": "textScore"})])
+            # results = await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}})
+            # sorted_results = results.sort([("score", {"$meta": "textScore"})])
 
-            # Return a list of top 5 most relevant data
-            relevant_data = await sorted_results.to_list(length=5)
+            # # Return a list of top 5 most relevant data
+            # relevant_data = await sorted_results.to_list(length=5)
+
+            relevant_data = await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}}).sort([("score", {"$meta": "textScore"})]).to_list(length=5)
 
             # Serialize data and return
             serialized_data = [
-                {"id": str(doc["_id"]), "data": doc["data"], "user": doc["user"], "score": doc["score"]}
+                {"id": str(doc["_id"]), "data": doc["prompt_text"], "user": doc["user"], "score": doc["score"]}
                 for doc in relevant_data
             ]
 

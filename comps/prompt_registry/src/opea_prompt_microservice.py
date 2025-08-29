@@ -1,43 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 import os
-from typing import Optional
-
-from prompt_store import PromptStore
-from pydantic import BaseModel
 
 from comps import CustomLogger, ServiceType
 from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
+from comps.cores.storages.models import PromptCreate, PromptId
+from comps.prompt_registry.src.integrations.data_store import save, get, delete
 
 logger = CustomLogger("prompt_registry")
 logflag = os.getenv("LOGFLAG", False)
 enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
-
-
-class PromptCreate(BaseModel):
-    """This class represents the data model for creating and storing a new prompt in the database.
-
-    Attributes:
-        prompt_text (str): The text content of the prompt.
-        user (str): The user or creator of the prompt.
-    """
-
-    prompt_text: str
-    user: str
-
-
-class PromptId(BaseModel):
-    """This class represent the data model for retrieve prompt stored in database.
-
-    Attributes:
-        user (str): The user of the requested prompt.
-        prompt_id (str): The prompt_id of prompt to be retrieved from database.
-    """
-
-    user: str
-    prompt_id: Optional[str] = None
-    prompt_text: Optional[str] = None
 
 
 @register_microservice(
@@ -63,9 +36,7 @@ async def create_prompt(prompt: PromptCreate):
     if logflag:
         logger.info(prompt)
     try:
-        prompt_store = PromptStore(prompt.user)
-        prompt_store.initialize_storage()
-        response = await prompt_store.save_prompt(prompt)
+        response = await save(prompt)
         if logflag:
             logger.info(response)
         return response
@@ -98,14 +69,7 @@ async def get_prompt(prompt: PromptId):
     if logflag:
         logger.info(prompt)
     try:
-        prompt_store = PromptStore(prompt.user)
-        prompt_store.initialize_storage()
-        if prompt.prompt_id is not None:
-            response = await prompt_store.get_user_prompt_by_id(prompt.prompt_id)
-        elif prompt.prompt_text:
-            response = await prompt_store.prompt_search(prompt.prompt_text)
-        else:
-            response = await prompt_store.get_all_prompt_of_user()
+        response = await get(prompt)
         if logflag:
             logger.info(response)
         return response
@@ -138,12 +102,7 @@ async def delete_prompt(prompt: PromptId):
     if logflag:
         logger.info(prompt)
     try:
-        prompt_store = PromptStore(prompt.user)
-        prompt_store.initialize_storage()
-        if prompt.prompt_id is None:
-            raise Exception("Prompt id is required.")
-        else:
-            response = await prompt_store.delete_prompt(prompt.prompt_id)
+        response = await delete(prompt)
         if logflag:
             logger.info(response)
         return response

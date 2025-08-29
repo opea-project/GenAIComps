@@ -24,6 +24,7 @@ services:
       http_proxy: ${http_proxy}
       no_proxy: ${no_proxy}
       https_proxy: ${https_proxy}
+      OPEA_STORE_NAME: ${OPEA_STORE_NAME:-mongodb}
       MONGO_HOST: ${MONGO_HOST}
       MONGO_PORT: ${MONGO_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
