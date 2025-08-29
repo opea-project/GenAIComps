@@ -94,7 +94,7 @@ function validate_microservice() {
   -d '{
   "data": {
     "messages": "test Messages update", "user": "test"
-  }, 
+  },
   "id": "'${id}'"
 }')
     echo $result

@@ -1,11 +1,15 @@
-from fastapi import HTTPException
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional
+
+from fastapi import HTTPException
 from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-from comps.cores.storages.models import ChatFeedback, FeedbackId, FeedbackData
+from comps.cores.storages.models import ChatFeedback, FeedbackData, FeedbackId
 from comps.cores.storages.stores import get_store
+
 
 class ChatFeedbackDto(BaseModel):
     chat_data: ChatCompletionRequest
@@ -14,9 +18,10 @@ class ChatFeedbackDto(BaseModel):
     feedback_id: Optional[str] = None
     user: str
 
+
 def _preprocess(feedback: ChatFeedback) -> dict:
     """Converts a ChatFeedback object to a dictionary suitable for storage.
-    
+
     Args:
         feedback (ChatFeedback): The ChatFeedback object to be converted.
 
@@ -28,22 +33,24 @@ def _preprocess(feedback: ChatFeedback) -> dict:
         "data": feedback.feedback_data.model_dump(by_alias=True, mode="json"),
         "chat_id": feedback.chat_id,
         "doc_id": feedback.feedback_id,
-        "user": feedback.chat_data.user
+        "user": feedback.chat_data.user,
     }
 
-def _check_user_info(feedback: ChatFeedback|FeedbackId):
+
+def _check_user_info(feedback: ChatFeedback | FeedbackId):
     """Checks if the user information is provided in the document.
 
     Args:
         feedback (ChatFeedback|FeedbackId): The feedback to be checked.
-        
+
     Raises:
         HTTPException: If the user information is missing.
     """
     user = feedback.chat_data.user if isinstance(feedback, ChatFeedback) else feedback.user
     if user is None or (isinstance(user, str) and user.strip() == ""):
         raise HTTPException(status_code=400, detail="User information is required but not provided")
-    
+
+
 async def save_or_update(feedback: ChatFeedback):
     """Saves a new feedback record or updates an existing one.
 
@@ -66,7 +73,8 @@ async def save_or_update(feedback: ChatFeedback):
         return await store.asave_document(_preprocess(feedback))
     else:
         return await store.aupdate_document(_preprocess(feedback))
-    
+
+
 async def get(feedback: FeedbackId):
     """Retrieves feedback record(s) based on the provided FeedbackId.
 
@@ -90,7 +98,8 @@ async def get(feedback: FeedbackId):
         return await store.aget_document_by_id(feedback.feedback_id)
     else:
         return await store.aget_documents_by_user(feedback.user)
-    
+
+
 async def delete(feedback: FeedbackId):
     """Deletes a specific feedback record from the store.
 

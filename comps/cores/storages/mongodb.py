@@ -88,7 +88,7 @@ class MongoDBStore(OpeaStore):
         """
         try:
             inserted_data = await self.collection.insert_many(
-               [{key: value for key, value in doc.items() if key != "doc_id"} for doc in docs]
+                [{key: value for key, value in doc.items() if key != "doc_id"} for doc in docs]
             )
             doc_ids = str(inserted_data.inserted_ids)
             logger.info(f"Inserted documents: {doc_ids}")
@@ -228,7 +228,7 @@ class MongoDBStore(OpeaStore):
             responses = []
             if user is None:
                 user = self.user
-                
+
             async for document in self.collection.find({"user": user}, {"data": 0}):
                 document["doc_id"] = str(document["_id"])
                 del document["_id"]
@@ -323,7 +323,11 @@ class MongoDBStore(OpeaStore):
             # # Return a list of top 5 most relevant data
             # relevant_data = await sorted_results.to_list(length=5)
 
-            relevant_data = await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}}).sort([("score", {"$meta": "textScore"})]).to_list(length=5)
+            relevant_data = (
+                await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}})
+                .sort([("score", {"$meta": "textScore"})])
+                .to_list(length=5)
+            )
 
             # Serialize data and return
             serialized_data = [

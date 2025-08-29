@@ -6,7 +6,7 @@ from comps import CustomLogger, ServiceType
 from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.storages.models import PromptCreate, PromptId
-from comps.prompt_registry.src.integrations.data_store import save, get, delete
+from comps.prompt_registry.src.integrations.data_store import delete, get, save
 
 logger = CustomLogger("prompt_registry")
 logflag = os.getenv("LOGFLAG", False)

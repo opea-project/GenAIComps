@@ -151,10 +151,10 @@ class OpeaStore(ABC):
             dict: The retrieved document data.
         """
         raise NotImplementedError("get_document_by_id method must be implemented by subclasses.")
-    
+
     async def aget_documents_by_user(self, user: str = None, **kwargs) -> list[dict] | None:
         """Asynchronously retrieve all documents associated with a specific user.
-        
+
         Args:
             user (str): The username/identifier for whom the documents are to be retrieved.
             **kwargs: Additional arguments for filtering or pagination.

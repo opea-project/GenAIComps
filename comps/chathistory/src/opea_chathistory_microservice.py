@@ -3,16 +3,18 @@
 import os
 
 from fastapi import HTTPException
+
 from comps import CustomLogger
+from comps.chathistory.src.integrations.data_store import delete, get, save_or_update
 from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
-from comps.cores.storages.models import ChatMessage, ChatId
+from comps.cores.storages.models import ChatId, ChatMessage
 from comps.cores.storages.stores import get_store_name
-from comps.chathistory.src.integrations.data_store import save_or_update, get, delete
 
 logger = CustomLogger(f"chathistory_{get_store_name()}")
 logflag = os.getenv("LOGFLAG", False)
 enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 
 def get_first_string(value):
     if isinstance(value, str):
@@ -25,7 +27,8 @@ def get_first_string(value):
                 # Get the first value from the dictionary
                 first_key = next(iter(first_dict))
                 return first_dict[first_key]
-            
+
+
 @register_microservice(
     name="opea_service@chathistory_mongo",
     endpoint="/v1/chathistory/create",
