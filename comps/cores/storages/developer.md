@@ -17,9 +17,9 @@ To add a new storage backend, follow these steps:
 ## Example
 
 ```python
-from comps.cores.storage import opea_store
+from comps.cores.common.storage import OpeaStore
 
-store = opea_store(name="arangodb")  # "redis", "mongodb", etc.
+store = OpeaStore(name="arangodb")  # "redis", "mongodb", etc.
 
 result = store.save_document({"foo": "bar"})
 

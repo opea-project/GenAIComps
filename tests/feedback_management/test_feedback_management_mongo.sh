@@ -35,6 +35,7 @@ function start_service() {
 }
 
 function validate_microservice() {
+    # Test create API
     result=$(curl -X 'POST' \
   http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/create \
   -H 'accept: application/json' \
@@ -67,10 +68,99 @@ function validate_microservice() {
   }
 }')
     echo $result
+    id=""
     if [[ ${#result} -eq 26 ]]; then
+        echo "Correct result."
+        id="${result//\"/}"
+    else
+        echo "Incorrect result."
+        docker logs feedbackmanagement-mongo-server
+        exit 1
+    fi
+
+    # Test update API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/create \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "chat_id": "66445d4f71c7eff23d44f78d",
+  "chat_data": {
+    "user": "test",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are helpful assistant"
+      },
+      {
+        "role": "user",
+        "content": "hi",
+        "time": "1724915247"
+      },
+      {
+        "role": "assistant",
+        "content": "Hi, may I help you?",
+        "time": "1724915249"
+      }
+    ]
+  },
+  "feedback_data": {
+    "comment": "Fair and Moderate answer",
+    "rating": 2,
+    "is_thumbs_up": true
+  },
+  "feedback_id": "'${id}'"
+}')
+    echo $result
+    if [[ $result == "true" ]]; then
         echo "Correct result."
     else
         echo "Incorrect result."
+        docker logs feedbackmanagement-mongo-server
+        exit 1
+    fi
+
+    # Test get_by_user API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test"}')
+    echo $result
+    if [[ $result == '[{"chat_data":{"messages":'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs feedbackmanagement-mongo-server
+        exit 1
+    fi
+
+    # Test get_by_id API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "feedback_id": "'${id}'"}')
+    echo $result
+    if [[ $result == '{"chat_data":{"messages":'*'"rating":2'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs feedbackmanagement-mongo-server
+        exit 1
+    fi
+
+    # Test delete API
+    result=$(curl -X 'POST' \
+  http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/delete \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "feedback_id": "'${id}'"}')
+    echo $result
+    if [[ $result == 'true' ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
         docker logs feedbackmanagement-mongo-server
         exit 1
     fi

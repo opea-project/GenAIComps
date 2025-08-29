@@ -9,6 +9,7 @@ This README provides setup guides and all the necessary information about the Fe
 ```bash
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
+export OPEA_STORE_NAME="mongodb"
 export MONGO_HOST=${MONGO_HOST}
 export MONGO_HOST=27017
 export DB_NAME=${DB_NAME}
