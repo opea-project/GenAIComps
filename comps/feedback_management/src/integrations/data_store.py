@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatFeedback, FeedbackData, FeedbackId
-from comps.cores.storages.stores import get_store, column_to_id, id_to_column
+from comps.cores.storages.stores import column_to_id, get_store, id_to_column
 
 
 class ChatFeedbackDto(BaseModel):
@@ -32,6 +32,7 @@ def _prepersist(feedback: ChatFeedback) -> dict:
     data_dict = column_to_id("feedback_id", data_dict)
     return data_dict
 
+
 def _post_getby_id(rs: dict) -> dict:
     """Processes a single feedback record after retrieval by ID.
 
@@ -45,6 +46,7 @@ def _post_getby_id(rs: dict) -> dict:
     """
     rs = id_to_column("feedback_id", rs)
     return rs
+
 
 def _post_getby_user(rss: list) -> list:
     """Processes multiple feedback records after retrieval by user.
@@ -60,6 +62,7 @@ def _post_getby_user(rss: list) -> list:
     for rs in rss:
         rs = id_to_column("feedback_id", rs)
     return rss
+
 
 def _check_user_info(feedback: ChatFeedback | FeedbackId):
     """Checks if the user information is provided in the document.
@@ -124,6 +127,7 @@ async def get(feedback: FeedbackId):
     else:
         rss = await store.asearch(key="chat_data.user", value=feedback.user)
         return _post_getby_user(rss)
+
 
 async def delete(feedback: FeedbackId):
     """Deletes a specific feedback record from the store.

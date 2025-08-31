@@ -52,7 +52,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.error(f"MongoDB Health check failed: {e}")
             return False
-        
+
     async def asave_document(self, doc: dict, **kwargs) -> bool | dict:
         """Stores a new document into the MongoDB collection.
 
@@ -281,7 +281,7 @@ class MongoDBStore(OpeaStore):
                 query = {key: {"$regex": value, "$options": "i"}}
             else:
                 raise ValueError("Unsupported search type. Use 'exact' or 'contains'.")
-            
+
             rss = self.collection.find(query)
             if rss:
                 async for rs in rss:
