@@ -14,6 +14,11 @@ import os
 
 from comps.cores.common.storage import OpeaStore
 
+STORE_ID_COLS = {
+    "mongodb": "_id",
+    "arangodb": "_id",
+    "redis": "ID",
+}
 
 def get_store_name() -> str:
     """Retrieves the configured storage backend name from environment variables.
@@ -38,6 +43,10 @@ def get_store_name() -> str:
         raise Exception(
             "Environment variable 'OPEA_STORE_NAME' is not set. "
             "Please configure it with a supported storage backend name (mongodb, arangodb, redis)."
+        )
+    if store_name not in STORE_ID_COLS.keys():
+        raise Exception(
+            f"Storage backend '{store_name}' is not supported. " f"Supported backends are: mongodb, arangodb, redis"
         )
     return store_name.lower()
 
@@ -189,4 +198,60 @@ def get_store(user: str) -> OpeaStore:
         raise Exception(
             f"Failed to establish a healthy connection to {name} storage backend. "
             f"Please check your configuration and ensure the storage service is running."
+        )
+    
+def column_to_id(col_name: str, doc: dict) -> dict:
+    """Formats the document's ID field to match store's requirements.
+
+    Args:
+        col_name (str): The name of the ID column. 
+        doc (dict): The document to be formatted.
+    Returns:
+        dict: The formatted document with the correct ID field.
+    """
+    store_name = get_store_name()
+    if col_name and col_name in doc:
+        doc[STORE_ID_COLS[store_name]] = doc.pop(col_name)
+    return doc
+
+def id_to_column(col_name: str, doc: dict) -> dict:
+    """
+    Formats the document's ID field from store's requirements 
+    to the application's requirements.
+
+    Args:
+        col_name (str): The name of the ID column. 
+        doc (dict): The document to be formatted.
+    Returns:
+        dict: The formatted document with the correct ID field.
+    """
+    store_name = get_store_name()
+    if col_name and STORE_ID_COLS[store_name] in doc:
+        doc[col_name] = str(doc.pop(STORE_ID_COLS[store_name]))
+    return doc
+
+def get_id_col_name() -> str:
+    """Retrieves the ID column name for the configured storage backend.
+
+    This function returns the appropriate ID column name based on the
+    currently configured storage backend. It abstracts away the differences
+    in ID field naming conventions across different storage systems.
+
+    Returns:
+        str: The ID column name used by the configured storage backend.
+
+    Raises:
+        Exception: If the configured storage backend is not supported.
+
+    Example:
+        >>> os.environ['OPEA_STORE_NAME'] = 'mongodb'
+        >>> get_id_col_name()
+        '_id'
+    """
+    store_name = get_store_name()
+    if store_name in STORE_ID_COLS:
+        return STORE_ID_COLS[store_name]
+    else:
+        raise Exception(
+            f"Storage backend '{store_name}' is not supported. " f"Supported backends are: mongodb, arangodb, redis"
         )

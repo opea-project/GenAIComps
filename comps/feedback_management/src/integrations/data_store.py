@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatFeedback, FeedbackData, FeedbackId
-from comps.cores.storages.stores import get_store
+from comps.cores.storages.stores import get_store, column_to_id, id_to_column
 
 
 class ChatFeedbackDto(BaseModel):
@@ -19,23 +19,47 @@ class ChatFeedbackDto(BaseModel):
     user: str
 
 
-def _preprocess(feedback: ChatFeedback) -> dict:
-    """Converts a ChatFeedback object to a dictionary suitable for storage.
+def _prepersist(feedback: ChatFeedback) -> dict:
+    """Converts a ChatFeedback object to a dictionary suitable for persistence.
 
     Args:
         feedback (ChatFeedback): The ChatFeedback object to be converted.
 
     Returns:
-        dict: A dictionary representation of the ChatFeedback, ready for storage.
+        dict: A dictionary representation of the ChatFeedback, ready for persistence.
     """
-    return {
-        "chat_data": feedback.chat_data.model_dump(by_alias=True, mode="json"),
-        "data": feedback.feedback_data.model_dump(by_alias=True, mode="json"),
-        "chat_id": feedback.chat_id,
-        "doc_id": feedback.feedback_id,
-        "user": feedback.chat_data.user,
-    }
+    data_dict = feedback.model_dump(by_alias=True, mode="json")
+    data_dict = column_to_id("feedback_id", data_dict)
+    return data_dict
 
+def _post_getby_id(rs: dict) -> dict:
+    """Processes a single feedback record after retrieval by ID.
+
+    Converts the internal 'id' field back to 'feedback_id' for external use.
+
+    Args:
+        rs (dict): The raw feedback record dictionary from the store.
+
+    Returns:
+        dict: The processed feedback record with proper field naming.
+    """
+    rs = id_to_column("feedback_id", rs)
+    return rs
+
+def _post_getby_user(rss: list) -> list:
+    """Processes multiple feedback records after retrieval by user.
+
+    Converts the internal 'id' field back to 'feedback_id' for each record in the list.
+
+    Args:
+        rss (list): A list of raw feedback record dictionaries from the store.
+
+    Returns:
+        list: The list of processed feedback records with proper field naming.
+    """
+    for rs in rss:
+        rs = id_to_column("feedback_id", rs)
+    return rss
 
 def _check_user_info(feedback: ChatFeedback | FeedbackId):
     """Checks if the user information is provided in the document.
@@ -70,9 +94,9 @@ async def save_or_update(feedback: ChatFeedback):
     _check_user_info(feedback)
     store = get_store(feedback.chat_data.user)
     if feedback.feedback_id is None:
-        return await store.asave_document(_preprocess(feedback))
+        return await store.asave_document(_prepersist(feedback))
     else:
-        return await store.aupdate_document(_preprocess(feedback))
+        return await store.aupdate_document(_prepersist(feedback))
 
 
 async def get(feedback: FeedbackId):
@@ -95,10 +119,11 @@ async def get(feedback: FeedbackId):
     _check_user_info(feedback)
     store = get_store(feedback.user)
     if feedback.feedback_id:
-        return await store.aget_document_by_id(feedback.feedback_id)
+        rs = await store.aget_document_by_id(feedback.feedback_id)
+        return _post_getby_id(rs)
     else:
-        return await store.aget_documents_by_user(feedback.user)
-
+        rss = await store.asearch(key="chat_data.user", value=feedback.user)
+        return _post_getby_user(rss)
 
 async def delete(feedback: FeedbackId):
     """Deletes a specific feedback record from the store.

@@ -9,6 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
 export MONGO_PORT=27017
+export OPEA_STORE_NAME="mongodb"
 export DB_NAME=${DB_NAME:-"Prompts"}
 export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
 
@@ -61,7 +62,7 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test", "prompt_id": "'${id}'"}')
     echo $result
-    if [[ $result == '{"prompt_text":"'* ]]; then
+    if [[ "${result//\"/}" == "test prompt" ]]; then
         echo "Correct result."
     else
         echo "Incorrect result."
@@ -91,7 +92,7 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test", "prompt_text": "test prompt"}')
     echo $result
-    if [[ $result == '[{"id":"'* ]]; then
+    if [[ $result == '[{"prompt_text":"'* ]]; then
         echo "Correct result."
     else
         echo "Incorrect result."

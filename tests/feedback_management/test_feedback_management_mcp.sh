@@ -9,6 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
 export MONGO_PORT=27017
+export OPEA_STORE_NAME="mongodb"
 export DB_NAME=${DB_NAME:-"Feedback"}
 export COLLECTION_NAME=${COLLECTION_NAME:-"test_mcp"}
 

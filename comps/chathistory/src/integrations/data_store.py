@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatId, ChatMessage
-from comps.cores.storages.stores import get_store
+from comps.cores.storages.stores import get_store, column_to_id, id_to_column
 
 
 class ChatMessageDto(BaseModel):
@@ -18,26 +18,44 @@ class ChatMessageDto(BaseModel):
     user: Optional[str] = None
 
 
-def _preprocess(document: ChatMessage) -> dict:
-    """Converts a ChatMessage object to a dictionary suitable for storage.
+def _prepersist(document: ChatMessage) -> dict:
+    """Converts a ChatMessage object to a dictionary suitable for persistence.
 
     Args:
         document (ChatMessage): The ChatMessage object to be converted.
 
     Returns:
-        dict: A dictionary representation of the ChatMessage, ready for storage.
+        dict: A dictionary representation of the ChatMessage, ready for persistence.
     """
-    return {
-        "data": document.data.model_dump(by_alias=True, mode="json"),
-        "first_query": document.first_query,
-        "doc_id": document.id,
-        "user": document.data.user,
-    }
+    data_dict = document.model_dump(by_alias=True, mode="json")
+    data_dict = column_to_id("id", data_dict)
+    return data_dict
 
+def _post_getby_id(rs: dict) -> dict:
+    """Post-processes a document retrieved by ID from the store.
 
-def _postprocess(rs: dict) -> dict:
-    return rs.get("data")
+    Args:
+        rs (dict): The raw document dictionary from the store.
 
+    Returns:
+        dict: The processed document data, or None if the document doesn't exist.
+    """
+    rs = id_to_column("id", rs)
+    return rs.get("data") if rs else None
+
+def _post_getby_user(rss: list) -> list:
+    """Post-processes a list of documents retrieved by user from the store.
+
+    Args:
+        rss (list): A list of raw document dictionaries from the store.
+
+    Returns:
+        list: A list of processed documents with the 'data' field removed.
+    """
+    for rs in rss:
+        rs = id_to_column("id", rs)
+        rs.pop("data")
+    return rss
 
 def _check_user_info(document: ChatMessage | ChatId):
     """Checks if the user information is provided in the document.
@@ -66,9 +84,9 @@ async def save_or_update(document: ChatMessage):
     _check_user_info(document)
     store = get_store(document.data.user)
     if document.id:
-        return await store.aupdate_document(_preprocess(document))
+        return await store.aupdate_document(_prepersist(document))
     else:
-        return await store.asave_document(_preprocess(document))
+        return await store.asave_document(_prepersist(document))
 
 
 async def get(document: ChatId):
@@ -87,10 +105,11 @@ async def get(document: ChatId):
     _check_user_info(document)
     store = get_store(document.user)
     if document.id is None:
-        return await store.aget_documents_by_user(document.user)
+        rss = await store.asearch(key="data.user", value=document.user)
+        return _post_getby_user(rss)
     else:
         rs = await store.aget_document_by_id(document.id)
-        return _postprocess(rs)
+        return _post_getby_id(rs)
 
 
 async def delete(document: ChatId):

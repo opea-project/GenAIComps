@@ -52,7 +52,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.error(f"MongoDB Health check failed: {e}")
             return False
-
+        
     async def asave_document(self, doc: dict, **kwargs) -> bool | dict:
         """Stores a new document into the MongoDB collection.
 
@@ -64,12 +64,10 @@ class MongoDBStore(OpeaStore):
             bool | dict: The result of the save operation.
         """
         try:
-            if "doc_id" in doc:
-                del doc["doc_id"]
-
+            doc.pop("_id", None)
             inserted_data = await self.collection.insert_one(doc)
             doc_id = str(inserted_data.inserted_id)
-            logger.info(f"Inserted document: {doc_id}")
+            logger.debug(f"Inserted document: {doc_id}")
             return doc_id
 
         except Exception as e:
@@ -88,10 +86,10 @@ class MongoDBStore(OpeaStore):
         """
         try:
             inserted_data = await self.collection.insert_many(
-                [{key: value for key, value in doc.items() if key != "doc_id"} for doc in docs]
+                [{key: value for key, value in doc.items() if key != "_id"} for doc in docs]
             )
             doc_ids = str(inserted_data.inserted_ids)
-            logger.info(f"Inserted documents: {doc_ids}")
+            logger.debug(f"Inserted documents: {doc_ids}")
             return doc_ids
 
         except Exception as e:
@@ -109,22 +107,15 @@ class MongoDBStore(OpeaStore):
             bool | dict: The result of the update operation.
         """
         try:
-            doc_id = doc.get("doc_id", None)
+            doc_id = doc.pop("_id", None)
             _id = ObjectId(doc_id)
-            first_query = doc.get("first_query", None)
-            data_dict = doc.get("data", None)
-            if first_query:
-                data = {"data": data_dict, "first_query": first_query}
-            else:
-                data = {"data": data_dict}
-
             updated_result = await self.collection.update_one(
-                {"_id": _id, "user": self.user},
-                {"$set": data},
+                {"_id": _id},
+                {"$set": doc},
             )
 
             if updated_result.modified_count == 1:
-                logger.info(f"Updated document: {doc_id}")
+                logger.debug(f"Updated document: {doc_id}")
                 return True
             else:
                 raise Exception("Not able to update the data.")
@@ -167,10 +158,9 @@ class MongoDBStore(OpeaStore):
         """
         try:
             _id = ObjectId(id)
-            response: dict | None = await self.collection.find_one({"_id": _id, "user": self.user})
+            response: dict | None = await self.collection.find_one({"_id": _id})
             if response:
-                del response["_id"]
-                logger.info(f"Retrieved document: {id}")
+                logger.debug(f"Retrieved document: {id}")
                 return response
             return None
 
@@ -196,45 +186,15 @@ class MongoDBStore(OpeaStore):
             responses = []
             for id in ids:
                 _id = ObjectId(id)
-                response: dict | None = await self.collection.find_one({"_id": _id, "user": self.user})
+                response: dict | None = await self.collection.find_one({"_id": _id})
                 if response:
-                    del response["_id"]
                     responses.append(response)
-            logger.info(f"Retrieved documents: {response}")
+            logger.debug(f"Retrieved documents: {response}")
             return responses
 
         except BsonError.InvalidId as e:
             logger.info(e)
             raise KeyError(e)
-
-        except Exception as e:
-            logger.info(e)
-            raise Exception(e)
-
-    async def aget_documents_by_user(self, user: str = None, **kwargs) -> list[dict] | None:
-        """Asynchronously retrieve all documents for a specific user.
-
-        Args:
-            user (str): The unique identifier for the user.
-            **kwargs: Additional arguments for retrieving the documents.
-
-        Returns:
-            list[dict] | None: List of dict of feedback data of the user, None otherwise.
-
-        Raises:
-            Exception: If there is an error while retrieving data.
-        """
-        try:
-            responses = []
-            if user is None:
-                user = self.user
-
-            async for document in self.collection.find({"user": user}, {"data": 0}):
-                document["doc_id"] = str(document["_id"])
-                del document["_id"]
-                responses.append(document)
-            logger.info(f"Retrieved documents: {responses}")
-            return responses
 
         except Exception as e:
             logger.info(e)
@@ -256,7 +216,7 @@ class MongoDBStore(OpeaStore):
         """
         try:
             _id = ObjectId(id)
-            result = await self.collection.delete_one({"_id": _id, "user": self.user})
+            result = await self.collection.delete_one({"_id": _id})
 
             delete_count = result.deleted_count
             logger.info(f"Deleted {delete_count} documents!")
@@ -286,7 +246,7 @@ class MongoDBStore(OpeaStore):
             Exception: If any errors occurs during delete process.
         """
         try:
-            result = await self.collection.delete_many({"_id": {"$in": ids}, "user": self.user})
+            result = await self.collection.delete_many({"_id": {"$in": ids}})
 
             delete_count = result.deleted_count
             logger.info(f"Deleted {delete_count} documents!")
@@ -314,29 +274,21 @@ class MongoDBStore(OpeaStore):
             list[dict]: A list of matching documents.
         """
         try:
-            # Create a text index if not already created
-            self.collection.create_index([("$**", "text")])
-            # Perform text search
-            # results = await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}})
-            # sorted_results = results.sort([("score", {"$meta": "textScore"})])
+            responses = []
+            if search_type == "exact":
+                query = {key: value}
+            elif search_type == "contains":
+                query = {key: {"$regex": value, "$options": "i"}}
+            else:
+                raise ValueError("Unsupported search type. Use 'exact' or 'contains'.")
+            
+            rss = self.collection.find(query)
+            if rss:
+                async for rs in rss:
 
-            # # Return a list of top 5 most relevant data
-            # relevant_data = await sorted_results.to_list(length=5)
-
-            relevant_data = (
-                await self.collection.find({"$text": {"$search": key}}, {"score": {"$meta": "textScore"}})
-                .sort([("score", {"$meta": "textScore"})])
-                .to_list(length=5)
-            )
-
-            # Serialize data and return
-            serialized_data = [
-                {"id": str(doc["_id"]), "data": doc["prompt_text"], "user": doc["user"], "score": doc["score"]}
-                for doc in relevant_data
-            ]
-
-            logger.info(f"Search results: {serialized_data}")
-            return serialized_data
+                    responses.append(rs)
+            logger.debug(f"Search results: {responses}")
+            return responses
 
         except Exception as e:
             logger.info(e)

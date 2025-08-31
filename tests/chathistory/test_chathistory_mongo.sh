@@ -11,6 +11,7 @@ export MONGO_HOST=${ip_address}
 export MONGO_PORT=27017
 export DB_NAME=${DB_NAME:-"Conversations"}
 export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
+export OPEA_STORE_NAME="mongodb"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -71,7 +72,7 @@ function validate_microservice() {
         exit 1
     fi
 
-    # Test get_by_user API
+        # Test get_by_user API
     result=$(curl -X 'POST' \
   http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/get \
   -H 'accept: application/json' \
@@ -99,6 +100,21 @@ function validate_microservice() {
 }')
     echo $result
     if [[ $result == *'true'* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs chathistory-mongo-server
+        exit 1
+    fi
+
+    # Test get_by_id API
+    result=$(curl -X 'POST' \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"user": "test", "id": "'${id}'"}')
+    echo $result
+    if [[ $result == *'{"messages":"test Messages update"'* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
