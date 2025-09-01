@@ -199,7 +199,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.info(e)
             raise Exception(e)
-
+        
     async def adelete_document(self, id: str, **kwargs) -> bool:
         """Asynchronously delete a single document from the store.
 
@@ -274,6 +274,9 @@ class MongoDBStore(OpeaStore):
             list[dict]: A list of matching documents.
         """
         try:
+            # Create a text index if not already created
+            self.collection.create_index([("$**", "text")])
+            
             responses = []
             if search_type == "exact":
                 query = {key: value}
@@ -291,5 +294,30 @@ class MongoDBStore(OpeaStore):
             return responses
 
         except Exception as e:
-            logger.info(e)
+            logger.exception("Failed to search.")
+            raise Exception(e)
+        
+    async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
+        """Asynchronously search for documents based on a keyword.
+
+        Args:
+            keyword (str): The keyword to search for.
+            **kwargs: Additional arguments for the search.
+
+        Returns:
+            list[dict]: A list of matching documents.
+        """
+        try:
+            # Create a text index if not already created
+            self.collection.create_index([("$**", "text")])
+
+            # Perform text search
+            results = self.collection.find({"$text": {"$search": keyword}}, {"score": {"$meta": "textScore"}})
+            sorted_results = results.sort([("score", {"$meta": "textScore"})])
+
+            # Return a list of top N most relevant data
+            return await sorted_results.to_list(length=max_results)
+
+        except Exception as e:
+            logger.exception("Failed to search by keyword.")
             raise Exception(e)

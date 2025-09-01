@@ -152,18 +152,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("get_document_by_id method must be implemented by subclasses.")
 
-    async def aget_documents_by_user(self, user: str = None, **kwargs) -> list[dict] | None:
-        """Asynchronously retrieve all documents associated with a specific user.
-
-        Args:
-            user (str): The username/identifier for whom the documents are to be retrieved.
-            **kwargs: Additional arguments for filtering or pagination.
-
-        Returns:
-            list[dict] | None: A list of documents associated with the user, or None
-        """
-        raise NotImplementedError("aget_documents_by_user method must be implemented by subclasses.")
-
     async def aget_document_by_id(self, id: str) -> dict:
         """Asynchronously retrieve a single document by its unique identifier.
 
@@ -252,6 +240,18 @@ class OpeaStore(ABC):
             value (str): The value to search for.
             search_type (str): The type of search to perform.
                 Can be ignored for some implementations.
+            **kwargs: Additional arguments for the search query.
+
+        Returns:
+            list[dict]: A list of documents matching the search criteria.
+        """
+        raise NotImplementedError("asearch_by_keyword method must be implemented by subclasses.")
+    
+    async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
+        """Asynchronously search for documents in the store based on a specific keyword.
+
+        Args:
+            keyword (str): The keyword to search for.
             **kwargs: Additional arguments for the search query.
 
         Returns:
