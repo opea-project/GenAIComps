@@ -6,8 +6,6 @@ It can be integrated into application by making HTTP requests to the provided AP
 
 ![Flow Chart](./assets/img/chathistory_flow.png)
 
----
-
 ## 🛠️ Features
 
 - **Store Chat Conversations**: Save chat messages user information, and metadata associated with each conversation.
@@ -15,69 +13,11 @@ It can be integrated into application by making HTTP requests to the provided AP
 - **Update Chat Conversations**: Modify existing chat conversations by adding new messages or updating existing ones.
 - **Delete Chat Conversations**: Remove chat conversations record from database.
 
----
+## ⚙️ Deployment Options
 
-## 🤖 MCP (Model Context Protocol) Support
+To get detailed, step-by-step instructions on deploying the `chathistory` microservice, you should consult the deployment guide. This guide will walk you through all the necessary steps, from building the Docker images to configuring your environment and running the service.
 
-The Chat History microservice supports MCP integration, allowing AI agents to discover and utilize chat history management capabilities as tools.
-
-### MCP Configuration
-
-#### Environment Variables
-
-- `ENABLE_MCP`: Set to `true`, `1`, or `yes` to enable MCP support (default: `false`)
-
-#### Docker Compose
-
-```yaml
-services:
-  chathistory-mongo:
-    environment:
-      ENABLE_MCP: true
-```
-
-#### Kubernetes
-
-```yaml
-chathistory:
-  ENABLE_MCP: true
-```
-
-### MCP Tools Available
-
-When MCP is enabled, the following tools are available for AI agents:
-
-1. **create_documents** - Create or update chat conversation history
-2. **get_documents** - Retrieve chat conversation history
-3. **delete_documents** - Delete chat conversation history
-
-### Usage with AI Agents
-
-```python
-from comps.cores.mcp import OpeaMCPToolsManager
-
-# Initialize MCP tools manager
-tools_manager = OpeaMCPToolsManager()
-
-# Add chathistory service
-tools_manager.add_service("http://chathistory-service:6012")
-
-# AI agents can now discover and use chathistory tools
-tools = await tools_manager.get_available_tools()
-```
-
-### MCP Endpoint
-
-When MCP is enabled, the service exposes an additional SSE endpoint:
-
-- `/sse` - Server-Sent Events endpoint for MCP communication
-
----
-
-## ⚙️ Implementation
-
-The Chat History microservice able to support various database backends for storing the chat conversations.
-
-### Chat History with MongoDB
-
-For more detail, please refer to this [README](src/README.md)
+| Platform | Deployment Method | Database | Link                                                      |
+| -------- | ----------------- | -------- | --------------------------------------------------------- |
+| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
+| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
