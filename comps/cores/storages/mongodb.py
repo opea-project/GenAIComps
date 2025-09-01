@@ -273,10 +273,7 @@ class MongoDBStore(OpeaStore):
         Returns:
             list[dict]: A list of matching documents.
         """
-        try:
-            # Create a text index if not already created
-            self.collection.create_index([("$**", "text")])
-            
+        try:         
             responses = []
             if search_type == "exact":
                 query = {key: value}
@@ -288,8 +285,8 @@ class MongoDBStore(OpeaStore):
             rss = self.collection.find(query)
             if rss:
                 async for rs in rss:
-
                     responses.append(rs)
+
             logger.debug(f"Search results: {responses}")
             return responses
 
@@ -312,11 +309,10 @@ class MongoDBStore(OpeaStore):
             self.collection.create_index([("$**", "text")])
 
             # Perform text search
-            results = self.collection.find({"$text": {"$search": keyword}}, {"score": {"$meta": "textScore"}})
-            sorted_results = results.sort([("score", {"$meta": "textScore"})])
-
-            # Return a list of top N most relevant data
-            return await sorted_results.to_list(length=max_results)
+            return await self.collection.find(
+                {"$text": {"$search": keyword}}, 
+                {"score": {"$meta": "textScore"}}
+            ).sort([("score", {"$meta": "textScore"})]).to_list(length=max_results)
 
         except Exception as e:
             logger.exception("Failed to search by keyword.")
