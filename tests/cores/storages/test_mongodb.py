@@ -11,6 +11,7 @@ from comps.cores.storages import opea_store
 
 dummy_doc = {"text": "mock data"}
 
+
 class MockAsyncCursor:
     def __init__(self, docs):
         self.docs = docs
@@ -120,6 +121,7 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
         self.store.collection.delete_many.return_value.deleted_count = 1
         result = await self.store.adelete_documents([str(ObjectId())])
         self.assertTrue(result)
+
 
 if __name__ == "__main__":
     unittest.main()
