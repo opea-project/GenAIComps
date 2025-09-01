@@ -154,7 +154,7 @@ networkx==3.4.2 ; python_full_version < '3.11'
 networkx==3.5 ; python_full_version >= '3.11'
     # via
     #   trimesh
-numpy==2.2.6 ; python_full_version < '3.11'
+numpy==1.26.4 ; python_full_version < '3.11'
     # via
     #   datasets
     #   docarray
