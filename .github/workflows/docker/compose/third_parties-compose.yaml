@@ -117,3 +117,7 @@ services:
     build:
       dockerfile: comps/third_parties/sglang/src/Dockerfile
     image: ${REGISTRY:-opea}/sglang:${TAG:-latest}
+  funasr-paraformer:
+    build:
+      dockerfile: comps/third_parties/funasr/src/Dockerfile
+    image: ${REGISTRY:-opea}/funasr-paraformer:${TAG:-latest}
