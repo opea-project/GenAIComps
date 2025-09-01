@@ -27,6 +27,7 @@ class MongoDBStore(OpeaStore):
         MONGO_PORT = self.config.get("MONGO_PORT", 27017)
         DB_NAME = self.config.get("DB_NAME", "OPEA")
         COLLECTION_NAME = self.config.get("COLLECTION_NAME", "default")
+        self.collection_name = COLLECTION_NAME
         conn_url = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
 
         try:
@@ -66,8 +67,10 @@ class MongoDBStore(OpeaStore):
         try:
             doc.pop("_id", None)
             inserted_data = await self.collection.insert_one(doc)
+
             doc_id = str(inserted_data.inserted_id)
             logger.debug(f"Inserted document: {doc_id}")
+
             return doc_id
 
         except Exception as e:
@@ -88,8 +91,10 @@ class MongoDBStore(OpeaStore):
             inserted_data = await self.collection.insert_many(
                 [{key: value for key, value in doc.items() if key != "_id"} for doc in docs]
             )
+
             doc_ids = str(inserted_data.inserted_ids)
             logger.debug(f"Inserted documents: {doc_ids}")
+
             return doc_ids
 
         except Exception as e:
@@ -306,7 +311,7 @@ class MongoDBStore(OpeaStore):
         """
         try:
             # Create a text index if not already created
-            self.collection.create_index([("$**", "text")])
+            await self.collection.create_index([("$**", "text")])
 
             # Perform text search
             return (

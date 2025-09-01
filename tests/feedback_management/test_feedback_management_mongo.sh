@@ -169,8 +169,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=feedbackmanagement-mongo-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    docker ps -a --filter "name=feedbackmanagement-mongo-server" --filter "name=mongodb" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {
