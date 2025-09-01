@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatId, ChatMessage
-from comps.cores.storages.stores import get_store, column_to_id, id_to_column
+from comps.cores.storages.stores import column_to_id, get_store, id_to_column
 
 
 class ChatMessageDto(BaseModel):
@@ -31,6 +31,7 @@ def _prepersist(document: ChatMessage) -> dict:
     data_dict = column_to_id("id", data_dict)
     return data_dict
 
+
 def _post_getby_id(rs: dict) -> dict:
     """Post-processes a document retrieved by ID from the store.
 
@@ -42,6 +43,7 @@ def _post_getby_id(rs: dict) -> dict:
     """
     rs = id_to_column("id", rs)
     return rs.get("data") if rs else None
+
 
 def _post_getby_user(rss: list) -> list:
     """Post-processes a list of documents retrieved by user from the store.
@@ -56,6 +58,7 @@ def _post_getby_user(rss: list) -> list:
         rs = id_to_column("id", rs)
         rs.pop("data")
     return rss
+
 
 def _check_user_info(document: ChatMessage | ChatId):
     """Checks if the user information is provided in the document.

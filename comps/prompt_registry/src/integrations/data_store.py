@@ -32,6 +32,7 @@ def _prepersist(prompt: PromptCreate) -> dict:
     """
     return {"prompt_text": prompt.prompt_text, "user": prompt.user}
 
+
 def _post_getby_id(rs: dict) -> str:
     """Post-processes a single document retrieved by ID.
 
@@ -42,6 +43,7 @@ def _post_getby_id(rs: dict) -> str:
         str: prompt_text.
     """
     return rs.get("prompt_text", None)
+
 
 def _postget(rss: list) -> list:
     """Post-processes a list of documents by removing the ID column from each document.
@@ -83,7 +85,7 @@ async def get(prompt: PromptId):
         prompt (PromptId): The prompt identifier object containing search criteria.
 
     Returns:
-        dict or list: A single prompt dictionary if searching by ID, 
+        dict or list: A single prompt dictionary if searching by ID,
                      or a list of prompt dictionaries if searching by text or user.
 
     Raises:

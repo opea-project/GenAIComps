@@ -20,6 +20,7 @@ STORE_ID_COLS = {
     "redis": "ID",
 }
 
+
 def get_store_name() -> str:
     """Retrieves the configured storage backend name from environment variables.
 
@@ -199,12 +200,13 @@ def get_store(user: str) -> OpeaStore:
             f"Failed to establish a healthy connection to {name} storage backend. "
             f"Please check your configuration and ensure the storage service is running."
         )
-    
+
+
 def column_to_id(col_name: str, doc: dict) -> dict:
     """Formats the document's ID field to match store's requirements.
 
     Args:
-        col_name (str): The name of the ID column. 
+        col_name (str): The name of the ID column.
         doc (dict): The document to be formatted.
     Returns:
         dict: The formatted document with the correct ID field.
@@ -214,13 +216,13 @@ def column_to_id(col_name: str, doc: dict) -> dict:
         doc[STORE_ID_COLS[store_name]] = doc.pop(col_name)
     return doc
 
+
 def id_to_column(col_name: str, doc: dict) -> dict:
-    """
-    Formats the document's ID field from store's requirements 
+    """Formats the document's ID field from store's requirements
     to the application's requirements.
 
     Args:
-        col_name (str): The name of the ID column. 
+        col_name (str): The name of the ID column.
         doc (dict): The document to be formatted.
     Returns:
         dict: The formatted document with the correct ID field.
@@ -229,6 +231,7 @@ def id_to_column(col_name: str, doc: dict) -> dict:
     if col_name and STORE_ID_COLS[store_name] in doc:
         doc[col_name] = str(doc.pop(STORE_ID_COLS[store_name]))
     return doc
+
 
 def get_id_col_name() -> str:
     """Retrieves the ID column name for the configured storage backend.
