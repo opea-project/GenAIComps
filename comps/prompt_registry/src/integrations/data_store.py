@@ -4,7 +4,7 @@
 from fastapi import HTTPException
 
 from comps.cores.storages.models import PromptCreate, PromptId
-from comps.cores.storages.stores import get_store, get_id_col_name, id_to_column
+from comps.cores.storages.stores import get_id_col_name, get_store, id_to_column
 
 
 def check_user_info(prompt: PromptCreate | PromptId):
@@ -58,8 +58,10 @@ def _postget(rss: list) -> list:
         rs.pop(get_id_col_name(), None)
     return rss
 
+
 def _postsearch(rss: list) -> list:
     return [id_to_column("id", doc) for doc in rss]
+
 
 async def save(prompt: PromptCreate):
     """Saves a prompt to the data store after validating user information.

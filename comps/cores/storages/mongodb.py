@@ -199,7 +199,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.info(e)
             raise Exception(e)
-        
+
     async def adelete_document(self, id: str, **kwargs) -> bool:
         """Asynchronously delete a single document from the store.
 
@@ -276,7 +276,7 @@ class MongoDBStore(OpeaStore):
         try:
             # Create a text index if not already created
             self.collection.create_index([("$**", "text")])
-            
+
             responses = []
             if search_type == "exact":
                 query = {key: value}
@@ -296,7 +296,7 @@ class MongoDBStore(OpeaStore):
         except Exception as e:
             logger.exception("Failed to search.")
             raise Exception(e)
-        
+
     async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
         """Asynchronously search for documents based on a keyword.
 

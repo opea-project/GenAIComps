@@ -246,7 +246,7 @@ class OpeaStore(ABC):
             list[dict]: A list of documents matching the search criteria.
         """
         raise NotImplementedError("asearch_by_keyword method must be implemented by subclasses.")
-    
+
     async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
         """Asynchronously search for documents in the store based on a specific keyword.
 
