@@ -17,12 +17,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/feedbackmanagement-mongo:mcp-test --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/src/Dockerfile .
+    docker build --no-cache -t opea/feedbackmanagement:mcp-test --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/feedbackmanagement-mongo built fail"
+        echo "opea/feedbackmanagement built fail"
         exit 1
     else
-        echo "opea/feedbackmanagement-mongo built successful"
+        echo "opea/feedbackmanagement built successful"
     fi
 }
 
@@ -34,7 +34,7 @@ function start_service() {
     export TAG=mcp-test
     export ENABLE_MCP=true
     cd comps/feedback_management/deployment/docker_compose/
-    docker compose up -d
+    docker compose up -d feedbackmanagement-mongo
     sleep 10s
 }
 

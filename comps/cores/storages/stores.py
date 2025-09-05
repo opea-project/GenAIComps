@@ -20,7 +20,6 @@ STORE_ID_COLS = {
     "redis": "ID",
 }
 
-
 def get_store_name() -> str:
     """Retrieves the configured storage backend name from environment variables.
 
@@ -84,6 +83,7 @@ def _get_store_cfg(user: str) -> dict:
     if name == "arangodb":
         return {
             "user": user,
+            "is_async": True,  # Default to async for better FastAPI integration
             "ARANGODB_HOST": os.getenv("ARANGODB_HOST", "http://localhost:8529"),
             "ARANGODB_USERNAME": os.getenv("ARANGODB_USERNAME", "root"),
             "ARANGODB_PASSWORD": os.getenv("ARANGODB_PASSWORD", ""),
@@ -175,7 +175,9 @@ def get_store(user: str) -> OpeaStore:
         from comps.cores.storages.arangodb import ArangoDBStore
 
         store = ArangoDBStore(name, config=store_cfg)
-        store._initialize_connection()
+        # For async ArangoDB, initialization happens lazily in async methods
+        if not store_cfg.get("is_async", store.IS_ASYNC_DEFAULT):
+            store._initialize_connection_sync()
 
     # Initialize Redis store with connection setup
     elif name == "redis":
@@ -201,8 +203,43 @@ def get_store(user: str) -> OpeaStore:
             f"Please check your configuration and ensure the storage service is running."
         )
 
+def remove_db_private_cols(doc: dict) -> dict:
+    """Removes private database fields from the document dictionary.
 
-def column_to_id(col_name: str, doc: dict) -> dict:
+    This function cleans up a document dictionary by removing fields that are
+    considered private or internal to the database system. This is useful for
+    preparing documents for external consumption, such as API responses, where
+    such internal fields should not be exposed.
+
+    Args:
+        doc (dict): The document dictionary from which private fields should be removed.
+
+    Returns:
+        dict: The cleaned document dictionary with private fields removed.
+
+    Note:
+        The specific private fields removed depend on the configured storage backend.
+        Common fields include MongoDB's '_id' and ArangoDB's '_key', but this can vary.
+
+    Example:
+        >>> doc = {'_id': '123', 'name': 'Alice', '_key': 'abc'}
+        >>> remove_db_private_cols(doc)
+        {'name': 'Alice'}
+    """
+    store_name = get_store_name()
+    private_fields = {
+        "mongodb": ["_id"],
+        "arangodb": ["_key", "_id", "_rev", "_oldRev"],
+        "redis": [],  # Redis does not have standard private fields in documents
+    }
+
+    fields_to_remove = private_fields.get(store_name, [])
+    for field in fields_to_remove:
+        doc.pop(field, None)  # Remove field if it exists, ignore if not
+
+    return doc
+
+def prepersist(col_name: str, doc: dict) -> dict:
     """Formats the document's ID field to match store's requirements.
 
     Args:
@@ -217,7 +254,7 @@ def column_to_id(col_name: str, doc: dict) -> dict:
     return doc
 
 
-def id_to_column(col_name: str, doc: dict) -> dict:
+def postget(col_name: str, doc: dict) -> dict:
     """Formats the document's ID field from store's requirements
     to the application's requirements.
 
@@ -230,6 +267,7 @@ def id_to_column(col_name: str, doc: dict) -> dict:
     store_name = get_store_name()
     if col_name and STORE_ID_COLS[store_name] in doc:
         doc[col_name] = str(doc.pop(STORE_ID_COLS[store_name]))
+    doc = remove_db_private_cols(doc)
     return doc
 
 

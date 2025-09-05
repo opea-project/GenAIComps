@@ -7,11 +7,13 @@ set -xe
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
-export MONGO_HOST=${ip_address}
-export MONGO_PORT=27017
-export OPEA_STORE_NAME="mongodb"
-export DB_NAME=${DB_NAME:-"Feedback"}
-export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
+export OPEA_STORE_NAME="arangodb"
+export ARANGODB_HOST="http://${ip_address}:8529"
+export ARANGODB_USERNAME=${ARANGODB_USERNAME-"root"}
+export ARANGODB_PASSWORD=${ARANGODB_PASSWORD-"test"}
+export ARANGODB_ROOT_PASSWORD=${ARANGODB_ROOT_PASSWORD-"test"}
+export ARANGODB_DB_NAME=${ARANGODB_DB_NAME-"_system"}
+export ARANGODB_COLLECTION_NAME=${ARANGODB_COLLECTION_NAME-"default"}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,7 +33,7 @@ function start_service() {
     export FEEDBACK_MANAGEMENT_PORT=11200
     export TAG=comps
     cd comps/feedback_management/deployment/docker_compose/
-    docker compose up -d feedbackmanagement-mongo
+    docker compose up -d feedbackmanagement-arango
     sleep 10s
 }
 
@@ -69,13 +71,13 @@ function validate_microservice() {
   }
 }')
     echo $result
-    id=""
-    if [[ ${#result} -eq 26 ]]; then
+    id="${result//\"/}"
+    if [[ $id =~ ^default/[0-9]+$ ]]; then
         echo "Correct result."
         id="${result//\"/}"
     else
         echo "Incorrect result."
-        docker logs feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-arango-server
         exit 1
     fi
 
@@ -113,11 +115,11 @@ function validate_microservice() {
   "feedback_id": "'${id}'"
 }')
     echo $result
-    if [[ $result == "true" ]]; then
+    if [[ $result == *'true'* ]]; then
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-arango-server
         exit 1
     fi
 
@@ -128,11 +130,12 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test"}')
     echo $result
-    if [[ $result == '[{"chat_data":{"messages":'* ]]; then
+    rs=$(echo $result | jq -r '.[0].feedback_data.rating')
+    if [[ $rs == '2' ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-arango-server
         exit 1
     fi
 
@@ -143,11 +146,12 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test", "feedback_id": "'${id}'"}')
     echo $result
-    if [[ $result == '{"chat_data":{"messages":'*'"rating":2'* ]]; then
+    rs=$(echo $result | jq -r '.feedback_data.rating')
+    if [[ $rs == '2' ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-arango-server
         exit 1
     fi
 
@@ -162,14 +166,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-arango-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=feedbackmanagement-mongo-server" --filter "name=mongodb" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=feedbackmanagement-arango-server" --filter "name=arango-vector-db" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {
