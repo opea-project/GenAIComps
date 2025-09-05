@@ -6,15 +6,16 @@ from comps import CustomLogger, ServiceType
 from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.storages.models import PromptCreate, PromptId
+from comps.cores.storages.stores import get_store_name
 from comps.prompt_registry.src.integrations.data_store import delete, get, save
 
-logger = CustomLogger("prompt_registry")
+logger = CustomLogger(f"prompt_registry_{get_store_name()}")
 logflag = os.getenv("LOGFLAG", False)
 enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 @register_microservice(
-    name="opea_service@prompt_registry",
+    name=f"opea_service@prompt_registry_{get_store_name()}",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/create",
     host="0.0.0.0",
@@ -47,7 +48,7 @@ async def create_prompt(prompt: PromptCreate):
 
 
 @register_microservice(
-    name="opea_service@prompt_registry",
+    name=f"opea_service@prompt_registry_{get_store_name()}",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/get",
     host="0.0.0.0",
@@ -80,7 +81,7 @@ async def get_prompt(prompt: PromptId):
 
 
 @register_microservice(
-    name="opea_service@prompt_registry",
+    name=f"opea_service@prompt_registry_{get_store_name()}",
     service_type=ServiceType.PROMPT_REGISTRY,
     endpoint="/v1/prompt/delete",
     host="0.0.0.0",
@@ -114,4 +115,4 @@ async def delete_prompt(prompt: PromptId):
 
 if __name__ == "__main__":
     # Start the unified service with all endpoints
-    opea_microservices["opea_service@prompt_registry"].start()
+    opea_microservices[f"opea_service@prompt_registry_{get_store_name()}"].start()

@@ -20,7 +20,7 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/chathistory-mongo:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
+    docker build --no-cache -t opea/chathistory:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/chathistory-mongo built fail"
         exit 1
@@ -33,7 +33,7 @@ function start_service() {
     cd $WORKPATH
     export ENABLE_MCP=True
     cd comps/chathistory/deployment/docker_compose/
-    docker compose up -d
+    docker compose up -d chathistory-mongo
     sleep 10s
 }
 

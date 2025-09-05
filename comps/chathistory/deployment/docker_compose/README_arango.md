@@ -1,6 +1,6 @@
-# 📝 Chat History Microservice with MongoDB
+# 📝 Chat History Microservice with ArangoDB
 
-This README provides setup guides and all the necessary information about the Chat History microservice with MongoDB database.
+This README provides setup guides and all the necessary information about the Chat History microservice with ArangoDB database.
 
 ---
 
@@ -9,11 +9,14 @@ This README provides setup guides and all the necessary information about the Ch
 ```bash
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export OPEA_STORE_NAME="mongodb"
-export MONGO_HOST=${MONGO_HOST}
-export MONGO_PORT=27017
-export DB_NAME=${DB_NAME}
-export COLLECTION_NAME=${COLLECTION_NAME}
+export OPEA_STORE_NAME="arangodb"
+export ARANGODB_HOST="http://localhost:8529"
+export ARANGODB_USERNAME="root"
+export ARANGODB_PASSWORD="${YOUR_ARANGO_PASSWORD}"
+export ARANGODB_ROOT_PASSWORD="${YOUR_ARANGO_ROOT_PASSWORD}"
+export ARANGODB_DB_NAME="${YOUR_ARANGODB_DB_NAME-_system}"
+export ARANGODB_COLLECTION_NAME="${YOUR_ARANGODB_COLLECTION_NAME-default}"
+export ENABLE_MCP=false  # Set to true to enable MCP support
 ```
 
 ---
@@ -29,16 +32,16 @@ docker build -t opea/chathistory:latest --build-arg https_proxy=$https_proxy --b
 
 ### Run Docker with CLI
 
-- Run MongoDB image container
+- Run ArangoDB image container
 
   ```bash
-  docker run -d -p 27017:27017 --name=mongo mongo:latest
+  docker run -d -p 8529:8529 --name=arango-vector-db -e ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD} arangodb/arangodb:latest
   ```
 
 - Run the Chat History microservice
 
   ```bash
-  docker run -d --name="chathistory-mongo" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/chathistory:latest
+  docker run -d --name="chathistory-arango-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e ARANGODB_HOST=${ARANGODB_HOST} -e ARANGODB_USERNAME=${ARANGODB_USERNAME} -e ARANGODB_PASSWORD=${ARANGODB_PASSWORD} -e ARANGODB_DB_NAME=${ARANGODB_DB_NAME} -e ARANGODB_COLLECTION_NAME=${ARANGODB_COLLECTION_NAME} -e ENABLE_MCP=${ENABLE_MCP} opea/chathistory:latest
   ```
 
 ---
@@ -46,7 +49,7 @@ docker build -t opea/chathistory:latest --build-arg https_proxy=$https_proxy --b
 ## 🚀 Start Microservice with Docker Compose (Option 2)
 
 ```bash
-docker compose -f ../deployment/docker_compose/compose.yaml up -d chathistory-mongo
+docker compose -f ../deployment/docker_compose/compose.yaml up -d chathistory-arango
 ```
 
 ---
@@ -88,7 +91,7 @@ The Chat History microservice exposes the following API endpoints:
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "user": "test", "id":"668620173180b591e1e0cd74"}'
+    "user": "test", "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"}'
   ```
 
 - Update the conversation by id.
@@ -102,7 +105,7 @@ The Chat History microservice exposes the following API endpoints:
     "data": {
       "messages": "test Messages Update", "user": "test"
     },
-    "id":"668620173180b591e1e0cd74"
+    "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"
   }'
   ```
 
@@ -114,5 +117,5 @@ The Chat History microservice exposes the following API endpoints:
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "user": "test", "id":"668620173180b591e1e0cd74"}'
+    "user": "test", "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"}'
   ```

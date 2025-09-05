@@ -7,11 +7,13 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
-export MONGO_HOST=${ip_address}
-export MONGO_PORT=27017
-export OPEA_STORE_NAME="mongodb"
-export DB_NAME=${DB_NAME:-"Prompts"}
-export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
+export OPEA_STORE_NAME="arangodb"
+export ARANGODB_HOST="http://${ip_address}:8529"
+export ARANGODB_USERNAME=${ARANGODB_USERNAME-"root"}
+export ARANGODB_PASSWORD=${ARANGODB_PASSWORD-"test"}
+export ARANGODB_ROOT_PASSWORD=${ARANGODB_ROOT_PASSWORD-"test"}
+export ARANGODB_DB_NAME=${ARANGODB_DB_NAME-"_system"}
+export ARANGODB_COLLECTION_NAME=${ARANGODB_COLLECTION_NAME-"default"}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,7 +33,7 @@ function start_service() {
     export PROMPT_REGISTRY_PORT=10600
     export TAG=comps
     cd comps/prompt_registry/deployment/docker_compose/
-    docker compose up -d promptregistry-mongo
+    docker compose up -d promptregistry-arango
     sleep 10s
 }
 
@@ -45,13 +47,12 @@ function validate_microservice() {
     "prompt_text": "test prompt", "user": "test"
 }')
     echo $result
-    id=""
-    if [[ ${#result} -eq 26 ]]; then
+    id="${result//\"/}"
+    if [[ $id =~ ^default/[0-9]+$ ]]; then
         echo "Correct result."
-        id="${result//\"/}"
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-arango-server
         exit 1
     fi
 
@@ -66,7 +67,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-arango-server
         exit 1
     fi
 
@@ -81,7 +82,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-arango-server
         exit 1
     fi
 
@@ -96,7 +97,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-arango-server
         exit 1
     fi
 
@@ -111,13 +112,13 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-arango-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=promptregistry-mongo-server" --filter "name=mongodb" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=promptregistry-arango-server" --filter "name=arango-vector-db" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

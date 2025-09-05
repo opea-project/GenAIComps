@@ -123,7 +123,7 @@ class MongoDBStore(OpeaStore):
                 logger.debug(f"Updated document: {doc_id}")
                 return True
             else:
-                raise Exception("Not able to update the data.")
+                return False
 
         except BsonError.InvalidId as e:
             logger.error(e)

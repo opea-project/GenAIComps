@@ -8,7 +8,7 @@ from comps import CustomLogger
 from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.storages.models import ChatFeedback, FeedbackData, FeedbackId
-from comps.cores.storages.stores import get_store, get_store_name
+from comps.cores.storages.stores import get_store_name
 from comps.feedback_management.src.integrations.data_store import delete, get, save_or_update
 
 logger = CustomLogger(f"feedback_{get_store_name()}")
@@ -19,7 +19,7 @@ enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/create",
     host="0.0.0.0",
     input_datatype=FeedbackData,
@@ -53,7 +53,7 @@ async def create_feedback_data(feedback: ChatFeedback):
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/get",
     host="0.0.0.0",
     input_datatype=FeedbackId,
@@ -88,7 +88,7 @@ async def get_feedback(feedback: FeedbackId):
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/delete",
     host="0.0.0.0",
     input_datatype=FeedbackId,
@@ -123,4 +123,4 @@ async def delete_feedback(feedback: FeedbackId):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@feedback_mongo"].start()
+    opea_microservices[f"opea_service@feedback_{get_store_name()}"].start()

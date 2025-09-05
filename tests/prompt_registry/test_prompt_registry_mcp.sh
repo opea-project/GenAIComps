@@ -20,12 +20,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/promptregistry-mongo:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/src/Dockerfile .
+    docker build --no-cache -t opea/promptregistry:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/promptregistry-mongo built fail"
+        echo "opea/promptregistry built fail"
         exit 1
     else
-        echo "opea/promptregistry-mongo built successful"
+        echo "opea/promptregistry built successful"
     fi
 }
 
@@ -49,7 +49,7 @@ function start_service() {
         -e DB_NAME=${DB_NAME} \
         -e COLLECTION_NAME=${COLLECTION_NAME} \
         -e ENABLE_MCP=${ENABLE_MCP} \
-        opea/promptregistry-mongo:$TAG
+        opea/promptregistry:$TAG
 
     sleep 10s
 }

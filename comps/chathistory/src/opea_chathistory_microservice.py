@@ -30,7 +30,7 @@ def get_first_string(value):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/create",
     host="0.0.0.0",
     input_datatype=ChatMessage,
@@ -64,7 +64,7 @@ async def create_documents(document: ChatMessage):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/get",
     host="0.0.0.0",
     input_datatype=ChatId,
@@ -96,7 +96,7 @@ async def get_documents(document: ChatId):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/delete",
     host="0.0.0.0",
     input_datatype=ChatId,
@@ -128,4 +128,4 @@ async def delete_documents(document: ChatId):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@chathistory_mongo"].start()
+    opea_microservices[f"opea_service@chathistory_{get_store_name()}"].start()
