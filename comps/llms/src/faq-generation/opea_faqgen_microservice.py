@@ -3,12 +3,15 @@
 
 import os
 import time
+from typing import Union
 
+from fastapi.responses import StreamingResponse
 from integrations.tgi import OpeaFaqGenTgi
 from integrations.vllm import OpeaFaqGenvLLM
 
 from comps import (
     CustomLogger,
+    GeneratedDoc,
     OpeaComponentLoader,
     ServiceType,
     opea_microservices,
@@ -32,9 +35,17 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen C
     endpoint="/v1/faqgen",
     host="0.0.0.0",
     port=9000,
+    responses={
+        200: {
+            "content": {
+                "text/event-stream": {},
+                "application/json": {"schema": GeneratedDoc.model_json_schema(mode="serialization")},
+            },
+        }
+    },
 )
 @register_statistics(names=["opea_service@llm_faqgen"])
-async def llm_generate(input: ChatCompletionRequest):
+async def llm_generate(input: ChatCompletionRequest) -> Union[StreamingResponse, GeneratedDoc]:
     start = time.time()
 
     # Log the input if logging is enabled
