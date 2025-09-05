@@ -1,0 +1,23 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  funasr-paraformer-service:
+    image: ${REGISTRY:-opea}/funasr-paraformer:${TAG:-latest}
+    container_name: funasr-paraformer-service
+    ports:
+      - ${FUNASR_PARAFORMER_PORT:-7066}:7066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 60
+    # mount a host directory to cache models if needed, make sure it exists before starting the container
+    # volumes:
+    #   - /home/user/.cache:/home/user/.cache:rw
