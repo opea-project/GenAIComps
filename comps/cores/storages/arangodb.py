@@ -50,7 +50,7 @@ class ArangoDBStore(OpeaStore):
                 m = "ArangoDB client library is not installed. Please install it using 'pip install python-arango'."
                 logger.error(m)
                 raise
-        
+
         super().__init__(name, description, config)
 
         self.client: ArangoClient = config.get("client", None)
@@ -104,7 +104,7 @@ class ArangoDBStore(OpeaStore):
 
             logger.info(f"Connected to ArangoDB database '{database_name}' and collection '{collection_name}'.")
         except Exception as e:
-            logger.exception(f"Failed to initialize ArangoDB connection:")
+            logger.exception("Failed to initialize ArangoDB connection:")
             raise
 
     async def _initialize_connection_async(self) -> None:
@@ -134,9 +134,11 @@ class ArangoDBStore(OpeaStore):
                 else:
                     self.collection = await self.db.create_collection(collection_name)
 
-            logger.info(f"Connected to ArangoDB database '{database_name}' and collection '{collection_name}' asynchronously.")
+            logger.info(
+                f"Connected to ArangoDB database '{database_name}' and collection '{collection_name}' asynchronously."
+            )
         except Exception as e:
-            logger.exception(f"Failed to initialize ArangoDB async connection:")
+            logger.exception("Failed to initialize ArangoDB async connection:")
             raise
 
     def health_check(self) -> bool:
@@ -151,10 +153,10 @@ class ArangoDBStore(OpeaStore):
             # the service to start, and let async methods handle connection issues.
             if self.is_async and not self._async_initialized:
                 return True
-            
+
             if self.db is None:
                 return False
-                
+
             self.db.version()
             return True
         except Exception as e:
@@ -193,7 +195,7 @@ class ArangoDBStore(OpeaStore):
         try:
             doc.pop("_id", None)
             metadata = await self.collection.insert(doc)
-            doc_id = metadata['_id']
+            doc_id = metadata["_id"]
 
             return doc_id
         except Exception as e:
@@ -295,7 +297,7 @@ class ArangoDBStore(OpeaStore):
             field_access = "doc[@key]"
             # Only use bind parameter for single fields
             use_bind_key = True
-        
+
         # For nested fields, we don't use bind parameters for the key
         if "." in key:
             use_bind_key = False
@@ -321,7 +323,7 @@ class ArangoDBStore(OpeaStore):
                 filter_clause = "ENDS_WITH(doc[@key], @value)"
             elif search_type == "regex":
                 filter_clause = "REGEX_MATCHES(doc[@key], @value)"
-        
+
         if search_type == "custom":
             filter_clause = kwargs.pop("filter_clause")
             if not filter_clause or not isinstance(filter_clause, str):
@@ -347,7 +349,7 @@ class ArangoDBStore(OpeaStore):
         except Exception as e:
             logger.error(f"Failed to search documents with {key} / {value}: {e}. Query: {query}")
             logger.exception("Failed to search documents.")
-            raise  
+            raise
 
     async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
         """Asynchronously search for documents based on a keyword using full text search.
@@ -370,7 +372,7 @@ class ArangoDBStore(OpeaStore):
             if await self.db.has_collection(view_name):
                 logger.error(f"A collection named '{view_name}' exists, cannot create view with same name.")
                 raise Exception(f"A collection named '{view_name}' exists, cannot create view with same name.")
-            
+
             # Check if view already exists and delete it to recreate with fresh settings
             try:
                 existing_view = await self.db.view(view_name)
@@ -384,21 +386,12 @@ class ArangoDBStore(OpeaStore):
             # Create the view
             try:
                 view_properties = {
-                    "links": {
-                        self.collection.name: {
-                            "includeAllFields": True,
-                            "analyzers": ["text_en", "identity"]
-                        }
-                    }
+                    "links": {self.collection.name: {"includeAllFields": True, "analyzers": ["text_en", "identity"]}}
                 }
-                view = await self.db.create_view(
-                    name=view_name, 
-                    view_type="arangosearch", 
-                    properties=view_properties
-                )
+                view = await self.db.create_view(name=view_name, view_type="arangosearch", properties=view_properties)
                 logger.info(f"Created view: {view_name}")
             except Exception:
-                logger.exception(f"Failed to create search view:")
+                logger.exception("Failed to create search view:")
                 raise
 
             # Build the filter clause based on specified fields
@@ -418,14 +411,11 @@ class ArangoDBStore(OpeaStore):
                     RETURN MERGE(doc, {{ "score": BM25(doc) }})
             """
 
-            bind_vars = {
-                "keyword": keyword,
-                "max_results": max_results
-            }
+            bind_vars = {"keyword": keyword, "max_results": max_results}
 
             cursor = await self.db.aql.execute(query, bind_vars=bind_vars)
             result = [doc async for doc in cursor]
-            
+
             if result:
                 logger.info(f"Found {len(result)} results")
                 return result
@@ -604,7 +594,7 @@ class ArangoDBStore(OpeaStore):
             field_access = "doc[@key]"
             # Only use bind parameter for single fields
             use_bind_key = True
-        
+
         # For nested fields, we don't use bind parameters for the key
         if "." in key:
             use_bind_key = False
@@ -630,7 +620,7 @@ class ArangoDBStore(OpeaStore):
                 filter_clause = "ENDS_WITH(doc[@key], @value)"
             elif search_type == "regex":
                 filter_clause = "REGEX_MATCHES(doc[@key], @value)"
-        
+
         if search_type == "custom":
             filter_clause = kwargs.pop("filter_clause")
             if not filter_clause or not isinstance(filter_clause, str):

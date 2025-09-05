@@ -20,6 +20,7 @@ STORE_ID_COLS = {
     "redis": "ID",
 }
 
+
 def get_store_name() -> str:
     """Retrieves the configured storage backend name from environment variables.
 
@@ -203,6 +204,7 @@ def get_store(user: str) -> OpeaStore:
             f"Please check your configuration and ensure the storage service is running."
         )
 
+
 def remove_db_private_cols(doc: dict) -> dict:
     """Removes private database fields from the document dictionary.
 
@@ -238,6 +240,7 @@ def remove_db_private_cols(doc: dict) -> dict:
         doc.pop(field, None)  # Remove field if it exists, ignore if not
 
     return doc
+
 
 def prepersist(col_name: str, doc: dict) -> dict:
     """Formats the document's ID field to match store's requirements.

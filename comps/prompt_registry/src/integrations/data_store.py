@@ -4,7 +4,7 @@
 from fastapi import HTTPException
 
 from comps.cores.storages.models import PromptCreate, PromptId
-from comps.cores.storages.stores import remove_db_private_cols, get_store, postget
+from comps.cores.storages.stores import get_store, postget, remove_db_private_cols
 
 
 def check_user_info(prompt: PromptCreate | PromptId):

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatId, ChatMessage
-from comps.cores.storages.stores import prepersist, get_store, postget
+from comps.cores.storages.stores import get_store, postget, prepersist
 
 
 class ChatMessageDto(BaseModel):
