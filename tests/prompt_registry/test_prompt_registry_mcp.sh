@@ -49,7 +49,7 @@ function start_service() {
         -e DB_NAME=${DB_NAME} \
         -e COLLECTION_NAME=${COLLECTION_NAME} \
         -e ENABLE_MCP=${ENABLE_MCP} \
-        opea/promptregistry-mongo:$TAG
+        opea/promptregistry:$TAG
 
     sleep 10s
 }
