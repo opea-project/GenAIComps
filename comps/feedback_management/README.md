@@ -13,7 +13,9 @@ The Feedback Management microservice facilitates the storage and retrieval of us
 
 To get detailed, step-by-step instructions on deploying the `feedback_management` microservice, you should consult the deployment guide. This guide will walk you through all the necessary steps, from building the Docker images to configuring your environment and running the service.
 
-| Platform | Deployment Method | Database | Link                                                      |
-| -------- | ----------------- | -------- | --------------------------------------------------------- |
-| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
-| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md) |
+| Platform | Deployment Method | Database | Link                                                             |
+| -------- | ----------------- | -------- | ---------------------------------------------------------------- |
+| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
+| CPU      | Docker            | ArangoDB | [Deployment Guide](./deployment/docker_compose/README_arango.md) |
+| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
+| CPU      | Docker Compose    | ArangoDB | [Deployment Guide](./deployment/docker_compose/README_arango.md) |

@@ -1,6 +1,6 @@
-# 🗨 Feedback Management Microservice with MongoDB
+# 🗨 Feedback Management Microservice with ArangoDB
 
-This README provides setup guides and all the necessary information about the Feedback Management microservice with MongoDB database.
+This README provides setup guides and all the necessary information about the Feedback Management microservice with ArangoDB database.
 
 ---
 
@@ -9,11 +9,13 @@ This README provides setup guides and all the necessary information about the Fe
 ```bash
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export OPEA_STORE_NAME="mongodb"
-export MONGO_HOST=${MONGO_HOST}
-export MONGO_HOST=27017
-export DB_NAME=${DB_NAME}
-export COLLECTION_NAME=${COLLECTION_NAME}
+export OPEA_STORE_NAME="arangodb"
+export ARANGODB_HOST="http://localhost:8529"
+export ARANGODB_USERNAME="root"
+export ARANGODB_PASSWORD="${YOUR_ARANGO_PASSWORD}"
+export ARANGODB_ROOT_PASSWORD="${YOUR_ARANGO_ROOT_PASSWORD}"
+export ARANGODB_DB_NAME="${YOUR_ARANGODB_DB_NAME-_system}"
+export ARANGODB_COLLECTION_NAME="${YOUR_ARANGODB_COLLECTION_NAME-default}"
 ```
 
 ---
@@ -29,16 +31,16 @@ docker build -t opea/feedbackmanagement:latest --build-arg https_proxy=$https_pr
 
 ### Run Docker with CLI
 
-- Run MongoDB image container
+- Run ArangoDB image container
 
   ```bash
-  docker run -d -p 27017:27017 --name=mongo mongo:latest
+  docker run -d -p 8529:8529 --name=arango-vector-db -e ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD} arangodb/arangodb:latest
   ```
 
 - Run Feedback Management microservice
 
   ```bash
-  docker run -d --name="feedbackmanagement-mongo-server" -p 6016:6016 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/feedbackmanagement:latest
+  docker run -d --name="feedbackmanagement-arango-server" -p 6016:6016 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e ARANGODB_HOST=${ARANGODB_HOST} -e ARANGODB_USERNAME=${ARANGODB_USERNAME} -e ARANGODB_PASSWORD=${ARANGODB_PASSWORD} -e ARANGODB_DB_NAME=${ARANGODB_DB_NAME} -e ARANGODB_COLLECTION_NAME=${ARANGODB_COLLECTION_NAME} opea/feedbackmanagement:latest
   ```
 
 ---
@@ -46,7 +48,7 @@ docker build -t opea/feedbackmanagement:latest --build-arg https_proxy=$https_pr
 ## 🚀 Start Microservice with Docker Compose (Option 2)
 
 ```bash
-docker compose -f ../deployment/docker_compose/compose.yaml up -d feedbackmanagement-mongo
+docker compose -f ../deployment/docker_compose/compose.yaml up -d feedbackmanagement-arango
 ```
 
 ---
@@ -90,8 +92,8 @@ The Feedback Management microservice exposes the following API endpoints:
     }}'
 
 
-  # Take note that chat_id here would be the id get from chathistory_mongo service
-  # If you do not wish to maintain chat history via chathistory_mongo service, you may generate some random uuid for it or just leave it empty.
+  # Take note that chat_id here would be the id get from chathistory_arango service
+  # If you do not wish to maintain chat history via chathistory_arango service, you may generate some random uuid for it or just leave it empty.
   ```
 
 - Update feedback data by feedback_id

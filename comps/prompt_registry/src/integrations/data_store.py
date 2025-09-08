@@ -4,7 +4,7 @@
 from fastapi import HTTPException
 
 from comps.cores.storages.models import PromptCreate, PromptId
-from comps.cores.storages.stores import get_id_col_name, get_store, id_to_column
+from comps.cores.storages.stores import get_store, postget, remove_db_private_cols
 
 
 def check_user_info(prompt: PromptCreate | PromptId):
@@ -55,12 +55,12 @@ def _postget(rss: list) -> list:
         list: List of document dictionaries with ID columns removed.
     """
     for rs in rss:
-        rs.pop(get_id_col_name(), None)
+        rs = remove_db_private_cols(rs)
     return rss
 
 
 def _postsearch(rss: list) -> list:
-    return [id_to_column("id", doc) for doc in rss]
+    return [postget("id", doc) for doc in rss]
 
 
 async def save(prompt: PromptCreate):
@@ -99,7 +99,7 @@ async def get(prompt: PromptId):
         rs = await store.aget_document_by_id(prompt.prompt_id)
         return _post_getby_id(rs)
     elif prompt.prompt_text:
-        rss = await store.asearch_by_keyword(keyword=prompt.prompt_text, max_results=5)
+        rss = await store.asearch_by_keyword(keyword=prompt.prompt_text, max_results=5, fields=["prompt_text", "user"])
         return _postsearch(rss)
     else:
         rss = await store.asearch(key="user", value=prompt.user)

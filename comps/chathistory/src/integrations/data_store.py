@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.storages.models import ChatId, ChatMessage
-from comps.cores.storages.stores import column_to_id, get_store, id_to_column
+from comps.cores.storages.stores import get_store, postget, prepersist
 
 
 class ChatMessageDto(BaseModel):
@@ -28,7 +28,7 @@ def _prepersist(document: ChatMessage) -> dict:
         dict: A dictionary representation of the ChatMessage, ready for persistence.
     """
     data_dict = document.model_dump(by_alias=True, mode="json")
-    data_dict = column_to_id("id", data_dict)
+    data_dict = prepersist("id", data_dict)
     return data_dict
 
 
@@ -41,7 +41,7 @@ def _post_getby_id(rs: dict) -> dict:
     Returns:
         dict: The processed document data, or None if the document doesn't exist.
     """
-    rs = id_to_column("id", rs)
+    rs = postget("id", rs)
     return rs.get("data") if rs else None
 
 
@@ -55,7 +55,7 @@ def _post_getby_user(rss: list) -> list:
         list: A list of processed documents with the 'data' field removed.
     """
     for rs in rss:
-        rs = id_to_column("id", rs)
+        rs = postget("id", rs)
         rs.pop("data")
     return rss
 
