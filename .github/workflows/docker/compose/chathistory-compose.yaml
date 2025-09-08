@@ -6,4 +6,4 @@ services:
   chathistory-mongo:
     build:
       dockerfile: comps/chathistory/src/Dockerfile
-    image: ${REGISTRY:-opea}/chathistory-mongo:${TAG:-latest}
+    image: ${REGISTRY:-opea}/chathistory:${TAG:-latest}
