@@ -6,4 +6,4 @@ services:
   router:
     build:
       dockerfile: comps/router/src/Dockerfile
-    image: ${REGISTRY:-opea}/opea-router:${TAG:-latest}
+    image: ${REGISTRY:-opea}/router:${TAG:-latest}
