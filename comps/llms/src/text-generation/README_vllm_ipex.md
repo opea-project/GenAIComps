@@ -27,29 +27,6 @@ docker pull intel/llm-scaler-vllm:0.2.0-b2
 ### Run with Docker Compose
 
 Deploy the vLLM-IPEX model serving using Docker Compose.
-export VIDEO_GROUP_ID=$(getent group video | awk -F: '{printf "%s\n", $3}')
-export RENDER_GROUP_ID=$(getent group render | awk -F: '{printf "%s\n", $3}')
-
-HF_HOME=${HF_HOME:=~/.cache/huggingface}
-export HF_HOME
-
-export MAX_MODEL_LEN=20000
-export LLM_MODEL=Qwen/Qwen3-32B-AWQ
-export LOAD_QUANTIZATION=awq
-export VLLM_SERVICE_PORT=41090
-
-# export ONEAPI_DEVICE_SELECTOR="level_zero:0;level_zero:1;level_zero:2;level_zero:3"
-
-export ONEAPI_DEVICE_SELECTOR="level_zero:0;level_zero:1"
-export TENSOR_PARALLEL_SIZE=2
-
-# export PIPELINE_PARALLEL_SIZE=1
-
-# base_dir=$(cd "$(dirname "$0")"; pwd)
-
-# data_dir=$(cd "$base_dir/../test_resources"; pwd)
-
-export data_dir=/home/intel/linjiaojiao/large-model-quickstart/vllm-ipex/test_resources
 
 1.  Export the required environment variables:
 
