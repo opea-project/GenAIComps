@@ -5,8 +5,8 @@ import json
 import uuid
 from typing import Any, Dict, List, Optional
 
-from redis.commands.search.query import Query
 from redis.commands.search.field import NumericField, TagField, TextField
+from redis.commands.search.query import Query
 from redis.exceptions import ResponseError
 
 from ..common.storage import OpeaStore
@@ -17,7 +17,7 @@ logger = CustomLogger("RedisDBStore")
 
 class RedisQueryBuilder:
     """Helper class for building Redis search queries."""
-    
+
     @staticmethod
     def escape_query_value(value: str) -> str:
         """Escape special characters in Redis Search query syntax to avoid syntax errors."""
@@ -25,20 +25,20 @@ class RedisQueryBuilder:
         for ch in special_chars:
             value = value.replace(ch, f"\\{ch}")
         return value
-    
+
     @staticmethod
     def build_search_query(key: str, value: Any, search_type: str = "exact") -> str:
         """Build a Redis search query string based on value type and search type."""
         # Convert dots to underscores for field names
         key = key.replace(".", "_")
-        
+
         if isinstance(value, bool):
             # For boolean values (TAG fields), use curly braces
             return f"@{key}:{{{str(value).lower()}}}"
         elif isinstance(value, str):
             # For string values, handle search_type
             if search_type == "exact":
-                return f"@{key}:\"{value}\""
+                return f'@{key}:"{value}"'
             elif search_type == "contains":
                 return f"@{key}:*{value}*"
             else:
@@ -50,17 +50,16 @@ class RedisQueryBuilder:
 
 class RedisSchemaGenerator:
     """Helper class for generating Redis search schemas from sample data."""
-    
+
     @staticmethod
-    def generate_schema(data_obj: Dict, current_path: str = '$', schema_fields: Optional[List] = None) -> tuple:
-        """
-        Recursively traverses a dictionary to generate a RediSearch schema.
-        
+    def generate_schema(data_obj: Dict, current_path: str = "$", schema_fields: Optional[List] = None) -> tuple:
+        """Recursively traverses a dictionary to generate a RediSearch schema.
+
         Args:
             data_obj: The data object to analyze
             current_path: Current JSONPath being processed
             schema_fields: Accumulated schema fields
-            
+
         Returns:
             Tuple of schema fields for Redis index creation
         """
@@ -70,9 +69,9 @@ class RedisSchemaGenerator:
         for key, value in data_obj.items():
             # Construct the JSONPath for the current key
             new_path = f"{current_path}.{key}"
-            
+
             # Create a clean alias for querying (e.g., 'address.city' -> 'address_city')
-            alias = new_path[2:].replace('.', '_')
+            alias = new_path[2:].replace(".", "_")
 
             if isinstance(value, dict):
                 RedisSchemaGenerator.generate_schema(value, new_path, schema_fields)
@@ -85,7 +84,7 @@ class RedisSchemaGenerator:
             # Skip lists and None values for now
             elif isinstance(value, list) or value is None:
                 pass
-            
+
         return tuple(schema_fields)
 
 
@@ -99,16 +98,15 @@ class RedisDBStore(OpeaStore):
     DEFAULT_DOC_PREFIX = "doc:"
 
     def __init__(self, name: str, description: str = "", config: Dict = None):
-        """
-        Initialize RedisDBStore with configuration.
-        
+        """Initialize RedisDBStore with configuration.
+
         Args:
             name: Store name
             description: Store description
             config: Configuration dictionary
         """
         super().__init__(name, description, config or {})
-        
+
         # Configuration settings
         self.is_async = config.get("is_async", self.IS_ASYNC_DEFAULT)
         self.redis_url = config.get("REDIS_URL", self.DEFAULT_REDIS_URL)
@@ -119,7 +117,7 @@ class RedisDBStore(OpeaStore):
         # Connection state
         self.client = None
         self._async_initialized = False
-        
+
         # Helper instances
         self._schema_generator = RedisSchemaGenerator()
         self._query_builder = RedisQueryBuilder()
@@ -132,9 +130,10 @@ class RedisDBStore(OpeaStore):
         """Initialize the Redis connection synchronously for non-async mode."""
         if self.is_async:
             return True
-            
+
         try:
             from redis import Redis
+
             self.client = Redis.from_url(self.redis_url, decode_responses=True)
             if not self.client.ping():
                 raise ConnectionError(f"Failed to connect to Redis at {self.redis_url}")
@@ -153,6 +152,7 @@ class RedisDBStore(OpeaStore):
         """Initialize the Redis connection asynchronously."""
         try:
             from redis.asyncio import Redis
+
             self.client = Redis.from_url(self.redis_url, decode_responses=True)
             if not await self.client.ping():
                 raise ConnectionError(f"Failed to connect to Redis at {self.redis_url}")
@@ -170,9 +170,8 @@ class RedisDBStore(OpeaStore):
         except Exception:
             logger.exception("Error closing Redis connection:")
 
-    def health_check(self) -> bool:       
-        """
-        Perform a health check on the Redis connection.
+    def health_check(self) -> bool:
+        """Perform a health check on the Redis connection.
 
         Returns:
             bool: True if the connection is healthy, False otherwise.
@@ -194,21 +193,16 @@ class RedisDBStore(OpeaStore):
         schema = self._schema_generator.generate_schema(sample_data)
 
         # Create JSON index using direct Redis command
-        cmd = [
-            "FT.CREATE", self.index_name,
-            "ON", "JSON", 
-            "PREFIX", "1", self.doc_prefix,
-            "SCHEMA"
-        ]
-        
+        cmd = ["FT.CREATE", self.index_name, "ON", "JSON", "PREFIX", "1", self.doc_prefix, "SCHEMA"]
+
         # Add schema fields properly
         for field in schema:
             # Get the JSONPath and alias from the field
             json_path = field.name  # The JSONPath like "$.data.user"
             as_name = field.as_name  # The alias like "data_user"
-            
+
             cmd.extend([json_path, "AS", as_name])
-            
+
             field_type = str(type(field))
             if "TextField" in field_type:
                 cmd.extend(["TEXT", "SORTABLE"])
@@ -216,7 +210,7 @@ class RedisDBStore(OpeaStore):
                 cmd.extend(["NUMERIC", "SORTABLE"])
             elif "TagField" in field_type:
                 cmd.extend(["TAG", "SORTABLE"])
-                                
+
         return cmd
 
     def _check_index_exists_sync(self) -> bool:
@@ -239,16 +233,16 @@ class RedisDBStore(OpeaStore):
         """Create the Redis search index with flexible schema synchronously."""
         if self._check_index_exists_sync():
             return
-            
+
         if not self.auto_create_index:
             raise RuntimeError(f"Index '{self.index_name}' does not exist and auto-creation is disabled")
-            
+
         try:
             cmd = self._build_index_command(sample_data)
             result = self.client.execute_command(*cmd)
             logger.info(f"Created JSON index: {result}")
             logger.info(f"Created Redis index '{self.index_name}' with prefix '{self.doc_prefix}'")
-            
+
             # Verify index creation
             self.client.ft(self.index_name).info()
         except Exception:
@@ -258,19 +252,19 @@ class RedisDBStore(OpeaStore):
     async def create_index(self, sample_data: Dict) -> None:
         """Create the Redis search index with flexible schema asynchronously."""
         await self._ensure_async_initialized()
-        
+
         if await self._check_index_exists():
             return
-            
+
         if not self.auto_create_index:
             raise RuntimeError(f"Index '{self.index_name}' does not exist and auto-creation is disabled")
-            
+
         try:
             cmd = self._build_index_command(sample_data)
             result = await self.client.execute_command(*cmd)
             logger.info(f"Created JSON index: {result}")
             logger.info(f"Created Redis index '{self.index_name}' with prefix '{self.doc_prefix}'")
-            
+
             # Verify index creation
             await self.client.ft(self.index_name).info()
         except Exception:
@@ -292,16 +286,16 @@ class RedisDBStore(OpeaStore):
 
     def _process_search_result_document(self, doc, doc_id: str) -> Dict:
         """Process a single search result document."""
-        if hasattr(doc, 'json'):
+        if hasattr(doc, "json"):
             doc_dict = json.loads(doc.json)
         else:
             # Fallback: doc might be a dict already
             doc_dict = doc
-        
+
         # Assign the Redis key as ID if the document doesn't have an ID field
         if not doc_dict.get("id"):
             doc_dict["id"] = doc_id
-        
+
         return doc_dict
 
     # ==========================================
@@ -309,19 +303,18 @@ class RedisDBStore(OpeaStore):
     # ==========================================
 
     async def asave_document(self, doc: Dict, **kwargs) -> str:
-        """
-        Save a single document asynchronously.
-        
+        """Save a single document asynchronously.
+
         Args:
             doc: Document to save
             **kwargs: Additional arguments
-            
+
         Returns:
             str: The key where the document was saved
         """
         await self._ensure_async_initialized()
         await self.create_index(doc)
-        
+
         try:
             key = self._generate_document_key()
             await self.client.json().set(key, "$", doc)
@@ -331,24 +324,23 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def asave_documents(self, docs: List[Dict], **kwargs) -> bool:
-        """
-        Save multiple documents asynchronously using pipeline for efficiency.
-        
+        """Save multiple documents asynchronously using pipeline for efficiency.
+
         Args:
             docs: List of documents to save
             **kwargs: Additional arguments
-            
+
         Returns:
             bool: True if all documents were saved successfully
         """
         await self._ensure_async_initialized()
-        
+
         if not docs:
             return True
-            
+
         # Use first document for schema generation
         await self.create_index(docs[0])
-        
+
         try:
             pipeline = self.client.pipeline()
             for doc in docs:
@@ -356,7 +348,7 @@ class RedisDBStore(OpeaStore):
                 pipeline.json().set(key, "$", doc)
 
             results = await pipeline.execute()
-            
+
             # Check for any failures
             for result in results:
                 if isinstance(result, Exception):
@@ -369,24 +361,23 @@ class RedisDBStore(OpeaStore):
             return False
 
     async def aupdate_document(self, doc: Dict, **kwargs) -> bool:
-        """
-        Update a single document asynchronously.
-        
+        """Update a single document asynchronously.
+
         Args:
             doc: Document to update (must contain 'id' field)
             **kwargs: Additional arguments
-            
+
         Returns:
             bool: True if document was updated successfully
         """
         await self._ensure_async_initialized()
         await self.create_index(doc)
-        
+
         try:
             doc_id = doc.pop("id", None)
             if not doc_id:
                 raise ValueError("Document must have an 'id' field for updates")
-                
+
             result = await self.client.json().set(doc_id, "$", doc)
             return result is not None
         except Exception:
@@ -394,24 +385,23 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def aupdate_documents(self, docs: List[Dict], **kwargs) -> bool:
-        """
-        Update multiple documents asynchronously using pipeline for efficiency.
-        
+        """Update multiple documents asynchronously using pipeline for efficiency.
+
         Args:
             docs: List of documents to update
             **kwargs: Additional arguments
-            
+
         Returns:
             bool: True if all documents were updated successfully
         """
         await self._ensure_async_initialized()
-        
+
         if not docs:
             return True
-            
+
         # Use first document for schema generation
         await self.create_index(docs[0])
-        
+
         try:
             pipeline = self.client.pipeline()
             for doc in docs:
@@ -423,7 +413,7 @@ class RedisDBStore(OpeaStore):
                 pipeline.json().set(key, "$", doc)
 
             results = await pipeline.execute()
-            
+
             # Check for any failures
             for result in results:
                 if isinstance(result, Exception):
@@ -440,18 +430,17 @@ class RedisDBStore(OpeaStore):
     # ==========================================
 
     async def aget_document_by_id(self, doc_id: str, **kwargs) -> Optional[Dict]:
-        """
-        Retrieve a single document by its ID.
-        
+        """Retrieve a single document by its ID.
+
         Args:
             doc_id: Document ID to retrieve
             **kwargs: Additional arguments
-            
+
         Returns:
             Optional[Dict]: The document if found, None otherwise
         """
         await self._ensure_async_initialized()
-        
+
         try:
             result = await self.client.json().get(doc_id)
             if result is not None:
@@ -463,18 +452,17 @@ class RedisDBStore(OpeaStore):
             return None
 
     async def aget_documents_by_ids(self, ids: List[str], **kwargs) -> List[Dict]:
-        """
-        Retrieve multiple documents by their IDs using pipeline for efficiency.
-        
+        """Retrieve multiple documents by their IDs using pipeline for efficiency.
+
         Args:
             ids: List of document IDs to retrieve
             **kwargs: Additional arguments
-            
+
         Returns:
             List[Dict]: List of found documents
         """
         await self._ensure_async_initialized()
-        
+
         if not ids:
             return []
 
@@ -491,7 +479,7 @@ class RedisDBStore(OpeaStore):
                     doc = json.loads(result) if isinstance(result, str) else result
                     self._ensure_document_id(doc, ids[i])
                     processed_results.append(doc)
-            
+
             return processed_results
         except Exception as e:
             logger.error(f"Failed to get documents by IDs: {e}")
@@ -502,18 +490,17 @@ class RedisDBStore(OpeaStore):
     # ==========================================
 
     async def adelete_document(self, doc_id: str, **kwargs) -> bool:
-        """
-        Delete a single document by its ID.
-        
+        """Delete a single document by its ID.
+
         Args:
             doc_id: Document ID to delete
             **kwargs: Additional arguments
-            
+
         Returns:
             bool: True if document was deleted successfully
         """
         await self._ensure_async_initialized()
-        
+
         try:
             deleted = await self.client.delete(doc_id)
             return deleted > 0
@@ -522,21 +509,20 @@ class RedisDBStore(OpeaStore):
             raise
 
     async def adelete_documents(self, ids: List[str], **kwargs) -> bool:
-        """
-        Delete multiple documents by their IDs.
-        
+        """Delete multiple documents by their IDs.
+
         Args:
             ids: List of document IDs to delete
             **kwargs: Additional arguments
-            
+
         Returns:
             bool: True if any documents were deleted
         """
         await self._ensure_async_initialized()
-        
+
         if not ids:
             return True
-            
+
         try:
             keys = [f"{self.doc_prefix}{doc_id}" for doc_id in ids]
             deleted = await self.client.delete(*keys)
@@ -550,20 +536,19 @@ class RedisDBStore(OpeaStore):
     # ==========================================
 
     async def asearch(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> List[Dict]:
-        """
-        Search for documents by key and value using Redis Search.
-        
+        """Search for documents by key and value using Redis Search.
+
         Args:
             key: Field name to search on
             value: Value to search for
             search_type: Type of search ("exact", "contains", etc.)
             **kwargs: Additional arguments
-            
+
         Returns:
             List[Dict]: List of matching documents
         """
         await self._ensure_async_initialized()
-        
+
         try:
             query_str = self._query_builder.build_search_query(key, value, search_type)
             search_result = await self.client.ft(self.index_name).search(query_str)
@@ -573,34 +558,33 @@ class RedisDBStore(OpeaStore):
             for doc in search_result.docs:
                 doc_dict = self._process_search_result_document(doc, doc.id)
                 results.append(doc_dict)
-                
+
             return results
         except Exception as e:
             logger.error(f"Search failed for key '{key}' with value '{value}': {e}")
             raise
 
     async def asearch_by_keyword(self, keyword: str, max_results: int = 5, **kwargs) -> list[dict]:
-        """
-        Search for documents by keyword across all text fields with BM25 relevance scoring.
-        
+        """Search for documents by keyword across all text fields with BM25 relevance scoring.
+
         Args:
             keyword: Keyword to search for
             max_results: Maximum number of results to return
             **kwargs: Additional arguments
-            
+
         Returns:
             List[Dict]: List of matching documents with BM25 relevance scores
         """
         await self._ensure_async_initialized()
-        
+
         try:
             # Escape special characters in the keyword
             escaped_keyword = RedisQueryBuilder.escape_query_value(keyword)
-            
+
             # Create a query that searches across all text fields for the keyword
             # Use a more general query syntax that searches within text fields
             query_str = f"*{escaped_keyword}*"
-            
+
             # Use Query object to properly set limit and enable scoring
             query = Query(query_str).paging(0, max_results).with_scores()
             search_result = await self.client.ft(self.index_name).search(query)
@@ -610,12 +594,12 @@ class RedisDBStore(OpeaStore):
             for doc in search_result.docs:
                 doc_dict = self._process_search_result_document(doc, doc.id)
                 # Add BM25 relevance score to the document
-                doc_dict["score"] = float(doc.score) if hasattr(doc, 'score') else 0.0
+                doc_dict["score"] = float(doc.score) if hasattr(doc, "score") else 0.0
                 results.append(doc_dict)
-                
+
             # Sort results by BM25 score in descending order (highest scores first)
             results.sort(key=lambda x: x.get("score", 0.0), reverse=True)
-                
+
             return results
         except Exception as e:
             logger.exception(f"Keyword search failed for '{keyword}':")
