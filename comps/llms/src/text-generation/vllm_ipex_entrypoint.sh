@@ -1,4 +1,6 @@
-# Copyright (C) 2024 Intel Corporation
+#!/bin/sh
+
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 if [ "$LOAD_QUANTIZATION" = "None" ]; then
@@ -19,7 +21,6 @@ if [ "$LOAD_QUANTIZATION" = "None" ]; then
         --trust-remote-code \
         --gpu-memory-util=0.9 \
         --disable-sliding-window \
-        --no-enable-prefix-caching \
         --max-num-batched-tokens=${MAX_MODEL_LEN} \
         --disable-log-requests \
         --max-model-len=${MAX_MODEL_LEN} \
@@ -45,7 +46,6 @@ else
         --trust-remote-code \
         --gpu-memory-util=0.9 \
         --disable-sliding-window \
-        --no-enable-prefix-caching \
         --max-num-batched-tokens=${MAX_MODEL_LEN} \
         --disable-log-requests \
         --max-model-len=${MAX_MODEL_LEN} \
