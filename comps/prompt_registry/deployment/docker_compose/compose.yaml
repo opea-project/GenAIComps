@@ -78,6 +78,43 @@ services:
       ENABLE_MCP: ${ENABLE_MCP:-false}
     restart: unless-stopped
 
+  redis-kv-store:
+    image: redis/redis-stack:7.2.0-v9
+    container_name: redis-kv-store
+    ports:
+      - "${REDIS_PORT3:-6379}:6379"
+      - "${REDIS_PORT4:-8001}:8001"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 3
+      start_period: 10s  
+
+  promptregistry-redis:
+    image: ${REGISTRY:-opea}/promptregistry:${TAG:-latest}
+    container_name: promptregistry-redis-server
+    depends_on:
+      redis-kv-store:
+        condition: service_healthy
+    ports:
+      - "${PROMPT_REGISTRY_PORT:-6018}:6018"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      OPEA_STORE_NAME: "redis"
+      REDIS_URL: ${REDIS_URL-redis://localhost:6379}
+      INDEX_NAME: ${INDEX_NAME-opea:index}
+      DOC_PREFIX: ${DOC_PREFIX-doc:}
+      AUTO_CREATE_INDEX: ${AUTO_CREATE_INDEX-true}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
+    restart: unless-stopped
+
 networks:
   default:
     driver: bridge

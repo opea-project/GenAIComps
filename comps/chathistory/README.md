@@ -19,7 +19,9 @@ To get detailed, step-by-step instructions on deploying the `chathistory` micros
 
 | Platform | Deployment Method | Database | Link                                                             |
 | -------- | ----------------- | -------- | ---------------------------------------------------------------- |
-| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
 | CPU      | Docker            | ArangoDB | [Deployment Guide](./deployment/docker_compose/README_arango.md) |
-| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
+| CPU      | Docker            | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
+| CPU      | Docker            | Redis    | [Deployment Guide](./deployment/docker_compose/README_redis.md)  |
 | CPU      | Docker Compose    | ArangoDB | [Deployment Guide](./deployment/docker_compose/README_arango.md) |
+| CPU      | Docker Compose    | MongoDB  | [Deployment Guide](./deployment/docker_compose/README.md)        |
+| CPU      | Docker Compose    | Redis    | [Deployment Guide](./deployment/docker_compose/README_redis.md)  |

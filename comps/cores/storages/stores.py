@@ -17,7 +17,7 @@ from comps.cores.common.storage import OpeaStore
 STORE_ID_COLS = {
     "mongodb": "_id",
     "arangodb": "_id",
-    "redis": "ID",
+    "redis": "id",
 }
 
 
@@ -185,7 +185,9 @@ def get_store(user: str) -> OpeaStore:
         from comps.cores.storages.redisdb import RedisDBStore
 
         store = RedisDBStore(name, config=store_cfg)
-        store._initialize_connection()
+        # For async Redis, initialization happens lazily in async methods
+        if not store_cfg.get("is_async", store.IS_ASYNC_DEFAULT):
+            store._initialize_connection_sync()
 
     # Future storage backends can be added here.
 
