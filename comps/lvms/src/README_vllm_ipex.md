@@ -62,6 +62,8 @@ Deploy the vLLM-IPEX model serving using Docker Compose.
     docker compose up lvm-vllm-ipex-service -d
     ```
 
+> **Note:** More details about supported models can be found at [supported-models](https://github.com/intel/llm-scaler/tree/main/vllm#3-supported-models).
+
 ---
 
 ## Consume LVM Service

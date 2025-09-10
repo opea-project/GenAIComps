@@ -18,23 +18,26 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                                           | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana | SGLANG-CPU |
-| ----------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- | ---------- |
-| [Intel/neural-chat-7b-v3-3]                     | ✓         | ✓        | ✓          | ✓        | ✓              | -          |
-| [meta-llama/Llama-2-7b-chat-hf]                 | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
-| [meta-llama/Llama-2-70b-chat-hf]                | ✓         | -        | ✓          | -        | ✓              | ✓          |
-| [meta-llama/Meta-Llama-3-8B-Instruct]           | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
-| [meta-llama/Meta-Llama-3-70B-Instruct]          | ✓         | -        | ✓          | -        | ✓              | ✓          |
-| [Phi-3]                                         | ✗         | Limit 4K | Limit 4K   | Limit 4K | ✓              | -          |
-| [Phi-4]                                         | ✗         | ✗        | ✗          | ✗        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]      | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]     | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]      | ✓         | -        | ✓          | -        | ✓              | -          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]      | ✓         | -        | ✓          | -        | ✓              | -          |
-| [mistralai/Mistral-Small-24B-Instruct-2501]     | ✓         | -        | ✓          | -        | ✓              | -          |
-| [mistralai/Mistral-Large-Instruct-2411]         | ✗         | -        | ✓          | -        | ✓              | -          |
-| [meta-llama/Llama-4-Scout-17B-16E-Instruct]     | -         | -        | -          | -        | -              | ✓          |
-| [meta-llama/Llama-4-Maverick-17B-128E-Instruct] | -         | -        | -          | -        | -              | ✓          |
+| Model                                           | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | vLLM-IPEX-XPU | OVMS     | Optimum-Habana | SGLANG-CPU |
+| ----------------------------------------------- | --------- | -------- | ---------- | ------------- | -------- | -------------- | ---------- |
+| [Intel/neural-chat-7b-v3-3]                     | ✓         | ✓        | ✓          | ✓             | ✓        | ✓              | -          |
+| [meta-llama/Llama-2-7b-chat-hf]                 | ✓         | ✓        | ✓          | -             | ✓        | ✓              | ✓          |
+| [meta-llama/Llama-2-70b-chat-hf]                | ✓         | -        | ✓          | -             | -        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-8B-Instruct]           | ✓         | ✓        | ✓          | -             | ✓        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-70B-Instruct]          | ✓         | -        | ✓          | -             | -        | ✓              | ✓          |
+| [Phi-3]                                         | ✗         | Limit 4K | Limit 4K   | ✓             | Limit 4K | ✓              | -          |
+| [Phi-4]                                         | ✗         | ✗        | ✗          | ✓             | ✗        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]      | ✓         | -        | ✓          | ✓             | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]     | ✓         | -        | ✓          | ✓             | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]      | ✓         | -        | ✓          | ✓             | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]      | ✓         | -        | ✓          | ✓             | -        | ✓              | -          |
+| [mistralai/Mistral-Small-24B-Instruct-2501]     | ✓         | -        | ✓          | -             | -        | ✓              | -          |
+| [mistralai/Mistral-Large-Instruct-2411]         | ✗         | -        | ✓          | -             | -        | ✓              | -          |
+| [meta-llama/Llama-4-Scout-17B-16E-Instruct]     | -         | -        | -          | -             | -        | -              | ✓          |
+| [meta-llama/Llama-4-Maverick-17B-128E-Instruct] | -         | -        | -          | -             | -        | -              | ✓          |
+| [Qwen3-8B/14B/32B]                              | -         | -        | -          | ✓             | -        | -              | -          |
+
+> **Note:** More details about supported models for vLLM-IPEX-XPU can be found at [supported-models](https://github.com/intel/llm-scaler/tree/main/vllm#3-supported-models).
 
 ### System Requirements for LLM Models
 
@@ -70,6 +73,7 @@ In this microservices, we have supported following backend LLM service as integr
 - [Bedrock](./README_bedrock.md)
 - [Native](./README_native.md), based on optimum habana
 - [Predictionguard](./README_predictionguard.md)
+- [VLLM-IPEX](./README_vllm_ipex.md), based on B60 Graphics
 
 ### Clone OPEA GenAIComps
 
