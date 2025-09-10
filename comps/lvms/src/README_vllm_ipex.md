@@ -83,7 +83,7 @@ curl http://localhost:41091/v1/chat/completions -XPOST -H "Content-Type: applica
         "content": [
           {
             "type": "text",
-            "text": "图片里有什么?"
+            "text": "Describe the image."
           },
           {
             "type": "image_url",
