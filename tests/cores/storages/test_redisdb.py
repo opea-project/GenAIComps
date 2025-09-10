@@ -34,7 +34,7 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         # Set up ft() method chain for Redis Search operations
         mock_ft = MagicMock()
         mock_ft.info = AsyncMock()
-        
+
         # Set up search result mock
         mock_search_result = MagicMock()
         mock_doc = MagicMock()
@@ -42,7 +42,7 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         mock_doc.id = "test:doc:123"
         mock_search_result.docs = [mock_doc]
         mock_ft.search = AsyncMock(return_value=mock_search_result)
-        
+
         self.mock_client.ft = MagicMock(return_value=mock_ft)
 
         # Set up JSON operations
@@ -54,7 +54,7 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
         # Set up other async methods
         self.mock_client.ping = AsyncMock(return_value=True)
         self.mock_client.execute_command = AsyncMock()
-        
+
         # Set up pipeline operations
         mock_pipeline = MagicMock()
         mock_pipeline_json = MagicMock()
@@ -76,21 +76,23 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
     async def test_create_index(self):
         # Mock ResponseError to trigger index creation, then success on second call
         from redis.exceptions import ResponseError
-        # First call raises error, second call succeeds  
+
+        # First call raises error, second call succeeds
         self.mock_client.ft.return_value.info = AsyncMock(side_effect=[ResponseError("no such index"), {}])
-        
+
         sample_data = {"id": "123", "title": "Test", "content": "Content"}
         await self.store.create_index(sample_data)
-        
+
         # Verify that execute_command was called (for index creation)
         self.mock_client.execute_command.assert_called()
 
     async def test_create_index_failure(self):
         # Mock ResponseError to trigger index creation, but make execute_command fail
         from redis.exceptions import ResponseError
+
         self.mock_client.ft.return_value.info = AsyncMock(side_effect=ResponseError("no such index"))
         self.mock_client.execute_command = AsyncMock(side_effect=Exception("create failed"))
-        
+
         sample_data = {"id": "123", "title": "Test", "content": "Content"}
         with self.assertRaises(Exception):
             await self.store.create_index(sample_data)
@@ -125,11 +127,12 @@ class TestRedisDBStore(unittest.IsolatedAsyncioTestCase):
     async def test_create_index_actual_fields(self):
         # Mock ResponseError to trigger index creation, then success on second call
         from redis.exceptions import ResponseError
+
         self.mock_client.ft.return_value.info = AsyncMock(side_effect=[ResponseError("no such index"), {}])
-        
+
         sample_data = {"id": "123", "title": "Test", "content": "Content"}
         await self.store.create_index(sample_data)
-        
+
         # Verify that execute_command was called (for index creation)
         self.mock_client.execute_command.assert_called()
 

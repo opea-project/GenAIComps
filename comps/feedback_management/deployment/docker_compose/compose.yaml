@@ -92,7 +92,7 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       timeout: 10s
       retries: 3
-      start_period: 10s  
+      start_period: 10s
 
   feedbackmanagement-redis:
     image: ${REGISTRY:-opea}/feedbackmanagement:${TAG:-latest}
