@@ -35,7 +35,7 @@ function start_service() {
     cd $WORKPATH/comps/lvms/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
     sleep 30s
-    
+
     # Check if service is ready
     # May include model downloading time
     n=0
