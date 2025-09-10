@@ -155,7 +155,7 @@ services:
     depends_on:
       ovms-llm-serving:
         condition: service_healthy
-  
+
   textgen-vllm-ipex-service:
     container_name: textgen-vllm-ipex-service
     image: ${REGISTRY:-intel}/llm-scaler-vllm:${TAG:-latest}

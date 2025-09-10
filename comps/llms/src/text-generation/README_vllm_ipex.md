@@ -1,4 +1,5 @@
 # LLM Microservice with vLLM on Intel XPU
+
 This service provides high-throughput, low-latency LLM serving accelerated by vLLM-IPEX, optimized for Intel® Arc™ Pro B60 Graphics.
 
 ---
@@ -38,12 +39,16 @@ export LOAD_QUANTIZATION=awq
 export VLLM_SERVICE_PORT=41090
 
 # export ONEAPI_DEVICE_SELECTOR="level_zero:0;level_zero:1;level_zero:2;level_zero:3"
+
 export ONEAPI_DEVICE_SELECTOR="level_zero:0;level_zero:1"
 export TENSOR_PARALLEL_SIZE=2
+
 # export PIPELINE_PARALLEL_SIZE=1
 
 # base_dir=$(cd "$(dirname "$0")"; pwd)
+
 # data_dir=$(cd "$base_dir/../test_resources"; pwd)
+
 export data_dir=/home/intel/linjiaojiao/large-model-quickstart/vllm-ipex/test_resources
 
 1.  Export the required environment variables:
@@ -90,13 +95,13 @@ Send a POST request with a prompt.
 
 ```bash
 curl http://localhost:41090/v1/chat/completions -XPOST -H "Content-Type: application/json" -d '{
-    "model": "Qwen/Qwen3-8B-AWQ", 
-    "messages": [ 
-      { 
-        "role": "user", 
+    "model": "Qwen/Qwen3-8B-AWQ",
+    "messages": [
+      {
+        "role": "user",
         "content": "What is Deep Learning?"
-      } 
-    ], 
-    "max_tokens": 512 
+      }
+    ],
+    "max_tokens": 512
   }'
 ```

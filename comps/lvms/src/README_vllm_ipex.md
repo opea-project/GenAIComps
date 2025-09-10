@@ -1,4 +1,5 @@
 # LVM Microservice with vLLM on Intel XPU
+
 This service provides high-throughput, low-latency LVM serving accelerated by vLLM-IPEX, optimized for Intel® Arc™ Pro B60 Graphics.
 
 ---
@@ -73,24 +74,24 @@ Send a POST request with an image url and a prompt.
 
 ```bash
 curl http://localhost:41091/v1/chat/completions -XPOST -H "Content-Type: application/json" -d '{
-    "model": "Qwen/Qwen2.5-VL-7B-Instruct", 
-    "messages": [ 
-      { 
-        "role": "user", 
-        "content": [ 
+    "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
           {
-            "type": "text", 
-            "text": "图片里有什么?" 
-          }, 
-          { 
-            "type": "image_url", 
-            "image_url": { 
-              "url": "http://farm6.staticflickr.com/5268/5602445367_3504763978_z.jpg" 
-            } 
-          } 
-        ] 
-      } 
-    ], 
-    "max_tokens": 512 
+            "type": "text",
+            "text": "图片里有什么?"
+          },
+          {
+            "type": "image_url",
+            "image_url": {
+              "url": "http://farm6.staticflickr.com/5268/5602445367_3504763978_z.jpg"
+            }
+          }
+        ]
+      }
+    ],
+    "max_tokens": 512
   }'
 ```
