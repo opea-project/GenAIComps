@@ -162,12 +162,12 @@ services:
     privileged: true
     restart: always
     ports:
-      - ${VLLM_PORT-41090}:8000
+      - ${VLLM_PORT:-41090}:8000
     group_add:
-      - ${VIDEO_GROUP_ID}     # Use the environment variable for the video group ID
-      - ${RENDER_GROUP_ID}    # Use the environment variable for the render group ID
+      - ${VIDEO_GROUP_ID:-44}           # Use the environment variable for the video group ID
+      - ${RENDER_GROUP_ID:-992}         # Use the environment variable for the render group ID
     volumes:
-      - ${HF_HOME}:/llm/.cache/huggingface
+      - ${HF_HOME:-${HOME}/.cache/huggingface}:/llm/.cache/huggingface
       - ../../src/text-generation/vllm_ipex_entrypoint.sh:/llm/vllm_ipex_entrypoint.sh
     devices:
       - /dev/dri
