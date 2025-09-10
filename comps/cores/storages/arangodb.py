@@ -370,7 +370,6 @@ class ArangoDBStore(OpeaStore):
 
             # Check if a collection with the same name exists (which would conflict)
             if await self.db.has_collection(view_name):
-                logger.error(f"A collection named '{view_name}' exists, cannot create view with same name.")
                 raise Exception(f"A collection named '{view_name}' exists, cannot create view with same name.")
 
             # Check if view already exists and delete it to recreate with fresh settings

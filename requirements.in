@@ -21,6 +21,5 @@ python-multipart
 pyyaml
 requests
 redis
-redisearch
 shortuuid
 uvicorn
