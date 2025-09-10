@@ -45,5 +45,5 @@ The LVM Microservice supports multiple implementation options. Select the one th
 | **With LLaMA-Vision**    | VQA service leveraging the LLaMA-Vision model.                         | [README_llama_vision](src/README_llama_vision.md)       |
 | **With Video-LLaMA**     | A specialized service for performing VQA on video inputs.              | [README_video_llama](src/README_video_llama.md)         |
 | **With vLLM**            | High-throughput LVM serving accelerated by vLLM on Intel Gaudi HPUs.   | [README_vllm](src/README_vllm.md)                       |
-| **With vLLM-IPEX**       | High-throughput LVM serving accelerated by vLLM-IPEX on Intel Arc GPUs | [README_vllm_ipex](src/README_vllm_ipex.md)           |
+| **With vLLM-IPEX**       | High-throughput LVM serving accelerated by vLLM-IPEX on Intel Arc GPUs | [README_vllm_ipex](src/README_vllm_ipex.md)             |
 | **With PredictionGuard** | LVM service using Prediction Guard with built-in safety features.      | [README_predictionguard](src/README_predictionguard.md) |
