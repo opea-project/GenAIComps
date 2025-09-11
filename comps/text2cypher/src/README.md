@@ -8,6 +8,8 @@ The microservice enables a wide range of use cases, making it a versatile tool f
 
 **Implement Cypher Query based on input text**: Transform user-provided natural language into Cypher queries, subsequently executing them to retrieve data from Graph databases.
 
+**MCP (Model Context Protocol) Support**: When enabled, this microservice can be discovered and used by AI agents through the MCP protocol, allowing seamless integration with AI-powered applications.
+
 ---
 
 ## ⚙️ Implementation
@@ -17,6 +19,79 @@ The text-to-cypher microservice able to implement with various framework and sup
 ### 🔗 Utilizing Text-to-Cypher with Langchain framework
 
 The follow guide provides set-up instructions and comprehensive details regarding the Text-to-Cypher microservices via LangChain. In this configuration, we will employ Neo4J DB as our example database to showcase this microservice.
+
+---
+
+## 🤖 MCP (Model Context Protocol) Support
+
+The text2cypher microservice now supports MCP, enabling AI agents to discover and use its natural language to Cypher query capabilities. This feature allows AI agents to interact with Neo4j databases through natural language queries.
+
+### Enabling MCP Support
+
+MCP support is controlled via the `ENABLE_MCP` environment variable:
+
+```bash
+export ENABLE_MCP=true  # Enable MCP support
+```
+
+When MCP is enabled, the service exposes an `/sse` endpoint for Server-Sent Events transport, allowing MCP clients to connect and discover available tools.
+
+### Using with AI Agents
+
+Once MCP is enabled, AI agents can:
+
+1. Discover the text2cypher service through the OPEA MCP Tools Manager
+2. Generate Cypher queries from natural language
+3. Execute queries against Neo4j databases
+4. Process and analyze graph data results
+
+#### Example: Using with OpeaMCPToolsManager
+
+```python
+from comps.cores.mcp.manager import OpeaMCPToolsManager
+
+# Initialize MCP manager
+mcp_manager = OpeaMCPToolsManager()
+
+# Add text2cypher service
+await mcp_manager.add_sse_client("text2cypher", "http://localhost:9097/sse")
+
+# List available tools
+tools = await mcp_manager.list_tools()
+# Will include: ['text2cypher']
+
+# Use the text2cypher tool
+result = await mcp_manager.call_tool(
+    "text2cypher",
+    {
+        "input_text": "Find all movies directed by Christopher Nolan",
+        "conn_str": {"url": "bolt://localhost:7687", "username": "neo4j", "password": "password"},
+    },
+)
+```
+
+### MCP Configuration in Docker Compose
+
+When using Docker Compose, enable MCP by setting the environment variable:
+
+```bash
+export ENABLE_MCP=true
+docker compose -f compose.yaml up text2cypher-gaudi -d
+```
+
+Or modify the compose file directly:
+
+```yaml
+environment:
+  ENABLE_MCP: true
+```
+
+### Benefits of MCP Integration
+
+- **AI Agent Discovery**: Agents can automatically discover and understand the text2cypher capabilities
+- **Standardized Interface**: Uses the standard MCP protocol for consistent integration
+- **Natural Language Queries**: Enables AI agents to query graph databases without knowing Cypher
+- **Flexible Integration**: Works with any MCP-compatible AI agent framework
 
 ---
 
