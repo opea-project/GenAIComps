@@ -35,9 +35,10 @@ opentelemetry-api==1.27.0
 opentelemetry-exporter-otlp==1.27.0
 opentelemetry-sdk==1.27.0
 pathway
+Pillow==11.3.0
 pgvector
 prometheus-fastapi-instrumentator
-protobuf==4.24.2
+protobuf>=4.24.2
 psycopg2-binary
 pydantic
 pymilvus==2.5.6

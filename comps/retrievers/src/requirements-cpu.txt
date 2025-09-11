@@ -588,8 +588,9 @@ patsy==1.0.1
     # via statsmodels
 pgvector==0.4.1
     # via -r ./comps/retrievers/src/requirements.in
-pillow==11.2.1
+pillow==11.3.0
     # via
+    #   -r ./comps/retrievers/src/requirements.in
     #   cairosvg
     #   docarray
     #   easyocr
