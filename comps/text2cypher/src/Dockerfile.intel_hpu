@@ -10,7 +10,6 @@ ARG REPO_VER=v1.15.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
-    libgl1-mesa-glx \
     libjemalloc-dev
 
 #RUN useradd -m -s /bin/bash user && \
@@ -26,7 +25,7 @@ COPY comps /root/comps
 
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    pip install --no-cache-dir optimum-habana && \
+    pip install --no-cache-dir optimum-habana==1.17.0 && \
     $uvpip git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
 
 RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}

@@ -1,29 +1,19 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 import os
-from typing import Optional
 
 from fastapi import HTTPException
-from pydantic import BaseModel
 
 from comps import CustomLogger
-from comps.chathistory.src.document_store import DocumentStore
+from comps.chathistory.src.integrations.data_store import delete, get, save_or_update
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.cores.storages.models import ChatId, ChatMessage
+from comps.cores.storages.stores import get_store_name
 
-logger = CustomLogger("chathistory_mongo")
+logger = CustomLogger(f"chathistory_{get_store_name()}")
 logflag = os.getenv("LOGFLAG", False)
-
-
-class ChatMessage(BaseModel):
-    data: ChatCompletionRequest
-    first_query: Optional[str] = None
-    id: Optional[str] = None
-
-
-class ChatId(BaseModel):
-    user: str
-    id: Optional[str] = None
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 def get_first_string(value):
@@ -40,11 +30,14 @@ def get_first_string(value):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/create",
     host="0.0.0.0",
     input_datatype=ChatMessage,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Create or update chat conversation history for AI agent workflows",
 )
 async def create_documents(document: ChatMessage):
     """Creates or updates a document in the document store.
@@ -58,16 +51,9 @@ async def create_documents(document: ChatMessage):
     if logflag:
         logger.info(document)
     try:
-        if document.data.user is None:
-            raise HTTPException(status_code=500, detail="Please provide the user information")
-        store = DocumentStore(document.data.user)
-        store.initialize_storage()
         if document.first_query is None:
             document.first_query = get_first_string(document.data.messages)
-        if document.id:
-            res = await store.update_document(document.id, document.data, document.first_query)
-        else:
-            res = await store.save_document(document)
+        res = await save_or_update(document)
         if logflag:
             logger.info(res)
         return res
@@ -78,11 +64,14 @@ async def create_documents(document: ChatMessage):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/get",
     host="0.0.0.0",
     input_datatype=ChatId,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Retrieve chat conversation history for AI agent workflows",
 )
 async def get_documents(document: ChatId):
     """Retrieves documents from the document store based on the provided ChatId.
@@ -96,12 +85,7 @@ async def get_documents(document: ChatId):
     if logflag:
         logger.info(document)
     try:
-        store = DocumentStore(document.user)
-        store.initialize_storage()
-        if document.id is None:
-            res = await store.get_all_documents_of_user()
-        else:
-            res = await store.get_user_documents_by_id(document.id)
+        res = await get(document)
         if logflag:
             logger.info(res)
         return res
@@ -112,11 +96,14 @@ async def get_documents(document: ChatId):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name=f"opea_service@chathistory_{get_store_name()}",
     endpoint="/v1/chathistory/delete",
     host="0.0.0.0",
     input_datatype=ChatId,
     port=6012,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Delete chat conversation history for AI agent workflows",
 )
 async def delete_documents(document: ChatId):
     """Deletes a document from the document store based on the provided ChatId.
@@ -130,12 +117,7 @@ async def delete_documents(document: ChatId):
     if logflag:
         logger.info(document)
     try:
-        store = DocumentStore(document.user)
-        store.initialize_storage()
-        if document.id is None:
-            raise Exception("Document id is required.")
-        else:
-            res = await store.delete_document(document.id)
+        res = await delete(document)
         if logflag:
             logger.info(res)
         return res
@@ -146,4 +128,4 @@ async def delete_documents(document: ChatId):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@chathistory_mongo"].start()
+    opea_microservices[f"opea_service@chathistory_{get_store_name()}"].start()

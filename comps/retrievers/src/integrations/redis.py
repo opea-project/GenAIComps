@@ -7,9 +7,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import Union
 
-from fastapi import HTTPException
-from langchain.vectorstores import Redis
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_community.vectorstores import Redis
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import (
@@ -27,11 +25,9 @@ from .config import (
     BRIDGE_TOWER_EMBEDDING,
     EMBED_MODEL,
     ENABLE_SCHEMA,
-    HF_TOKEN,
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
-    TEI_EMBEDDING_ENDPOINT,
 )
 
 logger = CustomLogger("redis_retrievers")
@@ -54,44 +50,11 @@ class OpeaRedisRetriever(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
-        self.embeddings = asyncio.run(self._initialize_embedder())
+        self.embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         self.client = asyncio.run(self._initialize_client())
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaRedisRetriever health check failed.")
-
-    async def _initialize_embedder(self):
-        if TEI_EMBEDDING_ENDPOINT:
-            logger.info("use tei embedding")
-            if not HF_TOKEN:
-                raise HTTPException(
-                    status_code=400,
-                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
-                )
-
-            import httpx
-
-            async with httpx.AsyncClient() as client:
-                response = await client.get(TEI_EMBEDDING_ENDPOINT + "/info")
-                if response.status_code != 200:
-                    raise HTTPException(
-                        status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
-                    )
-                model_id = response.json()["model_id"]
-            # create embeddings using TEI endpoint service
-            embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
-            )
-        elif BRIDGE_TOWER_EMBEDDING:
-            logger.info("use bridge tower embedding")
-            from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
-
-            embedder = BridgeTowerEmbedding()
-        else:
-            logger.info("use local embedding")
-            # create embeddings using local embedding model
-            embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-        return embedder
 
     async def _initialize_client(self, index_name=INDEX_NAME) -> Redis:
         """Initializes the redis client."""

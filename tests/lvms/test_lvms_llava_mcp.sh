@@ -42,7 +42,7 @@ function start_service() {
 
 function validate_microservice() {
     pip install mcp
-    python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $LVM_PORT "lvm"
+    python3 ${WORKPATH}/tests/lvms/validate_svc_with_mcp.py $ip_address $LVM_PORT
     if [ $? -ne 0 ]; then
         docker logs llava-service
         docker logs lvm-llava-service

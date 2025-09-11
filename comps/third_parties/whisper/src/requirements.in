@@ -3,10 +3,11 @@ aiohttp
 datasets
 docarray[full]
 fastapi
-mcp
+mcp>=1.10.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pillow>=11.3.0
 prometheus-fastapi-instrumentator
 pydantic==2.7.2
 pydub

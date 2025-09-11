@@ -7,7 +7,6 @@ ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libcairo2 \
-    libgl1-mesa-glx \
     libglib2.0-0 \
     libjemalloc-dev \
     libmariadb-dev \

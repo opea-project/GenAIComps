@@ -13,14 +13,18 @@ export TTS_PORT=11801
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5:$TAG -f comps/third_parties/speecht5/src/Dockerfile .
+
+    dockerfile_name="comps/third_parties/speecht5/src/$1"
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5:$TAG -f ${dockerfile_name} .
     if [ $? -ne 0 ]; then
         echo "opea/speecht5 built fail"
         exit 1
     else
         echo "opea/speecht5 built successful"
     fi
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/tts:$TAG -f comps/tts/src/Dockerfile .
+
+    dockerfile_name="comps/tts/src/$1"
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/tts:$TAG -f ${dockerfile_name} .
     if [ $? -ne 0 ]; then
         echo "opea/tts built fail"
         exit 1
@@ -51,21 +55,28 @@ function validate_microservice() {
 
 }
 
-function stop_docker() {
-    docker ps -a --filter "name=speecht5-service" --filter "name=tts-speecht5-service" --format "{{.Names}}" | xargs -r docker stop
+function stop_service() {
+    cd $WORKPATH/comps/tts/deployment/docker_compose/
+    docker compose down || true
 }
 
 function main() {
 
-    stop_docker
+    build_docker_images "Dockerfile"
+    trap stop_service EXIT
 
-    build_docker_images
+    echo "Test normal env ..."
     start_service
-
     validate_microservice
+    stop_service
 
-    stop_docker
-    echo y | docker system prune
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservice
+    stop_service
+
+    docker system prune -f
 
 }
 

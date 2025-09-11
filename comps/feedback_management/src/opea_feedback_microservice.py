@@ -1,68 +1,32 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 import os
-from typing import Annotated, Optional
 
 from fastapi import HTTPException
-from feedback_store import FeedbackStore
-from pydantic import BaseModel, Field
 
 from comps import CustomLogger
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.cores.storages.models import ChatFeedback, FeedbackData, FeedbackId
+from comps.cores.storages.stores import get_store_name
+from comps.feedback_management.src.integrations.data_store import delete, get, save_or_update
 
-logger = CustomLogger("feedback_mongo")
+logger = CustomLogger(f"feedback_{get_store_name()}")
 logflag = os.getenv("LOGFLAG", False)
 
-
-class FeedbackData(BaseModel):
-    """This class represents the data model of FeedbackData collected to store in database.".
-
-    Attributes:
-        is_thumbs_up (bool): True if the response is satisfy, False otherwise.
-        rating: (int)[Optional]: Score rating. Range from 0 (bad rating) to 5(good rating).
-        comment (str)[Optional]: Comment given for response.
-    """
-
-    is_thumbs_up: bool
-    rating: Annotated[Optional[int], Field(ge=0, le=5)] = None
-    comment: Optional[str] = None
-
-
-class ChatFeedback(BaseModel):
-    """This class represents the model for chat to collect FeedbackData together with ChatCompletionRequest data to store in database.
-
-    Attributes:
-        chat_data (ChatCompletionRequest): ChatCompletionRequest object containing chat data to be stored.
-        feedback_data (FeedbackData): FeedbackData object containing feedback data for chat to be stored.
-        chat_id (str)[Optional]: The chat_id associated to the chat to be store together with feedback data.
-        feedback_id (str)[Optional]: The feedback_id of feedback data to be retrieved from database.
-    """
-
-    chat_data: ChatCompletionRequest
-    feedback_data: FeedbackData
-    chat_id: Optional[str] = None
-    feedback_id: Optional[str] = None
-
-
-class FeedbackId(BaseModel):
-    """This class represent the data model for retrieve feedback data stored in database.
-
-    Attributes:
-        user (str): The user of the requested feedback data.
-        feedback_id (str): The feedback_id of feedback data to be retrieved from database.
-    """
-
-    user: str
-    feedback_id: Optional[str] = None
+# Enable MCP support based on environment variable
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/create",
     host="0.0.0.0",
     input_datatype=FeedbackData,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Create or update feedback data for AI-generated responses including ratings and comments",
 )
 async def create_feedback_data(feedback: ChatFeedback):
     """Creates and stores a feedback data in database.
@@ -77,12 +41,7 @@ async def create_feedback_data(feedback: ChatFeedback):
         logger.info(feedback)
 
     try:
-        feedback_store = FeedbackStore(feedback.chat_data.user)
-        feedback_store.initialize_storage()
-        if feedback.feedback_id is None:
-            response = await feedback_store.save_feedback(feedback)
-        else:
-            response = await feedback_store.update_feedback(feedback)
+        response = await save_or_update(feedback)
 
         if logflag:
             logger.info(response)
@@ -94,11 +53,14 @@ async def create_feedback_data(feedback: ChatFeedback):
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/get",
     host="0.0.0.0",
     input_datatype=FeedbackId,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Retrieve feedback data by ID or get all feedback for a specific user",
 )
 async def get_feedback(feedback: FeedbackId):
     """Retrieves feedback_data from feedback store based on provided FeedbackId or user.
@@ -113,12 +75,7 @@ async def get_feedback(feedback: FeedbackId):
         logger.info(feedback)
 
     try:
-        feedback_store = FeedbackStore(feedback.user)
-        feedback_store.initialize_storage()
-        if feedback.feedback_id:
-            response = await feedback_store.get_feedback_by_id(feedback.feedback_id)
-        else:
-            response = await feedback_store.get_all_feedback_of_user()
+        response = await get(feedback)
 
         if logflag:
             logger.info(response)
@@ -131,11 +88,14 @@ async def get_feedback(feedback: FeedbackId):
 
 
 @register_microservice(
-    name="opea_service@feedback_mongo",
+    name=f"opea_service@feedback_{get_store_name()}",
     endpoint="/v1/feedback/delete",
     host="0.0.0.0",
     input_datatype=FeedbackId,
     port=6016,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Delete specific feedback data by user ID and feedback ID",
 )
 async def delete_feedback(feedback: FeedbackId):
     """Delete a feedback data from feedback store by given feedback Id.
@@ -150,12 +110,7 @@ async def delete_feedback(feedback: FeedbackId):
         logger.info(feedback)
 
     try:
-        feedback_store = FeedbackStore(feedback.user)
-        feedback_store.initialize_storage()
-        if feedback.feedback_id is None:
-            raise Exception("feedback_id is required.")
-        else:
-            response = await feedback_store.delete_feedback(feedback.feedback_id)
+        response = await delete(feedback)
 
         if logflag:
             logger.info(response)
@@ -168,4 +123,4 @@ async def delete_feedback(feedback: FeedbackId):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@feedback_mongo"].start()
+    opea_microservices[f"opea_service@feedback_{get_store_name()}"].start()

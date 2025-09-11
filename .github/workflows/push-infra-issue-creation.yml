@@ -8,6 +8,7 @@ on:
       - "**/docker_compose/*.yaml"
 
 name: Create an issue to GenAIInfra on push
+permissions: read-all
 jobs:
   job1:
     name: Create issue
@@ -45,7 +46,7 @@ jobs:
           repo: GenAIInfra
           title: |
             [ci-auto] GenAIComps ${{ env.examples }} docker compose file got changed.
-          assignees: lianhao
+          assignees: poussa
           labels: helm
           body: |
             ## GenAIComps ${{ env.examples }} docker compose file got changed
