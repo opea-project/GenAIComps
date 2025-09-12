@@ -156,6 +156,39 @@ services:
       ovms-llm-serving:
         condition: service_healthy
 
+  textgen-vllm-ipex-service:
+    container_name: textgen-vllm-ipex-service
+    image: ${REGISTRY:-intel}/llm-scaler-vllm:${TAG:-latest}
+    privileged: true
+    restart: always
+    ports:
+      - ${VLLM_PORT:-41090}:8000
+    group_add:
+      - ${VIDEO_GROUP_ID:-44}           # Use the environment variable for the video group ID
+      - ${RENDER_GROUP_ID:-992}         # Use the environment variable for the render group ID
+    volumes:
+      - ${HF_HOME:-${HOME}/.cache/huggingface}:/llm/.cache/huggingface
+      - ../../src/text-generation/vllm_ipex_entrypoint.sh:/llm/vllm_ipex_entrypoint.sh
+    devices:
+      - /dev/dri
+    environment:
+      no_proxy: localhost,127.0.0.1
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_ENDPOINT: https://hf-mirror.com
+      HF_HOME: /llm/.cache/huggingface
+      MODEL_PATH: ${LLM_MODEL_ID}
+      SERVED_MODEL_NAME: ${LLM_MODEL_ID}
+      TENSOR_PARALLEL_SIZE: ${TENSOR_PARALLEL_SIZE:-1}
+      MAX_MODEL_LEN: ${MAX_MODEL_LEN:-20000}
+      ONEAPI_DEVICE_SELECTOR: ${ONEAPI_DEVICE_SELECTOR:-level_zero:0}
+      LOAD_QUANTIZATION: ${LOAD_QUANTIZATION:-fp8}
+      ZE_AFFINITY_MASK: ${ZE_AFFINITY_MASK}
+    shm_size: 128g
+    entrypoint: /bin/bash -c "\
+      chmod +x /llm/vllm_ipex_entrypoint.sh && \
+      bash /llm/vllm_ipex_entrypoint.sh"
+
 networks:
   default:
     driver: bridge
