@@ -15,6 +15,7 @@ include:
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
   - ../../../third_parties/mariadb/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/sqlserver/deployment/docker_compose/compose.yaml
 
 services:
   retriever:
@@ -231,6 +232,22 @@ services:
       LOGFLAG: ${LOGFLAG}
     depends_on:
       mariadb-server:
+        condition: service_healthy
+
+  retriever-sqlserver:
+    extends: retriever
+    container_name: retriever-sqlserver
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_SQLSERVER}
+      MSSQL_CONNECTION_STRING: ${MSSQL_CONNECTION_STRING}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
+      EMBED_MODEL: ${EMBED_MODEL}
+      TABLE_NAME: ${TABLE_NAME}
+    depends_on:
+      sqlserver-db:
+        condition: service_healthy
+      tei-embedding-serving:
         condition: service_healthy
 
 networks:
