@@ -15,6 +15,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 
 # Add Microsoft package repo
 RUN DEBIAN_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2 | cut -d '.' -f 1) && \
+    if [ "$DEBIAN_VERSION" -eq 13 ]; then \
+        echo "DEBIAN_VERSION 13 detected, using 12 for Microsoft repo"; \
+        DEBIAN_VERSION=12; \
+    fi && \
     curl -sSL -O https://packages.microsoft.com/config/debian/$DEBIAN_VERSION/packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb
