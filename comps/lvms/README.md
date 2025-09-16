@@ -38,11 +38,12 @@ Users can configure and deploy LVM-related services based on their specific requ
 
 The LVM Microservice supports multiple implementation options. Select the one that best fits your use case and follow the linked documentation for detailed setup instructions.
 
-| Implementation           | Description                                                          | Documentation                                           |
-| ------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------- |
-| **With LLaVA**           | A general-purpose VQA service using the LLaVA model.                 | [README_llava](src/README_llava.md)                     |
-| **With TGI LLaVA**       | LLaVA service accelerated by TGI, optimized for Intel Gaudi HPUs.    | [README_llava_tgi](src/README_llava_tgi.md)             |
-| **With LLaMA-Vision**    | VQA service leveraging the LLaMA-Vision model.                       | [README_llama_vision](src/README_llama_vision.md)       |
-| **With Video-LLaMA**     | A specialized service for performing VQA on video inputs.            | [README_video_llama](src/README_video_llama.md)         |
-| **With vLLM**            | High-throughput LVM serving accelerated by vLLM on Intel Gaudi HPUs. | [README_vllm](src/README_vllm.md)                       |
-| **With PredictionGuard** | LVM service using Prediction Guard with built-in safety features.    | [README_predictionguard](src/README_predictionguard.md) |
+| Implementation           | Description                                                            | Documentation                                           |
+| ------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| **With LLaVA**           | A general-purpose VQA service using the LLaVA model.                   | [README_llava](src/README_llava.md)                     |
+| **With TGI LLaVA**       | LLaVA service accelerated by TGI, optimized for Intel Gaudi HPUs.      | [README_llava_tgi](src/README_llava_tgi.md)             |
+| **With LLaMA-Vision**    | VQA service leveraging the LLaMA-Vision model.                         | [README_llama_vision](src/README_llama_vision.md)       |
+| **With Video-LLaMA**     | A specialized service for performing VQA on video inputs.              | [README_video_llama](src/README_video_llama.md)         |
+| **With vLLM**            | High-throughput LVM serving accelerated by vLLM on Intel Gaudi HPUs.   | [README_vllm](src/README_vllm.md)                       |
+| **With vLLM-IPEX**       | High-throughput LVM serving accelerated by vLLM-IPEX on Intel Arc GPUs | [README_vllm_ipex](src/README_vllm_ipex.md)             |
+| **With PredictionGuard** | LVM service using Prediction Guard with built-in safety features.      | [README_predictionguard](src/README_predictionguard.md) |
