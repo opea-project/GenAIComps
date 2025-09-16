@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/whisper/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/funasr/deployment/docker_compose/compose.yaml
 
 services:
   asr:
@@ -32,6 +33,15 @@ services:
       ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       whisper-gaudi-service:
+        condition: service_healthy
+  asr-funasr-paraformer:
+    extends: asr
+    container_name: asr-funasr-paraformer-service
+    environment:
+      ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_PARAFORMER_ASR}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
+    depends_on:
+      funasr-paraformer-service:
         condition: service_healthy
 
 networks:
