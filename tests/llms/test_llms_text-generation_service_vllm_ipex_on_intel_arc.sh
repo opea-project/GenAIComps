@@ -15,7 +15,7 @@ export HF_TOKEN=$HF_TOKEN
 service_name="textgen-vllm-ipex-service"
 
 export REGISTRY=intel
-export TAG=0.2.0-b2
+export TAG=1.0
 echo "REGISTRY=${IMAGE_REPO}"
 echo "TAG=${TAG}"
 

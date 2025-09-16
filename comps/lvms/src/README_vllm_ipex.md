@@ -19,7 +19,7 @@ This service provides high-throughput, low-latency LVM serving accelerated by vL
 You must download the official docker image from [Docker Hub](https://hub.docker.com/r/intel/llm-scaler-vllm) first.
 
 ```bash
-docker pull intel/llm-scaler-vllm:0.2.0-b2
+docker pull intel/llm-scaler-vllm:1.0
 ```
 
 ## Start Microservice
@@ -31,9 +31,9 @@ Deploy the vLLM-IPEX model serving using Docker Compose.
 1.  Export the required environment variables:
 
     ```bash
-    # Use image: intel/llm-scaler-vllm:0.2.0-b2
+    # Use image: intel/llm-scaler-vllm:1.0
     export REGISTRY=intel
-    export TAG=0.2.0-b2
+    export TAG=1.0
 
     export ip_address=$(hostname -I | awk '{print $1}')
     export VIDEO_GROUP_ID=$(getent group video | awk -F: '{printf "%s\n", $3}')
