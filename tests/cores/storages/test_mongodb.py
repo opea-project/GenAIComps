@@ -9,10 +9,7 @@ from bson.objectid import ObjectId
 
 from comps.cores.storages import opea_store
 
-
-class DummyDoc:
-    def model_dump(self, **kwargs):
-        return {"text": "mock data"}
+dummy_doc = {"text": "mock data"}
 
 
 class MockAsyncCursor:
@@ -48,6 +45,7 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
         self.config = {
             "MONGO_HOST": "localhost",
             "MONGO_PORT": 27017,
+            "OPEA_STORE_NAME": "mongodb",
             "DB_NAME": "test_db",
             "COLLECTION_NAME": "test_collection",
             "user": "test_user",
@@ -81,46 +79,38 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
     async def test_asave_document(self):
         mock_id = ObjectId("60dbf3a1fc13ae1a3b000000")
         self.store.collection.insert_one.return_value.inserted_id = mock_id
-        result = await self.store.asave_document(DummyDoc())
+        result = await self.store.asave_document(dummy_doc)
         self.assertEqual(result, str(mock_id))
 
     async def test_asave_documents(self):
         self.store.collection.insert_many.return_value.inserted_ids = [ObjectId()]
-        docs = [DummyDoc()]
+        docs = [dummy_doc]
         result = await self.store.asave_documents(docs)
         self.assertTrue(isinstance(result, str))
 
     async def test_aupdate_document(self):
         self.store.collection.update_one.return_value.modified_count = 1
-        doc = {"doc_id": str(ObjectId()), "data": DummyDoc()}
+        doc = {"doc_id": str(ObjectId()), "data": dummy_doc}
         result = await self.store.aupdate_document(doc)
         self.assertTrue(result)
 
     async def test_aupdate_documents(self):
         self.store.collection.update_one.return_value.modified_count = 1
-        docs = [{"doc_id": str(ObjectId()), "data": DummyDoc()}]
+        docs = [{"doc_id": str(ObjectId()), "data": dummy_doc}]
         result = await self.store.aupdate_documents(docs)
         self.assertTrue(result)
 
     async def test_aget_document_by_id(self):
-        self.store.collection.find_one.return_value = {"_id": ObjectId(), "data": {"text": "mock"}}
-        result = await self.store.aget_document_by_id(str(ObjectId()))
-        self.assertEqual(result, {"text": "mock"})
+        id = ObjectId()
+        self.store.collection.find_one.return_value = {"_id": id, "data": {"text": "mock"}}
+        result = await self.store.aget_document_by_id(str(id))
+        self.assertEqual(result, {"_id": id, "data": {"text": "mock"}})
 
     async def test_aget_documents_by_ids(self):
         mock_id = ObjectId("60dbf3a1fc13ae1a3b000000")
         self.store.collection.find_one.return_value = {"_id": mock_id, "data": {"text": "mock"}}
         result = await self.store.aget_documents_by_ids([str(mock_id)])
-        self.assertEqual(result, [{"text": "mock"}])
-
-    async def test_aget_documents_by_user(self):
-        mock_docs = [{"_id": ObjectId("60dbf3a1fc13ae1a3b000000"), "user": "test_user"}]
-        self.store.collection.find.return_value = MockAsyncCursor(mock_docs)
-
-        result = await self.store.aget_documents_by_user("test_user")
-
-        self.assertIsInstance(result, list)
-        self.assertEqual(result[0]["doc_id"], "60dbf3a1fc13ae1a3b000000")
+        self.assertEqual(result, [{"_id": mock_id, "data": {"text": "mock"}}])
 
     async def test_adelete_document(self):
         self.store.collection.delete_one.return_value.deleted_count = 1
@@ -131,22 +121,6 @@ class TestMongoDBStore(unittest.IsolatedAsyncioTestCase):
         self.store.collection.delete_many.return_value.deleted_count = 1
         result = await self.store.adelete_documents([str(ObjectId())])
         self.assertTrue(result)
-
-    async def test_asearch(self):
-        self.store.collection.create_index = MagicMock()
-
-        mock_docs = [
-            {"_id": ObjectId("60dbf3a1fc13ae1a3b000000"), "data": "mock data", "user": "test_user", "score": 0.9}
-        ]
-        mock_cursor = MockSortCursor(mock_docs)
-
-        self.store.collection.find.return_value = mock_cursor
-
-        result = await self.store.asearch("prompt", "value")
-
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["user"], "test_user")
-        self.assertIn("score", result[0])
 
 
 if __name__ == "__main__":

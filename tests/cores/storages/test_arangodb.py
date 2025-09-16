@@ -13,7 +13,8 @@ def mock_arangodb_store():
     """Fixture to create a mock instance of ArangoDBStore."""
     with patch("arango.ArangoClient") as MockClient:
         mock_client = MockClient.return_value
-        store = opea_store("arangodb", config={"client": mock_client})
+        store = opea_store("arangodb", config={"client": mock_client, "is_async": False})
+        store._initialize_connection_sync()
         yield store
 
 
@@ -34,7 +35,8 @@ def test_initialize_connection():
     """Test initializing the database connection."""
     with patch("arango.ArangoClient") as MockClient:
         mock_client = MockClient.return_value
-        store = opea_store("arangodb", config={"client": mock_client})
+        store = opea_store("arangodb", config={"client": mock_client, "is_async": False})
+        store._initialize_connection_sync()
         assert store.client == mock_client
         assert store.db is not None
         assert store.collection is not None

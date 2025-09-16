@@ -7,11 +7,11 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
-export MONGO_HOST=${ip_address}
-export MONGO_PORT=27017
-export OPEA_STORE_NAME="mongodb"
-export DB_NAME=${DB_NAME:-"Prompts"}
-export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
+export OPEA_STORE_NAME="redis"
+export REDIS_URL="redis://${ip_address}:6379"
+export INDEX_NAME="${INDEX_NAME-opea:index}"
+export DOC_PREFIX="${DOC_PREFIX-doc:}"
+export AUTO_CREATE_INDEX="${AUTO_CREATE_INDEX-true}"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,7 +31,7 @@ function start_service() {
     export PROMPT_REGISTRY_PORT=10600
     export TAG=comps
     cd comps/prompt_registry/deployment/docker_compose/
-    docker compose up -d promptregistry-mongo
+    docker compose up -d promptregistry-redis
     sleep 10s
 }
 
@@ -45,13 +45,12 @@ function validate_microservice() {
     "prompt_text": "test prompt", "user": "test"
 }')
     echo $result
-    id=""
-    if [[ ${#result} -eq 26 ]]; then
+    id="${result//\"/}"
+    if [[ $id =~ ^doc:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
         echo "Correct result."
-        id="${result//\"/}"
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-redis-server
         exit 1
     fi
 
@@ -66,7 +65,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-redis-server
         exit 1
     fi
 
@@ -81,7 +80,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-redis-server
         exit 1
     fi
 
@@ -96,7 +95,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-redis-server
         exit 1
     fi
 
@@ -111,13 +110,13 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs promptregistry-mongo-server
+        docker logs promptregistry-redis-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=promptregistry-mongo-server" --filter "name=mongodb" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=promptregistry-redis-server" --filter "name=redis-kv-store" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

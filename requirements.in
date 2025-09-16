@@ -16,10 +16,10 @@ Pillow
 prometheus-fastapi-instrumentator
 pypdf
 python-arango
+python-arango-async
 python-multipart
 pyyaml
 requests
 redis
-redisearch
 shortuuid
 uvicorn

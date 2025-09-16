@@ -1,6 +1,6 @@
-# 📝 Chat History Microservice with MongoDB
+# 📝 Chat History Microservice with Redis
 
-This README provides setup guides and all the necessary information about the Chat History microservice with MongoDB database.
+This README provides setup guides and all the necessary information about the Chat History microservice with Redis database.
 
 ---
 
@@ -9,10 +9,12 @@ This README provides setup guides and all the necessary information about the Ch
 ```bash
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export MONGO_HOST=${MONGO_HOST}
-export MONGO_PORT=27017
-export DB_NAME=${DB_NAME}
-export COLLECTION_NAME=${COLLECTION_NAME}
+export OPEA_STORE_NAME="redis"
+export REDIS_URL="${REDIS_URL-redis://localhost:6379}"
+export INDEX_NAME="${INDEX_NAME-opea:index}"
+export DOC_PREFIX="${DOC_PREFIX-doc:}"
+export AUTO_CREATE_INDEX="${AUTO_CREATE_INDEX-true}"
+export ENABLE_MCP=false  # Set to true to enable MCP support
 ```
 
 ---
@@ -23,21 +25,21 @@ export COLLECTION_NAME=${COLLECTION_NAME}
 
 ```bash
 cd ../../../../
-docker build -t opea/chathistory-mongo:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
+docker build -t opea/chathistory:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
 ```
 
 ### Run Docker with CLI
 
-- Run MongoDB image container
+- Run Redis image container
 
   ```bash
-  docker run -d -p 27017:27017 --name=mongo mongo:latest
+  docker run -d -p 6379:6379 --name=redis-kv-store redis/redis-stack:latest
   ```
 
 - Run the Chat History microservice
 
   ```bash
-  docker run -d --name="chathistory-mongo" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/chathistory-mongo:latest
+  docker run -d --name="chathistory-redis-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e OPEA_STORE_NAME=redis -e REDIS_URL=${REDIS_URL} -e INDEX_NAME=${INDEX_NAME} -e DOC_PREFIX=${DOC_PREFIX} -e AUTO_CREATE_INDEX=${AUTO_CREATE_INDEX} -e ENABLE_MCP=${ENABLE_MCP} opea/chathistory:latest
   ```
 
 ---
@@ -45,7 +47,7 @@ docker build -t opea/chathistory-mongo:latest --build-arg https_proxy=$https_pro
 ## 🚀 Start Microservice with Docker Compose (Option 2)
 
 ```bash
-docker compose -f ../deployment/docker_compose/compose.yaml up -d
+docker compose -f ../deployment/docker_compose/compose.yaml up -d chathistory-redis
 ```
 
 ---
@@ -87,7 +89,7 @@ The Chat History microservice exposes the following API endpoints:
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "user": "test", "id":"668620173180b591e1e0cd74"}'
+    "user": "test", "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"}'
   ```
 
 - Update the conversation by id.
@@ -101,7 +103,7 @@ The Chat History microservice exposes the following API endpoints:
     "data": {
       "messages": "test Messages Update", "user": "test"
     },
-    "id":"668620173180b591e1e0cd74"
+    "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"
   }'
   ```
 
@@ -113,5 +115,5 @@ The Chat History microservice exposes the following API endpoints:
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "user": "test", "id":"668620173180b591e1e0cd74"}'
+    "user": "test", "id":"YOU_COLLECTION_NAME/YOU_DOC_KEY"}'
   ```

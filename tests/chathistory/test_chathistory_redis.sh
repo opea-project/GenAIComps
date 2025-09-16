@@ -7,11 +7,11 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
-export MONGO_HOST=${ip_address}
-export MONGO_PORT=27017
-export DB_NAME=${DB_NAME:-"Conversations"}
-export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
-export OPEA_STORE_NAME="mongodb"
+export OPEA_STORE_NAME="redis"
+export REDIS_URL="redis://${ip_address}:6379"
+export INDEX_NAME="${INDEX_NAME-opea:index}"
+export DOC_PREFIX="${DOC_PREFIX-doc:}"
+export AUTO_CREATE_INDEX="${AUTO_CREATE_INDEX-true}"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -19,10 +19,10 @@ function build_docker_images() {
 
     docker build --no-cache -t opea/chathistory:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/chathistory-mongo built fail"
+        echo "opea/chathistory built fail"
         exit 1
     else
-        echo "opea/chathistory-mongo built successful"
+        echo "opea/chathistory built successful"
     fi
 }
 
@@ -31,7 +31,7 @@ function start_service() {
     export CHATHISTORY_PORT=11000
     export TAG=comps
     cd comps/chathistory/deployment/docker_compose/
-    docker compose up -d chathistory-mongo
+    docker compose up -d chathistory-redis
     sleep 10s
 }
 
@@ -47,13 +47,12 @@ function validate_microservice() {
   }
 }')
     echo $result
-    id=""
-    if [[ ${#result} -eq 26 ]]; then
+    id="${result//\"/}"
+    if [[ $id =~ ^doc:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
         echo "Result correct."
-        id="${result//\"/}"
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 
@@ -64,11 +63,12 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test", "id": "'${id}'"}')
     echo $result
-    if [[ $result == *'{"messages":"test Messages"'* ]]; then
+    rs=$(echo $result | jq -r '.messages')
+    if [[ $rs == 'test Messages' ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 
@@ -83,7 +83,7 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 
@@ -103,7 +103,7 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 
@@ -114,11 +114,12 @@ function validate_microservice() {
   -H 'Content-Type: application/json' \
   -d '{"user": "test", "id": "'${id}'"}')
     echo $result
-    if [[ $result == *'{"messages":"test Messages update"'* ]]; then
+    rs=$(echo $result | jq -r '.messages')
+    if [[ $rs == 'test Messages update' ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 
@@ -133,13 +134,13 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs chathistory-mongo-server
+        docker logs chathistory-redis-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=chathistory-mongo-server" --filter "name=mongodb" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=chathistory-redis-server" --filter "name=redis-kv-store" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

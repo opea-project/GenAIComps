@@ -9,6 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
 export MONGO_PORT=27017
+export OPEA_STORE_NAME="mongodb"
 export DB_NAME=${DB_NAME:-"Conversations"}
 export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
 export ENABLE_MCP=True
@@ -19,12 +20,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/chathistory-mongo:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
+    docker build --no-cache -t opea/chathistory:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/chathistory-mongo built fail"
+        echo "opea/chathistory built fail"
         exit 1
     else
-        echo "opea/chathistory-mongo built successful"
+        echo "opea/chathistory built successful"
     fi
 }
 
@@ -32,7 +33,7 @@ function start_service() {
     cd $WORKPATH
     export ENABLE_MCP=True
     cd comps/chathistory/deployment/docker_compose/
-    docker compose up -d
+    docker compose up -d chathistory-mongo
     sleep 10s
 }
 

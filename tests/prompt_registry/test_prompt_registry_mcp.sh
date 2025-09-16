@@ -9,6 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 export MONGO_HOST=${ip_address}
 export MONGO_PORT=27018
+export OPEA_STORE_NAME="mongodb"
 export DB_NAME=${DB_NAME:-"Prompts"}
 export COLLECTION_NAME=${COLLECTION_NAME:-"test_mcp"}
 export PROMPT_REGISTRY_PORT=10602
@@ -19,12 +20,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/promptregistry-mongo:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/src/Dockerfile .
+    docker build --no-cache -t opea/promptregistry:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/promptregistry-mongo built fail"
+        echo "opea/promptregistry built fail"
         exit 1
     else
-        echo "opea/promptregistry-mongo built successful"
+        echo "opea/promptregistry built successful"
     fi
 }
 
@@ -44,10 +45,11 @@ function start_service() {
         -e no_proxy=$no_proxy \
         -e MONGO_HOST=${MONGO_HOST} \
         -e MONGO_PORT=${MONGO_PORT} \
+        -e OPEA_STORE_NAME=${OPEA_STORE_NAME} \
         -e DB_NAME=${DB_NAME} \
         -e COLLECTION_NAME=${COLLECTION_NAME} \
         -e ENABLE_MCP=${ENABLE_MCP} \
-        opea/promptregistry-mongo:$TAG
+        opea/promptregistry:$TAG
 
     sleep 10s
 }

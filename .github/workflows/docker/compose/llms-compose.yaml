@@ -22,7 +22,7 @@ services:
   llm-docsum:
     build:
       dockerfile: comps/llms/src/doc-summarization/Dockerfile
-    image: ${REGISTRY:-opea}/llm-docsum-tgi:${TAG:-latest}
+    image: ${REGISTRY:-opea}/llm-docsum:${TAG:-latest}
   llm-faqgen:
     build:
       dockerfile: comps/llms/src/faq-generation/Dockerfile
