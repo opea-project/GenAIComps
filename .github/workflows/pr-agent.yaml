@@ -22,8 +22,8 @@ jobs:
       - name: Run PR-Agent
         uses: qodo-ai/pr-agent@main
         env:
-          OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          OPENAI__KEY: "sk_xxx"
+        #   OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
+        #   OPENAI__KEY: "sk_xxx"
         #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
           config.model: "ollama/qwen2.5-coder:7b-instruct"
           OLLAMA.API_BASE: ${{ secrets.OLLAMA_API_BASE }}
