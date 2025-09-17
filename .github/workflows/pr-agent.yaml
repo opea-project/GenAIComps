@@ -23,11 +23,11 @@ jobs:
         uses: qodo-ai/pr-agent@main
         env:
         #   OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          OPENAI__KEY: "sk_xxx"
+          OPENAI_KEY: "sk_xxx"
         #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           config.model: "ollama/qwen2.5-coder:7b-instruct"
-          OLLAMA__API_BASE: ${{ secrets.OLLAMA_API_BASE }}
+          OLLAMA_API_BASE: ${{ secrets.OLLAMA_API_BASE }}
           config.custom_model_max_tokens: "8192"
 
           github_action_config.auto_review: "true"
