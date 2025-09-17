@@ -23,7 +23,7 @@ jobs:
         uses: qodo-ai/pr-agent@main
         env:
         #   OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
-        #   OPENAI__KEY: "sk_xxx"
+          OPENAI__KEY: "sk_xxx"
         #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           config.model: "ollama/qwen2.5-coder:7b-instruct"
@@ -34,3 +34,4 @@ jobs:
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
           NO_PROXY: ${{ secrets.HOST_IP }}
+
