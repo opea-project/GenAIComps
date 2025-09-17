@@ -1,0 +1,35 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: PR Agent
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    runs-on: [self-hosted]
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Run PR-Agent
+        uses: qodo-ai/pr-agent@main
+        env:
+          OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI__KEY: "sk_xxx"
+        #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
+          config.model: "ollama/qwen2.5-coder:7b-instruct"
+          OLLAMA.API_BASE: ${{ secrets.OLLAMA_API_BASE }}
+          config.custom_model_max_tokens: "8192"
+
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
+          NO_PROXY: ${{ secrets.HOST_IP }}
