@@ -34,4 +34,3 @@ jobs:
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
           NO_PROXY: ${{ secrets.HOST_IP }}
-
