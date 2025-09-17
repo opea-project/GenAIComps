@@ -14,6 +14,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     curl
 
 # Add Microsoft package repo
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN DEBIAN_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2 | cut -d '.' -f 1) && \
     if [ "$DEBIAN_VERSION" -eq 13 ]; then \
         echo "DEBIAN_VERSION 13 detected, using 12 for Microsoft repo"; \
@@ -30,6 +31,7 @@ RUN apt-get update && \
     mssql-tools18 \
     unixodbc-dev \
     libgssapi-krb5-2 && \
+    rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 
 RUN useradd -m -s /bin/bash user && \
