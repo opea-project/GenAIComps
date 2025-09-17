@@ -11,7 +11,7 @@ on:
 
 jobs:
   review:
-    runs-on: [self-hosted]
+    runs-on: xeon
 
     permissions:
       contents: read
