@@ -152,14 +152,17 @@ async def get_mcp_tools(mcp_sse_server_url):
     mcp_tools = []
     from langchain_mcp_adapters.client import MultiServerMCPClient
 
+    print(f"MCP SSE Server URL: {mcp_sse_server_url}")
     client = MultiServerMCPClient(
         {
             "math": {
                 "url": mcp_sse_server_url,
-                "transport": "sse",
+                #"transport": "sse",
+                "transport": "streamable_http",
             }
         }
     )
 
     mcp_tools = await client.get_tools()
+    print(f"MCP Tools: {mcp_tools}")
     return mcp_tools
