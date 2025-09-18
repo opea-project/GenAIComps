@@ -20,13 +20,17 @@ jobs:
 
     steps:
       - name: Check vLLM
+        env:
+          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI_KEY: 'sk-dummy'
+          MODEL: qwen2.5-32b
         run: |
-          curl -sf "$OPENAI_API_BASE/models" -H "Authorization: Bearer $OPENAI__KEY"
+          curl -sf "$OPENAI_API_BASE/models" -H "Authorization: Bearer $OPENAI_KEY"
       - name: Run PR-Agent
         uses: qodo-ai/pr-agent@main
         env:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          OPENAI_KEY: "sk_xxx"
+          OPENAI_KEY: "sk-dummy"
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           config.model: "openai/qwen2.5-32b"
           config.custom_model_max_tokens: "4196"
