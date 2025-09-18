@@ -11,7 +11,7 @@ on:
 
 jobs:
   review:
-    runs-on: xeon
+    runs-on: agent
 
     permissions:
       contents: read
@@ -22,15 +22,15 @@ jobs:
       - name: Run PR-Agent
         uses: qodo-ai/pr-agent@main
         env:
-        #   OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
           OPENAI_KEY: "sk_xxx"
         #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           config.model: "ollama/qwen2.5-coder:7b-instruct"
-          OLLAMA_API_BASE: ${{ secrets.OLLAMA_API_BASE }}
-          config.custom_model_max_tokens: "8192"
+        #   OLLAMA_API_BASE: ${{ secrets.OLLAMA_API_BASE }}
+          config.custom_model_max_tokens: "4196"
 
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
-          NO_PROXY: ${{ secrets.HOST_IP }}
+        #   NO_PROXY: ${{ secrets.HOST_IP }}
