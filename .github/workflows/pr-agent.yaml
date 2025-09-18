@@ -19,18 +19,18 @@ jobs:
       issues: write
 
     steps:
+      - name: Check vLLM
+        run: |
+          curl -sf "$OPENAI_API_BASE/models" -H "Authorization: Bearer $OPENAI__KEY"
       - name: Run PR-Agent
         uses: qodo-ai/pr-agent@main
         env:
-          OPENAI__API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           OPENAI_KEY: "sk_xxx"
-        #   config.model: "Qwen/Qwen2.5-Coder-32B-Instruct"
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-          config.model: "ollama/qwen2.5-coder:7b-instruct"
-        #   OLLAMA_API_BASE: ${{ secrets.OLLAMA_API_BASE }}
+          config.model: "openai/qwen2.5-32b"
           config.custom_model_max_tokens: "4196"
 
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
-        #   NO_PROXY: ${{ secrets.HOST_IP }}
