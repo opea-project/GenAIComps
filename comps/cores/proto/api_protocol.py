@@ -1057,3 +1057,12 @@ ALLOWED_COMPLETION_ARGS = (
 
 class RouteEndpointDoc(BaseModel):
     url: str = Field(..., description="URL of the chosen inference endpoint")
+
+class Text2QueryRequest(BaseModel):
+    query: Optional[str] = None
+    conn_type: Optional[str] = "sql"
+    conn_url: Optional[str] = None
+    conn_user: Optional[str] = None
+    conn_password: Optional[str] = None
+    conn_dialect: Optional[str] = "postgresql"
+    options: Dict = {}

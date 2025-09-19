@@ -15,8 +15,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
+from comps.cores.proto.api_protocol import Text2QueryRequest
 
-logger = CustomLogger("comps-text2sql")
+
+logger = CustomLogger("comps_text2query_sql")
 logflag = os.getenv("LOGFLAG", False)
 
 sql_params = {
@@ -40,40 +42,7 @@ llm = HuggingFaceEndpoint(
     **generation_params,
 )
 
-
-class PostgresConnection(BaseModel):
-    user: Annotated[str, Field(min_length=1)]
-    password: Annotated[str, Field(min_length=1)]
-    host: Annotated[str, Field(min_length=1)]
-    port: Annotated[int, Field(ge=1, le=65535)]  # Default PostgreSQL port with constraints
-    database: Annotated[str, Field(min_length=1)]
-
-    def connection_string(self) -> str:
-        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
-
-    def test_connection(self) -> bool:
-        """Test the connection to the PostgreSQL database."""
-        connection_string = self.connection_string()
-        try:
-            engine = create_engine(connection_string)
-            with engine.connect() as _:
-                # If the connection is successful, return True
-                return True
-        except SQLAlchemyError as e:
-            print(f"Connection failed: {e}")
-            return False
-
-
-class Input(BaseModel):
-    input_text: str
-    conn_str: Optional[PostgresConnection] = None
-
-
-class DBConnectionInput(BaseModel):
-    conn_str: PostgresConnection
-
-
-@OpeaComponentRegistry.register("OPEA_TEXT2SQL")
+@OpeaComponentRegistry.register("OPEA_TEXT2QUERY_SQL")
 class OpeaText2SQL(OpeaComponent):
     """A specialized text to sql component derived from OpeaComponent for interacting with TGI services and Database.
 
@@ -99,8 +68,11 @@ class OpeaText2SQL(OpeaComponent):
         except Exception as e:
             return False
 
-    async def invoke(self, input: Input):
-        url = input.conn_str.connection_string()
+    async def invoke(self, request: Text2QueryRequest):
+        url = request.conn_url
+        if not url:
+            raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
+        
         """Execute a SQL query using the custom SQL agent.
 
         Args:
@@ -120,11 +92,11 @@ class OpeaText2SQL(OpeaComponent):
             agent_executor_kwargs={"return_intermediate_steps": True},
         )
 
-        result = await agent_executor.ainvoke(input)
+        result = await agent_executor.ainvoke(request)
 
         query = []
         for log, _ in result["intermediate_steps"]:
             if log.tool == "sql_db_query":
                 query.append(log.tool_input)
         result["sql"] = query[0].replace("Observation", "")
-        return result
+        return {"result": result}
