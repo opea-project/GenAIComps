@@ -43,6 +43,7 @@ class ServiceType(Enum):
     PROMPT_REGISTRY = 26
     TEXT2QUERY = 27
 
+
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
 
