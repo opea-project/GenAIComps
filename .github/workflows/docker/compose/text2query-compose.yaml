@@ -1,0 +1,14 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  text2query-sql:
+    build:
+      dockerfile: comps/text2query/src/Dockerfile
+    image: ${REGISTRY:-opea}/text2query-sql:${TAG:-latest}
+
+  text2query-cypher:
+    build:
+      dockerfile: comps/text2query/src/Dockerfile.cypher.intel_hpu
+    image: ${REGISTRY:-opea}/text2query-cypher:${TAG:-latest}

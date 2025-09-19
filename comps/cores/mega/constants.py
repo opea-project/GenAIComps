@@ -41,6 +41,7 @@ class ServiceType(Enum):
     LANGUAGE_DETECTION = 24
     PROMPT_TEMPLATE = 25
     PROMPT_REGISTRY = 26
+    TEXT2QUERY = 27
 
 
 class MegaServiceEndpoint(Enum):
