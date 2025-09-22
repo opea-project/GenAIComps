@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import os
+
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2query.src.integrations.graph.graph_agent import TripletBuilder
 from comps.cores.proto.api_protocol import Text2QueryRequest
+from comps.text2query.src.integrations.graph.graph_agent import TripletBuilder
 
 logger = CustomLogger("comps-text2query-graph")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_TEXT2QUERY_GRAPH")
 class OpeaText2GRAPH(OpeaComponent):

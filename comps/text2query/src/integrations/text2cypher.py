@@ -14,9 +14,8 @@ from langchain_core.prompts import PromptTemplate
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 
-from comps.cores.proto.api_protocol import Text2QueryRequest
-
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import Text2QueryRequest
 from comps.text2query.src.integrations.cypher.cypher_utils import (
     CypherQueryCorrectorExt,
     construct_schema,
@@ -141,7 +140,7 @@ class OpeaText2Cypher(OpeaComponent):
 
             refresh_db = input.options.get("refresh_db", True)
             if refresh_db:
-                graph_store.query(cypher_cleanup)  
+                graph_store.query(cypher_cleanup)
             graph_store.query(user_cypher_insert)
         else:
             graph_store.query(cypher_cleanup)
