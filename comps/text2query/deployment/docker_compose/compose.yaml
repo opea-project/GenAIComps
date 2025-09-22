@@ -1,0 +1,94 @@
+﻿# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD-testpwd}
+      - POSTGRES_DB=${POSTGRES_DB-chinook}
+    ports:
+      - '5442:5432'
+    volumes:
+      - ../../src/integrations/sql/chinook.sql:/docker-entrypoint-initdb.d/chinook.sql
+
+  text2query-sql:
+    image: opea/text2query-sql:${TAG:-latest}
+    container_name: text2query-sql-server
+    ports:
+      - ${TEXT2SQL_PORT:-9097}:9097
+    environment:
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT-http://localhost:8008}
+      TEXT2QUERY_COMPONENT_NAME: "OPEA_TEXT2QUERY_SQL"
+    depends_on:
+      - tgi-server
+      - postgres
+
+  text2query-sql-gaudi:
+    image: opea/text2query-sql:${TAG:-latest}
+    container_name: text2query-sql-gaudi-server
+    ports:
+      - ${TEXT2SQL_PORT:-9097}:9097
+    environment:
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT-http://localhost:8008}
+      TEXT2QUERY_COMPONENT_NAME: "OPEA_TEXT2QUERY_SQL"
+    depends_on:
+      - tgi-gaudi-server
+      - postgres
+
+  text2query-cypher-gaudi:
+    image: opea/text2query-cypher:${TAG:-latest}
+    container_name: text2query-cypher-gaudi-server
+    ports:
+      - ${TEXT2CYPHER_PORT:-9097}:9097
+    depends_on:
+      neo4j-apoc:
+        condition: service_healthy
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      INDEX_NAME: ${INDEX_NAME}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      TOKENIZERS_PARALLELISM: False
+      NEO4J_URI: ${NEO4J_URI}
+      NEO4J_URL: ${NEO4J_URI}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      host_ip: ${host_ip}
+      TEXT2QUERY_COMPONENT_NAME: "OPEA_TEXT2QUERY_CYPHER"
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+
+  text2query-graph:
+     image: opea/text2query-graph:${TAG:-latest}
+     container_name: text2query-graph-server
+     ports:
+         - ${TEXT2GRAPH_PORT:-9097}:9097
+     environment:
+         - no_proxy=${no_proxy}
+         - https_proxy=${https_proxy}
+         - http_proxy=${http_proxy}
+         - LLM_MODEL_ID=${LLM_MODEL_ID:-"Babelscape/rebel-large"}
+         - HF_TOKEN=${HF_TOKEN}
+         - TEXT2QUERY_COMPONENT_NAME=OPEA_TEXT2QUERY_GRAPH
+     ipc: host
+     restart: always
+
+networks:
+  default:
+    driver: bridge
