@@ -2,36 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import asyncio
 import os
-import sys
 import threading
-import time
 import traceback
-from string import Template
-from typing import Annotated, Any, Dict, List, Optional, Union
 
 from langchain.chains.llm import LLMChain
 from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
 from langchain_community.graphs import Neo4jGraph
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_core.prompts import PromptTemplate
+from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
-from pydantic import BaseModel, Field
-from pyprojroot import here
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
 from comps.cores.proto.api_protocol import Text2QueryRequest
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2cypher.src.integrations.cypher_utils import (
+from comps.text2query.src.integrations.cypher.cypher_utils import (
     CypherQueryCorrectorExt,
     construct_schema,
     cypher_cleanup,
     cypher_insert,
     prepare_chat_template,
 )
-from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
+from comps.text2query.src.integrations.cypher.pipeline import GaudiTextGenerationPipeline
 
 logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
@@ -137,13 +130,14 @@ class OpeaText2Cypher(OpeaComponent):
         )
 
         if len(input.options) > 0:
-            if input.options.get("cypher_insert", None) is None:
+            user_cypher_insert = input.options.get("cypher_insert", None)
+            if user_cypher_insert is None:
                 raise ValueError("cypher_insert must be provided in the request.")
 
             refresh_db = input.options.get("refresh_db", True)
             if refresh_db:
                 graph_store.query(cypher_cleanup)  
-            graph_store.query(input.options.cypher_insert)
+            graph_store.query(user_cypher_insert)
         else:
             graph_store.query(cypher_cleanup)
             graph_store.query(cypher_insert)    
@@ -207,11 +201,13 @@ class OpeaText2Cypher(OpeaComponent):
                 except Exception as e:
                     logger.error(f"Error during _initialize_client: {e}")
                     logger.error(traceback.format_exc())
+                    raise
 
         try:
             result = query_chain.run(input.query)
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
+            raise
 
         return result

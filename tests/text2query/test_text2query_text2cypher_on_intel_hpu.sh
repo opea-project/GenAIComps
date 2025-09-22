@@ -78,13 +78,12 @@ function validate_text2cypher_service() {
         -d '{"query": "what are the symptoms for Diabetes?","conn_type": "cypher","conn_user": "'${NEO4J_USERNAME}'","conn_password": "neo4jtest","conn_url": "'${NEO4J_URL}'","conn_dialect": "neo4j" }' \
         -H 'Content-Type: application/json')
 
-    docker logs ${CONTAINER_NAME}
-
     if [[ ${#result} -gt 0 ]]; then
         echo $result
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
+        docker logs ${CONTAINER_NAME}
         exit 1
     fi
 }

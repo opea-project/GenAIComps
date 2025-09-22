@@ -5,12 +5,9 @@ import argparse
 import copy
 import glob
 import os
-import shutil
-import tempfile
 import time
 from pathlib import Path
 
-import requests
 import torch
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,

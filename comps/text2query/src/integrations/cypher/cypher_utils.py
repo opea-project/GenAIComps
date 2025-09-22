@@ -4,7 +4,7 @@
 import re
 from collections import namedtuple
 from string import Template
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from langchain_community.chains.graph_qa.cypher_utils import CypherQueryCorrector, Schema
 

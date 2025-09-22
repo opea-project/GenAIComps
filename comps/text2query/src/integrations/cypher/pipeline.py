@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 class GaudiTextGenerationPipeline(TextGenerationPipeline):
     def __init__(self, args, logger, use_with_langchain=False, warmup_on_init=True):
-        from comps.text2cypher.src.integrations.gaudiutils import initialize_model
+        from comps.text2query.src.integrations.cypher.gaudiutils import initialize_model
 
         self.model, _, self.tokenizer, self.generation_config = initialize_model(args, logger)
 

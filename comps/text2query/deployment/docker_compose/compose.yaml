@@ -74,6 +74,21 @@ services:
       - SYS_NICE
     restart: unless-stopped
 
+  text2query-graph:
+     image: opea/text2query-graph:${TAG:-latest}
+     container_name: text2query-graph-server
+     ports:
+         - ${TEXT2GRAPH_PORT:-9097}:9097
+     environment:
+         - no_proxy=${no_proxy}
+         - https_proxy=${https_proxy}
+         - http_proxy=${http_proxy}
+         - LLM_MODEL_ID=${LLM_MODEL_ID:-"Babelscape/rebel-large"}
+         - HF_TOKEN=${HF_TOKEN}
+         - TEXT2QUERY_COMPONENT_NAME=OPEA_TEXT2QUERY_GRAPH
+     ipc: host
+     restart: always
+
 networks:
   default:
     driver: bridge

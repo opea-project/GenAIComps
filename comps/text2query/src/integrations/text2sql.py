@@ -4,14 +4,11 @@
 from __future__ import annotations
 
 import os
-from typing import Annotated, Optional
 
 from langchain.agents.agent_types import AgentType
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_huggingface import HuggingFaceEndpoint
-from pydantic import BaseModel, Field
-from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
+from urllib.parse import urlparse, urlunparse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
@@ -67,6 +64,41 @@ class OpeaText2SQL(OpeaComponent):
             return True
         except Exception as e:
             return False
+        
+    def format_db_url(self, request: Text2QueryRequest) -> str:
+        """Format the database connection URL by adding username and password if needed.
+        
+        This method takes a database connection URL and ensures it includes authentication
+        credentials when provided. If the URL already contains a username, it returns the
+        URL as-is. If no username is present in the URL but credentials are provided in
+        the request, it constructs a new URL with the username and password embedded.
+        
+        Args:
+            request (Text2QueryRequest): The request object containing connection details
+                including conn_url, conn_username, and conn_password.
+        
+        Returns:
+            str: A properly formatted database connection URL with credentials if needed.
+            
+        Raises:
+            ValueError: If no database connection URL is provided in the request.
+        """
+        url = request.conn_url
+        if not url:
+            raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")  
+        
+        parsed_url = urlparse(url)
+        has_username = bool(parsed_url.username)
+        if has_username:
+            return url
+        elif request.conn_username:
+            password = request.conn_password if request.conn_password else ""
+            new_netloc = f"{request.conn_username}:{password}@{parsed_url.hostname}:{parsed_url.port}"
+            updated_parsed_url = parsed_url._replace(netloc=new_netloc)
+            updated_jdbc_url = urlunparse(updated_parsed_url)
+            return updated_jdbc_url     
+        else:
+            return url 
 
     async def invoke(self, request: Text2QueryRequest):
         url = request.conn_url

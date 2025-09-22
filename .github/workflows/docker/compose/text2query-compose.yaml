@@ -12,3 +12,8 @@ services:
     build:
       dockerfile: comps/text2query/src/Dockerfile.cypher.intel_hpu
     image: ${REGISTRY:-opea}/text2query-cypher:${TAG:-latest}
+
+  text2query-graph:
+    build:
+      dockerfile: comps/text2query/src/Dockerfile.graph
+    image: ${REGISTRY:-opea}/text2query-graph:${TAG:-latest}
