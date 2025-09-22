@@ -49,7 +49,6 @@ echo OVERLAP=${OVERLAP}
 echo MAX_LENGTH=${MAX_LENGTH}
 ```
 
-
 ### Start Text2Graph Microservice with Docker
 
 Command to build text2graph microservice

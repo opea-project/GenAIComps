@@ -50,9 +50,7 @@ BASE_URL = f"http://localhost:{PORT}/v1/text2query"
 headers = {"accept": "application/json"}
 
 # Send the text as a query parameter
-payload = {
-    "query": text
-}
+payload = {"query": text}
 response = requests.post(url=BASE_URL, json=payload, headers=headers)
 print(f"{response.json()}")
 if response.status_code == 200:

@@ -11,9 +11,8 @@ A text2query microservice is a specialized, independent service designed to tran
 
 The Text2Query Microservice supports multiple implementation options to suit different databases. Each implementation includes its own configuration and setup instructions:
 
-| Implementation                  | Description                                                        | Supported Hardware | Documentation                                           |
-| ------------------------------- | ------------------------------------------------------------------ | ------------------ | ------------------------------------------------------- |
-| **Text-to-SQL**                 | Transforming user-provided natural language into SQL queries       | Xeon, Gaudi        | [README](src/README_sql.md)                             |
-| **Text-to-Cypher**              | Transforming user-provided natural language into Cypher queries    | Gaudi              | [README](src/README_cypher.md)                          |
-| **Text-to-Graph**               | Transforming user-provided natural language into graph triplets    | Xeon               | [README](src/README_graph.md)                           |
-
+| Implementation     | Description                                                     | Supported Hardware | Documentation                  |
+| ------------------ | --------------------------------------------------------------- | ------------------ | ------------------------------ |
+| **Text-to-SQL**    | Transforming user-provided natural language into SQL queries    | Xeon, Gaudi        | [README](src/README_sql.md)    |
+| **Text-to-Cypher** | Transforming user-provided natural language into Cypher queries | Gaudi              | [README](src/README_cypher.md) |
+| **Text-to-Graph**  | Transforming user-provided natural language into graph triplets | Xeon               | [README](src/README_graph.md)  |

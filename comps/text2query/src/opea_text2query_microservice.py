@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-"""
-OPEA Text2Query Microservice
+"""OPEA Text2Query Microservice.
 
 This microservice provides text-to-query conversion capabilities supporting multiple query languages:
 - SQL (Structured Query Language)
@@ -46,23 +44,22 @@ loader = OpeaComponentLoader(
 
 
 @register_microservice(
-    name="opea_service@text2query",  
-    endpoint="/v1/text2query",       
-    host="0.0.0.0",                 
-    port=9097,                      
+    name="opea_service@text2query",
+    endpoint="/v1/text2query",
+    host="0.0.0.0",
+    port=9097,
 )
 async def execute_agent(request: Text2QueryRequest):
-    """
-    Main service endpoint for text-to-query conversion.
-    
+    """Main service endpoint for text-to-query conversion.
+
     This asynchronous function receives text2query requests and delegates
     processing to the loaded component implementation. The component handles
     the actual conversion from natural language text to the appropriate
     query language (SQL, Cypher, or Graph).
-    
+
     Args:
         request (Text2QueryRequest): The incoming request containing text to convert
-        
+
     Returns:
         The query conversion result from the loaded component
     """

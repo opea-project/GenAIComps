@@ -30,7 +30,6 @@ Start Text-to-Cypher microservice with below command.
 python3 opea_text2query_microservice.py
 ```
 
-
 ## 🚀 Start Microservice with Docker (Option 2)
 
 ### Build Docker Image
@@ -47,7 +46,6 @@ docker run  --name="comps-langchain-text2query-cypher"  -p 9097:8080 --ipc=host 
 ```
 
 ### Run via docker compose (Option B)
-
 
 #### Start the services.
 
