@@ -82,7 +82,7 @@ class OpeaText2SQL(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        super().__init__(name, ServiceType.TEXT2QUERY.name.lower(), description, config)
+        super().__init__(name, ServiceType.TEXT2SQL.name.lower(), description, config)
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaText2SQL health check failed.")
