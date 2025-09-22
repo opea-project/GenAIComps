@@ -1,9 +1,3 @@
-# ⚠️ Deprecation Notice: `text2graph`
-
-**This repository is no longer actively maintained.**
-
-As of OPEA v1.5, we are deprecating the `text2graph` microservice. Please use `text2query` microservice instead. We will remove `text2graph` at OPEA v1.7.
-
 # Text to graph triplet extractor
 
 Creating graphs from text is about converting unstructured text into structured data is challenging.

@@ -15,4 +15,3 @@ The Text2Query Microservice supports multiple implementation options to suit dif
 | ------------------ | --------------------------------------------------------------- | ------------------ | ------------------------------ |
 | **Text-to-SQL**    | Transforming user-provided natural language into SQL queries    | Xeon, Gaudi        | [README](src/README_sql.md)    |
 | **Text-to-Cypher** | Transforming user-provided natural language into Cypher queries | Gaudi              | [README](src/README_cypher.md) |
-| **Text-to-Graph**  | Transforming user-provided natural language into graph triplets | Xeon               | [README](src/README_graph.md)  |

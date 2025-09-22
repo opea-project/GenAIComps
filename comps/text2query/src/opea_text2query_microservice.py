@@ -30,9 +30,6 @@ if component_name == "OPEA_TEXT2QUERY_SQL":
 elif component_name == "OPEA_TEXT2QUERY_CYPHER":
     from comps.text2query.src.integrations.text2cypher import OpeaText2Cypher
 
-elif component_name == "OPEA_TEXT2QUERY_GRAPH":
-    from comps.text2query.src.integrations.text2graph import OpeaText2GRAPH
-
 else:
     raise ValueError(f"Unsupported TEXT2QUERY_COMPONENT_NAME: {component_name}")
 
