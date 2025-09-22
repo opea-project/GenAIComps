@@ -11,9 +11,8 @@ from langchain_huggingface import HuggingFaceEndpoint
 from urllib.parse import urlparse, urlunparse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
 from comps.cores.proto.api_protocol import Text2QueryRequest
-
+from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
 
 logger = CustomLogger("comps_text2query_sql")
 logflag = os.getenv("LOGFLAG", False)
@@ -38,6 +37,7 @@ llm = HuggingFaceEndpoint(
     task="text-generation",
     **generation_params,
 )
+
 
 @OpeaComponentRegistry.register("OPEA_TEXT2QUERY_SQL")
 class OpeaText2SQL(OpeaComponent):
@@ -104,7 +104,7 @@ class OpeaText2SQL(OpeaComponent):
         url = request.conn_url
         if not url:
             raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
-        
+
         """Execute a SQL query using the custom SQL agent.
 
         Args:

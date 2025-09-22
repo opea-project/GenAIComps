@@ -22,10 +22,10 @@ function build_docker_images() {
 
     docker build --no-cache -t opea/chathistory:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/chathistory-mongo built fail"
+        echo "opea/chathistory built fail"
         exit 1
     else
-        echo "opea/chathistory-mongo built successful"
+        echo "opea/chathistory built successful"
     fi
 }
 

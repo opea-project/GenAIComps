@@ -44,6 +44,7 @@ loader = OpeaComponentLoader(
     description=f"OPEA TEXT2QUERY Component: {component_name}",
 )
 
+
 @register_microservice(
     name="opea_service@text2query",  
     endpoint="/v1/text2query",       
@@ -66,6 +67,7 @@ async def execute_agent(request: Text2QueryRequest):
         The query conversion result from the loaded component
     """
     return await loader.invoke(request)
+
 
 if __name__ == "__main__":
     logger.info("OPEA Text2Query Microservice is starting...")

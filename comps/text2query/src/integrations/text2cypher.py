@@ -31,6 +31,7 @@ initialization_lock = threading.Lock()
 initialized = False
 query_chain = None
 
+
 @OpeaComponentRegistry.register("OPEA_TEXT2QUERY_CYPHER")
 class OpeaText2Cypher(OpeaComponent):
     """A specialized text2cyher component derived from OpeaComponent for text2cypher services."""
@@ -43,65 +44,69 @@ class OpeaText2Cypher(OpeaComponent):
         """Initializes the chain client."""
         global query_chain, initialized
 
-        config = config if config else {
-            "load_quantized_model": False,
-            "num_return_sequences": 1,
-            "model_name_or_path": "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1",
-            "max_new_tokens": 512,
-            "use_hpu_graphs": True,
-            "use_kv_cache": True,
-            "do_sample": True,
-            "show_graphs_count": False,
-            "parallel_strategy": "none",
-            "fp8": False,
-            "kv_cache_fp8": False,
-            "temperature": 0.1,
-            "device": "hpu",
-            "batch_size": 1,
-            "limit_hpu_graphs": False,
-            "reuse_cache": False,
-            "bucket_internal": False,
-            "disk_offload": False,
-            "seed": 27,
-            "token": None,
-            "assistant_model": None,
-            "torch_compile": False,
-            "peft_model": None,
-            "quant_config": os.getenv("QUANT_CONFIG", ""),
-            "bf16": True,
-            "attn_softmax_bf16": False,
-            "max_input_tokens": 0,
-            "warmup": 3,
-            "n_iterations": 5,
-            "local_rank": 0,
-            "num_beams": 1,
-            "trim_logits": True,
-            "profiling_warmup_steps": 0,
-            "profiling_steps": 0,
-            "profiling_record_shapes": False,
-            "tokenizer-config-path": None,
-            "dataset_name": None,
-            "column_name": None,
-            "prompt": None,
-            "bad_words": None,
-            "force_words": None,
-            "model_revision": "main",
-            "output_dir": None,
-            "bucket_size": -1,
-            "dataset_max_samples": -1,
-            "verbose_workers": True,
-            "simulate_dyn_prompt": None,
-            "reduce_recompile": False,
-            "use_flash_attention": True,
-            "flash_attention_recompute": True,
-            "flash_attention_causal_mask": True,
-            "flash_attention_fast_softmax": True,
-            "book_source": True,
-            "ignore_eos": True,
-            "top_p": 1.0,
-            "trust_remote_code": True,
-            "const_serialization_path": None
-        }
+        config = (
+            config
+            if config
+            else {
+                "load_quantized_model": False,
+                "num_return_sequences": 1,
+                "model_name_or_path": "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1",
+                "max_new_tokens": 512,
+                "use_hpu_graphs": True,
+                "use_kv_cache": True,
+                "do_sample": True,
+                "show_graphs_count": False,
+                "parallel_strategy": "none",
+                "fp8": False,
+                "kv_cache_fp8": False,
+                "temperature": 0.1,
+                "device": "hpu",
+                "batch_size": 1,
+                "limit_hpu_graphs": False,
+                "reuse_cache": False,
+                "bucket_internal": False,
+                "disk_offload": False,
+                "seed": 27,
+                "token": None,
+                "assistant_model": None,
+                "torch_compile": False,
+                "peft_model": None,
+                "quant_config": os.getenv("QUANT_CONFIG", ""),
+                "bf16": True,
+                "attn_softmax_bf16": False,
+                "max_input_tokens": 0,
+                "warmup": 3,
+                "n_iterations": 5,
+                "local_rank": 0,
+                "num_beams": 1,
+                "trim_logits": True,
+                "profiling_warmup_steps": 0,
+                "profiling_steps": 0,
+                "profiling_record_shapes": False,
+                "tokenizer-config-path": None,
+                "dataset_name": None,
+                "column_name": None,
+                "prompt": None,
+                "bad_words": None,
+                "force_words": None,
+                "model_revision": "main",
+                "output_dir": None,
+                "bucket_size": -1,
+                "dataset_max_samples": -1,
+                "verbose_workers": True,
+                "simulate_dyn_prompt": None,
+                "reduce_recompile": False,
+                "use_flash_attention": True,
+                "flash_attention_recompute": True,
+                "flash_attention_causal_mask": True,
+                "flash_attention_fast_softmax": True,
+                "book_source": True,
+                "ignore_eos": True,
+                "top_p": 1.0,
+                "trust_remote_code": True,
+                "const_serialization_path": None,
+            }
+        )
 
         logger.info("[ OpeaText2Cypher ] initialize_client started.")
         model_name_or_path = config["model_name_or_path"]
@@ -140,7 +145,7 @@ class OpeaText2Cypher(OpeaComponent):
             graph_store.query(user_cypher_insert)
         else:
             graph_store.query(cypher_cleanup)
-            graph_store.query(cypher_insert)    
+            graph_store.query(cypher_insert)
         graph_store.refresh_schema()
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
