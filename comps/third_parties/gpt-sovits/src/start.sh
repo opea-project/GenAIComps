@@ -23,6 +23,12 @@ else
   exit 1
 fi
 
+# Fast-langdetect version 1.0.0 and later requires a user-specified cache directory to be created manually if it doesn't already exist.
+fast_langdetect_cache_dir="/home/user/GPT-SoVITS/GPT_SoVITS/pretrained_models/fast_langdetect"
+if [ ! -d "${fast_langdetect_cache_dir}" ]; then
+  mkdir -p ${fast_langdetect_cache_dir}
+fi
+
 export NLTK_DATA=/home/user/nltk_data
 
 python api.py --default_refer_path ./welcome_cn.wav --default_refer_text "欢迎使用" --default_refer_language "zh"
