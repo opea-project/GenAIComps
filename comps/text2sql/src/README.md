@@ -1,3 +1,9 @@
+# ⚠️ Deprecation Notice: `text2sql`
+
+**This repository is no longer actively maintained.**
+
+As of OPEA v1.5, we are deprecating the `text2sql` microservice. Please use `text2query` microservice instead. We will remove `text2sql` at OPEA v1.7.
+
 # 🛢 Text-to-SQL Microservice
 
 In today's data-driven world, the ability to efficiently extract insights from databases is crucial. However, querying databases often requires specialized knowledge of SQL(Structured Query Language) and database schemas, which can be a barrier for non-technical users. This is where the Text-to-SQL microservice comes into play, leveraging the power of LLMs and agentic frameworks to bridge the gap between human language and database queries. This microservice is built on LangChain/LangGraph frameworks.
