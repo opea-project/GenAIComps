@@ -13,6 +13,9 @@ environment variable and exposes a unfied REST API endpoint for query conversion
 
 import os
 
+from fastapi import status
+from fastapi.exceptions import HTTPException
+
 from comps import CustomLogger, opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import Text2QueryRequest
 from comps.text2query.src.opea_text2query_loader import OpeaText2QueryLoader
