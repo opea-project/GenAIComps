@@ -28,6 +28,9 @@ ENV LANG=C.UTF-8
 # Clone source repo
 RUN git clone --depth=1 --branch openai_compat --single-branch https://github.com/Spycsh/GPT-SoVITS.git
 
+# Fast-langdetect version 1.0.0 and later requires a user-specified cache directory to be created manually if it doesn't already exist.
+RUN mkdir -p /home/user/GPT-SoVITS/GPT_SoVITS/pretrained_models/fast_langdetect
+
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \

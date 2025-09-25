@@ -10,6 +10,10 @@ from langchain.agents.agent_types import AgentType
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_huggingface import HuggingFaceEndpoint
 
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
+from fastapi.exceptions import HTTPException
+
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import Text2QueryRequest
 from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
@@ -102,9 +106,11 @@ class OpeaText2SQL(OpeaComponent):
 
     async def invoke(self, request: Text2QueryRequest):
         url = request.conn_url
-        if not url:
+        if url:
+            url = self.format_db_url(request)
+        else:
             raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
-
+        
         """Execute a SQL query using the custom SQL agent.
 
         Args:
@@ -132,3 +138,29 @@ class OpeaText2SQL(OpeaComponent):
                 query.append(log.tool_input)
         result["sql"] = query[0].replace("Observation", "")
         return {"result": result}
+    
+    async def db_connection_check(self, request: Text2QueryRequest):
+        """Check the connection to the database.
+
+        This function takes a Text2QueryRequest object containing the database connection information.
+        It attempts to connect to the database using the provided connection URL and credentials.
+
+        Args:
+            request (Text2QueryRequest): A Text2QueryRequest object with the database connection information.
+        Returns:
+            dict: A dictionary with a 'status' key indicating whether the connection was successful or failed.
+        """
+        url = request.conn_url
+        if url:
+            url = self.format_db_url(request)
+        else:
+            raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
+        
+        try:
+            engine = create_engine(url)
+            with engine.connect() as _:
+                # If the connection is successful, return True
+                return {"status": "Connection successful"}
+        except SQLAlchemyError as e:
+            logger.error(f"Connection failed: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to connect to database: {url}")
