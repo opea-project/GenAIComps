@@ -13,8 +13,9 @@ environment variable and exposes a unfied REST API endpoint for query conversion
 
 import os
 
-from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
+from comps import CustomLogger, opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import Text2QueryRequest
+from comps.text2query.src.opea_text2query_loader import OpeaText2QueryLoader
 
 logger = CustomLogger("text2query")
 logflag = os.getenv("LOGFLAG", False)
@@ -34,7 +35,7 @@ else:
     raise ValueError(f"Unsupported TEXT2QUERY_COMPONENT_NAME: {component_name}")
 
 # Initialize the OPEA component loader with the selected component
-loader = OpeaComponentLoader(
+loader = OpeaText2QueryLoader(
     component_name,
     description=f"OPEA TEXT2QUERY Component: {component_name}",
 )
@@ -61,6 +62,32 @@ async def execute_agent(request: Text2QueryRequest):
         The query conversion result from the loaded component
     """
     return await loader.invoke(request)
+
+
+@register_microservice(
+    name="opea_service@text2query",
+    endpoint="/v1/db/health",
+    host="0.0.0.0",
+    port=9097,
+)
+async def db_connection_check(request: Text2QueryRequest):
+    """Check the connection to the database.
+
+    This function takes an Input object containing the database connection information.
+    It uses the test_connection method of the PostgresConnection class to check if the connection is successful.
+
+    Args:
+        request (Text2QueryRequest): An Input object with the database connection information.
+
+    Returns:
+        dict: A dictionary with a 'status' key indicating whether the connection was successful or failed.
+    """
+    logger.info(f"Received input for connection check: {request}")
+    if not isinstance(request, Text2QueryRequest):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Input type mismatch: expected Text2QueryRequest"
+        )
+    return await loader.db_connection_check(request)
 
 
 if __name__ == "__main__":
