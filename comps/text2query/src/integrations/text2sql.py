@@ -6,13 +6,12 @@ from __future__ import annotations
 import os
 from urllib.parse import urlparse, urlunparse
 
+from fastapi.exceptions import HTTPException
 from langchain.agents.agent_types import AgentType
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_huggingface import HuggingFaceEndpoint
-
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import Text2QueryRequest
@@ -110,7 +109,7 @@ class OpeaText2SQL(OpeaComponent):
             url = self.format_db_url(request)
         else:
             raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
-        
+
         """Execute a SQL query using the custom SQL agent.
 
         Args:
@@ -138,7 +137,7 @@ class OpeaText2SQL(OpeaComponent):
                 query.append(log.tool_input)
         result["sql"] = query[0].replace("Observation", "")
         return {"result": result}
-    
+
     async def db_connection_check(self, request: Text2QueryRequest):
         """Check the connection to the database.
 
@@ -155,7 +154,7 @@ class OpeaText2SQL(OpeaComponent):
             url = self.format_db_url(request)
         else:
             raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
-        
+
         try:
             engine = create_engine(url)
             with engine.connect() as _:

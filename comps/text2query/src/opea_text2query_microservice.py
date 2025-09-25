@@ -14,8 +14,8 @@ environment variable and exposes a unfied REST API endpoint for query conversion
 import os
 
 from comps import CustomLogger, opea_microservices, register_microservice
-from comps.text2query.src.opea_text2query_loader import OpeaText2QueryLoader
 from comps.cores.proto.api_protocol import Text2QueryRequest
+from comps.text2query.src.opea_text2query_loader import OpeaText2QueryLoader
 
 logger = CustomLogger("text2query")
 logflag = os.getenv("LOGFLAG", False)
@@ -63,6 +63,7 @@ async def execute_agent(request: Text2QueryRequest):
     """
     return await loader.invoke(request)
 
+
 @register_microservice(
     name="opea_service@text2query",
     endpoint="/v1/db/health",
@@ -84,8 +85,7 @@ async def db_connection_check(request: Text2QueryRequest):
     logger.info(f"Received input for connection check: {request}")
     if not isinstance(request, Text2QueryRequest):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
-            detail="Input type mismatch: expected Text2QueryRequest"
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Input type mismatch: expected Text2QueryRequest"
         )
     return await loader.db_connection_check(request)
 
