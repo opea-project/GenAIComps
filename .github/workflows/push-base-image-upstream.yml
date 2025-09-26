@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 name: Build and upstream latest base image on push event
 
+permissions: read-all
 on:
   push:
     branches: ["main"]
@@ -27,7 +28,7 @@ jobs:
     steps:
       - name: Clean up Working Directory
         run: |
-          echo "Build opea/comps-base:latest !"
+          echo "Build opea/comps-base:latest, opea/comps-base:latest-openeuler !"
           sudo rm -rf ${{github.workspace}}/*
 
       - name: Checkout out Repo
@@ -40,9 +41,13 @@ jobs:
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/base-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
 
-  image-publish:
+  base-image-publish:
     needs: [ image-build ]
-    runs-on: [docker-upstream]
+    strategy:
+      matrix:
+        image: [ "comps-base", "comps-base-openeuler" ]
+      fail-fast: false
+    runs-on: [ docker-upstream ]
     steps:
       - uses: docker/login-action@v3.2.0
         with:
@@ -52,6 +57,6 @@ jobs:
       - name: Image Publish
         uses: opea-project/validation/actions/image-publish@main
         with:
-          local_image_ref: ${OPEA_IMAGE_REPO}opea/comps-base:latest
-          image_name: opea/comps-base
+          local_image_ref: ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:latest
+          image_name: opea/${{ matrix.image }}
           publish_tags: latest

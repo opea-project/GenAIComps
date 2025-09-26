@@ -154,6 +154,16 @@ Please check the [Contributing Guidelines](https://github.com/opea-project/docs/
 
 Thank you for being a part of this journey. We can't wait to see what we can achieve together!
 
+### uv pip compile usage
+
+To update the existing requirements files, follow the steps below:
+
+1. Update `requirements.in` file with the dependencies you want to add or modify.
+2. Install `uv` package with `pip install uv`, suggest to work in the same python version used by your dockerfile.
+3. Edit and run `freeze_dependency.sh` to update the `requirements*.txt` file.
+
+To add a new requirements file, create a new `requirements.in` file and an empty `requirements.txt` or `requirements-cpu.txt` or `requirements-gpu.txt`, then follow the same steps above.
+
 ## Additional Content
 
 - [Code of Conduct](https://github.com/opea-project/docs/tree/main/community/CODE_OF_CONDUCT.md)

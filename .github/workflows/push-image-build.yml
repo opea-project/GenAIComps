@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 name: Build latest images on push event
 
+permissions: read-all
 on:
   push:
     branches: ["main"]
@@ -88,10 +89,10 @@ jobs:
           fi
           source ${{ github.workspace }}/.github/env/_vllm_versions.sh
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_path}) != 0 ]]; then
-              git clone --depth 1 -b ${VLLM_OPENVINO_VER} --single-branch https://github.com/vllm-project/vllm.git
+              git clone --depth 1 -b ${VLLM_OPENVINO_VER} --single-branch https://github.com/vllm-project/vllm.git vllm-openvino
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_path}) != 0 ]]; then
-              git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git
+              git clone --depth 1 -b ${VLLM_FORK_VER} --single-branch https://github.com/HabanaAI/vllm-fork.git vllm-fork
           fi
 
       - name: Build Image

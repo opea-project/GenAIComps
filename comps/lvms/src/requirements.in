@@ -4,12 +4,13 @@ docarray[full]
 fastapi
 huggingface_hub
 langchain-core
-mcp
+mcp==1.10.0
 openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 optimum[habana]
+pillow==11.3.0
 prometheus-fastapi-instrumentator
 pydantic==2.7.2
 pydub

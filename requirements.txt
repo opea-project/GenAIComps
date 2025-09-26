@@ -4,33 +4,35 @@ aiofiles==24.1.0
     # via -r ./requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.13
+aiohttp==3.12.15
     # via
     #   -r ./requirements.in
     #   langchain-community
-aiosignal==1.3.2
+    #   python-arango-async
+aiosignal==1.4.0
     # via aiohttp
 annotated-types==0.7.0
     # via pydantic
-anyio==4.9.0
+anyio==4.10.0
     # via
     #   httpx
     #   mcp
     #   sse-starlette
     #   starlette
 attrs==25.3.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   jsonschema
+    #   referencing
 cachetools==5.5.2
     # via google-auth
-certifi==2025.6.15
+certifi==2025.8.3
     # via
     #   httpcore
     #   httpx
     #   kubernetes
     #   requests
-cffi==1.17.1 ; platform_python_implementation == 'PyPy'
-    # via zstandard
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via uvicorn
@@ -46,7 +48,7 @@ docx2txt==0.9
     # via -r ./requirements.in
 durationpy==0.10
     # via kubernetes
-fastapi==0.115.13
+fastapi==0.116.1
     # via -r ./requirements.in
 frozenlist==1.7.0
     # via
@@ -58,9 +60,9 @@ googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.2.3 ; (python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'WIN32') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'ppc64le') or (python_full_version < '3.14' and platform_machine == 'win32') or (python_full_version < '3.14' and platform_machine == 'x86_64')
+greenlet==3.2.4 ; (python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'WIN32') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'ppc64le') or (python_full_version < '3.14' and platform_machine == 'win32') or (python_full_version < '3.14' and platform_machine == 'x86_64')
     # via sqlalchemy
-grpcio==1.73.0
+grpcio==1.74.0
     # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
     # via
@@ -73,7 +75,7 @@ httpx==0.28.1
     #   -r ./requirements.in
     #   langsmith
     #   mcp
-httpx-sse==0.4.0
+httpx-sse==0.4.1
     # via
     #   langchain-community
     #   mcp
@@ -91,90 +93,96 @@ jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
     # via jsonpatch
+jsonschema==4.25.1
+    # via mcp
+jsonschema-specifications==2025.4.1
+    # via jsonschema
 kubernetes==33.1.0
     # via -r ./requirements.in
-langchain==0.3.25
+langchain==0.3.27
     # via
     #   -r ./requirements.in
     #   langchain-community
-langchain-community==0.3.25
+langchain-community==0.3.27
     # via -r ./requirements.in
-langchain-core==0.3.65
+langchain-core==0.3.74
     # via
     #   langchain
     #   langchain-community
     #   langchain-text-splitters
-langchain-text-splitters==0.3.8
+langchain-text-splitters==0.3.9
     # via langchain
-langsmith==0.3.45
+langsmith==0.4.14
     # via
     #   langchain
     #   langchain-community
     #   langchain-core
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 marshmallow==3.26.1
     # via dataclasses-json
-mcp==1.9.4
+mcp==1.13.0
     # via -r ./requirements.in
 mdurl==0.1.2
     # via markdown-it-py
 motor==3.7.1
     # via -r ./requirements.in
-multidict==6.5.0
+multidict==6.6.4
     # via
     #   aiohttp
+    #   python-arango-async
     #   yarl
 mypy-extensions==1.1.0
     # via typing-inspect
-numpy==2.3.0
+numpy==2.3.2
     # via
     #   docarray
     #   langchain-community
-oauthlib==3.3.0
+oauthlib==3.3.1
     # via
     #   kubernetes
     #   requests-oauthlib
-opentelemetry-api==1.34.1
+opentelemetry-api==1.36.0
     # via
     #   -r ./requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp==1.34.1
+opentelemetry-exporter-otlp==1.36.0
     # via -r ./requirements.in
-opentelemetry-exporter-otlp-proto-common==1.34.1
+opentelemetry-exporter-otlp-proto-common==1.36.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-grpc==1.34.1
+opentelemetry-exporter-otlp-proto-grpc==1.36.0
     # via opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.34.1
+opentelemetry-exporter-otlp-proto-http==1.36.0
     # via opentelemetry-exporter-otlp
-opentelemetry-proto==1.34.1
+opentelemetry-proto==1.36.0
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.34.1
+opentelemetry-sdk==1.36.0
     # via
     #   -r ./requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.55b1
+opentelemetry-semantic-conventions==0.57b0
     # via opentelemetry-sdk
-orjson==3.10.18
+orjson==3.11.2
     # via
     #   docarray
     #   langsmith
-packaging==24.2
+packaging==25.0
     # via
     #   langchain-core
     #   langsmith
     #   marshmallow
     #   python-arango
-pillow==11.2.1
+    #   python-arango-async
+pillow==11.3.0
     # via -r ./requirements.in
 prometheus-client==0.22.1
     # via prometheus-fastapi-instrumentator
@@ -184,7 +192,7 @@ propcache==0.3.2
     # via
     #   aiohttp
     #   yarl
-protobuf==5.29.5
+protobuf==6.32.0
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -194,8 +202,6 @@ pyasn1==0.6.1
     #   rsa
 pyasn1-modules==0.4.2
     # via google-auth
-pycparser==2.22 ; platform_python_implementation == 'PyPy'
-    # via cffi
 pydantic==2.11.7
     # via
     #   docarray
@@ -207,28 +213,34 @@ pydantic==2.11.7
     #   pydantic-settings
 pydantic-core==2.33.2
     # via pydantic
-pydantic-settings==2.9.1
+pydantic-settings==2.10.1
     # via
     #   langchain-community
     #   mcp
-pygments==2.19.1
+pygments==2.19.2
     # via rich
 pyjwt==2.10.1
-    # via python-arango
-pymongo==4.13.2
+    # via
+    #   python-arango
+    #   python-arango-async
+pymongo==4.14.0
     # via motor
-pypdf==5.6.0
+pypdf==6.0.0
     # via -r ./requirements.in
-python-arango==8.2.0
+python-arango==8.2.2
+    # via -r ./requirements.in
+python-arango-async==1.0.2
     # via -r ./requirements.in
 python-dateutil==2.9.0.post0
     # via kubernetes
-python-dotenv==1.1.0
+python-dotenv==1.1.1
     # via pydantic-settings
 python-multipart==0.0.20
     # via
     #   -r ./requirements.in
     #   mcp
+pywin32==311 ; sys_platform == 'win32'
+    # via mcp
 pyyaml==6.0.2
     # via
     #   -r ./requirements.in
@@ -236,14 +248,13 @@ pyyaml==6.0.2
     #   langchain
     #   langchain-community
     #   langchain-core
-redis==6.2.0
+redis==6.4.0
+    # via -r ./requirements.in
+referencing==0.36.2
     # via
-    #   -r requirements.in
-    #   redisearch
-    #   rmtest
-redisearch==2.0.0
-    # via -r requirements.in
-requests==2.32.4
+    #   jsonschema
+    #   jsonschema-specifications
+requests==2.32.5
     # via
     #   -r ./requirements.in
     #   kubernetes
@@ -260,12 +271,18 @@ requests-toolbelt==1.0.0
     # via
     #   langsmith
     #   python-arango
-rich==14.0.0
+rich==14.1.0
     # via docarray
+rpds-py==0.27.0
+    # via
+    #   jsonschema
+    #   referencing
 rsa==4.9.1
     # via google-auth
 setuptools==80.9.0
-    # via python-arango
+    # via
+    #   python-arango
+    #   python-arango-async
 shortuuid==1.0.13
     # via -r ./requirements.in
 six==1.17.0
@@ -274,13 +291,13 @@ six==1.17.0
     #   python-dateutil
 sniffio==1.3.1
     # via anyio
-sqlalchemy==2.0.41
+sqlalchemy==2.0.43
     # via
     #   langchain
     #   langchain-community
-sse-starlette==2.3.6
+sse-starlette==3.0.2
     # via mcp
-starlette==0.46.2
+starlette==0.47.2
     # via
     #   fastapi
     #   mcp
@@ -289,10 +306,11 @@ tenacity==9.1.2
     # via
     #   langchain-community
     #   langchain-core
-types-requests==2.32.4.20250611
+types-requests==2.32.4.20250809
     # via docarray
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
+    #   aiosignal
     #   anyio
     #   fastapi
     #   langchain-core
@@ -303,7 +321,9 @@ typing-extensions==4.14.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   sqlalchemy
+    #   starlette
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -314,13 +334,13 @@ typing-inspection==0.4.1
     # via
     #   pydantic
     #   pydantic-settings
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   kubernetes
     #   python-arango
     #   requests
     #   types-requests
-uvicorn==0.34.3
+uvicorn==0.35.0
     # via
     #   -r ./requirements.in
     #   mcp
@@ -330,5 +350,5 @@ yarl==1.20.1
     # via aiohttp
 zipp==3.23.0
     # via importlib-metadata
-zstandard==0.23.0
+zstandard==0.24.0
     # via langsmith

@@ -13,10 +13,19 @@ services:
       https_proxy: ${https_proxy}
       no_proxy: ${no_proxy}
     command: mongod --quiet --logpath /dev/null
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --port 27017 --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   promptregistry-mongo:
-    image: ${REGISTRY:-opea}/promptregistry-mongo:${TAG:-latest}
+    image: ${REGISTRY:-opea}/promptregistry:${TAG:-latest}
     container_name: promptregistry-mongo-server
+    depends_on:
+      mongo:
+        condition: service_healthy
     ports:
       - "${PROMPT_REGISTRY_PORT:-6018}:6018"
     ipc: host
@@ -24,10 +33,86 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       no_proxy: ${no_proxy}
+      OPEA_STORE_NAME: "mongodb"
       MONGO_HOST: ${MONGO_HOST}
       MONGO_PORT: ${MONGO_PORT}
       DB_NAME: ${DB_NAME}
       COLLECTION_NAME: ${COLLECTION_NAME}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
+    restart: unless-stopped
+
+  arango-vector-db:
+    image: arangodb/arangodb:3.12.4
+    container_name: arango-vector-db
+    ports:
+      - "8529:8529"
+    environment:
+      ARANGO_ROOT_PASSWORD: ${ARANGODB_ROOT_PASSWORD:-test}
+    command: ["--experimental-vector-index=true"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "arangosh --version"]
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  promptregistry-arango:
+    image: ${REGISTRY:-opea}/promptregistry:${TAG:-latest}
+    container_name: promptregistry-arango-server
+    depends_on:
+      arango-vector-db:
+        condition: service_healthy
+    ports:
+      - "${PROMPT_REGISTRY_PORT:-6018}:6018"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      OPEA_STORE_NAME: "arangodb"
+      ARANGODB_HOST: ${ARANGODB_HOST-http://localhost:8529}
+      ARANGODB_USERNAME: ${ARANGODB_USERNAME-root}
+      ARANGODB_PASSWORD: ${ARANGODB_PASSWORD-test}
+      ARANGODB_DB_NAME: ${ARANGODB_DB_NAME-_system}
+      ARANGODB_COLLECTION_NAME: ${ARANGODB_COLLECTION_NAME-default}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
+    restart: unless-stopped
+
+  redis-kv-store:
+    image: redis/redis-stack:7.2.0-v9
+    container_name: redis-kv-store
+    ports:
+      - "${REDIS_PORT3:-6379}:6379"
+      - "${REDIS_PORT4:-8001}:8001"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  promptregistry-redis:
+    image: ${REGISTRY:-opea}/promptregistry:${TAG:-latest}
+    container_name: promptregistry-redis-server
+    depends_on:
+      redis-kv-store:
+        condition: service_healthy
+    ports:
+      - "${PROMPT_REGISTRY_PORT:-6018}:6018"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      OPEA_STORE_NAME: "redis"
+      REDIS_URL: ${REDIS_URL-redis://localhost:6379}
+      INDEX_NAME: ${INDEX_NAME-opea:index}
+      DOC_PREFIX: ${DOC_PREFIX-doc:}
+      AUTO_CREATE_INDEX: ${AUTO_CREATE_INDEX-true}
+      ENABLE_MCP: ${ENABLE_MCP:-false}
     restart: unless-stopped
 
 networks:

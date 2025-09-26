@@ -5,8 +5,9 @@ fastapi
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+Pillow>=11.3.0
 prometheus-fastapi-instrumentator
-pydantic==2.9.1
+pydantic>=2.9.1
 sentencepiece
 shortuuid
 soundfile
