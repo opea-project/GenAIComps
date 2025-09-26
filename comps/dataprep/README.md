@@ -44,6 +44,10 @@ Dataprep microservice are supported on various databases, as shown in the table 
 | `MariaDB`               | [Dataprep Microservice with MariaDB Vector](src/README_mariadb.md)       |
 | `ArangoDB`              | [Dataprep Microservice with ArangoDB Vector](src/README_arangodb.md)     |
 
+## Dataprep Microservice with SQLServer
+
+For details, please refer to this [readme](src/README_sqlserver.md)
+
 ## Running in the air gapped environment
 
 The following steps are common for running the dataprep microservice in an air gapped environment (a.k.a. environment with no internet access), for all DB backends.
