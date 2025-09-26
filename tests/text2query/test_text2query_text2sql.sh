@@ -69,6 +69,23 @@ function start_service() {
 
 function validate_microservice() {
     url="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${ip_address}:5442/${POSTGRES_DB}"
+
+    echo "Validating v1/db/health..."
+    result=$(http_proxy="" curl http://${ip_address}:${TEXT2SQL_PORT}/v1/db/health\
+        -X POST \
+        -d '{"conn_type": "sql", "conn_url": "'${url}'", "conn_user": "'${POSTGRES_USER}'","conn_password": "'${POSTGRES_PASSWORD}'","conn_dialect": "postgresql" }' \
+        -H 'Content-Type: application/json')
+
+    if [[ $result == *"Connection successful"* ]]; then
+        echo $result
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs text2query-sql-server > ${LOG_PATH}/text2query.log
+        exit 1
+    fi
+
+    echo "Validating v1/text2query..."
     result=$(http_proxy="" curl http://${ip_address}:${TEXT2SQL_PORT}/v1/text2query\
         -X POST \
         -d '{"query": "Find the total number of Albums.","conn_type": "sql", "conn_url": "'${url}'", "conn_user": "'${POSTGRES_USER}'","conn_password": "'${POSTGRES_PASSWORD}'","conn_dialect": "postgresql" }' \
@@ -83,7 +100,6 @@ function validate_microservice() {
         docker logs tgi-server > ${LOG_PATH}/tgi.log
         exit 1
     fi
-
 }
 
 function stop_docker() {

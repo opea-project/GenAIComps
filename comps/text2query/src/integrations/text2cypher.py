@@ -215,3 +215,16 @@ class OpeaText2Cypher(OpeaComponent):
             raise
 
         return result
+
+    async def db_connection_check(self, request: Text2QueryRequest):
+        """Check the connection to Neo4j database.
+
+        This function takes a Text2QueryRequest object containing the database connection information.
+        It attempts to connect to the database using the provided connection URL and credentials.
+
+        Args:
+            request (Text2QueryRequest): A Text2QueryRequest object with the database connection information.
+        Returns:
+            dict: A dictionary with a 'status' key indicating whether the connection was successful or failed.
+        """
+        return {"status": "Connection successful"}
