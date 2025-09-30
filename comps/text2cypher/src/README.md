@@ -1,3 +1,9 @@
+# ⚠️ Deprecation Notice: `text2cypher`
+
+**This repository is no longer actively maintained.**
+
+As of OPEA v1.5, we are deprecating the `text2cypher` microservice. Please use `text2query` microservice instead. We will remove `text2cypher` at OPEA v1.7.
+
 # 🛢 Text-to-Cypher Microservice
 
 The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from graph databases. This service executes locally on Intel Gaudi.

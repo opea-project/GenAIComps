@@ -1,0 +1,64 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# HABANA environment
+FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
+
+ENV LANG=en_US.UTF-8
+ARG REPO=https://github.com/huggingface/optimum-habana.git
+ARG REPO_VER=v1.15.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    git-lfs \
+    libjemalloc-dev
+
+#RUN useradd -m -s /bin/bash user && \
+#    mkdir -p /home/user && \
+#    chown -R user /home/user/
+
+RUN git lfs install
+
+COPY comps /root/comps
+#RUN chown -R user /home/user/comps/text2cypher
+
+#RUN rm -rf /etc/ssh/ssh_host*
+
+ARG uvpip='uv pip install --system --no-cache-dir'
+RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
+    pip install --no-cache-dir accelerate \
+    huggingface_hub \
+    json_repair \
+    langchain_experimental \
+    llama-index \
+    llama-index-embeddings-huggingface \
+    llama-index-embeddings-langchain \
+    llama-index-graph-stores-neo4j \
+    llama-index-llms-huggingface \
+    llama-index-llms-huggingface-api \
+    neo4j \
+    peft \
+    pydub \
+    pyprojroot \
+    sentence-transformers \
+    unstructured \
+    urllib3 \
+    optimum-habana==1.17.0 && \
+    $uvpip git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
+
+RUN git clone --depth 1 --branch ${REPO_VER} ${REPO}
+
+WORKDIR /root/comps/text2query/src
+RUN $uvpip -r requirements-cpu.txt && \
+    $uvpip --upgrade --force-reinstall pydantic numpy==1.26.3 transformers==4.49.0
+
+# Set environment variables
+ENV PYTHONPATH=/root:/usr/lib/habanalabs/:/root/optimum-habana
+ENV HABANA_VISIBLE_DEVICES=all
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
+ENV DEBIAN_FRONTEND="noninteractive"  TZ=Etc/UTC
+
+#USER user
+WORKDIR /root/comps/text2query/src
+
+ENTRYPOINT ["python", "opea_text2query_microservice.py"]
+
