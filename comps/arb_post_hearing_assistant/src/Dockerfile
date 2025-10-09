@@ -18,9 +18,9 @@ ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
       $uvpip torch torchvision --index-url https://download.pytorch.org/whl/cpu; \
-      $uvpip -r /home/user/comps/arb_post_gearing_assistant/src/requirements-cpu.txt; \
+      $uvpip -r /home/user/comps/arb_post_hearing_assistant/src/requirements-cpu.txt; \
     else \
-      $uvpip -r /home/user/comps/arb_post_gearing_assistant/src/requirements-gpu.txt; \
+      $uvpip -r /home/user/comps/arb_post_hearing_assistant/src/requirements-gpu.txt; \
     fi
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -40,5 +40,5 @@ USER user
 
 WORKDIR /home/user
 
-ENTRYPOINT ["python", "comps/arb_post_gearing_assistant/src/opea_arb_post_hearing_assistant_microservice.py"]
+ENTRYPOINT ["python", "comps/arb_post_hearing_assistant/src/opea_arb_post_hearing_assistant_microservice.py"]
 
