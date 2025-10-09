@@ -1,4 +1,4 @@
-# Arbitratory Post-Hearing Assistant Microservice
+# Arbitrator Post-Hearing Assistant
 
 The **Arbitrator Post-Hearing Assistant** microservice leverages **LangChain** to provide advanced **entity extraction** from arbitration hearing transcripts sourced from multiple platforms, including **Zoom, Slack, Teams**, and other collaboration tools.
 
