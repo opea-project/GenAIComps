@@ -16,6 +16,7 @@ logflag = os.getenv("LOGFLAG", False)
 LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://vllm-server:80")
 MODEL_NAME = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
 
+
 @OpeaComponentRegistry.register("OpeaArbPostHearingAssistantVllm")
 class OpeaArbPostHearingAssistantVllm(OpeaArbPostHearingAssistant):
     """A specialized OPEA OpeaArbPostHearingAssistantVllm component derived from OpeaArbPostHearingAssistantVllm for interacting with vLLM services based on Lanchain VLLMOpenAI API.
