@@ -1,0 +1,9 @@
+# Copyright (C) 2025 Zensar Technologies Private Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  arb-post-hearing-assistant:
+    build:
+      dockerfile: comps/arb_post_hearing_assistant/src/Dockerfile
+    image: ${REGISTRY:-opea}/arb-post-hearing-assistant:${TAG:-latest}
