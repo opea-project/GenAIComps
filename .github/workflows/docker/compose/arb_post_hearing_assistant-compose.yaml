@@ -6,4 +6,4 @@ services:
   arbPostHearingAssistant:
     build:
       dockerfile: comps/arb_post_hearing_assistant/src/Dockerfile
-    image: ${REGISTRY:-opea}/arb-post-hearing-assistant:${TAG:-latest}    
+    image: ${REGISTRY:-opea}/arb-post-hearing-assistant:${TAG:-latest}
