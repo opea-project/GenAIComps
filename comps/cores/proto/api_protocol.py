@@ -1068,6 +1068,7 @@ class Text2QueryRequest(BaseModel):
     conn_dialect: Optional[str] = "postgresql"
     options: Dict = {}
 
+
 class ArbPostHearingAssistantChatCompletionRequest(ChatCompletionRequest):
     summary_type: str = "auto"  # can be "auto", "stuff", "truncate", "map_reduce", "refine"
     chunk_size: int = -1

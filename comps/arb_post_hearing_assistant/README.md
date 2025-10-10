@@ -4,13 +4,12 @@ The **Arbitrator Post-Hearing Assistant** microservice leverages **LangChain** t
 
 ## Features
 
-- Arbitration hearing transcripts sourced from multiple platforms, including Zoom, Slack, Teams, and other collaboration tools. 
+- Arbitration hearing transcripts sourced from multiple platforms, including Zoom, Slack, Teams, and other collaboration tools.
 - Perform **LLM inference** using **Text Generation Inference (TGI)** on **Intel Xeon processors**.
 - Generate **summaries** of hearings.
 - Extract **metadata** such as participants, case number, next scheduling date, outcome,timestamps, key topics, and actions.
 - Backend configurable to use either **[TGI](../../../third_parties/tgi)** or **[vLLM](../../../third_parties/vllm)** for LLM processing.
 - Automatically provide **structured insights** ready for downstream applications like case management, reporting, and legal analytics.
-
 
 ## Benefits
 
@@ -18,11 +17,11 @@ The **Arbitrator Post-Hearing Assistant** microservice leverages **LangChain** t
 - Provides actionable insights quickly and efficiently.
 - Integrates seamlessly with other OPEA components.
 
-
 ## Table of Contents
 
 1. [Start Microservice](#start-microservice)
 2. [Consume Microservice](#consume-microservice)
+
 ---
 
 ## Start Microservice
@@ -98,5 +97,5 @@ docker compose -f compose.yaml up ${service_name} -d
 
 ```bash
 curl http://0.0.0.0:9000/v1/arb-post-hearing \-X POST \-H 'Content-Type: application/json' \-d '{ "messages": "[10:00 AM] Arbitrator A: Good morning. This hearing is now in session for Case No. ARB/2025/0917. Let’s begin with appearances. [10:01 AM] Advocate B (for Party X): Good morning, Your Honor. I appear for the claimant, Mr. X. [10:01 AM] Advocate C (for Party Y): Good morning. I represent the respondent, Ms. Y. [10:03 AM] Arbitrator A: Thank you. Let’s proceed with Party X’s opening statement. [10:04 AM] Advocate B: Party Y failed to deliver services as per the agreement dated 15 March 2023. We’ve submitted relevant documents including emails and payment records. The delay caused significant financial loss to our client. [10:15 AM] Advocate C: We deny the breach. Delays were due to regulatory hurdles beyond our control. Party X also failed to provide timely approvals, which contributed to the delay. [10:30 AM] Arbitrator A: Let’s focus on Clause Z of the agreement. I’d like both parties to submit written arguments on the applicability of force majeure and the timeline of approvals. [11:00 AM] Advocate B: Understood. We will submit by the deadline. [11:01 AM] Advocate C: Agreed. [11:02 AM] Arbitrator A: Next hearing is scheduled for 10 October 2024 at 10:30 AM IST. Please ensure your witnesses are available for cross-examination. [4:45 PM] Arbitrator A: This session is adjourned. Thank you, everyone.","max_tokens": 32,"language": "en" }'
- 
+
 ```

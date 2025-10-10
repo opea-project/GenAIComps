@@ -23,7 +23,9 @@ logflag = os.getenv("LOGFLAG", False)
 llm_component_name = os.getenv("OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME", "OpeaArbPostHearingAssistantTgi")
 
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM arb_posthearing_assistant Component: {llm_component_name}")
+loader = OpeaComponentLoader(
+    llm_component_name, description=f"OPEA LLM arb_posthearing_assistant Component: {llm_component_name}"
+)
 
 port = int(os.getenv("OPEA_ARB_POSTHEARING_ASSISTANT_PORT", 9000))
 
@@ -33,7 +35,7 @@ port = int(os.getenv("OPEA_ARB_POSTHEARING_ASSISTANT_PORT", 9000))
     service_type=ServiceType.ARB_POST_HEARING_ASSISTANT,
     endpoint="/v1/arb-post-hearing",
     host="0.0.0.0",
-    port=port
+    port=port,
 )
 @register_statistics(names=["opea_service@arb_post_hearing_assistant"])
 async def llm_generate(input: ArbPostHearingAssistantChatCompletionRequest):
@@ -58,10 +60,3 @@ async def llm_generate(input: ArbPostHearingAssistantChatCompletionRequest):
 if __name__ == "__main__":
     logger.info("OPEA arb_post_hearing_assistant Microservice is starting...")
     opea_microservices["opea_service@arb_post_hearing_assistant"].start()
-
-
-
-
-
-
-

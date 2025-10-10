@@ -15,6 +15,7 @@ logger = CustomLogger("arb_post_hearing_assistant_tgi")
 logflag = os.getenv("LOGFLAG", False)
 LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://tgi-server:80")
 
+
 @OpeaComponentRegistry.register("OpeaArbPostHearingAssistantTgi")
 class OpeaArbPostHearingAssistantTgi(OpeaArbPostHearingAssistant):
     """A specialized OPEA TGI component derived from OpeaArbPostHearingAssistantTgi for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
@@ -60,9 +61,8 @@ class OpeaArbPostHearingAssistantTgi(OpeaArbPostHearingAssistant):
             temperature=input.temperature if input.temperature else 0.01,
             repetition_penalty=input.repetition_penalty if input.repetition_penalty else 1.03,
             timeout=input.timeout if input.timeout is not None else 120,
-            task="text-generation"
+            task="text-generation",
         )
         result = await self.generate(input, self.client)
 
         return result
-

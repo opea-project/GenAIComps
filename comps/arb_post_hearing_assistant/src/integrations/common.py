@@ -8,7 +8,7 @@ from langchain.docstore.document import Document
 from langchain_core.prompts import PromptTemplate
 
 from comps import CustomLogger, GeneratedDoc, OpeaComponent, ServiceType
-from comps.cores.mega.utils import ConfigError ,load_model_configs
+from comps.cores.mega.utils import ConfigError, load_model_configs
 from comps.cores.proto.api_protocol import ArbPostHearingAssistantChatCompletionRequest
 
 from .template import arbitratory_template
@@ -19,8 +19,8 @@ logflag = os.getenv("LOGFLAG", False)
 # Environment variables
 MODEL_NAME = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
-MAX_INPUT_TOKENS= int(os.getenv("MAX_TOTAL_TOKENS","4096"))
-MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS","2048"))
+MAX_INPUT_TOKENS = int(os.getenv("MAX_TOTAL_TOKENS", "4096"))
+MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", "2048"))
 
 if os.getenv("LLM_ENDPOINT") is not None:
     DEFAULT_ENDPOINT = os.getenv("LLM_ENDPOINT")
@@ -78,19 +78,18 @@ class OpeaArbPostHearingAssistant(OpeaComponent):
         if message is None:
             logger.error("Don't receive any input text, exit!")
             return GeneratedDoc(text=None, prompt=None)
-        
+
         ## Prompt
         PROMPT = PromptTemplate.from_template(arbitratory_template)
-        
+
         docs = [Document(page_content=message)]
 
         llm_chain = load_summarize_chain(llm=client, prompt=PROMPT)
         response = await llm_chain.ainvoke(docs)
         output_text = response["output_text"]
-        
+
         if logflag:
             logger.info("\n\noutput_text:")
             logger.info(output_text)
 
         return GeneratedDoc(text=output_text, prompt=message)
-
