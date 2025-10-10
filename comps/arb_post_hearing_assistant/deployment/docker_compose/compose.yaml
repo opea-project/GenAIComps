@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Zensar Technologies Private Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
 include:
@@ -31,6 +31,8 @@ services:
     environment:
       OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
       HF_TOKEN: ${HF_TOKEN}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
     depends_on:
       tgi-server:
         condition: service_healthy
@@ -44,8 +46,8 @@ services:
     environment:
       OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
       # Use non-existing proxy to mimic air gapped environment
-      http_proxy: http://localhost:7777
-      https_proxy: http://localhost:7777
+      http_proxy: ${http_proxy:-http://localhost:7777} 
+      https_proxy: ${http_proxy:-http://localhost:7777} 
       no_proxy: localhost,127.0.0.1,${offline_no_proxy}
     volumes:
       - "${DATA_PATH:-./data}:/data"
@@ -55,8 +57,10 @@ services:
     extends: arbPostHearingAssistant
     container_name: arbPostHearingAssistant-vllm
     environment:
-      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantVllm}
       HF_TOKEN: ${HF_TOKEN}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
     depends_on:
       vllm-server:
         condition: service_healthy
@@ -68,10 +72,10 @@ services:
       vllm-server:
         condition: service_healthy
     environment:
-      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantVllm}
       # Use non-existing proxy to mimic air gapped environment
-      http_proxy: http://localhost:7777
-      https_proxy: http://localhost:7777
+      http_proxy: ${http_proxy:-http://localhost:7777} 
+      https_proxy: ${http_proxy:-http://localhost:7777} 
       no_proxy: localhost,127.0.0.1,${offline_no_proxy}
     volumes:
       - "${DATA_PATH:-./data}:/data"

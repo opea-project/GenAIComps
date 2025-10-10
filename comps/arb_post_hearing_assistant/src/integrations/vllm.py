@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Zensar Technologies Private Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -13,9 +13,12 @@ from .common import *
 
 logger = CustomLogger("arb_post_hearing_assistant_vllm")
 logflag = os.getenv("LOGFLAG", False)
+LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://vllm-server:80")
+MODEL_NAME = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
 
 
-@OpeaComponentRegistry.register("OpeaArbPostHearingAssistantvllm")
+
+@OpeaComponentRegistry.register("OpeaArbPostHearingAssistantVllm")
 class OpeaArbPostHearingAssistantVllm(OpeaArbPostHearingAssistant):
     """A specialized OPEA OpeaArbPostHearingAssistantVllm component derived from OpeaArbPostHearingAssistantVllm for interacting with vLLM services based on Lanchain VLLMOpenAI API.
 

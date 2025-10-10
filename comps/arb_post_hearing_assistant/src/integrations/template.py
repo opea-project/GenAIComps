@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025 Zensar Technologies Private Ltd.
 # SPDX-License-Identifier: Apache-2.0
 arbitratory_template = """You are a highly accurate Legal Information Extraction AI specialized in arbitration proceedings.
 

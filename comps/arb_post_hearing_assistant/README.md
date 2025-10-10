@@ -67,7 +67,7 @@ You can start the service using either the CLI or Docker Compose.
 2. Start Arbitratory Post-Hearing Assistant microservice:
 
 ```bash
-export OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME="OpeaArbPostHearingAssistantTgi" # or "OpeaArbPostHearingAssistantvllm"
+export OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME="OpeaArbPostHearingAssistantTgi" # or "OpeaArbPostHearingAssistantVllm"
 docker run -d \
     --name="arb-post-hearing-assistant-server" \
     -p 9000:9000 \
