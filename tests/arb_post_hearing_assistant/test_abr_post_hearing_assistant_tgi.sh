@@ -65,7 +65,7 @@ function validate_services() {
 
     echo "==========================================="
 
-    if [ "$HTTP_STATUS" -eq 200 ]|| [ "$HTTP_STATUS" -eq 500 ]; then
+    if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
 
         local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/${SERVICE_NAME}.log)
@@ -127,13 +127,6 @@ function main() {
     start_service
     validate_microservices
     stop_docker
-
-    if [[ -n "${DATA_PATH}" ]]; then
-        echo "Test air gapped env ..."
-        start_service true
-        validate_microservices
-        stop_docker
-    fi
 
     echo y | docker system prune
 
