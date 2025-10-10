@@ -32,12 +32,7 @@ anyio==4.11.0
     #   starlette
 anytree==2.13.0
     # via graspologic
-async-timeout==4.0.3 ; python_full_version < '3.11'
-    # via
-    #   aiohttp
-    #   langchain
-    #   redis
-async-timeout==5.0.1 ; python_full_version >= '3.11' and python_full_version < '3.11.3'
+async-timeout==5.0.1 ; python_full_version < '3.11.3'
     # via redis
 attrs==25.4.0
     # via
@@ -65,22 +60,8 @@ beautifulsoup4==4.14.2
     # via
     #   bs4
     #   docling
-bleach==6.2.0 ; python_full_version >= '3.13'
-    # via panel
-bokeh==3.8.0 ; python_full_version >= '3.13'
-    # via
-    #   jupyter-bokeh
-    #   panel
-boto3==1.40.48 ; python_full_version >= '3.13'
-    # via pathway
-botocore==1.40.48 ; python_full_version >= '3.13'
-    # via
-    #   boto3
-    #   s3transfer
 bs4==0.0.2
     # via -r ./comps/retrievers/src/requirements.in
-cachetools==6.2.0 ; python_full_version >= '3.13'
-    # via google-auth
 cairocffi==1.7.1
     # via cairosvg
 cairosvg==2.8.2
@@ -116,14 +97,10 @@ colorama==0.4.6
     #   click
     #   colorlog
     #   griffe
-    #   pytest
-    #   ipython
     #   tqdm
 colorlog==6.9.0
     # via trimesh
-contourpy==1.3.2 ; python_full_version < '3.11'
-    # via matplotlib
-contourpy==1.3.3 ; python_full_version >= '3.11'
+contourpy==1.3.3
     # via matplotlib
 cryptography==45.0.5
     # via
@@ -192,8 +169,6 @@ et-xmlfile==2.0.0
     # via openpyxl
 events==0.5
     # via opensearch-py
-executing==2.2.1 ; python_full_version >= '3.13'
-    # via stack-data
 faker==37.11.0
     # via polyfactory
 fastapi==0.118.2
@@ -213,8 +188,6 @@ frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
-fs==2.4.16 ; python_full_version >= '3.13'
-    # via pathway
 fsspec==2025.9.0
     # via
     #   huggingface-hub
@@ -225,59 +198,13 @@ future==1.0.0
     #   -r ./comps/retrievers/src/requirements.in
     #   graspologic
     #   hyppo
-gensim==4.3.2 ; python_full_version >= '3.13'
+gensim==4.3.3
     # via graspologic
-gensim==4.3.3 ; python_full_version < '3.13'
-    # via graspologic
-geographiclib==2.1 ; python_full_version >= '3.13'
-    # via geopy
-geopy==2.4.1 ; python_full_version >= '3.13'
-    # via pathway
-gitdb==4.0.12 ; python_full_version >= '3.13'
-    # via gitpython
-gitpython==3.1.45 ; python_full_version >= '3.13'
-    # via pathway
-google-api-core==2.25.2 ; python_full_version >= '3.14'
-    # via
-    #   google-api-python-client
-    #   google-cloud-bigquery
-    #   google-cloud-core
-    #   google-cloud-pubsub
-google-api-core==2.26.0 ; python_full_version == '3.13.*'
-    # via
-    #   google-api-python-client
-    #   google-cloud-bigquery
-    #   google-cloud-core
-    #   google-cloud-pubsub
-google-api-python-client==2.184.0 ; python_full_version >= '3.13'
-    # via pathway
-google-auth==2.41.1 ; python_full_version >= '3.13'
-    # via
-    #   google-api-core
-    #   google-api-python-client
-    #   google-auth-httplib2
-    #   google-cloud-bigquery
-    #   google-cloud-core
-    #   google-cloud-pubsub
-google-auth-httplib2==0.2.0 ; python_full_version >= '3.13'
-    # via google-api-python-client
-google-cloud-bigquery==3.29.0 ; python_full_version >= '3.13'
-    # via pathway
-google-cloud-core==2.4.3 ; python_full_version >= '3.13'
-    # via google-cloud-bigquery
-google-cloud-pubsub==2.31.1 ; python_full_version >= '3.13'
-    # via pathway
-google-crc32c==1.7.1 ; python_full_version >= '3.13'
-    # via google-resumable-media
-google-resumable-media==2.7.2 ; python_full_version >= '3.13'
-    # via google-cloud-bigquery
 googleapis-common-protos==1.70.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-graspologic==3.3.0 ; python_full_version >= '3.13'
-    # via -r ./comps/retrievers/src/requirements.in
-graspologic==3.4.4 ; python_full_version < '3.13'
+graspologic==3.4.4
     # via -r ./comps/retrievers/src/requirements.in
 graspologic-native==1.2.5
     # via graspologic
@@ -312,10 +239,6 @@ hpack==4.1.0
     # via h2
 httpcore==1.0.9
     # via httpx
-httplib2==0.31.0 ; python_full_version >= '3.13'
-    # via
-    #   google-api-python-client
-    #   google-auth-httplib2
 httpx==0.28.1
     # via
     #   langchain-pinecone
@@ -354,14 +277,6 @@ importlib-metadata==8.4.0
     # via
     #   opentelemetry-api
     #   python-arango
-iniconfig==2.1.0
-    # via pytest
-ipython==9.6.0 ; python_full_version >= '3.13'
-    # via ipywidgets
-ipython-pygments-lexers==1.1.1 ; python_full_version >= '3.13'
-    # via ipython
-ipywidgets==8.1.7 ; python_full_version >= '3.13'
-    # via jupyter-bokeh
 jax==0.5.3
     # via docarray
 jaxlib==0.5.3
@@ -370,13 +285,9 @@ jinja2==3.1.6
     # via
     #   banks
     #   haystack-ai
+    #   torch
 jiter==0.11.0
     # via openai
-jmespath==1.0.1 ; python_full_version >= '3.13'
-    # via
-    #   boto3
-    #   botocore
-    #   pathway
 joblib==1.5.2
     # via
     #   graspologic
@@ -419,7 +330,6 @@ langchain-core==0.3.78
     #   langchain-openai
     #   langchain-pinecone
     #   langchain-sqlserver
-    #   langchain-tests
     #   langchain-text-splitters
     #   langchain-vdms
 langchain-elasticsearch==0.3.2
@@ -438,9 +348,6 @@ langchain-pinecone==0.2.12
     # via -r ./comps/retrievers/src/requirements.in
 langchain-sqlserver==0.1.1
     # via -r ./comps/retrievers/src/requirements.in
-langchain-tests==0.3.17
-    # via langchain-pinecone
-langchain-text-splitters==0.3.9
 langchain-text-splitters==0.3.11
     # via langchain
 langchain-vdms==0.1.4
@@ -506,13 +413,8 @@ mapbox-earcut==1.0.3
     # via trimesh
 mariadb==1.1.14
     # via -r ./comps/retrievers/src/requirements.in
-markdown==3.9 ; python_full_version >= '3.13'
-    # via panel
 markdown-it-py==4.0.0
-    # via
-    #   mdit-py-plugins
-    #   panel
-    #   rich
+    # via rich
 marko==2.2.0
     # via docling
 markupsafe==3.0.3
@@ -551,23 +453,13 @@ multiprocess==0.70.18
     # via mpire
 mypy-extensions==1.1.0
     # via typing-inspect
-narwhals==2.7.0 ; python_full_version >= '3.13'
-    # via bokeh
 neo4j==5.28.2
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   llama-index-graph-stores-neo4j
 nest-asyncio==1.6.0
     # via llama-index-core
-networkx==3.4.2 ; python_full_version < '3.11'
-    # via
-    #   graspologic
-    #   haystack-ai
-    #   llama-index-core
-    #   scikit-image
-    #   torch
-    #   trimesh
-networkx==3.5 ; python_full_version >= '3.11'
+networkx==3.5
     # via
     #   graspologic
     #   haystack-ai
@@ -608,7 +500,6 @@ numpy==1.26.4
     #   langchain-mariadb
     #   langchain-pinecone
     #   langchain-sqlserver
-    #   langchain-tests
     #   llama-index-core
     #   manifold3d
     #   mapbox-earcut
@@ -636,6 +527,43 @@ numpy==1.26.4
     #   trimesh
     #   umap-learn
     #   vhacdx
+nvidia-cublas-cu12==12.6.4.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cudnn-cu12
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cuda-cupti-cu12==12.6.80 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-nvrtc-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-runtime-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cudnn-cu12==9.5.1.17 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufft-cu12==11.3.0.4 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufile-cu12==1.11.1.6 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-curand-cu12==10.3.7.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusolver-cu12==11.7.1.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusparse-cu12==12.5.4.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cusparselt-cu12==0.6.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nccl-cu12==2.26.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nvjitlink-cu12==12.6.85 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cufft-cu12
+    #   nvidia-cusolver-cu12
+    #   nvidia-cusparse-cu12
+    #   torch
+nvidia-nvtx-cu12==12.6.77 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
 openai==1.109.1
     # via
     #   haystack-ai
@@ -688,8 +616,6 @@ orjson==3.11.3
 packaging==24.2
     # via
     #   accelerate
-    #   bokeh
-    #   google-cloud-bigquery
     #   huggingface-hub
     #   langchain-core
     #   langsmith
@@ -709,24 +635,17 @@ pandas==2.3.3
     #   docling
     #   docling-core
     #   haystack-ai
+    #   hyppo
     #   pathway
     #   pymilvus
     #   seaborn
     #   statsmodels
-panel==1.8.2 ; python_full_version >= '3.13'
-    # via pathway
-param==2.2.1 ; python_full_version >= '3.13'
-    # via
-    #   panel
-    #   pyviz-comms
-parso==0.8.5 ; python_full_version >= '3.13'
-    # via jedi
-pathway==0.2.0 ; python_full_version < '3.13'
-    # via -r ./comps/retrievers/src/requirements.in
-pathway==0.26.3 ; python_full_version >= '3.13'
+pathway==0.2.0
     # via -r ./comps/retrievers/src/requirements.in
 patsy==1.0.1
-    # via statsmodels
+    # via
+    #   hyppo
+    #   statsmodels
 pgvector==0.4.1
     # via -r ./comps/retrievers/src/requirements.in
 pillow==11.3.0
@@ -772,8 +691,6 @@ prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
     # via -r ./comps/retrievers/src/requirements.in
-prompt-toolkit==3.0.52 ; python_full_version >= '3.13'
-    # via ipython
 propcache==0.4.1
     # via
     #   aiohttp
@@ -829,12 +746,12 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via
-    #   ipython
-    #   ipython-pygments-lexers
     #   mpire
     #   rich
 pyjwt==2.10.1
-    # via python-arango
+    # via
+    #   msal
+    #   python-arango
 pylatexenc==2.10
     # via docling
 pymilvus==2.5.6
@@ -849,12 +766,8 @@ pyodbc==5.2.0
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   langchain-sqlserver
-pyparsing==3.2.3
-    # via matplotlib
 pyparsing==3.2.5
-    # via
-    #   httplib2
-    #   matplotlib
+    # via matplotlib
 pypdfium2==4.30.0
     # via docling
 pytesseract==0.3.13
@@ -901,7 +814,6 @@ pywin32==311 ; sys_platform == 'win32'
 pyyaml==6.0.3
     # via
     #   accelerate
-    #   bokeh
     #   docling-core
     #   easyocr
     #   haystack-ai
@@ -928,9 +840,8 @@ regex==2025.9.18
     #   transformers
 requests==2.32.5
     # via
+    #   azure-core
     #   docling
-    #   google-api-core
-    #   google-cloud-bigquery
     #   haystack-ai
     #   huggingface-hub
     #   langchain
@@ -965,8 +876,6 @@ rtree==1.4.1
     #   docling
     #   docling-ibm-models
     #   trimesh
-s3transfer==0.14.0 ; python_full_version >= '3.13'
-    # via boto3
 safetensors==0.6.2
     # via
     #   accelerate
@@ -982,24 +891,7 @@ scikit-learn==1.7.2
     #   pynndescent
     #   sentence-transformers
     #   umap-learn
-scipy==1.13.1 ; python_full_version < '3.13'
-    # via
-    #   docling
-    #   easyocr
-    #   gensim
-    #   graspologic
-    #   hyppo
-    #   jax
-    #   jaxlib
-    #   pot
-    #   pynndescent
-    #   scikit-image
-    #   scikit-learn
-    #   sentence-transformers
-    #   statsmodels
-    #   trimesh
-    #   umap-learn
-scipy==1.16.2 ; python_full_version >= '3.13'
+scipy==1.13.1
     # via
     #   docling
     #   easyocr
@@ -1028,6 +920,8 @@ setuptools==80.9.0
     #   llama-index-core
     #   pymilvus
     #   python-arango
+    #   torch
+    #   triton
 shapely==2.1.2
     # via
     #   easyocr
@@ -1063,20 +957,18 @@ sqlalchemy==2.0.43
     #   llama-index-core
 sqlglot==10.6.1
     # via pathway
-stack-data==0.6.3 ; python_full_version >= '3.13'
-    # via ipython
 starlette==0.48.0
     # via
     #   fastapi
     #   prometheus-fastapi-instrumentator
 statsmodels==0.14.5
-    # via graspologic
+    # via
+    #   graspologic
+    #   hyppo
 svg-path==7.0
     # via trimesh
 sympy==1.14.0
     # via torch
-syrupy==4.9.1
-    # via langchain-tests
 tabulate==0.9.0
     # via
     #   docling-core
@@ -1106,15 +998,18 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tomli==2.3.0 ; python_full_version < '3.11'
-    # via pytest
 torch==2.7.1
     # via
+    #   accelerate
+    #   docling-ibm-models
     #   easyocr
+    #   safetensors
     #   sentence-transformers
     #   torchvision
 torchvision==0.22.1
-    # via easyocr
+    # via
+    #   docling-ibm-models
+    #   easyocr
 tqdm==4.67.1
     # via
     #   docling
@@ -1126,16 +1021,10 @@ tqdm==4.67.1
     #   mpire
     #   nltk
     #   openai
-    #   panel
     #   semchunk
     #   sentence-transformers
     #   transformers
     #   umap-learn
-traitlets==5.14.3 ; python_full_version >= '3.13'
-    # via
-    #   ipython
-    #   ipywidgets
-    #   matplotlib-inline
 transformers==4.57.0
     # via
     #   docling-core
@@ -1144,6 +1033,8 @@ transformers==4.57.0
     #   sentence-transformers
 trimesh==4.8.3
     # via docarray
+triton==3.3.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
 typer==0.19.2
     # via
     #   docling
@@ -1162,7 +1053,6 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   docling-core
     #   elasticsearch
-    #   exceptiongroup
     #   fastapi
     #   graspologic
     #   haystack-ai
@@ -1170,7 +1060,6 @@ typing-extensions==4.15.0
     #   langchain-core
     #   llama-index-core
     #   llama-index-workflows
-    #   multidict
     #   openai
     #   opentelemetry-sdk
     #   pinecone
@@ -1188,7 +1077,6 @@ typing-extensions==4.15.0
     #   typer
     #   typing-inspect
     #   typing-inspection
-    #   uvicorn
 typing-inspect==0.9.0
     # via
     #   dataclasses-json
@@ -1202,8 +1090,6 @@ tzdata==2025.2
     # via
     #   faker
     #   pandas
-uc-micro-py==1.0.3 ; python_full_version >= '3.13'
-    # via linkify-it-py
 ujson==5.11.0
     # via pymilvus
 umap-learn==0.5.9.post2
@@ -1223,8 +1109,6 @@ vdms==0.0.21
     # via langchain-vdms
 vhacdx==0.0.8.post2
     # via trimesh
-wcwidth==0.2.14 ; python_full_version >= '3.13'
-    # via prompt-toolkit
 webencodings==0.5.1
     # via
     #   cssselect2
@@ -1238,8 +1122,6 @@ xlsxwriter==3.2.9
     # via python-pptx
 xxhash==3.6.0
     # via trimesh
-xyzservices==2025.4.0 ; python_full_version >= '3.13'
-    # via bokeh
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
