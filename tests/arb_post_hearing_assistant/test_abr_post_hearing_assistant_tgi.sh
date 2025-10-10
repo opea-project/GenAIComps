@@ -4,8 +4,8 @@
 
 set -xe
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-source ${SCRIPT_DIR}/llms/llm_utils.sh
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../llms" &> /dev/null && pwd )"
+source "${SCRIPT_DIR}/llm_utils.sh"
 
 IMAGE_REPO=${IMAGE_REPO:-"opea"}
 export REGISTRY=${IMAGE_REPO}
