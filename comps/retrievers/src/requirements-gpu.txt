@@ -799,11 +799,11 @@ pymupdf==1.26.4
 pynndescent==0.5.13
     # via umap-learn
 pyodbc==5.2.0
-pyparsing==3.2.5
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   langchain-sqlserver
 pyparsing==3.2.3
+pyparsing==3.2.5
     # via matplotlib
 pytesseract==0.3.13
     # via -r ./comps/retrievers/src/requirements.in
