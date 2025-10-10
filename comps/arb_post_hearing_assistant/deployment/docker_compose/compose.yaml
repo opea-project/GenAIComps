@@ -45,8 +45,8 @@ services:
     environment:
       OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
       # Use non-existing proxy to mimic air gapped environment
-      http_proxy: ${http_proxy:-http://localhost:7777} 
-      https_proxy: ${http_proxy:-http://localhost:7777} 
+      http_proxy: ${http_proxy:-http://localhost:7777}
+      https_proxy: ${http_proxy:-http://localhost:7777}
       no_proxy: localhost,127.0.0.1,${offline_no_proxy}
     volumes:
       - "${DATA_PATH:-./data}:/data"
@@ -73,8 +73,8 @@ services:
     environment:
       OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantVllm}
       # Use non-existing proxy to mimic air gapped environment
-      http_proxy: ${http_proxy:-http://localhost:7777} 
-      https_proxy: ${http_proxy:-http://localhost:7777} 
+      http_proxy: ${http_proxy:-http://localhost:7777}
+      https_proxy: ${http_proxy:-http://localhost:7777}
       no_proxy: localhost,127.0.0.1,${offline_no_proxy}
     volumes:
       - "${DATA_PATH:-./data}:/data"
