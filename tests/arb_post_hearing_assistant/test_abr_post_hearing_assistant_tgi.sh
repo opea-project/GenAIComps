@@ -49,7 +49,7 @@ function start_service() {
         prepare_models ${DATA_PATH} ${LLM_MODEL_ID} gpt2
     fi
     cd $WORKPATH/comps/arb_post_hearing_assistant/deployment/docker_compose
-    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f arb_post_hearing_assistant-compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -105,14 +105,24 @@ function validate_microservices() {
         'text' \
         "arbPostHearingAssistant-tgi" \
         "arbPostHearingAssistant-tgi" \
-        '{"messages": "[10:00 AM] Arbitrator A: Good morning. This hearing is now in session for Case No. ARB/2025/0917. Let’s begin with appearances. [10:01 AM] Advocate B (for Party X): Good morning, Your Honor. I appear for the claimant, Mr. X. [10:01 AM] Advocate C (for Party Y): Good morning. I represent the respondent, Ms. Y. [10:03 AM] Arbitrator A: Thank you. Let’s proceed with Party X’s opening statement. [10:04 AM] Advocate B: Party Y failed to deliver services as per the agreement dated 15 March 2023. We’ve submitted relevant documents including emails and payment records. The delay caused significant financial loss to our client. [10:15 AM] Advocate C: We deny the breach. Delays were due to regulatory hurdles beyond our control. Party X also failed to provide timely approvals, which contributed to the delay. [10:30 AM] Arbitrator A: Let’s focus on Clause Z of the agreement. I’d like both parties to submit written arguments on the applicability of force majeure and the timeline of approvals. [11:00 AM] Advocate B: Understood. We will submit by the deadline. [11:01 AM] Advocate C: Agreed. [11:02 AM] Arbitrator A: Next hearing is scheduled for 10 October 2024 at 10:30 AM IST. Please ensure your witnesses are available for cross-examination. [4:45 PM] Arbitrator A: This session is adjourned. Thank you, everyone.","max_tokens": 2000,"language": "en"}'
+        '{"messages": "10:00 AM Arbitrator Hon. Rebecca Lawson: Good morning. This hearing is now in session for Case No. ARB/2025/0917. Lets begin with appearances.
+        10:01 AM Attorney Michael Grant for Mr. Jonathan Reed: Good morning Your Honor. I represent the claimant Mr. Jonathan Reed.
+        10:01 AM Attorney Lisa Chen for Ms. Rachel Morgan: Good morning. I represent the respondent Ms. Rachel Morgan.
+        10:03 AM Arbitrator Hon. Rebecca Lawson: Thank you. Lets proceed with Mr. Reeds opening statement.
+        10:04 AM Attorney Michael Grant: Ms. Morgan failed to deliver services as per the agreement dated March 15 2023. We have submitted relevant documentation including email correspondence and payment records. The delay caused substantial financial harm to our client.
+        10:15 AM Attorney Lisa Chen: We deny any breach of contract. The delays were due to regulatory issues outside our control. Furthermore Mr. Reed did not provide timely approvals which contributed to the delay.
+        10:30 AM Arbitrator Hon. Rebecca Lawson: Lets turn to Clause Z of the agreement. Id like both parties to submit written briefs addressing the applicability of the force majeure clause and the timeline of approvals.
+        11:00 AM Attorney Michael Grant: Understood. Well submit by the deadline.
+        11:01 AM Attorney Lisa Chen: Agreed.
+        11:02 AM Arbitrator Hon. Rebecca Lawson: The next hearing is scheduled for October 22 2025 at 1030 AM Eastern Time. Please ensure your witnesses are available for cross examination.
+        445 PM Arbitrator Hon. Rebecca Lawson: This session is adjourned. Thank you everyone.","max_tokens": 2000,"language": "en"}'
 
 
 }
 
 function stop_docker() {
     cd $WORKPATH/comps/arb_post_hearing_assistant/deployment/docker_compose
-    docker compose -f compose.yaml down --remove-orphans
+    docker compose -f arb_post_hearing_assistant-compose.yaml down --remove-orphans
 }
 
 function main() {

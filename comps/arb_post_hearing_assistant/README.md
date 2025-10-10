@@ -8,7 +8,7 @@ The **Arbitrator Post-Hearing Assistant** microservice leverages **LangChain** t
 - Perform **LLM inference** using **Text Generation Inference (TGI)** on **Intel Xeon processors**.
 - Generate **summaries** of hearings.
 - Extract **metadata** such as participants, case number, next scheduling date, outcome,timestamps, key topics, and actions.
-- Backend configurable to use either **[TGI](../../../third_parties/tgi)** or **[vLLM](../../../third_parties/vllm)** for LLM processing.
+- Backend configurable to use either **[TGI](../third_parties/tgi)** or **[vLLM](../third_parties/vllm)** for LLM processing.
 - Automatically provide **structured insights** ready for downstream applications like case management, reporting, and legal analytics.
 
 ## Benefits
@@ -45,7 +45,7 @@ export MAX_TOTAL_TOKENS=4096
 
 #### Build Backend LLM Image
 
-For vLLM, refer to [vLLM Build Instructions](../../../third_parties/vllm/).
+For vLLM, refer to [vLLM Build Instructions](../third_parties/vllm/).
 
 TGI does not require additional setup.
 
@@ -62,7 +62,7 @@ You can start the service using either the CLI or Docker Compose.
 
 #### Option A: Run with Docker CLI
 
-1. Start the backend LLM service ([TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm)).
+1. Start the backend LLM service ([TGI](../third_parties/tgi) or [vLLM](../third_parties/vllm)).
 
 2. Start Arbitratory Post-Hearing Assistant microservice:
 
@@ -90,7 +90,7 @@ export service_name="arbPostHearingAssistant-tgi"
 # Alternatives: , "arbPostHearingAssistant-vllm"
 
 cd ../../deployment/docker_compose/
-docker compose -f compose.yaml up ${service_name} -d
+docker compose -f arb_post_hearing_assistant-compose.yaml up ${service_name} -d
 ```
 
 #### Basic usage
