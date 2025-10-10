@@ -1,6 +1,7 @@
 langchain
 langchain-community
 langchain-huggingface
+docling
 openai
 pathway[xpack-llm]
 sentence-transformers
