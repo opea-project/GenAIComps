@@ -1,0 +1,9 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+tei:
+  enabled: false
+redis-vector-db:
+  enabled: false
+milvus:
+  enabled: false
