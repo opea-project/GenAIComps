@@ -1,0 +1,84 @@
+# Copyright (C) 2025 Zensar Technologies Private Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+
+services:
+  arbPostHearingAssistant:
+    image: ${REGISTRY:-opea}/arb-post-hearing-assistant:${TAG:-latest}
+    container_name: arb-post-hearing-assistant-server
+    ports:
+      - ${OPEA_ARB_POSTHEARING_ASSISTANT_PORT:-9000}:9000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
+      MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
+    restart: unless-stopped
+
+  arbPostHearingAssistant-tgi:
+    extends: arbPostHearingAssistant
+    container_name: arbPostHearingAssistant-tgi
+    environment:
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
+      HF_TOKEN: ${HF_TOKEN}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+    depends_on:
+      tgi-server:
+        condition: service_healthy
+
+  arbPostHearingAssistant-tgi-offline:
+    extends: arbPostHearingAssistant
+    container_name: arbPostHearingAssistant-tgi-offline
+    depends_on:
+      tgi-server:
+        condition: service_healthy
+    environment:
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantTgi}
+      # Use non-existing proxy to mimic air gapped environment
+      http_proxy: ${http_proxy:-http://localhost:7777}
+      https_proxy: ${http_proxy:-http://localhost:7777}
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+
+
+  arbPostHearingAssistant-vllm:
+    extends: arbPostHearingAssistant
+    container_name: arbPostHearingAssistant-vllm
+    environment:
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantVllm}
+      HF_TOKEN: ${HF_TOKEN}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+    depends_on:
+      vllm-server:
+        condition: service_healthy
+
+  arbPostHearingAssistant-vllm-offline:
+    extends: arbPostHearingAssistant
+    container_name: arbPostHearingAssistant-vllm-offline
+    depends_on:
+      vllm-server:
+        condition: service_healthy
+    environment:
+      OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME: ${OPEA_ARB_POSTHEARING_ASSISTANT_COMPONENT_NAME:-OpeaArbPostHearingAssistantVllm}
+      # Use non-existing proxy to mimic air gapped environment
+      http_proxy: ${http_proxy:-http://localhost:7777}
+      https_proxy: ${http_proxy:-http://localhost:7777}
+      no_proxy: localhost,127.0.0.1,${offline_no_proxy}
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+
+networks:
+  default:
+    driver: bridge
