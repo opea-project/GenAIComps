@@ -11,6 +11,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libjemalloc-dev \
     libmariadb-dev \
     build-essential \
+    unixodbc \
     curl
 
 # Add Microsoft package repo
