@@ -113,8 +113,20 @@ class OpeaFinetuning(OpeaComponent):
             if request.hyperparameters.learning_rate_multiplier != "auto":
                 finetune_config.Training.learning_rate = request.hyperparameters.learning_rate_multiplier
 
-        if os.getenv("HF_TOKEN", None):
-            finetune_config.General.config.token = os.getenv("HF_TOKEN", None)
+        # Prefer token provided in the request payload (General.config.token).
+        # If not provided, fall back to the HF_TOKEN environment variable.
+        request_token = None
+        try:
+            request_token = request.General.config.token
+        except Exception:
+            request_token = None
+
+        if request_token:
+            finetune_config.General.config.token = request_token
+        else:
+            env_token = os.getenv("HF_TOKEN", None)
+            if env_token:
+                finetune_config.General.config.token = env_token
 
         job = FineTuningJob(
             id=f"ft-job-{uuid.uuid4()}",
