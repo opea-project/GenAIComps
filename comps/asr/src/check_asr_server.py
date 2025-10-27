@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -25,8 +27,8 @@ headers = {"accept": "application/json"}
 
 # Prepare the data and files
 data = {
-    "model": "openai/whisper-small",
-    "language": "english",
+    "model": "fireredasr",
+    "language": "auto",
 }
 
 try:

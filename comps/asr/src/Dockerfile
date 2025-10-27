@@ -1,28 +1,34 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.11-slim
+FROM python:3.9-slim
 
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
+WORKDIR /app
 
-ENV LANG=C.UTF-8
-ARG ARCH=cpu
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY comps /home/user/comps
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-ARG uvpip='uv pip install --system --no-cache-dir'
-RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
-    if [ ${ARCH} = "cpu" ]; then \
-      $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
-      $uvpip -r /home/user/comps/asr/src/requirements-cpu.txt; \
-    else \
-      $uvpip -r /home/user/comps/asr/src/requirements-gpu.txt; \
-    fi
+# Copy source code
+COPY src/ ./src/
+COPY ../../FireRedASR ./FireRedASR
 
-ENV PYTHONPATH=$PYTHONPATH:/home/user
-USER user
-WORKDIR /home/user/comps/asr/src
+# Set environment variables
+ENV PYTHONPATH=/app:$PYTHONPATH
+ENV LOGFLAG=true
+ENV FIREREDASR_MODEL_DIR=/app/pretrained_models
+ENV FIREREDASR_ASR_TYPE=llm
 
-ENTRYPOINT ["python", "opea_asr_microservice.py"]
+# Expose port
+EXPOSE 9099
+
+# Run the microservice
+CMD ["python", "src/opea_fireredasr_microservice.py"]

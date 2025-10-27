@@ -6,28 +6,28 @@ include:
   - ../../../third_parties/funasr/deployment/docker_compose/compose.yaml
 
 services:
-  asr:
+  fireredasr-asr:
     image: ${REGISTRY:-opea}/asr:${TAG:-latest}
-    container_name: asr-service
+    container_name: fireredasr-asr-service
     ports:
       - ${ASR_PORT:-9099}:9099
     ipc: host
     environment:
-      ASR_ENDPOINT: ${ASR_ENDPOINT}
-      ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
+      FIREREDASR_COMPONENT_NAME: ${FIREREDASR_COMPONENT_NAME:-OPEA_FIREREDASR_ASR}
+      FIREREDASR_MODEL_DIR: ${FIREREDASR_MODEL_DIR:-/app/pretrained_models}
+      FIREREDASR_ASR_TYPE: ${FIREREDASR_ASR_TYPE:-llm}
       ENABLE_MCP: ${ENABLE_MCP:-False}
-  asr-whisper:
-    extends: asr
-    container_name: asr-whisper-service
-    environment:
-      ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
-      ENABLE_MCP: ${ENABLE_MCP:-False}
+      LOGFLAG: ${LOGFLAG:-true}
+    volumes:
+      - ${FIREREDASR_MODEL_DIR:-./models}:/app/pretrained_models:ro
     depends_on:
-      whisper-service:
-        condition: service_healthy
-  asr-whisper-gaudi:
-    extends: asr
-    container_name: asr-whisper-gaudi-service
+      - fireredasr-model-preparation
+    networks:
+      - opea-network
+
+  fireredasr-model-preparation:
+    image: ${REGISTRY:-opea}/fireredasr-model-preparation:${TAG:-latest}
+    container_name: fireredasr-model-preparation-service
     environment:
       ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
       ENABLE_MCP: ${ENABLE_MCP:-False}
@@ -45,5 +45,5 @@ services:
         condition: service_healthy
 
 networks:
-  default:
+  opea-network:
     driver: bridge
