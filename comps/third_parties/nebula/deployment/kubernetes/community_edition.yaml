@@ -1,0 +1,72 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps.nebula-graph.io/v1alpha1
+kind: NebulaCluster
+metadata:
+  name: nebula
+  #namespace: nebula-operator-system
+spec:
+  graphd:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 1
+    image: vesoft/nebula-graphd:v3.8.0
+    service:
+      type: NodePort
+      externalTrafficPolicy: Local
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: "${STORAGE_CLASS_NAME}"
+  metad:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 1
+    image: vesoft/nebula-metad:v3.8.0
+    dataVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: "${STORAGE_CLASS_NAME}"
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: "${STORAGE_CLASS_NAME}"
+  storaged:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 3
+    image: vesoft/nebula-storaged:v3.8.0
+    dataVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: "${STORAGE_CLASS_NAME}"
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: "${STORAGE_CLASS_NAME}"
+  reference:
+    name: statefulsets.apps
+    version: v1
+  schedulerName: default-scheduler
+  imagePullPolicy: Always
