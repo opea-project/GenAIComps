@@ -59,8 +59,8 @@ Blow command is in prepare_xtune.sh. You can ignore it if you don't want to upda
     conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 # else run on A770
 # You can refer to https://github.com/intel/intel-extension-for-pytorch for latest command to update lib
-    python -m pip install torch==2.5.1+cxx11.abi torchvision==0.20.1+cxx11.abi torchaudio==2.5.1+cxx11.abi  --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
-    python -m pip install intel-extension-for-pytorch==2.5.10+xpu oneccl_bind_pt==2.5.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
+    python -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/xpu
+    python -m pip install intel-extension-for-pytorch==2.8.10+xpu oneccl_bind_pt==2.8.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
 ```
 
 ### 2. Install xtune on docker
