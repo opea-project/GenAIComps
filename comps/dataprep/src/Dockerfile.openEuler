@@ -26,7 +26,7 @@ RUN yum update -y && yum install -y \
 
 ENV TESSDATA_PREFIX=/usr/share/tesseract/tessdata
 
-RUN LIBREOFFICE_URL=https://mirrors.tuna.tsinghua.edu.cn/libreoffice/libreoffice/stable/25.8.1/rpm/x86_64/LibreOffice_25.8.1_Linux_x86-64_rpm.tar.gz && \
+RUN LIBREOFFICE_URL=https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.2.2/rpm/x86_64/LibreOffice_25.8.2.2_Linux_x86-64_rpm.tar.gz && \
     wget $LIBREOFFICE_URL -O /tmp/libreOffice.tar.gz && \
     tar --strip-components=1 -xvf /tmp/libreOffice.tar.gz -C /tmp && \
     yum install -y /tmp/RPMS/*.rpm && \
