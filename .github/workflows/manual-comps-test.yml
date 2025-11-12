@@ -83,6 +83,7 @@ jobs:
       security-events: read
       statuses: read
       models: read
+      artifact-metadata: read
     strategy:
       matrix:
         service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}

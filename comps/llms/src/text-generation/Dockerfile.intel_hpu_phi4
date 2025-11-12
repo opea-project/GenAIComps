@@ -22,7 +22,7 @@ COPY comps /home/user/comps
 ARG uvpip='uv pip install --system --no-cache-dir'
 RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     pip install --no-cache-dir optimum-habana==1.18.0 && \
-    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
+    pip install --no-cache-dir --no-build-isolation git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 WORKDIR /home/user/comps/llms/src/text-generation
 RUN $uvpip -r requirements.txt && \
