@@ -188,7 +188,7 @@ services:
       ZE_AFFINITY_MASK: ${ZE_AFFINITY_MASK}
     shm_size: 128g
     entrypoint: /bin/bash -c "\
-      chmod +x /llm/vllm_ipex_entrypoint.sh && \
+      source /opt/intel/oneapi/setvars.sh --force && \
       bash /llm/vllm_ipex_entrypoint.sh"
 
 networks:
