@@ -17,6 +17,11 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import Dropout
 from torch.nn import functional as F
 from transformers import CLIPModel, CLIPProcessor
+try:
+    from transformers import ChineseCLIPModel, ChineseCLIPProcessor
+    CHINESE_CLIP_AVAILABLE = True
+except ImportError:
+    CHINESE_CLIP_AVAILABLE = False
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
 
 CUSTOM_TEMPLATES = {
@@ -37,6 +42,7 @@ CUSTOM_TEMPLATES = {
     "ImageNetA": "a photo of a {}.",
     "ImageNetR": "a photo of a {}.",
     "ITC_Flickr": "{}.",
+    "ITC_FlickrCN": "{}.",
     "ITC_Flickr5k": "{}.",
     "ITC_Mscoco": "{}.",
 }
@@ -44,6 +50,8 @@ _MODELS = {
     "ViT-B/16": "openai/clip-vit-base-patch16",
     "ViT-B/32": "openai/clip-vit-base-patch32",
     "ViT-L/14": "openai/clip-vit-large-patch14",
+    "CnViT-B/16": "OFA-Sys/chinese-clip-vit-base-patch16",
+    "CnViT-L/14": "OFA-Sys/chinese-clip-vit-large-patch14",
 }
 
 
@@ -51,8 +59,14 @@ def load_clip_to_cpu(cfg):
     backbone_name = cfg.MODEL.BACKBONE.NAME
     url = _MODELS[backbone_name]
 
-    model = CLIPModel.from_pretrained(url)
-    processor = CLIPProcessor.from_pretrained(url)
+    # Check if it's a Chinese CLIP model
+    if backbone_name.startswith("CnViT") and CHINESE_CLIP_AVAILABLE:
+        model = ChineseCLIPModel.from_pretrained(url)
+        processor = ChineseCLIPProcessor.from_pretrained(url)
+    else:
+        model = CLIPModel.from_pretrained(url)
+        processor = CLIPProcessor.from_pretrained(url)
+
     # model.initialize_parameters()
 
     return model, processor
@@ -66,6 +80,8 @@ class PromptEncoder(nn.Module):
         self.gradient_checkpointing = transformer_model.gradient_checkpointing
         self.cfg = cfg
         self.classnames = classnames
+        # Check if layers are Chinese CLIP layers
+        self.is_chinese_clip = len(self.layers) > 0 and hasattr(self.layers[0], '__class__') and 'Chinese' in self.layers[0].__class__.__name__
         # get transformers info from clip
         # get prompt info from cfg
         cfg_imsize = cfg.INPUT.SIZE[0]
@@ -89,6 +105,35 @@ class PromptEncoder(nn.Module):
             self.deep_promptt_embeddings = nn.Parameter(torch.zeros(self.total_d_layer, self.prompt_length, prompt_dim))
             # xavier_uniform initialization
             nn.init.uniform_(self.deep_promptt_embeddings.data, -val, val)
+
+    def _call_encoder_layer(self, encoder_layer, hidden_states, attention_mask, causal_attention_mask, output_attentions, use_gradient_checkpointing=False):
+        """Helper method to call encoder layer with appropriate parameters based on model type."""
+        if use_gradient_checkpointing:
+            if self.is_chinese_clip:
+                # Chinese CLIP vision layer only takes hidden_states and output_attentions
+                return self._gradient_checkpointing_func(
+                    encoder_layer, hidden_states, output_attentions
+                )
+            else:
+                # Standard CLIP layer takes all parameters
+                return self._gradient_checkpointing_func(
+                    encoder_layer, hidden_states, attention_mask, causal_attention_mask, output_attentions
+                )
+        else:
+            if self.is_chinese_clip:
+                # Chinese CLIP vision layer only takes hidden_states and output_attentions
+                return encoder_layer(
+                    hidden_states,
+                    output_attentions=output_attentions,
+                )
+            else:
+                # Standard CLIP layer takes all parameters
+                return encoder_layer(
+                    hidden_states,
+                    attention_mask=attention_mask,
+                    causal_attention_mask=causal_attention_mask,
+                    output_attentions=output_attentions,
+                )
 
     def incorporate_prompt(self, x):
         # print("================before incorporate================")
@@ -161,12 +206,9 @@ class PromptEncoder(nn.Module):
             if output_hidden_states:
                 encoder_states = encoder_states + (hidden_states,)
             if self.gradient_checkpointing and self.training:
-                layer_outputs = self._gradient_checkpointing_func(
-                    encoder_layer.__call__,
-                    hidden_states,
-                    attention_mask,
-                    causal_attention_mask,
-                    output_attentions,
+                # Use gradient checkpointing
+                layer_outputs = self._call_encoder_layer(
+                    encoder_layer, hidden_states, attention_mask, causal_attention_mask, output_attentions, use_gradient_checkpointing=True
                 )
             else:
                 B = hidden_states.shape[0]
@@ -174,11 +216,8 @@ class PromptEncoder(nn.Module):
                 # or
                 # add prompt in all layer if cfg.TRAINER.COOP.PMT_DEEP
                 if idx == 0 or (not self.cfg.TRAINER.COOP.PMT_DEEP):
-                    layer_outputs = encoder_layer(
-                        hidden_states,
-                        attention_mask,
-                        causal_attention_mask,
-                        output_attentions=output_attentions,
+                    layer_outputs = self._call_encoder_layer(
+                        encoder_layer, hidden_states, attention_mask, causal_attention_mask, output_attentions, use_gradient_checkpointing=False
                     )
                 else:
                     if idx <= self.deep_promptt_embeddings.shape[0]:
@@ -190,11 +229,8 @@ class PromptEncoder(nn.Module):
                             (hidden_states[:, :1, :], deep_prompt_emb, hidden_states[:, (1 + self.prompt_length) :, :]),
                             dim=1,
                         )
-                    layer_outputs = encoder_layer(
-                        hidden_states,
-                        attention_mask,
-                        causal_attention_mask,
-                        output_attentions=output_attentions,
+                    layer_outputs = self._call_encoder_layer(
+                        encoder_layer, hidden_states, attention_mask, causal_attention_mask, output_attentions, use_gradient_checkpointing=False
                     )
 
             hidden_states = layer_outputs[0]
@@ -325,21 +361,39 @@ class TextEncoder(nn.Module):
         self.clip_model = clip_model
         self.tokenizer = processor.tokenizer
         self.dtype = clip_model.dtype
+        # Check if it's Chinese CLIP model by checking model type
+        self.is_chinese_clip = type(clip_model).__name__ == 'ChineseCLIPModel'
 
     def forward(self, classname=None):
         if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
-            prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
+            prompts = [temp.format(c.replace("_", " "))
+                       for c in self.classnames]
         else:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in classname]
-        prompts = self.tokenizer(prompts, return_tensors="pt", padding=True)["input_ids"]
-        # print(self.cfg.TRAINER.COOP.XPU)
+
+        # Use tokenizer for both models (same interface)
+        tokenized = self.tokenizer(prompts, return_tensors="pt", padding=True)
+
         if self.cfg.TRAINER.COOP.XPU:
-            prompts = prompts.to(self.cfg.TRAINER.COOP.XPU_ID)
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.XPU_ID)
+                         for k, v in tokenized.items()}
         else:
-            prompts = prompts.to(self.cfg.TRAINER.COOP.CUDA_ID)
-        text_features = self.clip_model.text_model(prompts)[1]
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.CUDA_ID)
+                         for k, v in tokenized.items()}
+
+        # Handle different model architectures
+        text_outputs = self.clip_model.text_model(**tokenized)
+
+        if text_outputs.pooler_output is not None:
+            # Standard CLIP has pooler_output
+            text_features = text_outputs.pooler_output
+        else:
+            # Chinese CLIP doesn't have pooler_output, use last hidden state's first token
+            # Use [CLS] token
+            text_features = text_outputs.last_hidden_state[:, 0, :]
+
         text_features = self.clip_model.text_projection(text_features)
         x = text_features
         return x
@@ -360,7 +414,16 @@ class CustomCLIP(nn.Module):
         # self.adapter = Adapter(512, 4).to(clip_model.dtype)
 
     def forward(self, image, classname=None):
-        image_features = self.image_encoder(image.type(self.dtype))[1]
+        # Handle different vision model outputs
+        vision_outputs = self.image_encoder(image.type(self.dtype))
+        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+            image_features = vision_outputs.pooler_output
+        elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
+            image_features = vision_outputs[1]  # pooled output
+        else:
+            # Fallback: use last hidden state
+            image_features = vision_outputs.last_hidden_state.mean(dim=1)
+
         image_features = self.visual_projection(image_features)
 
         text_features = self.text_encoder(classname)
@@ -452,7 +515,16 @@ class CLIP_VPT_hf(TrainerX):
         return text_features
 
     def get_img_embeds(self, image):
-        image_features = self.model.image_encoder(image.type(self.model.dtype))[1]
+        # Handle different vision model outputs
+        vision_outputs = self.model.image_encoder(image.type(self.model.dtype))
+        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+            image_features = vision_outputs.pooler_output
+        elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
+            image_features = vision_outputs[1]  # pooled output
+        else:
+            # Fallback: use last hidden state
+            image_features = vision_outputs.last_hidden_state.mean(dim=1)
+
         image_features = self.model.visual_projection(image_features)
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 

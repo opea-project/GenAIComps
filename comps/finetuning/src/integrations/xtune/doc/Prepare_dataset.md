@@ -63,9 +63,35 @@ $DATA/
 |–– flickr/
 |   |–– flickr30k-images/
 |   |   |-- *.jpg
-|   |-- flickr30k_train.json.json
-|   |-- flickr30k_val.json.json
-|   |-- flickr30k_test.json.json
+|   |-- flickr30k_train.json
+|   |-- flickr30k_val.json
+|   |-- flickr30k_test.json
+```
+
+### FlickrCN
+
+- Create a folder name `flickrcn/` under `$DATA`.
+- Download the dataset form the [Kaggle](https://www.kaggle.com/datasets/eeshawn/flickr30k/data)
+- download json file from `https://huggingface.co/datasets/OFA-Sys/chinese-clip-eval/resolve/main/Flickr30k-CN.zip` Flickr30k-CN.zip\Flickr30k-CN/\*.jsonl to `$DATA/flickrcn`
+
+```
+$DATA/
+|–– flickrcn/
+|   |–– flickr30k-images/
+|   |   |-- *.jpg
+|   |-- train_texts.jsonl
+|   |-- val_texts.jsonl
+|   |-- test_texts.jsonl
+```
+- Run `generate_flickr30k_cn_json.py --base_dir $DATA/flickrcn/` to generate usable json file
+```
+$DATA/
+|–– flickrcn/
+|   |–– flickr30k-images/
+|   |   |-- *.jpg
+|   |-- flickr30k_cn_train.json
+|   |-- flickr30k_cn_val.json
+|   |-- flickr30k_cn_test.json
 ```
 
 ### Flickr5k

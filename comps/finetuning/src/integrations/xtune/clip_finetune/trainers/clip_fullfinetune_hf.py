@@ -12,6 +12,11 @@ from dassl.optim import build_lr_scheduler, build_optimizer
 from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import functional as F
 from transformers import CLIPModel, CLIPProcessor
+try:
+    from transformers import ChineseCLIPModel, ChineseCLIPProcessor
+    CHINESE_CLIP_AVAILABLE = True
+except ImportError:
+    CHINESE_CLIP_AVAILABLE = False
 
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",
@@ -31,6 +36,7 @@ CUSTOM_TEMPLATES = {
     "ImageNetA": "a photo of a {}.",
     "ImageNetR": "a photo of a {}.",
     "ITC_Flickr": "{}.",
+    "ITC_FlickrCN": "{}.",
     "ITC_Flickr5k": "{}.",
     "ITC_Mscoco": "{}.",
 }
@@ -38,6 +44,8 @@ _MODELS = {
     "ViT-B/16": "openai/clip-vit-base-patch16",
     "ViT-B/32": "openai/clip-vit-base-patch32",
     "ViT-L/14": "openai/clip-vit-large-patch14",
+    "CnViT-B/16": "OFA-Sys/chinese-clip-vit-base-patch16",
+    "CnViT-L/14": "OFA-Sys/chinese-clip-vit-large-patch14",
 }
 
 
@@ -45,8 +53,14 @@ def load_clip_to_cpu(cfg):
     backbone_name = cfg.MODEL.BACKBONE.NAME
     url = _MODELS[backbone_name]
 
-    model = CLIPModel.from_pretrained(url)
-    processor = CLIPProcessor.from_pretrained(url)
+    # Check if it's a Chinese CLIP model
+    if backbone_name.startswith("CnViT") and CHINESE_CLIP_AVAILABLE:
+        model = ChineseCLIPModel.from_pretrained(url)
+        processor = ChineseCLIPProcessor.from_pretrained(url)
+    else:
+        model = CLIPModel.from_pretrained(url)
+        processor = CLIPProcessor.from_pretrained(url)
+
     # model.initialize_parameters()
 
     return model, processor
@@ -62,23 +76,41 @@ class TextEncoder(nn.Module):
         self.clip_model = clip_model
         self.tokenizer = processor.tokenizer
         self.dtype = clip_model.dtype
+        # Check if it's Chinese CLIP model by checking model type
+        self.is_chinese_clip = type(clip_model).__name__ == 'ChineseCLIPModel'
 
     def forward(self, classname=None):
         # for small dataset, we tokenize all prompt ------- if classname is None
         # for large dataset, we tokenize (bs) prompt
         if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
-            prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
+            prompts = [temp.format(c.replace("_", " "))
+                       for c in self.classnames]
         else:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in classname]
 
-        prompts = self.tokenizer(prompts, return_tensors="pt", padding=True)["input_ids"]
+        # Use tokenizer for both models (same interface)
+        tokenized = self.tokenizer(prompts, return_tensors="pt", padding=True)
+
         if self.cfg.TRAINER.COOP.XPU:
-            prompts = prompts.to(self.cfg.TRAINER.COOP.XPU_ID)
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.XPU_ID)
+                         for k, v in tokenized.items()}
         else:
-            prompts = prompts.to(self.cfg.TRAINER.COOP.CUDA_ID)
-        text_features = self.clip_model.text_model(prompts)[1]
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.CUDA_ID)
+                         for k, v in tokenized.items()}
+
+        # Handle different model architectures
+        text_outputs = self.clip_model.text_model(**tokenized)
+
+        if text_outputs.pooler_output is not None:
+            # Standard CLIP has pooler_output
+            text_features = text_outputs.pooler_output
+        else:
+            # Chinese CLIP doesn't have pooler_output, use last hidden state's first token
+            # Use [CLS] token
+            text_features = text_outputs.last_hidden_state[:, 0, :]
+
         text_features = self.clip_model.text_projection(text_features)
         return text_features
 
@@ -98,7 +130,16 @@ class CustomCLIP(nn.Module):
         # self.adapter = Adapter(512, 4).to(clip_model.dtype)
 
     def forward(self, image, classname=None):
-        image_features = self.image_encoder(image.type(self.dtype))[1]
+        # Handle different vision model outputs
+        vision_outputs = self.image_encoder(image.type(self.dtype))
+        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+            image_features = vision_outputs.pooler_output
+        elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
+            image_features = vision_outputs[1]  # pooled output
+        else:
+            # Fallback: use last hidden state
+            image_features = vision_outputs.last_hidden_state.mean(dim=1)
+
         image_features = self.visual_projection(image_features)
         x = image_features
 
@@ -215,7 +256,16 @@ class CLIP_Fullfinetune_hf(TrainerX):
         return text_features
 
     def get_img_embeds(self, image):
-        image_features = self.model.image_encoder(image.type(self.model.dtype))[1]
+        # Handle different vision model outputs
+        vision_outputs = self.model.image_encoder(image.type(self.model.dtype))
+        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+            image_features = vision_outputs.pooler_output
+        elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
+            image_features = vision_outputs[1]  # pooled output
+        else:
+            # Fallback: use last hidden state
+            image_features = vision_outputs.last_hidden_state.mean(dim=1)
+
         image_features = self.model.visual_projection(image_features)
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         return image_features
