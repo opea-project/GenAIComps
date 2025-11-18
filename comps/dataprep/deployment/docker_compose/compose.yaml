@@ -213,7 +213,7 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
-    
+
   dataprep-pgvector:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-pgvector-server

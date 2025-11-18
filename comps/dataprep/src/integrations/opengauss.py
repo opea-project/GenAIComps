@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Huawei Technologies Co., Ltd. 
+# Copyright (C) 2025 Huawei Technologies Co., Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -12,8 +12,8 @@ import psycopg2
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_opengauss import OpenGauss, OpenGaussSettings
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_opengauss import OpenGauss, OpenGaussSettings
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import DataprepRequest
@@ -94,12 +94,7 @@ class OpeaOpenGaussDataprep(OpeaComponent):
             port = result.port
             psycopg2.connect(database=database, user=username, password=password, host=hostname, port=port)
             self.opengauss_config = OpenGaussSettings(
-                host=hostname,
-                port=port,
-                user=username,
-                password=password,
-                database=database,
-                embedding_dimension=768
+                host=hostname, port=port, user=username, password=password, database=database, embedding_dimension=768
             )
             return True
         except psycopg2.Error as e:
@@ -200,10 +195,7 @@ class OpeaOpenGaussDataprep(OpeaComponent):
             batch_metadatas = metadatas[i : i + batch_size]
             batch_texts = batch_chunks
             _ = OpenGauss.from_texts(
-                texts=batch_texts,
-                embedding=self.embedder,
-                metadatas=batch_metadatas,
-                config=self.opengauss_config
+                texts=batch_texts, embedding=self.embedder, metadatas=batch_metadatas, config=self.opengauss_config
             )
             if logflag:
                 logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
@@ -237,10 +229,7 @@ class OpeaOpenGaussDataprep(OpeaComponent):
                 batch_texts = batch_chunks
 
                 _ = OpenGauss.from_texts(
-                    texts=batch_texts,
-                    embedding=self.embedder,
-                    metadatas=batch_metadatas,
-                    config=self.opengauss_config
+                    texts=batch_texts, embedding=self.embedder, metadatas=batch_metadatas, config=self.opengauss_config
                 )
                 if logflag:
                     logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")

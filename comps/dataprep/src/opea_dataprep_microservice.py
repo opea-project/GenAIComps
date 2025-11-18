@@ -12,6 +12,7 @@ from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.mariadb import OpeaMariaDBDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
+from integrations.opengauss import OpeaOpenGaussDataprep
 from integrations.opensearch import OpeaOpenSearchDataprep
 from integrations.pgvect import OpeaPgvectorDataprep
 from integrations.pipecone import OpeaPineConeDataprep
@@ -19,7 +20,6 @@ from integrations.qdrant import OpeaQdrantDataprep
 from integrations.redis import OpeaRedisDataprep
 from integrations.redis_finance import OpeaRedisDataprepFinance
 from integrations.vdms import OpeaVdmsDataprep
-from integrations.opengauss import OpeaOpenGaussDataprep
 from opea_dataprep_loader import OpeaDataprepLoader
 
 from comps import (
