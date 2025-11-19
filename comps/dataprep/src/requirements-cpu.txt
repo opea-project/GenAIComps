@@ -402,6 +402,8 @@ langchain-mariadb==0.0.17
 langchain-milvus==0.1.10
     # via -r ./comps/dataprep/src/requirements.in
 langchain-openai==0.3.23
+    # via -r ./comps/dataprep/src/requirements.in
+langchain-opengauss==0.1.4
     # via
     #   -r ./comps/dataprep/src/requirements.in
     #   langchain-pinecone

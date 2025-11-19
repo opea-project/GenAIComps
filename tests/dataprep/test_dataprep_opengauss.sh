@@ -1,0 +1,104 @@
+#!/bin/bash
+# Copyright (C) 2025 Huawei Technologies Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+set -x
+
+WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
+ip_address=$(hostname -I | awk '{print $1}')
+export DATAPREP_PORT="11105"
+export TAG="comps"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
+function build_docker_images() {
+    cd $WORKPATH
+
+    # pull openGauss image
+    docker pull opengauss/opengauss:7.0.0-RC2.B015
+
+    # build dataprep image for openGauss
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/dataprep built fail"
+        exit 1
+    else
+        echo "opea/dataprep built successful"
+    fi
+}
+
+function start_service() {
+    export GS_USER=gaussdb
+    export GS_PASSWORD=openGauss@123
+    export GS_DB=postgres
+    export GS_CONNECTION_STRING=opengauss+psycopg2://${GS_USER}:${GS_PASSWORD}@$ip_address:5432/${GS_DB}
+    service_name="opengauss-db dataprep-opengauss"
+    export host_ip=${ip_address}
+
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose up ${service_name} -d
+
+    check_healthy "dataprep-opengauss-server" || exit 1
+}
+
+function validate_microservice() {
+    # test /v1/dataprep/ingest upload file
+    ingest_doc ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    ingest_docx ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - docx" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    ingest_pdf ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_upload_file.log
+
+    ingest_pptx ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    ingest_txt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - txt" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    ingest_xlsx ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    # test /v1/dataprep/ingest upload link
+    ingest_external_link ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    # test /v1/dataprep/get
+    get_all ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - get" '{"name":' dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+
+    # test /v1/dataprep/delete
+    delete_all ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - del" '{"status":true}' dataprep-opengauss-server ${LOG_PATH}/dataprep_opengauss.log
+}
+
+function stop_docker() {
+    cid=$(docker ps -aq --filter "name=dataprep-opengauss-server")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
+    cid=$(docker ps -aq --filter "name=opengauss-db")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+}
+
+function main() {
+
+    stop_docker
+
+    build_docker_images
+    start_service
+
+    validate_microservice
+
+    stop_docker
+    echo y | docker system prune
+
+}
+
+main

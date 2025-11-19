@@ -16,6 +16,7 @@ include:
   - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
   - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
   - ../../../third_parties/mariadb/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/opengauss/deployment/docker_compose/compose.yaml
 
 services:
 
@@ -190,6 +191,28 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+
+  dataprep-opengauss:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-opengauss-server
+    ports:
+      - "${DATAPREP_PORT:-5000}:5000"
+    depends_on:
+      opengauss-db:
+        condition: service_healthy
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_OPENGAUSS"
+      GS_CONNECTION_STRING: ${GS_CONNECTION_STRING}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
   dataprep-pgvector:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}

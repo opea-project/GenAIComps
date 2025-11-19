@@ -1,0 +1,18 @@
+# Copyright (C) 2025 Huawei Technologies Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  opengauss-db:
+    image: opengauss/opengauss:7.0.0-RC2.B015
+    container_name: opengauss-db
+    ports:
+      - "${GS_PORT:-5432}:5432"
+    restart: always
+    environment:
+      - GS_PASSWORD=${GS_PASSWORD}
+    healthcheck:
+        # test: curl -s http://${host_ip}:5432/health | grep -q 'health check passed' || exit 1 # TODO
+        test: ["CMD-SHELL", "sleep 10 && exit 0"]
+        interval: 1s
+        timeout: 15s
+        retries: 1
