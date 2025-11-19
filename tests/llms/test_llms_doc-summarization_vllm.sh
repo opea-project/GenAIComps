@@ -19,19 +19,24 @@ host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 service_name="docsum-vllm"
 
+
 function build_docker_images() {
     cd $WORKPATH
-    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
-    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
-    docker build --no-cache -f docker/Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
-    if [ $? -ne 0 ]; then
-        echo "opea/vllm built fail"
-        exit 1
+    if [[ -z "$(docker images -q ${REGISTRY:-opea}/vllm:${TAG:-latest})" ]]; then
+        source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+        git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
+        docker build --no-cache -f docker/Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
+        if [ $? -ne 0 ]; then
+            echo "opea/vllm built fail"
+            exit 1
+        else
+            echo "opea/vllm built successful"
+        fi
     else
-        echo "opea/vllm built successful"
+        echo "opea/vllm:${TAG:-latest} already exists, skip building."
     fi
-
     cd $WORKPATH
+
     dockerfile_name="comps/llms/src/doc-summarization/$1"
     docker build --no-cache -t ${REGISTRY:-opea}/llm-docsum:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "$dockerfile_name" .
     if [ $? -ne 0 ]; then
