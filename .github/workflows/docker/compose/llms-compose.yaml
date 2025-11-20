@@ -23,6 +23,10 @@ services:
     build:
       dockerfile: comps/llms/src/doc-summarization/Dockerfile
     image: ${REGISTRY:-opea}/llm-docsum:${TAG:-latest}
+  llm-docsum-openeuler:
+    build:
+      dockerfile: comps/llms/src/doc-summarization/Dockerfile.openEuler
+    image: ${REGISTRY:-opea}/llm-docsum:${TAG:-latest}-openeuler
   llm-faqgen:
     build:
       dockerfile: comps/llms/src/faq-generation/Dockerfile

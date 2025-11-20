@@ -19,20 +19,26 @@ host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 service_name="docsum-vllm"
 
+
 function build_docker_images() {
     cd $WORKPATH
-    source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
-    git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
-    docker build --no-cache -f docker/Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
-    if [ $? -ne 0 ]; then
-        echo "opea/vllm built fail"
-        exit 1
+    if [[ -z "$(docker images -q ${REGISTRY:-opea}/vllm:${TAG:-latest})" ]]; then
+        source $(git rev-parse --show-toplevel)/.github/env/_vllm_versions.sh
+        git clone --depth 1 -b ${VLLM_VER} --single-branch https://github.com/vllm-project/vllm.git && cd vllm
+        docker build --no-cache -f docker/Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
+        if [ $? -ne 0 ]; then
+            echo "opea/vllm built fail"
+            exit 1
+        else
+            echo "opea/vllm built successful"
+        fi
     else
-        echo "opea/vllm built successful"
+        echo "opea/vllm:${TAG:-latest} already exists, skip building."
     fi
-
     cd $WORKPATH
-    docker build --no-cache -t ${REGISTRY:-opea}/llm-docsum:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
+
+    dockerfile_name="comps/llms/src/doc-summarization/$1"
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-docsum:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f "$dockerfile_name" .
     if [ $? -ne 0 ]; then
         echo "opea/llm-docsum built fail"
         exit 1
@@ -159,32 +165,45 @@ function validate_microservices() {
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000, "timeout":200}'
 }
 
-function stop_docker() {
+function stop_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {
 
-    stop_docker
+    stop_service
 
-    build_docker_images
+    build_docker_images "Dockerfile"
 
-    trap stop_docker EXIT
+    trap stop_service EXIT
 
     echo "Test normal env ..."
     start_service
     validate_microservices
-    stop_docker
+    stop_service
 
     if [[ -n "${DATA_PATH}" ]]; then
         echo "Test air gapped env ..."
         start_service true
         validate_microservices
-        stop_docker
+        stop_service
     fi
-    echo y | docker system prune
 
+    echo "Test with openEuler OS ..."
+    build_docker_images "Dockerfile.openEuler"
+    start_service
+    validate_microservices
+    stop_service
+
+    if [[ -n "${DATA_PATH}" ]]; then
+        echo "Test air gapped env ..."
+        start_service true
+        validate_microservices
+        stop_service
+    fi
+
+    docker system prune -f
 }
 
 main
