@@ -172,6 +172,11 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "rag_pinecone")
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
 PG_INDEX_NAME = os.getenv("PG_INDEX_NAME", "rag_pgvector")
 
+#######################################################
+#                     openGauss                       #
+#######################################################
+GS_CONNECTION_STRING = os.getenv("GS_CONNECTION_STRING", "localhost")
+GS_INDEX_NAME = os.getenv("GS_INDEX_NAME", "idx-langchain_docs_embedding")
 
 #######################################################
 #                        QDrant                       #

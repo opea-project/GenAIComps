@@ -49,3 +49,7 @@ For details, please refer to this [readme](src/README_mariadb.md)
 ## Retriever Microservice with ArangoDB
 
 For details, please refer to this [readme](src/README_arangodb.md)
+
+## Retriever Microservice with openGauss
+
+For details, please refer to this [readme](src/README_opengauss.md)
