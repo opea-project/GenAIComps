@@ -1,19 +1,19 @@
-# Copyright (C) 2025 Huawei Technologies Co., Ltd. 
+# Copyright (C) 2025 Huawei Technologies Co., Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
 
 import os
-
-from fastapi import HTTPException
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_opengauss import OpenGauss, OpenGaussSettings
-from langchain_huggingface import HuggingFaceEmbeddings
 from urllib.parse import urlparse
 
 import psycopg2
+from fastapi import HTTPException
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_opengauss import OpenGauss, OpenGaussSettings
+
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import EMBED_MODEL, HF_TOKEN, GS_CONNECTION_STRING, GS_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
+from .config import EMBED_MODEL, GS_CONNECTION_STRING, GS_INDEX_NAME, HF_TOKEN, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("opengauss_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -76,17 +76,9 @@ class OpeaOpenGaussRetriever(OpeaComponent):
         port = result.port
 
         self.opengauss_config = OpenGaussSettings(
-                host=hostname,
-                port=port,
-                user=username,
-                password=password,
-                database=database,
-                embedding_dimension=768
-            )
-        vector_db = OpenGauss(
-            embedding=self.embedder,
-            config=self.opengauss_config
+            host=hostname, port=port, user=username, password=password, database=database, embedding_dimension=768
         )
+        vector_db = OpenGauss(embedding=self.embedder, config=self.opengauss_config)
         return vector_db
 
     def check_health(self) -> bool:
@@ -101,7 +93,6 @@ class OpeaOpenGaussRetriever(OpeaComponent):
         database = result.path[1:]
         hostname = result.hostname
         port = result.port
-
 
         if logflag:
             logger.info("[ check health ] start to check health of openGauss")

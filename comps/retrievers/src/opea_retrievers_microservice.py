@@ -13,6 +13,7 @@ from integrations.elasticsearch import OpeaElasticsearchRetriever
 from integrations.mariadb import OpeaMARIADBVectorRetriever
 from integrations.milvus import OpeaMilvusRetriever
 from integrations.neo4j import OpeaNeo4jRetriever
+from integrations.opengauss import OpeaOpenGaussRetriever
 from integrations.opensearch import OpeaOpensearchRetriever
 from integrations.pathway import OpeaPathwayRetriever
 from integrations.pgvector import OpeaPGVectorRetriever
@@ -20,7 +21,6 @@ from integrations.pinecone import OpeaPineconeRetriever
 from integrations.qdrant import OpeaQDrantRetriever
 from integrations.redis import OpeaRedisRetriever
 from integrations.vdms import OpeaVDMsRetriever
-from integrations.opengauss import OpeaOpenGaussRetriever
 
 from comps import (
     CustomLogger,
