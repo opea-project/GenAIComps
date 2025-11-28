@@ -454,6 +454,8 @@ langchain-openai==0.3.35
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   langchain-pinecone
+langchain-opengauss==0.1.4
+    # via -r ./comps/retrievers/src/requirements.in
 langchain-pinecone==0.2.12
     # via -r ./comps/retrievers/src/requirements.in
 langchain-text-splitters==0.3.11

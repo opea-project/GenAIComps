@@ -16,6 +16,7 @@ langchain-elasticsearch
 langchain-mariadb
 langchain-openai
 langchain-pinecone
+langchain-opengauss
 langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
