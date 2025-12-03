@@ -1,0 +1,35 @@
+{
+  "base": {
+    "working_directory": "./",
+    "base_output_dir": "./saves/optuna_tuning",
+    "model_base_path": "./models",
+    "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
+    "print_detail_log": true
+
+  },
+  
+  "training": {
+    "train_dataset": "activitynet_qa_2000_limit_20s",
+    "n_epochs": 8,
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "train_cutoff_len": 2048,
+    "lr_scheduler_type": "cosine",
+    "max_grad_norm": 1.0,
+    "logging_steps": 5,
+    "save_steps": 5,
+    "optim": "adamw_torch",
+    "preprocessing_num_workers": 16,
+    "bf16": true,
+    "finetuning_type": "lora",
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.0,
+    "lora_target": "all",
+    "max_samples": 100000,
+    "video_fps": 0.1
+  }
+  
+
+}
+

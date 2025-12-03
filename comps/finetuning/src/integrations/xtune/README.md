@@ -4,11 +4,11 @@
 
 > [!NOTE]
 >
-> - _`Xtune`_ incorporates with Llama-Factory to offer various methods for finetuning visual models (CLIP, AdaCLIP), LLM and Multi-modal models​. It makes easier to choose the method and to set fine-tuning parameters.
+> - _`Xtune`_ incorporates with Llama-Factory to offer various methods for finetuning visual models (CLIP, CnCLIP, AdaCLIP), LLM and Multi-modal models​. It makes easier to choose the method and to set fine-tuning parameters.
 
 The core features include:
 
-- Four finetune method for CLIP, details in [CLIP](./doc/key_features_for_clip_finetune_tool.md)
+- Four finetune method for CLIP & CnCLIP, details in [CLIP](./doc/key_features_for_clip_finetune_tool.md)
 - Three finetune method for AdaCLIP, details in [AdaCLIP](./doc/adaclip_readme.md)
 - Automatic hyperparameter searching enabled by Optuna [Optuna](https://github.com/optuna/optuna)
 - Distillation from large models with Intel ARC GPU​
@@ -106,20 +106,35 @@ then make `dataset_info.json` in your dataset directory
 {
   "caltech101": {
     "file_name": "caltech101.json"
+  },
+  "flickr30k": {
+    "file_name": "flickr30k.json"
   }
+  ......
 }
+```
+The directory structure should look like
+
+```
+$DATA/
+|-- caltech-101/
+|   |-- 101_ObjectCategories/
+|   | split_zhou_Caltech101.json
+|-- flickr/
+|   |–– flickr30k-images/
+|   |   |-- *.jpg
+|   |-- train_texts.jsonl
+|   |-- val_texts.jsonl
+|   |-- test_texts.jsonl
+|-- dataset_info.json
+|-- caltech101.json
+|-- flickr30k.json
+...
 ```
 
 ## Fine-Tuning with LLaMA Board GUI (powered by [Gradio](https://github.com/gradio-app/gradio))
 
 > [!NOTE] We don't support multi-card in GUI now, will add it later.
-
-When run with prepare_xtune.sh, it will automatic run ZE_AFFINITY_MASK=0 llamafactory-cli webui.
-
-If you see "server start successfully" in terminal.
-You can access in web through http://localhost:7860/
-
-The UI component information can be seen in doc/ui_component.md after run with prepare_xtune.sh.
 
 When run with prepare_xtune.sh, it will automatic run ZE_AFFINITY_MASK=0 llamafactory-cli webui.
 
@@ -136,6 +151,57 @@ The UI component information can be seen in doc/ui_component.md after run with p
 
  Then access in web through http://localhost:7860/
 ```
+### GUI using guide
+#### CLIP & CnCLIP
+
+![clip ui guide](./pics/clip_ui.png)
+
+- Must be set to the specified parameter values below:
+  | Parameter           | Choose Value  |
+  | ------------------- | -------------------------------------------- |
+  | `Model name`        | `CnVit-B/16` / `CnVit-L/14` /`Vit-B/16` /`Vit-L/14`  |
+  | `Model path`        | Must be the detail configuration name under `src/llamafactory/clip_finetune/configs/trainers/clip_finetune/`|
+  | `Finetuning method` | clip |
+  | `Stage`             | clip|
+  | `Data dir`          | Where you put `dataset_info.json`.|
+  | `Method Group`      |Finetune|
+  | `clip_finetune method`  | `CLIP_Adapter_hf`/ `CLIP_Bias_hf`/ `CLIP_VPT_hf` /`CLIP_Fullfinetune_hf`, must match with `Model name`(configuration name).|
+
+
+- The matching relationship between `Model name`(configuration name) and `clip_finetune method`:
+
+  | clip_finetune method | `Model name`(configuration name) |
+  | ---------- | ------------------ |
+  | CLIP_Adapter_hf  | xx_xx(e.g.,`cnvit_b16`)   |
+  | CLIP_Bias_hf     | xx_xx_bias(e.g.,`cnvit_b16_bias`) |
+  | CLIP_VPT_hf      | xx_xx_prompt(e.g.,`cnvit_b16_prompt`) |
+  | CLIP_Fullfinetune_hf |xx_xx_ori(e.g.,`cnvit_b16_ori`) |
+
+#### AdaCLIP
+
+![adaclip ui guide](./pics/adaclip_ui.png)
+
+- Must be set to the specified parameter values below:
+  | Parameter           | Choose Value  |
+  | ------------------- | -------------------------------------------- |
+  | `Model name`        | Custom  |
+  | `Model path`        | Adaclip model path|
+  | `Finetuning method` | Adaclip|
+  | `Stage`             | Adaclip|
+  | `Data dir`          | Where you put `dataset_info.json`|
+
+
+#### Qwen2-VL & Qwen2.5-VL
+![qwen-vl ui guide](./pics/qwen_vl_ui.png)
+- Must be set to the specified parameter values below:
+  | Parameter           | Choose Value  |
+  | ------------------- | -------------------------------------------- |
+  | `Model name`        | Select Qwen2-VL or Qwen2.5-VL model  |
+  | `Model path`        | Will be set automatically after setting Model name, you can use your local model path,too.|
+  | `Finetuning method` | lora|
+  | `Stage`             | Supervised Fine-Tuning|
+  | `Data dir`          | Where you put `dataset_info.json`, can use `data` as default, and update your own data in `data/dataset_info.json`|
+
 
 ## Fine-Tuning with Shell instead of GUI
 
@@ -154,6 +220,15 @@ cd src/llamafactory/clip_finetune
 # Please see README.md in src/llamafactory/clip_finetune for detail
 ```
 
+### CnCLIP
+
+Please see [doc](./doc/key_features_for_clip_finetune_tool.md) for how to config feature
+
+```bash
+cd src/llamafactory/clip_finetune
+# Please see README.md in src/llamafactory/clip_finetune for detail
+```
+
 ### AdaCLIP
 
 ```bash
@@ -164,22 +239,23 @@ cd src/llamafactory/adaclip_finetune
 ### Qwen2-VL Training and Hyperparameter Optimization
 
 ```bash
-# Please see Qwen2-VL_README.md in doc for detail, bolow are simple use
+# Please see Qwen-VL_README.md in doc to use more automated fine-tuning methods and hyperparameter tuning, bolow are simple use:
 ```
 
-#### Step 1: Finetune qwen2-vl with logging eval loss
+#### Finetune Qwen2-VL & Qwen2.5-VL with logging eval loss
 
 If you want to finetune with plotting eval loss, please set eval_strategy as steps, eval_stepsand eval_dataset:
+##### Qwen2-VL
 
-```
-# Finetune qwen2-vl with logging eval loss
+```bash
 export DATA='where you can find dataset_info.json'
-export dataset=activitynet_qa_2000_limit_20s                    # to point which dataset llamafactory will use
+#To point which dataset llamafactory will use, have to add the datasets into dataset_info.json before finetune.
+export dataset=activitynet_qa_2000_limit_20s
 export eval_dataset=activitynet_qa_val_500_limit_20s
 llamafactory-cli train \
     --stage sft \
     --do_train True \
-    --model_name_or_path $models/Qwen2-VL-7B-Instruct-GPTQ-Int8 \
+    --model_name_or_path /model/Qwen2-VL-7B-Instruct-GPTQ-Int8 \
     --preprocessing_num_workers 16 \
     --finetuning_type lora \
     --template qwen2_vl \
@@ -196,10 +272,10 @@ llamafactory-cli train \
     --max_grad_norm 1.0 \
     --logging_steps 10 \
     --save_steps 100 \
-    --warmup_steps 100 \
+    --warmup_steps 0 \
     --packing False \
     --report_to none \
-    --output_dir saves/Qwen2-VL-7B-Instruct-GPTQ-Int8/lora/finetune_test_valmetrics_evalstep8 \
+    --output_dir saves/Qwen2-VL-7B-Instruct-GPTQ-Int8/lora/finetune_qwen2vl \
     --bf16 True \
     --plot_loss True \
     --ddp_timeout 180000000 \
@@ -216,7 +292,53 @@ llamafactory-cli train \
     --lora_target all
 ```
 
-#### step 2: Evaluation metrics calculation and plotting
+#### Qwen2.5-VL
+```bash
+export DATA='where you can find dataset_info.json'
+#To point which dataset llamafactory will use, have to add the datasets into dataset_info.json before finetune.
+export dataset=activitynet_qa_1000_limit_20s
+export eval_dataset=activitynet_qa_val_250_limit_20s
+llamafactory-cli train \
+    --stage sft \
+    --do_train True \
+    --model_name_or_path /home/edgeai/wxs/workspace/models/Qwen2.5-VL-7B-Instruct \
+    --preprocessing_num_workers 16 \
+    --finetuning_type lora \
+    --template qwen2_vl \
+    --flash_attn auto \
+    --dataset_dir $DATA \
+    --dataset $dataset \
+    --cutoff_len 2048 \
+    --learning_rate 5e-05 \
+    --num_train_epochs 2 \
+    --max_samples 100000 \
+    --per_device_train_batch_size 2 \
+    --gradient_accumulation_steps 4 \
+    --lr_scheduler_type cosine \
+    --max_grad_norm 1.0 \
+    --logging_steps 10 \
+    --save_steps 100 \
+    --warmup_steps 0 \
+    --packing False \
+    --report_to none \
+    --output_dir saves/Qwen2.5-VL-7B-Instruct/lora/finetune_qwen2.5vl \
+    --bf16 True \
+    --plot_loss True \
+    --ddp_timeout 180000000 \
+    --optim adamw_torch \
+    --video_fps 0.05 \
+    --per_device_eval_batch_size 1 \
+    --eval_strategy steps \
+    --eval_steps 100 \
+    --eval_dataset $eval_dataset \
+    --predict_with_generate true \
+    --lora_rank 8 \
+    --lora_alpha 16 \
+    --lora_dropout 0 \
+    --lora_target all
+```
+
+#### Calculation and Plotting of Evaluation Metrics During Fine-Tuning
 
 If you want to plot eval metrics:
 Change `MODEL_NAME`,`EXPERIENT_NAME`,`EVAL_DATASET` as you need and run evaluation metrics calculation sctrpt:
