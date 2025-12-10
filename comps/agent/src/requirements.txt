@@ -6,6 +6,8 @@ aiohttp==3.12.15
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
+annotated-doc==0.0.4
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
 anyio==4.10.0
@@ -33,6 +35,8 @@ certifi==2025.8.3
     #   httpx
     #   langchain-redis
     #   requests
+cffi==2.0.0 ; platform_python_implementation != 'PyPy'
+    # via cryptography
 charset-normalizer==3.4.3
     # via
     #   requests
@@ -46,6 +50,8 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   tqdm
 colorlog==6.9.0
     # via trimesh
+cryptography==46.0.3
+    # via pyjwt
 dataclasses-json==0.6.7
     # via langchain-community
 distro==1.9.0
@@ -54,7 +60,7 @@ docarray==0.41.0
     # via -r ./comps/agent/src/requirements.in
 embreex==2.17.7.post6 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.116.1
+fastapi==0.124.0
     # via -r ./comps/agent/src/requirements.in
 filelock==3.19.1
     # via
@@ -164,8 +170,9 @@ langchain-community==0.3.27
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-google-community
-langchain-core==0.3.74
+langchain-core==0.3.80
     # via
+    #   -r ./comps/agent/src/requirements.in
     #   langchain
     #   langchain-community
     #   langchain-google-community
@@ -191,13 +198,14 @@ langchain-text-splitters==0.3.9
     # via langchain
 langchainhub==0.1.21
     # via -r ./comps/agent/src/requirements.in
-langgraph==0.6.5
+langgraph==1.0.1
     # via -r ./comps/agent/src/requirements.in
-langgraph-checkpoint==2.1.1
+langgraph-checkpoint==3.0.0
     # via
+    #   -r ./comps/agent/src/requirements.in
     #   langgraph
     #   langgraph-prebuilt
-langgraph-prebuilt==0.6.4
+langgraph-prebuilt==1.0.1
     # via langgraph
 langgraph-sdk==0.2.2
     # via langgraph
@@ -221,7 +229,7 @@ markupsafe==3.0.2
     # via jinja2
 marshmallow==3.26.1
     # via dataclasses-json
-mcp==1.10.0
+mcp==1.23.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-mcp-adapters
@@ -349,6 +357,8 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycollada==0.9.2
     # via trimesh
+pycparser==2.23 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+    # via cffi
 pydantic==2.11.7
     # via
     #   -r ./comps/agent/src/requirements.in
@@ -372,6 +382,8 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
+pyjwt==2.10.1
+    # via mcp
 pyparsing==3.2.3
     # via httplib2
 python-dateutil==2.9.0.post0
@@ -388,6 +400,8 @@ python-ulid==3.1.0
     #   redisvl
 pytz==2025.2
     # via pandas
+pywin32==311 ; sys_platform == 'win32'
+    # via mcp
 pyyaml==6.0.2
     # via
     #   huggingface-hub
@@ -463,8 +477,9 @@ sqlalchemy==2.0.43
     #   langchain-community
 sse-starlette==3.0.2
     # via mcp
-starlette==0.47.2
+starlette==0.49.1
     # via
+    #   -r ./comps/agent/src/requirements.in
     #   fastapi
     #   mcp
     #   prometheus-fastapi-instrumentator
@@ -509,6 +524,7 @@ typing-extensions==4.14.1
     #   langchain-core
     #   langchain-mcp-adapters
     #   langchain-redis
+    #   mcp
     #   openai
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -528,14 +544,16 @@ typing-inspect==0.9.0
     #   docarray
 typing-inspection==0.4.1
     # via
+    #   mcp
     #   pydantic
     #   pydantic-settings
 tzdata==2025.2
     # via pandas
 uritemplate==4.2.0
     # via google-api-python-client
-urllib3==2.5.0
+urllib3==2.6.0
     # via
+    #   -r ./comps/agent/src/requirements.in
     #   langchain-redis
     #   requests
     #   types-requests
