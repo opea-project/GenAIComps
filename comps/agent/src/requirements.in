@@ -15,18 +15,20 @@ langchain-openai
 langchain-redis
 langchain_community
 langchainhub
+langchain-core>=0.3.80
 langgraph
+langgraph-checkpoint>=3.0.0
 langsmith
-mcp==1.10.0
+mcp>=1.23.0
 mysql-connector-python
 numpy
-
+starlette>=0.49.1
 # used by cloud native
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
-pillow==11.3.0
+pillow>=11.3.0
 prometheus_fastapi_instrumentator
 pyarrow
 pydantic #==1.10.13
@@ -55,3 +57,4 @@ transformers
 transformers[sentencepiece]
 
 uvicorn
+urllib3>=2.6.0
