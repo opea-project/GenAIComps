@@ -27,7 +27,13 @@ attrs==25.4.0
     #   referencing
 av==16.0.1
     # via docarray
-cachetools==6.2.3
+boto3==1.42.10
+    # via transformers
+botocore==1.42.10
+    # via
+    #   boto3
+    #   s3transfer
+cachetools==6.2.4
     # via google-auth
 certifi==2025.11.12
     # via
@@ -42,7 +48,10 @@ charset-normalizer==3.4.4
     #   requests
     #   trimesh
 click==8.3.1
-    # via uvicorn
+    # via
+    #   sacremoses
+    #   typer-slim
+    #   uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -62,10 +71,8 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 fastapi==0.124.4
     # via -r ./comps/agent/src/requirements.in
-filelock==3.20.0
-    # via
-    #   huggingface-hub
-    #   transformers
+filelock==3.20.1
+    # via huggingface-hub
 finnhub-python==2.4.22
     # via -r ./comps/agent/src/requirements.in
 frozenlist==1.8.0
@@ -82,14 +89,14 @@ google-api-core==2.28.1
     #   langchain-google-community
 google-api-python-client==2.187.0
     # via langchain-google-community
-google-auth==2.43.0
+google-auth==2.45.0
     # via
     #   google-api-core
     #   google-api-python-client
     #   google-auth-httplib2
     #   google-cloud-core
     #   google-cloud-modelarmor
-google-auth-httplib2==0.2.1
+google-auth-httplib2==0.3.0
     # via google-api-python-client
 google-cloud-core==2.5.0
     # via langchain-google-community
@@ -116,10 +123,8 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.2.0
-    # via
-    #   huggingface-hub
-    #   langchain-redis
+hf-xet==1.2.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+    # via huggingface-hub
 httpcore==1.0.9
     # via
     #   httpx
@@ -130,6 +135,7 @@ httplib2==0.31.0
     #   google-auth-httplib2
 httpx==0.28.1
     # via
+    #   huggingface-hub
     #   langgraph-sdk
     #   langsmith
     #   mcp
@@ -140,12 +146,11 @@ httpx-sse==0.4.3
     # via
     #   langchain-community
     #   mcp
-huggingface-hub==0.36.0
+huggingface-hub==1.2.3
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-huggingface
     #   tokenizers
-    #   transformers
 idna==3.11
     # via
     #   anyio
@@ -162,6 +167,12 @@ jinja2==3.1.6
     # via langchain-redis
 jiter==0.12.0
     # via openai
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
+joblib==1.5.3
+    # via sacremoses
 jsonpatch==1.33
     # via langchain-core
 jsonpath-ng==1.7.0
@@ -174,19 +185,18 @@ jsonschema==4.25.1
     #   trimesh
 jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==1.1.3
-    # via -r ./comps/agent/src/requirements.in
-langchain-classic==1.0.0
-    # via langchain-community
-langchain-community==0.4.1
+langchain==0.3.27
+    # via
+    #   -r ./comps/agent/src/requirements.in
+    #   langchain-community
+langchain-community==0.3.31
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-google-community
-langchain-core==1.2.0
+langchain-core==0.3.80
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain
-    #   langchain-classic
     #   langchain-community
     #   langchain-google-community
     #   langchain-huggingface
@@ -197,37 +207,35 @@ langchain-core==1.2.0
     #   langgraph
     #   langgraph-checkpoint
     #   langgraph-prebuilt
-langchain-google-community==3.0.2
+langchain-google-community==2.0.10
     # via -r ./comps/agent/src/requirements.in
-langchain-huggingface==1.2.0
+langchain-huggingface==0.3.1
     # via -r ./comps/agent/src/requirements.in
-langchain-mcp-adapters==0.2.1
+langchain-mcp-adapters==0.2.0
     # via -r ./comps/agent/src/requirements.in
-langchain-openai==1.1.3
+langchain-openai==0.3.35
     # via -r ./comps/agent/src/requirements.in
-langchain-redis==0.2.5
+langchain-redis==0.2.4
     # via -r ./comps/agent/src/requirements.in
-langchain-text-splitters==1.1.0
-    # via langchain-classic
+langchain-text-splitters==0.3.11
+    # via langchain
 langchainhub==0.1.21
     # via -r ./comps/agent/src/requirements.in
-langgraph==1.0.5
-    # via
-    #   -r ./comps/agent/src/requirements.in
-    #   langchain
-langgraph-checkpoint==3.0.1
+langgraph==1.0.1
+    # via -r ./comps/agent/src/requirements.in
+langgraph-checkpoint==3.0.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langgraph
     #   langgraph-prebuilt
-langgraph-prebuilt==1.0.5
+langgraph-prebuilt==1.0.1
     # via langgraph
-langgraph-sdk==0.3.0
+langgraph-sdk==0.2.15
     # via langgraph
 langsmith==0.4.59
     # via
     #   -r ./comps/agent/src/requirements.in
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
 lxml==6.0.2
@@ -285,7 +293,7 @@ numpy==2.3.5
     #   transformers
     #   trimesh
     #   vhacdx
-openai==2.11.0
+openai==2.12.0
     # via langchain-openai
 opentelemetry-api==1.39.1
     # via
@@ -332,7 +340,6 @@ packaging==24.2
     #   langchainhub
     #   langsmith
     #   marshmallow
-    #   transformers
 pandas==2.3.3
     # via
     #   -r ./comps/agent/src/requirements.in
@@ -365,7 +372,6 @@ protobuf==6.33.2
     #   grpcio-status
     #   opentelemetry-proto
     #   proto-plus
-    #   transformers
 pyarrow==22.0.0
     # via -r ./comps/agent/src/requirements.in
 pyasn1==0.6.1
@@ -384,7 +390,6 @@ pydantic==2.12.5
     #   docarray
     #   fastapi
     #   langchain
-    #   langchain-classic
     #   langchain-core
     #   langgraph
     #   langsmith
@@ -408,6 +413,7 @@ pyparsing==3.2.5
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
+    #   botocore
     #   pandas
     #   pycollada
 python-dotenv==1.2.1
@@ -425,11 +431,10 @@ pywin32==311 ; sys_platform == 'win32'
 pyyaml==6.0.3
     # via
     #   huggingface-hub
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
     #   redisvl
-    #   transformers
 rank-bm25==0.2.2
     # via -r ./comps/agent/src/requirements.in
 redis==6.4.0
@@ -444,14 +449,14 @@ referencing==0.37.0
     #   jsonschema-specifications
 regex==2025.11.3
     # via
+    #   sacremoses
     #   tiktoken
     #   transformers
 requests==2.32.5
     # via
     #   finnhub-python
     #   google-api-core
-    #   huggingface-hub
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchainhub
     #   langsmith
@@ -472,7 +477,9 @@ rsa==4.9.1
     # via google-auth
 rtree==1.4.1
     # via trimesh
-safetensors==0.7.0
+s3transfer==0.16.0
+    # via boto3
+sacremoses==0.1.1
     # via transformers
 scipy==1.16.3
     # via
@@ -483,6 +490,8 @@ sentencepiece==0.2.1
     # via transformers
 shapely==2.1.2
     # via trimesh
+shellingham==1.5.4
+    # via huggingface-hub
 shortuuid==1.0.13
     # via -r ./comps/agent/src/requirements.in
 six==1.17.0
@@ -491,7 +500,7 @@ sniffio==1.3.1
     # via openai
 sqlalchemy==2.0.45
     # via
-    #   langchain-classic
+    #   langchain
     #   langchain-community
 sse-starlette==3.0.4
     # via mcp
@@ -516,18 +525,19 @@ tiktoken==0.12.0
     #   langchain-openai
     #   tavily-python
 tokenizers==0.22.1
-    # via
-    #   langchain-huggingface
-    #   transformers
+    # via langchain-huggingface
 tqdm==4.67.1
     # via
     #   huggingface-hub
     #   openai
+    #   sacremoses
     #   transformers
-transformers==4.57.3
+transformers==2.3.0
     # via -r ./comps/agent/src/requirements.in
 trimesh==4.10.1
     # via docarray
+typer-slim==0.20.0
+    # via huggingface-hub
 types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250913
@@ -556,6 +566,7 @@ typing-extensions==4.15.0
     #   referencing
     #   sqlalchemy
     #   starlette
+    #   typer-slim
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -574,13 +585,12 @@ uritemplate==4.2.0
 urllib3==2.6.2
     # via
     #   -r ./comps/agent/src/requirements.in
+    #   botocore
     #   langchain-redis
     #   requests
     #   types-requests
 uuid-utils==0.12.0
-    # via
-    #   langchain-core
-    #   langsmith
+    # via langsmith
 uvicorn==0.38.0
     # via
     #   -r ./comps/agent/src/requirements.in

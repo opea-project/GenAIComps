@@ -15,9 +15,9 @@ langchain-openai
 langchain-redis
 langchain_community
 langchainhub
-langchain-core>=0.3.80
+langchain-core==0.3.80
 langgraph
-langgraph-checkpoint>=3.0.0
+langgraph-checkpoint==3.0.0
 langsmith
 mcp>=1.23.0
 mysql-connector-python
