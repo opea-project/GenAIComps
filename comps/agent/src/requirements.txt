@@ -27,12 +27,6 @@ attrs==25.4.0
     #   referencing
 av==16.0.1
     # via docarray
-boto3==1.42.10
-    # via transformers
-botocore==1.42.10
-    # via
-    #   boto3
-    #   s3transfer
 cachetools==6.2.4
     # via google-auth
 certifi==2025.11.12
@@ -48,10 +42,7 @@ charset-normalizer==3.4.4
     #   requests
     #   trimesh
 click==8.3.1
-    # via
-    #   sacremoses
-    #   typer-slim
-    #   uvicorn
+    # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -72,7 +63,9 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
 fastapi==0.124.4
     # via -r ./comps/agent/src/requirements.in
 filelock==3.20.1
-    # via huggingface-hub
+    # via
+    #   huggingface-hub
+    #   transformers
 finnhub-python==2.4.22
     # via -r ./comps/agent/src/requirements.in
 frozenlist==1.8.0
@@ -123,7 +116,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.2.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via
@@ -135,7 +128,6 @@ httplib2==0.31.0
     #   google-auth-httplib2
 httpx==0.28.1
     # via
-    #   huggingface-hub
     #   langgraph-sdk
     #   langsmith
     #   mcp
@@ -146,11 +138,12 @@ httpx-sse==0.4.3
     # via
     #   langchain-community
     #   mcp
-huggingface-hub==1.2.3
+huggingface-hub==0.36.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-huggingface
     #   tokenizers
+    #   transformers
 idna==3.11
     # via
     #   anyio
@@ -167,12 +160,6 @@ jinja2==3.1.6
     # via langchain-redis
 jiter==0.12.0
     # via openai
-jmespath==1.0.1
-    # via
-    #   boto3
-    #   botocore
-joblib==1.5.3
-    # via sacremoses
 jsonpatch==1.33
     # via langchain-core
 jsonpath-ng==1.7.0
@@ -340,6 +327,7 @@ packaging==24.2
     #   langchainhub
     #   langsmith
     #   marshmallow
+    #   transformers
 pandas==2.3.3
     # via
     #   -r ./comps/agent/src/requirements.in
@@ -372,6 +360,7 @@ protobuf==6.33.2
     #   grpcio-status
     #   opentelemetry-proto
     #   proto-plus
+    #   transformers
 pyarrow==22.0.0
     # via -r ./comps/agent/src/requirements.in
 pyasn1==0.6.1
@@ -413,7 +402,6 @@ pyparsing==3.2.5
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
-    #   botocore
     #   pandas
     #   pycollada
 python-dotenv==1.2.1
@@ -435,6 +423,7 @@ pyyaml==6.0.3
     #   langchain-community
     #   langchain-core
     #   redisvl
+    #   transformers
 rank-bm25==0.2.2
     # via -r ./comps/agent/src/requirements.in
 redis==6.4.0
@@ -449,13 +438,13 @@ referencing==0.37.0
     #   jsonschema-specifications
 regex==2025.11.3
     # via
-    #   sacremoses
     #   tiktoken
     #   transformers
 requests==2.32.5
     # via
     #   finnhub-python
     #   google-api-core
+    #   huggingface-hub
     #   langchain
     #   langchain-community
     #   langchainhub
@@ -477,9 +466,7 @@ rsa==4.9.1
     # via google-auth
 rtree==1.4.1
     # via trimesh
-s3transfer==0.16.0
-    # via boto3
-sacremoses==0.1.1
+safetensors==0.7.0
     # via transformers
 scipy==1.16.3
     # via
@@ -490,8 +477,6 @@ sentencepiece==0.2.1
     # via transformers
 shapely==2.1.2
     # via trimesh
-shellingham==1.5.4
-    # via huggingface-hub
 shortuuid==1.0.13
     # via -r ./comps/agent/src/requirements.in
 six==1.17.0
@@ -525,19 +510,18 @@ tiktoken==0.12.0
     #   langchain-openai
     #   tavily-python
 tokenizers==0.22.1
-    # via langchain-huggingface
+    # via
+    #   langchain-huggingface
+    #   transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
     #   openai
-    #   sacremoses
     #   transformers
-transformers==2.3.0
+transformers==4.57.3
     # via -r ./comps/agent/src/requirements.in
 trimesh==4.10.1
     # via docarray
-typer-slim==0.20.0
-    # via huggingface-hub
 types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250913
@@ -566,7 +550,6 @@ typing-extensions==4.15.0
     #   referencing
     #   sqlalchemy
     #   starlette
-    #   typer-slim
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -585,7 +568,6 @@ uritemplate==4.2.0
 urllib3==2.6.2
     # via
     #   -r ./comps/agent/src/requirements.in
-    #   botocore
     #   langchain-redis
     #   requests
     #   types-requests

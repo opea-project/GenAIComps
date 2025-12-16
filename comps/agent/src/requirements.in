@@ -53,7 +53,7 @@ shortuuid
 tavily-python
 
 # used by agents
-transformers
+transformers>=4.55.2
 transformers[sentencepiece]
 
 uvicorn
