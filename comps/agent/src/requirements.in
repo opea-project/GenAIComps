@@ -10,7 +10,7 @@ langchain
 #used by tools
 langchain-google-community
 langchain-huggingface
-langchain-mcp-adapters
+langchain-mcp-adapters==0.1.9
 langchain-openai
 langchain-redis
 langchain_community

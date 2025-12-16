@@ -198,7 +198,7 @@ langchain-google-community==2.0.10
     # via -r ./comps/agent/src/requirements.in
 langchain-huggingface==0.3.1
     # via -r ./comps/agent/src/requirements.in
-langchain-mcp-adapters==0.2.0
+langchain-mcp-adapters==0.1.9
     # via -r ./comps/agent/src/requirements.in
 langchain-openai==0.3.35
     # via -r ./comps/agent/src/requirements.in
