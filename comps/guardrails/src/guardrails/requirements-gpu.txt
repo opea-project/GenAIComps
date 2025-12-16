@@ -2,49 +2,51 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/guardrails/src/guardrails/requirements.in --universal -o ./comps/guardrails/src/guardrails/requirements-gpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.15
+aiohttp==3.13.2
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
+annotated-doc==0.0.4
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.10.0
+anyio==4.12.0
     # via
     #   httpx
     #   openai
     #   starlette
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   aiohttp
     #   fuzzysearch
     #   jsonschema
     #   referencing
-av==15.0.0
+av==16.0.1
     # via docarray
 bc-detect-secrets==1.5.15
     # via llm-guard
-blis==1.3.0
+blis==1.3.3
     # via thinc
 catalogue==2.0.10
     # via
     #   spacy
     #   srsly
     #   thinc
-certifi==2025.8.3
+certifi==2025.11.12
     # via
     #   httpcore
     #   httpx
     #   requests
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via
     #   requests
     #   trimesh
-click==8.2.1
+click==8.3.1
     # via
     #   nltk
-    #   typer
+    #   typer-slim
     #   uvicorn
-cloudpathlib==0.21.1
+cloudpathlib==0.23.0
     # via weasel
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
@@ -52,13 +54,13 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   colorlog
     #   tqdm
     #   wasabi
-colorlog==6.9.0
+colorlog==6.10.1
     # via trimesh
 confection==0.1.5
     # via
     #   thinc
     #   weasel
-cymem==2.0.11
+cymem==2.0.13
     # via
     #   preshed
     #   spacy
@@ -69,40 +71,42 @@ distro==1.9.0
     # via openai
 docarray==0.41.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-embreex==2.17.7.post6 ; platform_machine == 'x86_64'
+embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 faker==27.4.0
     # via llm-guard
-fastapi==0.116.1
+fastapi==0.124.4
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-filelock==3.19.1
+filelock==3.20.0
     # via
     #   huggingface-hub
     #   tldextract
     #   torch
     #   transformers
-frozenlist==1.7.0
+frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2025.7.0
+fsspec==2025.12.0
     # via
     #   huggingface-hub
     #   torch
-fuzzysearch==0.8.0
+fuzzysearch==0.8.1
     # via llm-guard
-googleapis-common-protos==1.70.0
+googleapis-common-protos==1.72.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.2.4 ; (python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'WIN32') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'ppc64le') or (python_full_version < '3.14' and platform_machine == 'win32') or (python_full_version < '3.14' and platform_machine == 'x86_64')
+greenlet==3.3.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
-grpcio==1.74.0
+grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
+hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+    # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
@@ -110,16 +114,15 @@ httpx==0.28.1
     #   langsmith
     #   openai
     #   trimesh
-httpx-sse==0.4.1
+httpx-sse==0.4.3
     # via langchain-community
-huggingface-hub==0.24.0
+huggingface-hub==0.36.0
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   langchain-huggingface
-    #   sentence-transformers
     #   tokenizers
     #   transformers
-idna==3.10
+idna==3.11
     # via
     #   anyio
     #   httpx
@@ -128,20 +131,18 @@ idna==3.10
     #   yarl
 importlib-metadata==8.7.0
     # via opentelemetry-api
-jax==0.7.0
+jax==0.8.1
     # via docarray
-jaxlib==0.7.0
+jaxlib==0.8.1
     # via jax
 jinja2==3.1.6
     # via
     #   spacy
     #   torch
-jiter==0.10.0
+jiter==0.12.0
     # via openai
-joblib==1.5.1
-    # via
-    #   nltk
-    #   scikit-learn
+joblib==1.5.2
+    # via nltk
 json-repair==0.28.4
     # via llm-guard
 jsonpatch==1.33
@@ -150,78 +151,73 @@ jsonpointer==3.0.0
     # via jsonpatch
 jsonschema==4.25.1
     # via trimesh
-jsonschema-specifications==2025.4.1
+jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==0.3.27
+langchain-classic==1.0.0
     # via langchain-community
-langchain-community==0.3.27
+langchain-community==0.4.1
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-langchain-core==0.3.74
+langchain-core==1.2.0
     # via
-    #   langchain
+    #   -r ./comps/guardrails/src/guardrails/requirements.in
+    #   langchain-classic
     #   langchain-community
     #   langchain-huggingface
     #   langchain-openai
     #   langchain-text-splitters
-langchain-huggingface==0.1.2
+langchain-huggingface==1.2.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-langchain-openai==0.3.30
+langchain-openai==1.1.3
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-langchain-text-splitters==0.3.9
-    # via langchain
-langcodes==3.5.0
-    # via spacy
-langsmith==0.4.14
+langchain-text-splitters==1.1.0
+    # via langchain-classic
+langsmith==0.4.59
     # via
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
-language-data==1.3.0
-    # via langcodes
 llm-guard==0.3.15
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-lxml==6.0.0
+lxml==6.0.2
     # via trimesh
-lz4==4.4.4
+lz4==4.4.5
     # via docarray
-manifold3d==3.2.1
+manifold3d==3.3.2 ; python_full_version < '3.14'
     # via trimesh
-mapbox-earcut==1.0.3
+mapbox-earcut==2.0.0
     # via trimesh
-marisa-trie==1.3.0
-    # via language-data
 markdown-it-py==4.0.0
     # via rich
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via jinja2
 marshmallow==3.26.1
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
-ml-dtypes==0.5.3
+ml-dtypes==0.5.4
     # via
     #   jax
     #   jaxlib
 mpmath==1.3.0
     # via sympy
-multidict==6.6.4
+multidict==6.7.0
     # via
     #   aiohttp
     #   yarl
-murmurhash==1.0.13
+murmurhash==1.0.15
     # via
     #   preshed
     #   spacy
     #   thinc
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.6.1
     # via
     #   torch
     #   trimesh
-nltk==3.9.1
+nltk==3.9.2
     # via llm-guard
-numpy==2.3.2
+numpy==2.3.5
     # via
     #   blis
     #   docarray
@@ -235,7 +231,6 @@ numpy==2.3.2
     #   oldest-supported-numpy
     #   pandas
     #   pycollada
-    #   scikit-learn
     #   scipy
     #   shapely
     #   spacy
@@ -243,40 +238,44 @@ numpy==2.3.2
     #   transformers
     #   trimesh
     #   vhacdx
-nvidia-cublas-cu12==12.4.5.8 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cublas-cu12==12.8.4.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via
     #   nvidia-cudnn-cu12
     #   nvidia-cusolver-cu12
     #   torch
-nvidia-cuda-cupti-cu12==12.4.127 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-cupti-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cuda-nvrtc-cu12==12.4.127 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-nvrtc-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cuda-runtime-cu12==12.4.127 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-runtime-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cudnn-cu12==9.1.0.70 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cudnn-cu12==9.10.2.21 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cufft-cu12==11.2.1.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cufft-cu12==11.3.3.83 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-curand-cu12==10.3.5.147 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cufile-cu12==1.13.1.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cusolver-cu12==11.6.1.9 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-curand-cu12==10.3.9.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-cusparse-cu12==12.3.1.170 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cusolver-cu12==11.7.3.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusparse-cu12==12.5.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via
     #   nvidia-cusolver-cu12
     #   torch
-nvidia-cusparselt-cu12==0.6.2 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cusparselt-cu12==0.7.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-nccl-cu12==2.21.5 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nccl-cu12==2.27.5 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-nvidia-nvjitlink-cu12==12.4.127 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nvjitlink-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via
     #   nvidia-cufft-cu12
     #   nvidia-cusolver-cu12
     #   nvidia-cusparse-cu12
     #   torch
-nvidia-nvtx-cu12==12.4.127 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nvshmem-cu12==3.3.20 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
 oldest-supported-numpy==2022.1.30 ; python_full_version < '3.12' and platform_machine == 'loongarch64' and platform_python_implementation != 'PyPy'
     # via llm-guard
@@ -288,40 +287,40 @@ oldest-supported-numpy==2023.8.3 ; python_full_version == '3.12.*'
     # via llm-guard
 oldest-supported-numpy==2023.12.21 ; python_full_version >= '3.13'
     # via llm-guard
-openai==1.100.1
+openai==2.11.0
     # via langchain-openai
-opentelemetry-api==1.36.0
+opentelemetry-api==1.39.1
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp==1.36.0
+opentelemetry-exporter-otlp==1.39.1
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-opentelemetry-exporter-otlp-proto-common==1.36.0
+opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-grpc==1.36.0
+opentelemetry-exporter-otlp-proto-grpc==1.39.1
     # via opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.36.0
+opentelemetry-exporter-otlp-proto-http==1.39.1
     # via opentelemetry-exporter-otlp
-opentelemetry-proto==1.36.0
+opentelemetry-proto==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.36.0
+opentelemetry-sdk==1.39.1
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.57b0
+opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
 opt-einsum==3.4.0
     # via jax
-orjson==3.11.2
+orjson==3.11.5
     # via
     #   docarray
     #   langsmith
@@ -335,17 +334,16 @@ packaging==25.0
     #   thinc
     #   transformers
     #   weasel
-pandas==2.3.1
+pandas==2.3.3
     # via docarray
 phonenumbers==8.13.55
     # via presidio-analyzer
-pillow==11.3.0
+pillow==12.0.0
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   docarray
-    #   sentence-transformers
     #   trimesh
-preshed==3.0.10
+preshed==3.0.12
     # via
     #   spacy
     #   thinc
@@ -355,15 +353,15 @@ presidio-anonymizer==2.2.354
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   llm-guard
-prometheus-client==0.22.1
+prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-propcache==0.3.2
+propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
-protobuf==6.32.0
+protobuf==6.33.2
     # via
     #   docarray
     #   googleapis-common-protos
@@ -372,12 +370,12 @@ pycollada==0.9.2
     # via trimesh
 pycryptodome==3.23.0
     # via presidio-anonymizer
-pydantic==2.11.7
+pydantic==2.12.5
     # via
     #   confection
     #   docarray
     #   fastapi
-    #   langchain
+    #   langchain-classic
     #   langchain-core
     #   langsmith
     #   openai
@@ -385,9 +383,9 @@ pydantic==2.11.7
     #   spacy
     #   thinc
     #   weasel
-pydantic-core==2.33.2
+pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.10.1
+pydantic-settings==2.12.0
     # via langchain-community
 pydub==0.25.1
     # via docarray
@@ -398,20 +396,20 @@ python-dateutil==2.9.0.post0
     #   faker
     #   pandas
     #   pycollada
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via pydantic-settings
 pytz==2025.2
     # via pandas
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   bc-detect-secrets
     #   huggingface-hub
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
     #   presidio-analyzer
     #   transformers
-referencing==0.36.2
+referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -426,7 +424,7 @@ requests==2.32.5
     # via
     #   bc-detect-secrets
     #   huggingface-hub
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
@@ -437,33 +435,25 @@ requests==2.32.5
     #   tldextract
     #   transformers
     #   weasel
-requests-file==2.1.0
+requests-file==3.0.1
     # via tldextract
 requests-toolbelt==1.0.0
     # via langsmith
-rich==14.1.0
-    # via
-    #   docarray
-    #   typer
-rpds-py==0.27.0
+rich==14.2.0
+    # via docarray
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
 rtree==1.4.1
     # via trimesh
-safetensors==0.6.2
+safetensors==0.7.0
     # via transformers
-scikit-learn==1.7.1
-    # via sentence-transformers
-scipy==1.16.1
+scipy==1.16.3
     # via
     #   jax
     #   jaxlib
-    #   scikit-learn
-    #   sentence-transformers
     #   trimesh
-sentence-transformers==5.1.0
-    # via langchain-huggingface
 sentencepiece==0.2.1
     # via -r ./comps/guardrails/src/guardrails/requirements.in
 setuptools==80.9.0
@@ -471,100 +461,92 @@ setuptools==80.9.0
     #   spacy
     #   thinc
     #   torch
-shapely==2.1.1
+shapely==2.1.2
     # via trimesh
-shellingham==1.5.4
-    # via typer
 shortuuid==1.0.13
     # via -r ./comps/guardrails/src/guardrails/requirements.in
 six==1.17.0
     # via python-dateutil
-smart-open==7.3.0.post1
+smart-open==7.5.0
     # via weasel
 sniffio==1.3.1
-    # via
-    #   anyio
-    #   openai
-spacy==3.8.7
+    # via openai
+spacy==3.8.11
     # via presidio-analyzer
 spacy-legacy==3.0.12
     # via spacy
 spacy-loggers==1.0.5
     # via spacy
-sqlalchemy==2.0.43
+sqlalchemy==2.0.45
     # via
-    #   langchain
+    #   langchain-classic
     #   langchain-community
-srsly==2.5.1
+srsly==2.5.2
     # via
     #   confection
     #   spacy
     #   thinc
     #   weasel
-starlette==0.47.2
+starlette==0.50.0
     # via
+    #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
-structlog==25.4.0
+structlog==25.5.0
     # via llm-guard
 svg-path==7.0
     # via trimesh
-sympy==1.13.1
+sympy==1.14.0
     # via torch
 tenacity==9.1.2
     # via
     #   langchain-community
     #   langchain-core
-thinc==8.3.6
+thinc==8.3.10
     # via spacy
-threadpoolctl==3.6.0
-    # via scikit-learn
 tiktoken==0.7.0
     # via
     #   langchain-openai
     #   llm-guard
 tldextract==5.3.0
     # via presidio-analyzer
-tokenizers==0.21.4
+tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.6.0
+torch==2.9.1
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   llm-guard
-    #   sentence-transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
     #   nltk
     #   openai
-    #   sentence-transformers
     #   spacy
     #   transformers
-transformers==4.48.0
+transformers==4.57.3
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
-    #   langchain-huggingface
     #   llm-guard
-    #   sentence-transformers
-trimesh==4.7.4
+trimesh==4.10.1
     # via docarray
-triton==3.2.0 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+triton==3.5.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-typer==0.16.1
+typer-slim==0.20.0
     # via
     #   spacy
     #   weasel
 types-pillow==10.2.0.20240822
     # via docarray
-types-requests==2.32.4.20250809
+types-requests==2.32.4.20250913
     # via docarray
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   aiosignal
     #   anyio
     #   fastapi
+    #   grpcio
     #   huggingface-hub
     #   langchain-core
     #   openai
@@ -576,47 +558,51 @@ typing-extensions==4.14.1
     #   pydantic
     #   pydantic-core
     #   referencing
-    #   sentence-transformers
     #   sqlalchemy
     #   starlette
     #   torch
-    #   typer
+    #   typer-slim
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
     # via
     #   dataclasses-json
     #   docarray
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings
-tzdata==2025.2
+tzdata==2025.3
     # via pandas
 unidiff==0.7.5
     # via bc-detect-secrets
-urllib3==2.5.0
+urllib3==2.6.2
     # via
+    #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   requests
     #   types-requests
-uvicorn==0.35.0
+uuid-utils==0.12.0
+    # via
+    #   langchain-core
+    #   langsmith
+uvicorn==0.38.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-vhacdx==0.0.8.post2
+vhacdx==0.0.10
     # via trimesh
 wasabi==1.1.3
     # via
     #   spacy
     #   thinc
     #   weasel
-weasel==0.4.1
+weasel==0.4.3
     # via spacy
-wrapt==1.17.3
+wrapt==2.0.1
     # via smart-open
-xxhash==3.5.0
+xxhash==3.6.0
     # via trimesh
-yarl==1.20.1
+yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
     # via importlib-metadata
-zstandard==0.24.0
+zstandard==0.25.0
     # via langsmith
