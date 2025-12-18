@@ -32,7 +32,7 @@ else
     echo "install requirements"
     python -m pip install --no-cache-dir -r requirements.txt
     pip uninstall -y torchvision torchaudio
-    pip install setuptools==75.6.0 gradio==5.49.1
+    pip install setuptools==75.6.0
     # If you want ti run on A770 & b60
     python -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/xpu
     python -m pip install intel-extension-for-pytorch==2.8.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
@@ -46,7 +46,7 @@ else
     pip install -e ".[metrics]"
     pip install "transformers==4.51.0" optimum "auto_gptq>=0.5.0"
     pip install py-cpuinfo
-    pip install deepspeed==0.18
+    pip install deepspeed==0.18 gradio==5.49.1
     python -m pip list | grep nvidia | awk '{print $1}' | xargs -L1 python -m pip uninstall -y
     echo "start llamafactory webui"
     if [ -z $GUI ]; then
