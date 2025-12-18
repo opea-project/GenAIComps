@@ -314,6 +314,15 @@ llamafactory-cli train \
 | `NSGAIISampler`       | Non-dominated Sorting Genetic Algorithm II      | Multi-objective optimization                                        |
 | `QMCSampler`          | Quasi-Monte Carlo sampler                       | Low discrepancy sequences, uniform exploration                      |
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+
+> > > > > > > 13dff007a5843afdb33640e7da10468213b2e6f2
+
+>>>>>>> 00e4c16a ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 ## Output and Results
 
 ### Optuna Optimization Mode Output
