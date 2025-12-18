@@ -110,7 +110,6 @@ then make `dataset_info.json` in your dataset directory
   "flickr30k": {
     "file_name": "flickr30k.json"
   }
-  ......
 }
 ```
 
@@ -130,7 +129,6 @@ $DATA/
 |-- dataset_info.json
 |-- caltech101.json
 |-- flickr30k.json
-...
 ```
 
 ## Fine-Tuning with LLaMA Board GUI (powered by [Gradio](https://github.com/gradio-app/gradio))
