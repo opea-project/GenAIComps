@@ -5,9 +5,8 @@
     "model_base_path": "./models",
     "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
     "print_detail_log": true
-
   },
-  
+
   "training": {
     "train_dataset": "activitynet_qa_2000_limit_20s",
     "n_epochs": 8,
@@ -29,7 +28,4 @@
     "max_samples": 100000,
     "video_fps": 0.1
   }
-  
-
 }
-

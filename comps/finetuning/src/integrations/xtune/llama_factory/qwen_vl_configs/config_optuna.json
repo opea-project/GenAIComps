@@ -5,7 +5,6 @@
     "model_base_path": "./models",
     "model_name": "Qwen2-VL-7B-Instruct-GPTQ-Int8",
     "print_detail_log": true
-
   },
   "optuna": {
     "n_trials": 20,
@@ -16,7 +15,7 @@
     "warmup_steps_min": 50,
     "warmup_steps_max": 500
   },
-  
+
   "training": {
     "train_dataset": "activitynet_qa_2000_limit_20s",
     "n_epochs": 8,
@@ -38,7 +37,7 @@
     "max_samples": 100000,
     "video_fps": 0.1
   },
-  
+
   "evaluation": {
     "eval_dataset": "activitynet_qa_val_500_limit_20s",
     "per_device_eval_batch_size": 1,
@@ -51,7 +50,4 @@
     "max_samples": 100000,
     "video_fps": 0.1
   }
-  
-
 }
-

@@ -27,7 +27,7 @@ You can select to run optuna_tuning.py or finetune with command lines.
   - [Evaluation Metrics](#evaluation-metrics)
 - [Calculation and Plotting of Evaluation Metrics During Fine-Tuning](#calculation-and-plotting-of-evaluation-metrics-during-fine-tuning)
 
-##  Features
+## Features
 
 - **Optuna Hyperparameter Optimization**: Automatically search for optimal `learning rate` and `warmup steps`of best `bleu-4` result
 - **Train+Eval Mode**: Finetune and evaluate with fixed parameters
@@ -41,28 +41,30 @@ The configuration is largely the same, but due to single-card performance limita
 
 ## Usage
 
-We provide sample configs under `./qwen_vl_configs`, users can modify detail parameter vaules as needed.
+We provide sample configs under `./qwen_vl_configs`, users can modify detail parameter values as needed.
 
 ### Optuna Hyperparameter Optimization Mode
 
 **Qwen2-VL**
 
-  ```bash
-  python optuna_tuning.py --config_file ./qwen_vl_configs/config_optuna.json
-  ```
+```bash
+python optuna_tuning.py --config_file ./qwen_vl_configs/config_optuna.json
+```
+
 **Qwen2.5-VL**
 
-  ```bash
+```bash
 python optuna_tuning.py \
-  --config_file ./qwen_vl_configs/config_optuna.json \
-  --override \
-    base.model_name=Qwen2.5-VL-7B-Instruct \
-    optuna.study_name=qwen2_5vl_hyperparameter_tuning \
-    training.gradient_accumulation_steps=4 \
-    training.video_fps=0.05 \
-    evaluation.video_fps=0.05 \
-  
-  ```
+--config_file ./qwen_vl_configs/config_optuna.json \
+--override \
+  base.model_name=Qwen2.5-VL-7B-Instruct \
+  optuna.study_name=qwen2_5vl_hyperparameter_tuning \
+  training.gradient_accumulation_steps=4 \
+  training.video_fps=0.05 \
+  evaluation.video_fps=0.05 \
+
+```
+
 #### Visualization
 
 If you want to see visual results of Optuna:
@@ -83,40 +85,41 @@ http://<serverIP>:8084/dashboard
 
 **Qwen2-VL**
 
-  ```bash
-  python optuna_tuning.py --config_file ./qwen_vl_configs/config_finetune_eval.json
-  ```
+```bash
+python optuna_tuning.py --config_file ./qwen_vl_configs/config_finetune_eval.json
+```
+
 **Qwen2.5-VL**
 
-  ```bash
+```bash
 python optuna_tuning.py \
-  --config_file ./qwen_vl_configs/config_finetune_eval.json \
-  --override \
-    base.model_name=Qwen2.5-VL-7B-Instruct \
-    training.gradient_accumulation_steps=4 \
-    training.video_fps=0.05 \
-    evaluation.video_fps=0.05
-  
-  ```
+--config_file ./qwen_vl_configs/config_finetune_eval.json \
+--override \
+  base.model_name=Qwen2.5-VL-7B-Instruct \
+  training.gradient_accumulation_steps=4 \
+  training.video_fps=0.05 \
+  evaluation.video_fps=0.05
 
+```
 
 ### Train-Only Mode
 
 **Qwen2-VL**
 
-  ```bash
-  python optuna_tuning.py --config_file ./qwen_vl_configs/config_finetune_only.json
-  ```
+```bash
+python optuna_tuning.py --config_file ./qwen_vl_configs/config_finetune_only.json
+```
+
 **Qwen2.5-VL**
 
-  ```bash
+```bash
 python optuna_tuning.py \
-  --config_file ./qwen_vl_configs/config_finetune_only.json \
-  --override \
-    base.model_name=Qwen2.5-VL-7B-Instruct \
-    evaluation.video_fps=0.05
-  
-  ```
+--config_file ./qwen_vl_configs/config_finetune_only.json \
+--override \
+  base.model_name=Qwen2.5-VL-7B-Instruct \
+  evaluation.video_fps=0.05
+
+```
 
 ### Command line Finetune
 
@@ -168,6 +171,7 @@ llamafactory-cli train \
 ```
 
 #### Qwen2.5-VL
+
 ```bash
 export DATA='where you can find dataset_info.json'
 #To point which dataset llamafactory will use, have to add the datasets into dataset_info.json before finetune.
@@ -236,7 +240,6 @@ llamafactory-cli train \
 | `learning_rate_max` | Maximum value for learning rate search range | 1e-3                            | float   |
 | `warmup_steps_min`  | Minimum value for warmup steps search range  | 50                              | integer |
 | `warmup_steps_max`  | Maximum value for warmup steps search range  | 500                             | integer |
-
 
 ### Training Configuration (training)
 
@@ -310,7 +313,6 @@ llamafactory-cli train \
 | `PartialFixedSampler` | Partial fixed parameter sampler                 | Scenarios with some fixed parameters                                |
 | `NSGAIISampler`       | Non-dominated Sorting Genetic Algorithm II      | Multi-objective optimization                                        |
 | `QMCSampler`          | Quasi-Monte Carlo sampler                       | Low discrepancy sequences, uniform exploration                      |
-
 
 ## Output and Results
 

@@ -12,8 +12,10 @@ from dassl.optim import build_lr_scheduler, build_optimizer
 from dassl.utils import load_checkpoint
 from torch.nn import functional as F
 from transformers import CLIPModel, CLIPProcessor
+
 try:
     from transformers import ChineseCLIPModel, ChineseCLIPProcessor
+
     CHINESE_CLIP_AVAILABLE = True
 except ImportError:
     CHINESE_CLIP_AVAILABLE = False
@@ -46,7 +48,6 @@ _MODELS = {
     "ViT-L/14": "openai/clip-vit-large-patch14",
     "CnViT-B/16": "OFA-Sys/chinese-clip-vit-base-patch16",
     "CnViT-L/14": "OFA-Sys/chinese-clip-vit-large-patch14",
-
 }
 
 
@@ -77,15 +78,14 @@ class TextEncoder(nn.Module):
         self.tokenizer = processor.tokenizer
         self.dtype = clip_model.dtype
         # Check if it's Chinese CLIP model by checking model type
-        self.is_chinese_clip = type(clip_model).__name__ == 'ChineseCLIPModel'
+        self.is_chinese_clip = type(clip_model).__name__ == "ChineseCLIPModel"
 
     def forward(self, classname=None):
         # for small dataset, we tokenize all prompt ------- if classname is None
         # for large dataset, we tokenize (bs) prompt
         if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
-            prompts = [temp.format(c.replace("_", " "))
-                       for c in self.classnames]
+            prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
         else:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in classname]
@@ -94,11 +94,9 @@ class TextEncoder(nn.Module):
         tokenized = self.tokenizer(prompts, return_tensors="pt", padding=True)
 
         if self.cfg.TRAINER.COOP.XPU:
-            tokenized = {k: v.to(self.cfg.TRAINER.COOP.XPU_ID)
-                         for k, v in tokenized.items()}
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.XPU_ID) for k, v in tokenized.items()}
         else:
-            tokenized = {k: v.to(self.cfg.TRAINER.COOP.CUDA_ID)
-                         for k, v in tokenized.items()}
+            tokenized = {k: v.to(self.cfg.TRAINER.COOP.CUDA_ID) for k, v in tokenized.items()}
 
         # Handle different model architectures
         text_outputs = self.clip_model.text_model(**tokenized)
@@ -132,7 +130,7 @@ class CustomCLIP(nn.Module):
     def forward(self, image, classname=None):
         # Handle different vision model outputs
         vision_outputs = self.image_encoder(image.type(self.dtype))
-        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+        if hasattr(vision_outputs, "pooler_output") and vision_outputs.pooler_output is not None:
             image_features = vision_outputs.pooler_output
         elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
             image_features = vision_outputs[1]  # pooled output
@@ -251,7 +249,7 @@ class CLIP_Bias_hf(TrainerX):
     def get_img_embeds(self, image):
         # Handle different vision model outputs
         vision_outputs = self.model.image_encoder(image.type(self.model.dtype))
-        if hasattr(vision_outputs, 'pooler_output') and vision_outputs.pooler_output is not None:
+        if hasattr(vision_outputs, "pooler_output") and vision_outputs.pooler_output is not None:
             image_features = vision_outputs.pooler_output
         elif isinstance(vision_outputs, tuple) and len(vision_outputs) > 1:
             image_features = vision_outputs[1]  # pooled output

@@ -113,6 +113,7 @@ then make `dataset_info.json` in your dataset directory
   ......
 }
 ```
+
 The directory structure should look like
 
 ```
@@ -151,57 +152,58 @@ The UI component information can be seen in doc/ui_component.md after run with p
 
  Then access in web through http://localhost:7860/
 ```
+
 ### GUI using guide
+
 #### CLIP & CnCLIP
 
 ![clip ui guide](./pics/clip_ui.png)
 
 - Must be set to the specified parameter values below:
-  | Parameter           | Choose Value  |
+  | Parameter | Choose Value |
   | ------------------- | -------------------------------------------- |
-  | `Model name`        | `CnVit-B/16` / `CnVit-L/14` /`Vit-B/16` /`Vit-L/14`  |
-  | `Model path`        | Must be the detail configuration name under `src/llamafactory/clip_finetune/configs/trainers/clip_finetune/`|
+  | `Model name` | `CnVit-B/16` / `CnVit-L/14` /`Vit-B/16` /`Vit-L/14` |
+  | `Model path` | Must be the detail configuration name under `src/llamafactory/clip_finetune/configs/trainers/clip_finetune/`|
   | `Finetuning method` | clip |
-  | `Stage`             | clip|
-  | `Data dir`          | Where you put `dataset_info.json`.|
-  | `Method Group`      |Finetune|
-  | `clip_finetune method`  | `CLIP_Adapter_hf`/ `CLIP_Bias_hf`/ `CLIP_VPT_hf` /`CLIP_Fullfinetune_hf`, must match with `Model name`(configuration name).|
-
+  | `Stage` | clip|
+  | `Data dir` | Where you put `dataset_info.json`.|
+  | `Method Group` |Finetune|
+  | `clip_finetune method` | `CLIP_Adapter_hf`/ `CLIP_Bias_hf`/ `CLIP_VPT_hf` /`CLIP_Fullfinetune_hf`, must match with `Model name`(configuration name).|
 
 - The matching relationship between `Model name`(configuration name) and `clip_finetune method`:
 
-  | clip_finetune method | `Model name`(configuration name) |
-  | ---------- | ------------------ |
-  | CLIP_Adapter_hf  | xx_xx(e.g.,`cnvit_b16`)   |
-  | CLIP_Bias_hf     | xx_xx_bias(e.g.,`cnvit_b16_bias`) |
-  | CLIP_VPT_hf      | xx_xx_prompt(e.g.,`cnvit_b16_prompt`) |
-  | CLIP_Fullfinetune_hf |xx_xx_ori(e.g.,`cnvit_b16_ori`) |
+  | clip_finetune method | `Model name`(configuration name)      |
+  | -------------------- | ------------------------------------- |
+  | CLIP_Adapter_hf      | xx_xx(e.g.,`cnvit_b16`)               |
+  | CLIP_Bias_hf         | xx_xx_bias(e.g.,`cnvit_b16_bias`)     |
+  | CLIP_VPT_hf          | xx_xx_prompt(e.g.,`cnvit_b16_prompt`) |
+  | CLIP_Fullfinetune_hf | xx_xx_ori(e.g.,`cnvit_b16_ori`)       |
 
 #### AdaCLIP
 
 ![adaclip ui guide](./pics/adaclip_ui.png)
 
 - Must be set to the specified parameter values below:
-  | Parameter           | Choose Value  |
+  | Parameter | Choose Value |
   | ------------------- | -------------------------------------------- |
-  | `Model name`        | Custom  |
-  | `Model path`        | Adaclip model path|
+  | `Model name` | Custom |
+  | `Model path` | Adaclip model path|
   | `Finetuning method` | Adaclip|
-  | `Stage`             | Adaclip|
-  | `Data dir`          | Where you put `dataset_info.json`|
-
+  | `Stage` | Adaclip|
+  | `Data dir` | Where you put `dataset_info.json`|
 
 #### Qwen2-VL & Qwen2.5-VL
-![qwen-vl ui guide](./pics/qwen_vl_ui.png)
-- Must be set to the specified parameter values below:
-  | Parameter           | Choose Value  |
-  | ------------------- | -------------------------------------------- |
-  | `Model name`        | Select Qwen2-VL or Qwen2.5-VL model  |
-  | `Model path`        | Will be set automatically after setting Model name, you can use your local model path,too.|
-  | `Finetuning method` | lora|
-  | `Stage`             | Supervised Fine-Tuning|
-  | `Data dir`          | Where you put `dataset_info.json`, can use `data` as default, and update your own data in `data/dataset_info.json`|
 
+![qwen-vl ui guide](./pics/qwen_vl_ui.png)
+
+- Must be set to the specified parameter values below:
+  | Parameter | Choose Value |
+  | ------------------- | -------------------------------------------- |
+  | `Model name` | Select Qwen2-VL or Qwen2.5-VL model |
+  | `Model path` | Will be set automatically after setting Model name, you can use your local model path,too.|
+  | `Finetuning method` | lora|
+  | `Stage` | Supervised Fine-Tuning|
+  | `Data dir` | Where you put `dataset_info.json`, can use `data` as default, and update your own data in `data/dataset_info.json`|
 
 ## Fine-Tuning with Shell instead of GUI
 
@@ -245,6 +247,7 @@ cd src/llamafactory/adaclip_finetune
 #### Finetune Qwen2-VL & Qwen2.5-VL with logging eval loss
 
 If you want to finetune with plotting eval loss, please set eval_strategy as steps, eval_stepsand eval_dataset:
+
 ##### Qwen2-VL
 
 ```bash
@@ -293,6 +296,7 @@ llamafactory-cli train \
 ```
 
 #### Qwen2.5-VL
+
 ```bash
 export DATA='where you can find dataset_info.json'
 #To point which dataset llamafactory will use, have to add the datasets into dataset_info.json before finetune.
