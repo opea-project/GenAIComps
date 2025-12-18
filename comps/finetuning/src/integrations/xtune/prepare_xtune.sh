@@ -32,7 +32,7 @@ else
     echo "install requirements"
     python -m pip install --no-cache-dir -r requirements.txt
     pip uninstall -y torchvision torchaudio
-    pip install setuptools==75.6.0
+    pip install setuptools==75.6.0 gradio==5.49.1
     # If you want ti run on A770 & b60
     python -m pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/xpu
     python -m pip install intel-extension-for-pytorch==2.8.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
