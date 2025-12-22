@@ -28,6 +28,33 @@ def format_date(date):
         return date
 
 
+def redact_env_config(config_list):
+    """
+    Return a redacted copy of env_config, masking sensitive argument values.
+    Assumes config_list is a flat list of [flag, value, flag, value, ...].
+    """
+    redacted = []
+    # Flags whose values should be treated as secrets
+    sensitive_flags = {"--api_key", "--mcp_sse_server_api_key"}
+
+    i = 0
+    length = len(config_list)
+    while i < length:
+        flag = config_list[i]
+        redacted.append(flag)
+        if i + 1 < length:
+            value = config_list[i + 1]
+            if isinstance(flag, str) and flag in sensitive_flags:
+                redacted.append("***")
+            else:
+                redacted.append(value)
+            i += 2
+        else:
+            # No value following this flag; just move on.
+            i += 1
+    return redacted
+
+
 def setup_hf_tgi_client(args):
     from langchain_huggingface import HuggingFaceEndpoint
 
@@ -187,7 +214,7 @@ def get_args():
     parser.add_argument("--hints_file", type=str, help="path to the hints file")
 
     sys_args, unknown_args = parser.parse_known_args()
-    print("env_config: ", env_config)
+    print("env_config: ", redact_env_config(env_config))
     if env_config != []:
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
