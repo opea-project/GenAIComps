@@ -427,6 +427,7 @@ standard-sunau==3.13.0 ; python_full_version >= '3.13'
     #   librosa
 starlette==0.50.0
     # via
+    #   -r ./comps/third_parties/funasr/src/requirements.in
     #   fastapi
     #   mcp
     #   prometheus-fastapi-instrumentator
@@ -488,7 +489,6 @@ umap-learn==0.5.9.post2
     # via funasr
 urllib3==2.6.2
     # via
-    #   -r ./comps/third_parties/funasr/src/requirements.in
     #   modelscope
     #   requests
     #   types-requests
