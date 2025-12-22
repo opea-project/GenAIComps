@@ -187,7 +187,7 @@ def get_args():
     parser.add_argument("--hints_file", type=str, help="path to the hints file")
 
     sys_args, unknown_args = parser.parse_known_args()
-    print("env_config: ", env_config)
+
     if env_config != []:
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
