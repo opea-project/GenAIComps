@@ -29,8 +29,8 @@ def format_date(date):
 
 
 def redact_env_config(config_list):
-    """
-    Return a redacted copy of env_config, masking sensitive argument values.
+    """Return a redacted copy of env_config, masking sensitive argument values.
+
     Assumes config_list is a flat list of [flag, value, flag, value, ...].
     """
     redacted = []
