@@ -338,14 +338,14 @@ tabulate==0.9.0
     # via predictionguard
 tenacity==9.1.2
     # via langchain-core
-tokenizers==0.22.1
+tokenizers==0.21.4
     # via transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
     #   openai
     #   transformers
-transformers==4.57.3
+transformers==4.52.4
     # via -r ./comps/llms/src/text-generation/requirements.in
 trimesh==4.10.1
     # via docarray
