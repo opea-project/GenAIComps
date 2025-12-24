@@ -270,7 +270,6 @@ class Qwen2VLTuner:
         if self.config.optuna:
             trial_output_dir = self.base_output_dir / self.config.optuna.study_name / f"trial_{trial_number:03d}"
         else:
-            # 按照当前时间创建文件夹
             trial_output_dir = self.base_output_dir / self.config.base.model_name / str(time.strftime("%Y%m%d_%H%M%S"))
         trial_output_dir.mkdir(parents=True, exist_ok=True)
 
