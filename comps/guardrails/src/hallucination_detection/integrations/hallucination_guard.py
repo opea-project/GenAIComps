@@ -7,8 +7,8 @@ from typing import Union
 import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_community.llms import VLLMOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
 from comps import (
