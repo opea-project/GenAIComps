@@ -82,7 +82,7 @@ function main() {
     build_docker_images
 
     llm_models=(
-    TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    Qwen/Qwen2-7B-Instruct
     )
     for model in "${llm_models[@]}"; do
       get_model "${model}"
