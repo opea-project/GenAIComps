@@ -756,8 +756,9 @@ transformers==4.57.3
     #   xgrammar
 trimesh==4.10.1
     # via docarray
-triton==3.5.0 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+triton==3.5.0
     # via
+    #   -r ./comps/guardrails/src/hallucination_detection/requirements.in
     #   torch
     #   xgrammar
 typer==0.20.1
