@@ -3,6 +3,7 @@ datasets
 diffusers
 docarray[full]
 fastapi
+numpy<2.0.0
 opencv-python
 opentelemetry-api
 opentelemetry-exporter-otlp

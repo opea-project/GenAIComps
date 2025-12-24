@@ -117,13 +117,9 @@ importlib-metadata==8.7.1
     # via
     #   diffusers
     #   opentelemetry-api
-jax==0.6.2 ; python_full_version < '3.11'
+jax==0.5.3
     # via docarray
-jax==0.8.2 ; python_full_version >= '3.11'
-    # via docarray
-jaxlib==0.6.2 ; python_full_version < '3.11'
-    # via jax
-jaxlib==0.8.2 ; python_full_version >= '3.11'
+jaxlib==0.5.3
     # via jax
 jinja2==3.1.6
     # via torch
@@ -147,7 +143,7 @@ markupsafe==3.0.3
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-ml-dtypes==0.5.4
+ml-dtypes==0.4.1
     # via
     #   jax
     #   jaxlib
@@ -169,30 +165,9 @@ networkx==3.6.1 ; python_full_version >= '3.11'
     # via
     #   torch
     #   trimesh
-numpy==2.2.6 ; python_full_version < '3.11'
+numpy==1.26.4
     # via
-    #   accelerate
-    #   datasets
-    #   diffusers
-    #   docarray
-    #   embreex
-    #   jax
-    #   jaxlib
-    #   manifold3d
-    #   mapbox-earcut
-    #   ml-dtypes
-    #   opencv-python
-    #   optimum
-    #   pandas
-    #   pycollada
-    #   scikit-learn
-    #   scipy
-    #   shapely
-    #   transformers
-    #   trimesh
-    #   vhacdx
-numpy==2.4.0 ; python_full_version >= '3.11'
-    # via
+    #   -r ./comps/image2video/src/requirements.in
     #   accelerate
     #   datasets
     #   diffusers
@@ -322,7 +297,7 @@ protobuf==6.33.2
     #   docarray
     #   googleapis-common-protos
     #   opentelemetry-proto
-psutil==7.1.3
+psutil==7.2.0
     # via accelerate
 pyarrow==22.0.0
     # via datasets
