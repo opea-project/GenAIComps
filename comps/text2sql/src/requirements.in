@@ -1,6 +1,6 @@
 docarray[full]
 fastapi
-langchain>=0.2.9
+langchain>=0.2.9,<1.0.0
 langchain-core>=0.3.80
 langchain-huggingface
 langchain_community>=0.3.27
