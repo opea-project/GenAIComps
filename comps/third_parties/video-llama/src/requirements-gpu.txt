@@ -117,7 +117,7 @@ jsonpointer==3.0.0
     # via jsonpatch
 langchain==1.2.0
     # via -r ./comps/third_parties/video-llama/src/requirements.in
-langchain-classic==1.0.0
+langchain-classic==1.0.1
     # via langchain-community
 langchain-community==0.4.1
     # via -r ./comps/third_parties/video-llama/src/requirements.in
@@ -391,7 +391,7 @@ threadpoolctl==3.6.0
     # via scikit-learn
 timm==1.0.22
     # via -r ./comps/third_parties/video-llama/src/requirements.in
-tokenizers==0.22.1
+tokenizers==0.21.4
     # via transformers
 torch==2.6.0
     # via
@@ -413,7 +413,7 @@ tqdm==4.67.1
     #   iopath
     #   sentence-transformers
     #   transformers
-transformers==4.57.3
+transformers==4.49.0
     # via
     #   -r ./comps/third_parties/video-llama/src/requirements.in
     #   sentence-transformers
