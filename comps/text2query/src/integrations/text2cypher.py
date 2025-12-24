@@ -6,7 +6,7 @@ import os
 import threading
 import traceback
 
-from langchain.chains.llm import LLMChain
+from langchain.chains import LLMChain
 from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
 from langchain_community.graphs import Neo4jGraph
