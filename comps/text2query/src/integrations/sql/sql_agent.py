@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Sequence, Type, Union
 from langchain.agents import create_react_agent
 from langchain.agents.agent import AgentExecutor, RunnableAgent
 from langchain.agents.mrkl import prompt as react_prompt
-from langchain.chains import LLMChain
+from langchain.chains.llm import LLMChain
 from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.tools.sql_database.prompt import QUERY_CHECKER

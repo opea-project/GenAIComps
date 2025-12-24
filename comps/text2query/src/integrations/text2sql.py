@@ -7,7 +7,7 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from fastapi.exceptions import HTTPException
-from langchain.agents import AgentType
+from langchain.agents.agent_types import AgentType
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_huggingface import HuggingFaceEndpoint
 from sqlalchemy import create_engine
