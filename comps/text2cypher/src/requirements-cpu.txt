@@ -661,7 +661,7 @@ tqdm==4.67.1
     #   sentence-transformers
     #   transformers
     #   unstructured
-transformers==4.49.0
+transformers==4.52.4
     # via
     #   -r ./comps/text2cypher/src/requirements.in
     #   llama-index-llms-huggingface
