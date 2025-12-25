@@ -60,7 +60,7 @@ docarray==0.41.0
     # via -r ./comps/agent/src/requirements.in
 embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.124.4
+fastapi==0.127.0
     # via -r ./comps/agent/src/requirements.in
 filelock==3.20.1
     # via
@@ -150,11 +150,11 @@ idna==3.11
     #   httpx
     #   requests
     #   yarl
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via opentelemetry-api
-jax==0.8.1
+jax==0.8.2
     # via docarray
-jaxlib==0.8.1
+jaxlib==0.8.2
     # via jax
 jinja2==3.1.6
     # via langchain-redis
@@ -180,7 +180,7 @@ langchain-community==0.3.31
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-google-community
-langchain-core==0.3.80
+langchain-core==0.3.81
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain
@@ -219,7 +219,7 @@ langgraph-prebuilt==1.0.1
     # via langgraph
 langgraph-sdk==0.2.15
     # via langgraph
-langsmith==0.4.59
+langsmith==0.5.1
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain
@@ -237,9 +237,9 @@ markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
-marshmallow==3.26.1
+marshmallow==3.26.2
     # via dataclasses-json
-mcp==1.24.0
+mcp==1.25.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   langchain-mcp-adapters
@@ -260,7 +260,7 @@ mysql-connector-python==9.5.0
     # via -r ./comps/agent/src/requirements.in
 networkx==3.6.1
     # via trimesh
-numpy==2.3.5
+numpy==2.4.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   docarray
@@ -280,7 +280,7 @@ numpy==2.3.5
     #   transformers
     #   trimesh
     #   vhacdx
-openai==2.12.0
+openai==2.14.0
     # via langchain-openai
 opentelemetry-api==1.39.1
     # via
@@ -347,7 +347,7 @@ propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
-proto-plus==1.26.1
+proto-plus==1.27.0
     # via
     #   google-api-core
     #   google-cloud-modelarmor
@@ -398,7 +398,7 @@ pygments==2.19.2
     # via rich
 pyjwt==2.10.1
     # via mcp
-pyparsing==3.2.5
+pyparsing==3.3.1
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
@@ -406,7 +406,7 @@ python-dateutil==2.9.0.post0
     #   pycollada
 python-dotenv==1.2.1
     # via pydantic-settings
-python-multipart==0.0.20
+python-multipart==0.0.21
     # via mcp
 python-ulid==3.1.0
     # via
@@ -426,11 +426,11 @@ pyyaml==6.0.3
     #   transformers
 rank-bm25==0.2.2
     # via -r ./comps/agent/src/requirements.in
-redis==6.4.0
+redis==7.1.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   redisvl
-redisvl==0.12.1
+redisvl==0.13.2
     # via langchain-redis
 referencing==0.37.0
     # via
@@ -498,7 +498,7 @@ starlette==0.50.0
     #   sse-starlette
 svg-path==7.0
     # via trimesh
-tavily-python==0.7.15
+tavily-python==0.7.17
     # via -r ./comps/agent/src/requirements.in
 tenacity==9.1.2
     # via
@@ -573,7 +573,7 @@ urllib3==2.6.2
     #   types-requests
 uuid-utils==0.12.0
     # via langsmith
-uvicorn==0.38.0
+uvicorn==0.40.0
     # via
     #   -r ./comps/agent/src/requirements.in
     #   mcp
