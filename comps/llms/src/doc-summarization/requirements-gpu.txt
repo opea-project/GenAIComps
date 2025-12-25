@@ -48,7 +48,7 @@ docarray==0.41.0
     # via -r ./comps/llms/src/doc-summarization/requirements.in
 embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.127.0
+fastapi==0.124.4
     # via -r ./comps/llms/src/doc-summarization/requirements.in
 filelock==3.20.1
     # via
@@ -96,11 +96,11 @@ idna==3.11
     #   httpx
     #   requests
     #   yarl
-importlib-metadata==8.7.1
+importlib-metadata==8.7.0
     # via opentelemetry-api
-jax==0.8.2
+jax==0.8.1
     # via docarray
-jaxlib==0.8.2
+jaxlib==0.8.1
     # via jax
 jiter==0.12.0
     # via openai
@@ -151,7 +151,7 @@ mapbox-earcut==2.0.0
     # via trimesh
 markdown-it-py==4.0.0
     # via rich
-marshmallow==3.26.2
+marshmallow==3.26.1
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
@@ -167,7 +167,7 @@ mypy-extensions==1.1.0
     # via typing-inspect
 networkx==3.6.1
     # via trimesh
-numpy==2.4.0
+numpy==2.3.5
     # via
     #   docarray
     #   embreex
@@ -184,7 +184,7 @@ numpy==2.4.0
     #   transformers
     #   trimesh
     #   vhacdx
-openai==2.14.0
+openai==2.12.0
     # via langchain-openai
 opentelemetry-api==1.39.1
     # via
@@ -401,7 +401,7 @@ urllib3==2.6.2
     #   types-requests
 uuid-utils==0.12.0
     # via langsmith
-uvicorn==0.40.0
+uvicorn==0.38.0
     # via -r ./comps/llms/src/doc-summarization/requirements.in
 vhacdx==0.0.10
     # via trimesh
