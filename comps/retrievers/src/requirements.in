@@ -12,6 +12,7 @@ future
 graspologic
 haystack-ai==2.3.1
 langchain-arangodb==0.0.6
+langchain-core>=0.3.81
 langchain-elasticsearch
 langchain-mariadb
 langchain-openai
@@ -52,5 +53,7 @@ qdrant-haystack
 redis
 sentence_transformers
 shortuuid
+starlette>=0.49.1
 tiktoken
+urllib3>=2.6.0
 uvicorn
