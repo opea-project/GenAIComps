@@ -2,8 +2,10 @@ docarray[full]
 fastapi
 hanging_threads
 langchain
-langchain-community
+langchain-core>=0.3.81
+langchain-community>=0.3.27
 langchain-neo4j
+langchain-text-splitters>=0.3.9
 neo4j 
 numpy
 openai
@@ -11,10 +13,13 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
+pillow>=11.3.0
 prometheus_fastapi_instrumentator
 psycopg2-binary 
 pyarrow
 pydantic
 shortuuid
 sqlalchemy
+starlette>=0.49.1
+urllib3>=2.6.0
 uvicorn
