@@ -105,7 +105,7 @@ def convert_to_training_args(cls, config: Dict):
             args.update({"use_cpu": True})
         if hasattr(cls, "no_cuda"):
             args.update({"no_cuda": True})
-        args.update({"use_ipex": True})
+        # args.update({"use_ipex": True})
 
     # set attr 'deepspeed'
     if accelerate_mode == "DEEPSPEED":
