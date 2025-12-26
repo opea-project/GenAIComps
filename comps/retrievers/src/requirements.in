@@ -3,7 +3,7 @@ bs4
 cairosvg
 decord
 docarray[full]
-docling
+docling==2.55.1
 docx2txt
 easyocr
 einops
