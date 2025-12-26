@@ -2,7 +2,7 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 --index-strategy unsafe-best-match ./comps/rerankings/src/requirements.in --universal -o ./comps/rerankings/src/requirements-cpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.15
+aiohttp==3.13.2
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   datasets
@@ -10,51 +10,53 @@ aiohttp==3.12.15
     #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
+annotated-doc==0.0.4
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.10.0
+anyio==4.12.0
     # via
     #   httpx
     #   openai
     #   starlette
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   aiohttp
     #   jsonschema
     #   referencing
-av==15.0.0
+av==16.0.1
     # via docarray
 backoff==2.2.1
     # via posthog
-certifi==2025.8.3
+certifi==2025.11.12
     # via
     #   httpcore
     #   httpx
     #   requests
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via
     #   requests
     #   trimesh
-click==8.2.1
+click==8.3.1
     # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
     #   colorlog
     #   tqdm
-colorlog==6.9.0
+colorlog==6.10.1
     # via trimesh
 dataclasses-json==0.6.7
     # via langchain-community
 datasets==2.14.4 ; python_full_version >= '3.13' and sys_platform != 'darwin'
     # via -r ./comps/rerankings/src/requirements.in
-datasets==4.0.0 ; python_full_version < '3.13' or sys_platform == 'darwin'
+datasets==4.4.2 ; python_full_version < '3.13' or sys_platform == 'darwin'
     # via -r ./comps/rerankings/src/requirements.in
 dill==0.3.7 ; python_full_version >= '3.13' and sys_platform != 'darwin'
     # via
     #   datasets
     #   multiprocess
-dill==0.3.8 ; python_full_version < '3.13' or sys_platform == 'darwin'
+dill==0.4.0 ; python_full_version < '3.13' or sys_platform == 'darwin'
     # via
     #   datasets
     #   multiprocess
@@ -65,61 +67,59 @@ distro==1.9.0
 docarray==0.41.0
     # via -r ./comps/rerankings/src/requirements.in
 docstring-parser==0.17.0
-    # via
-    #   haystack-ai
-    #   haystack-experimental
-embreex==2.17.7.post6 ; platform_machine == 'x86_64'
+    # via haystack-ai
+embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
-fastapi==0.116.1
+fastapi==0.127.0
     # via -r ./comps/rerankings/src/requirements.in
-filelock==3.19.1
+filelock==3.20.1
     # via
     #   datasets
     #   huggingface-hub
     #   transformers
 filetype==1.2.0
-    # via
-    #   haystack-ai
-    #   haystack-experimental
-frozenlist==1.7.0
+    # via haystack-ai
+frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2025.3.0 ; python_full_version < '3.13' or sys_platform == 'darwin'
+fsspec==2025.10.0 ; python_full_version < '3.13' or sys_platform == 'darwin'
     # via
     #   datasets
     #   huggingface-hub
-fsspec==2025.7.0 ; python_full_version >= '3.13' and sys_platform != 'darwin'
+fsspec==2025.12.0 ; python_full_version >= '3.13' and sys_platform != 'darwin'
     # via
     #   datasets
     #   huggingface-hub
-googleapis-common-protos==1.70.0
+googleapis-common-protos==1.72.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.2.4 ; (python_full_version < '3.14' and platform_machine == 'AMD64') or (python_full_version < '3.14' and platform_machine == 'WIN32') or (python_full_version < '3.14' and platform_machine == 'aarch64') or (python_full_version < '3.14' and platform_machine == 'amd64') or (python_full_version < '3.14' and platform_machine == 'ppc64le') or (python_full_version < '3.14' and platform_machine == 'win32') or (python_full_version < '3.14' and platform_machine == 'x86_64')
+greenlet==3.3.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
-grpcio==1.74.0
+grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-haystack-ai==2.16.1
+haystack-ai==2.21.0
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   haystack-experimental
-haystack-experimental==0.12.0
+haystack-experimental==0.14.3
     # via haystack-ai
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
     #   -r ./comps/rerankings/src/requirements.in
+    #   datasets
+    #   langgraph-sdk
     #   langsmith
     #   openai
     #   trimesh
-httpx-sse==0.4.1
+httpx-sse==0.4.3
     # via langchain-community
 huggingface-hub==0.30.2
     # via
@@ -128,24 +128,24 @@ huggingface-hub==0.30.2
     #   sentence-transformers
     #   tokenizers
     #   transformers
-idna==3.10
+idna==3.11
     # via
     #   anyio
     #   httpx
     #   requests
     #   yarl
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via opentelemetry-api
-jax==0.7.0
+jax==0.8.2
     # via docarray
-jaxlib==0.7.0
+jaxlib==0.8.2
     # via jax
 jinja2==3.1.6
     # via
     #   haystack-ai
-jiter==0.10.0
+jiter==0.12.0
     # via openai
-joblib==1.5.1
+joblib==1.5.3
     # via scikit-learn
 jsonpatch==1.33
     # via langchain-core
@@ -155,67 +155,82 @@ jsonschema==4.25.1
     # via
     #   haystack-ai
     #   trimesh
-jsonschema-specifications==2025.4.1
+jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==0.3.27
+langchain==1.2.0
+    # via -r ./comps/rerankings/src/requirements.in
+langchain-classic==1.0.1
+    # via langchain-community
+langchain-community==0.4.1
+    # via -r ./comps/rerankings/src/requirements.in
+langchain-core==1.2.5
     # via
     #   -r ./comps/rerankings/src/requirements.in
-    #   langchain-community
-langchain-community==0.3.27
-    # via -r ./comps/rerankings/src/requirements.in
-langchain-core==0.3.74
-    # via
     #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-text-splitters
-langchain-text-splitters==0.3.9
+    #   langgraph
+    #   langgraph-checkpoint
+    #   langgraph-prebuilt
+langchain-text-splitters==1.1.0
+    # via langchain-classic
+langgraph==1.0.5
     # via langchain
-langsmith==0.4.14
+langgraph-checkpoint==3.0.1
     # via
-    #   langchain
+    #   langgraph
+    #   langgraph-prebuilt
+langgraph-prebuilt==1.0.5
+    # via langgraph
+langgraph-sdk==0.3.1
+    # via langgraph
+langsmith==0.5.1
+    # via
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
-lazy-imports==1.0.1
+lazy-imports==1.1.0
     # via haystack-ai
-lxml==6.0.0
+lxml==6.0.2
     # via trimesh
-lz4==4.4.4
+lz4==4.4.5
     # via docarray
-manifold3d==3.2.1
+manifold3d==3.3.2 ; python_full_version < '3.14'
     # via trimesh
-mapbox-earcut==1.0.3
+mapbox-earcut==2.0.0
     # via trimesh
 markdown-it-py==4.0.0
     # via rich
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via jinja2
-marshmallow==3.26.1
+marshmallow==3.26.2
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
-ml-dtypes==0.5.3
+ml-dtypes==0.5.4
     # via
     #   jax
     #   jaxlib
-more-itertools==10.7.0
+more-itertools==10.8.0
     # via haystack-ai
 mpmath==1.3.0
     # via sympy
-multidict==6.6.4
+multidict==6.7.0
     # via
     #   aiohttp
     #   yarl
 multiprocess==0.70.15 ; python_full_version >= '3.13' and sys_platform != 'darwin'
     # via datasets
-multiprocess==0.70.16 ; python_full_version < '3.13' or sys_platform == 'darwin'
+multiprocess==0.70.18 ; python_full_version < '3.13' or sys_platform == 'darwin'
     # via datasets
 mypy-extensions==1.1.0
     # via typing-inspect
-networkx==3.5
+networkx==3.6.1
     # via
     #   haystack-ai
     #   trimesh
-numpy==2.3.2
+numpy==2.4.0
     # via
     #   datasets
     #   docarray
@@ -235,45 +250,48 @@ numpy==2.3.2
     #   transformers
     #   trimesh
     #   vhacdx
-openai==1.100.1
+openai==2.14.0
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   haystack-ai
-opentelemetry-api==1.36.0
+opentelemetry-api==1.39.1
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp==1.36.0
+opentelemetry-exporter-otlp==1.39.1
     # via -r ./comps/rerankings/src/requirements.in
-opentelemetry-exporter-otlp-proto-common==1.36.0
+opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-grpc==1.36.0
+opentelemetry-exporter-otlp-proto-grpc==1.39.1
     # via opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.36.0
+opentelemetry-exporter-otlp-proto-http==1.39.1
     # via opentelemetry-exporter-otlp
-opentelemetry-proto==1.36.0
+opentelemetry-proto==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.36.0
+opentelemetry-sdk==1.39.1
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.57b0
+opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
 opt-einsum==3.4.0
     # via jax
-orjson==3.11.2
+orjson==3.11.5
     # via
     #   docarray
+    #   langgraph-sdk
     #   langsmith
+ormsgpack==1.12.1
+    # via langgraph-checkpoint
 packaging==25.0
     # via
     #   datasets
@@ -282,7 +300,7 @@ packaging==25.0
     #   langsmith
     #   marshmallow
     #   transformers
-pandas==2.3.1
+pandas==2.3.3
     # via
     #   datasets
     #   docarray
@@ -290,40 +308,41 @@ pillow==11.3.0
     # via
     #   -r ./comps/rerankings/src/requirements.in
     #   docarray
-    #   sentence-transformers
     #   trimesh
-posthog==6.6.0
+posthog==7.4.2
     # via haystack-ai
-prometheus-client==0.22.1
+prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
     # via -r ./comps/rerankings/src/requirements.in
-propcache==0.3.2
+propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
-protobuf==6.32.0
+protobuf==6.33.2
     # via
     #   docarray
     #   googleapis-common-protos
     #   opentelemetry-proto
-pyarrow==21.0.0
+pyarrow==22.0.0
     # via datasets
 pycollada==0.9.2
     # via trimesh
-pydantic==2.11.7
+pydantic==2.12.5
     # via
     #   docarray
     #   fastapi
     #   haystack-ai
     #   langchain
+    #   langchain-classic
     #   langchain-core
+    #   langgraph
     #   langsmith
     #   openai
     #   pydantic-settings
-pydantic-core==2.33.2
+pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.10.1
+pydantic-settings==2.12.0
     # via langchain-community
 pydub==0.25.1
     # via
@@ -337,31 +356,31 @@ python-dateutil==2.9.0.post0
     #   pandas
     #   posthog
     #   pycollada
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via pydantic-settings
 pytz==2025.2
     # via pandas
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   datasets
     #   haystack-ai
     #   huggingface-hub
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
     #   transformers
-referencing==0.36.2
+referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-regex==2025.7.34
+regex==2025.11.3
     # via transformers
 requests==2.32.5
     # via
     #   datasets
     #   haystack-ai
     #   huggingface-hub
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
@@ -370,28 +389,30 @@ requests==2.32.5
     #   transformers
 requests-toolbelt==1.0.0
     # via langsmith
-rich==14.1.0
-    # via docarray
-rpds-py==0.27.0
+rich==14.2.0
+    # via
+    #   docarray
+    #   haystack-experimental
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
 rtree==1.4.1
     # via trimesh
-safetensors==0.6.2
+safetensors==0.7.0
     # via transformers
-scikit-learn==1.7.1
+scikit-learn==1.8.0
     # via sentence-transformers
-scipy==1.16.1
+scipy==1.16.3
     # via
     #   jax
     #   jaxlib
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==5.1.0
+sentence-transformers==5.2.0
     # via -r ./comps/rerankings/src/requirements.in
-shapely==2.1.1
+shapely==2.1.2
     # via trimesh
 shortuuid==1.0.13
     # via -r ./comps/rerankings/src/requirements.in
@@ -400,15 +421,14 @@ six==1.17.0
     #   posthog
     #   python-dateutil
 sniffio==1.3.1
+    # via openai
+sqlalchemy==2.0.45
     # via
-    #   anyio
-    #   openai
-sqlalchemy==2.0.43
-    # via
-    #   langchain
+    #   langchain-classic
     #   langchain-community
-starlette==0.47.2
+starlette==0.50.0
     # via
+    #   -r ./comps/rerankings/src/requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 svg-path==7.0
@@ -432,17 +452,18 @@ tqdm==4.67.1
     #   transformers
 transformers==4.53.3
     # via sentence-transformers
-trimesh==4.7.4
+trimesh==4.10.1
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
-types-requests==2.32.4.20250809
+types-requests==2.32.4.20250913
     # via docarray
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   aiosignal
     #   anyio
     #   fastapi
+    #   grpcio
     #   haystack-ai
     #   huggingface-hub
     #   langchain-core
@@ -465,27 +486,33 @@ typing-inspect==0.9.0
     # via
     #   dataclasses-json
     #   docarray
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings
-tzdata==2025.2
+tzdata==2025.3
     # via pandas
-urllib3==2.5.0
+urllib3==2.6.2
     # via
+    #   -r ./comps/rerankings/src/requirements.in
     #   requests
     #   types-requests
-uvicorn==0.35.0
+uuid-utils==0.12.0
+    # via
+    #   langchain-core
+    #   langsmith
+uvicorn==0.40.0
     # via -r ./comps/rerankings/src/requirements.in
-vhacdx==0.0.8.post2
+vhacdx==0.0.10
     # via trimesh
-xxhash==3.5.0
+xxhash==3.6.0
     # via
     #   datasets
+    #   langgraph
     #   trimesh
-yarl==1.20.1
+yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
     # via importlib-metadata
-zstandard==0.24.0
+zstandard==0.25.0
     # via langsmith

@@ -17,8 +17,7 @@ import torch
 import transformers
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
-from ray.air import FailureConfig, RunConfig
-from ray.air.config import ScalingConfig
+from ray.train import FailureConfig, RunConfig, ScalingConfig
 from ray.train.torch import TorchTrainer
 from transformers import Trainer, TrainingArguments
 
@@ -105,7 +104,7 @@ def convert_to_training_args(cls, config: Dict):
             args.update({"use_cpu": True})
         if hasattr(cls, "no_cuda"):
             args.update({"no_cuda": True})
-        args.update({"use_ipex": True})
+        # args.update({"use_ipex": True})
 
     # set attr 'deepspeed'
     if accelerate_mode == "DEEPSPEED":

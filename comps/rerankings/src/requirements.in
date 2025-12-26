@@ -3,6 +3,7 @@ docarray[full]
 fastapi
 httpx
 huggingface-hub==0.30.2
+langchain-core>=0.3.80
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -10,7 +11,9 @@ Pillow==11.3.0
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
+starlette>=0.49.1
 uvicorn
+urllib3>=2.6.0
 datasets
 haystack-ai
 langchain
