@@ -448,7 +448,7 @@ pandas==2.3.3
     # via
     #   docarray
     #   llama-index-readers-file
-peft==0.18.0
+peft==0.15.2
     # via -r ./comps/text2cypher/src/requirements.in
 pillow==12.0.0
     # via

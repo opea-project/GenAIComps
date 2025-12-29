@@ -20,7 +20,7 @@ neo4j
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-peft
+peft==0.15.2
 pillow>=11.3.0
 prometheus-fastapi-instrumentator
 pydub
