@@ -6,7 +6,12 @@ FROM python:3.11-slim
 ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    libjemalloc-dev
+    libjemalloc-dev \
+     curl \
+    build-essential \
+    pkg-config \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && . $HOME/.cargo/env
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
