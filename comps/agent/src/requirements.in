@@ -15,7 +15,7 @@ langchain-openai
 langchain-redis
 langchain_community
 langchainhub
-langchain-core==0.3.80
+langchain-core>=0.3.81
 langgraph
 langgraph-checkpoint==3.0.0
 langsmith

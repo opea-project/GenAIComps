@@ -10,9 +10,11 @@ pydantic==2.7.2
 pydub
 pyyaml
 shortuuid
-starlette
 uvicorn
 jinja2
 h11
+pillow>=11.3.0
 setuptools
+starlette>=0.49.1
 python-dotenv
+urllib3>=2.6.0
