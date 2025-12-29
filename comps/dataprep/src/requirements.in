@@ -16,7 +16,8 @@ huggingface_hub
 ipython
 json-repair
 langchain
-langchain-arangodb==0.0.6
+langchain-core>=0.3.81
+langchain-arangodb>=0.0.6
 langchain-community
 langchain-elasticsearch
 langchain-experimental
@@ -67,10 +68,12 @@ redis==5.2.1
 scipy
 sentence_transformers
 shortuuid
+starlette>=0.49.1
 tiktoken
 tqdm
 typing
 tzlocal
 unstructured[all-docs]
+urllib3>=2.6.0
 uvicorn
 webvtt-py
