@@ -3,7 +3,7 @@ docarray[full]
 fastapi
 huggingface_hub
 json_repair
-langchain
+langchain<1.0.0
 langchain-core>=0.3.80
 langchain-community>=0.3.27
 langchain-huggingface

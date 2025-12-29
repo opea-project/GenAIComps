@@ -30,7 +30,7 @@ anyio==4.12.0
 async-timeout==4.0.3 ; python_full_version < '3.11'
     # via
     #   aiohttp
-    #   langchain-classic
+    #   langchain
 attrs==25.4.0
     # via
     #   aiohttp
@@ -142,7 +142,6 @@ httpcore==1.0.9
     #   unstructured-client
 httpx==0.28.1
     # via
-    #   langgraph-sdk
     #   langsmith
     #   llama-cloud
     #   llama-index-core
@@ -197,49 +196,35 @@ jsonschema==4.25.1
     # via trimesh
 jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==1.2.0
-    # via -r ./comps/text2cypher/src/requirements.in
-langchain-classic==1.0.1
-    # via langchain-community
-langchain-community==0.4.1
+langchain==0.3.27
+    # via
+    #   -r ./comps/text2cypher/src/requirements.in
+    #   langchain-community
+langchain-community==0.3.31
     # via
     #   -r ./comps/text2cypher/src/requirements.in
     #   langchain-experimental
-langchain-core==1.2.5
+langchain-core==0.3.81
     # via
     #   -r ./comps/text2cypher/src/requirements.in
     #   langchain
-    #   langchain-classic
     #   langchain-community
     #   langchain-experimental
     #   langchain-huggingface
     #   langchain-text-splitters
-    #   langgraph
-    #   langgraph-checkpoint
-    #   langgraph-prebuilt
-langchain-experimental==0.4.1
+langchain-experimental==0.3.4
     # via -r ./comps/text2cypher/src/requirements.in
-langchain-huggingface==1.2.0
+langchain-huggingface==0.3.1
     # via -r ./comps/text2cypher/src/requirements.in
-langchain-text-splitters==1.1.0
+langchain-text-splitters==0.3.11
     # via
     #   -r ./comps/text2cypher/src/requirements.in
-    #   langchain-classic
+    #   langchain
 langdetect==1.0.9
     # via unstructured
-langgraph==1.0.5
-    # via langchain
-langgraph-checkpoint==3.0.1
-    # via
-    #   langgraph
-    #   langgraph-prebuilt
-langgraph-prebuilt==1.0.5
-    # via langgraph
-langgraph-sdk==0.3.1
-    # via langgraph
 langsmith==0.5.1
     # via
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
 llama-cloud==0.1.35
@@ -431,10 +416,7 @@ opt-einsum==3.4.0
 orjson==3.11.5
     # via
     #   docarray
-    #   langgraph-sdk
     #   langsmith
-ormsgpack==1.12.1
-    # via langgraph-checkpoint
 packaging==25.0
     # via
     #   accelerate
@@ -489,9 +471,7 @@ pydantic==2.12.5
     #   docarray
     #   fastapi
     #   langchain
-    #   langchain-classic
     #   langchain-core
-    #   langgraph
     #   langsmith
     #   llama-cloud
     #   llama-cloud-services
@@ -539,7 +519,7 @@ pyyaml==6.0.3
     # via
     #   accelerate
     #   huggingface-hub
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
     #   llama-index-core
@@ -559,7 +539,7 @@ regex==2025.11.3
 requests==2.32.5
     # via
     #   huggingface-hub
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langsmith
     #   llama-index-core
@@ -625,7 +605,7 @@ soupsieve==2.8.1
     # via beautifulsoup4
 sqlalchemy==2.0.45
     # via
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   llama-index-core
 starlette==0.50.0
@@ -727,9 +707,7 @@ urllib3==2.6.2
     #   requests
     #   types-requests
 uuid-utils==0.12.0
-    # via
-    #   langchain-core
-    #   langsmith
+    # via langsmith
 uvicorn==0.40.0
     # via -r ./comps/text2cypher/src/requirements.in
 vhacdx==0.0.10
@@ -742,9 +720,7 @@ wrapt==1.17.3
     #   llama-index-core
     #   unstructured
 xxhash==3.6.0
-    # via
-    #   langgraph
-    #   trimesh
+    # via trimesh
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
