@@ -5,7 +5,7 @@ einops
 fastapi
 huggingface_hub
 langchain
-langchain-core>=0.3.81
+langchain-core>=0.3.81,<1.0.0
 langchain-text-splitters>=0.3.9
 open_clip_torch
 opentelemetry-api
