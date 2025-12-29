@@ -21,7 +21,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
     if [ ${ARCH} = "cpu" ]; then \
       $uvpip torch --index-url https://download.pytorch.org/whl/cpu; \
       $uvpip -r /home/user/comps/text2query/src/requirements-cpu.txt; \
-      $uvpip --upgrade --force-reinstall pydantic; \
     else \
       $uvpip -r /home/user/comps/text2query/src/requirements-gpu.txt; \
     fi
