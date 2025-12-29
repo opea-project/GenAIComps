@@ -18,7 +18,7 @@ anyio==4.12.0
 async-timeout==4.0.3 ; python_full_version < '3.11'
     # via
     #   aiohttp
-    #   langchain
+    #   langchain-classic
 attrs==25.4.0
     # via
     #   aiohttp
@@ -36,9 +36,7 @@ charset-normalizer==3.4.4
     #   requests
     #   trimesh
 click==8.3.1
-    # via
-    #   typer-slim
-    #   uvicorn
+    # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -80,19 +78,19 @@ h11==0.16.0
     #   uvicorn
 hanging-threads==2.0.7
     # via -r ./comps/text2query/src/requirements.in
-hf-xet==1.2.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   huggingface-hub
+    #   langgraph-sdk
     #   langsmith
     #   openai
     #   trimesh
 httpx-sse==0.4.3
     # via langchain-community
-huggingface-hub==1.2.3
+huggingface-hub==0.36.0
     # via
     #   langchain-huggingface
     #   tokenizers
@@ -122,31 +120,45 @@ jsonschema==4.25.1
     # via trimesh
 jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==0.3.27
-    # via
-    #   -r ./comps/text2query/src/requirements.in
-    #   langchain-community
-langchain-community==0.3.31
+langchain==1.2.0
     # via -r ./comps/text2query/src/requirements.in
-langchain-core==0.3.81
+langchain-classic==1.0.0
+    # via langchain-community
+langchain-community==0.4.1
+    # via -r ./comps/text2query/src/requirements.in
+langchain-core==1.2.5
     # via
     #   -r ./comps/text2query/src/requirements.in
     #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-huggingface
     #   langchain-openai
     #   langchain-text-splitters
-langchain-huggingface==0.3.1
+    #   langgraph
+    #   langgraph-checkpoint
+    #   langgraph-prebuilt
+langchain-huggingface==1.2.0
     # via -r ./comps/text2query/src/requirements.in
-langchain-openai==0.3.35
+langchain-openai==1.1.6
     # via -r ./comps/text2query/src/requirements.in
-langchain-text-splitters==0.3.11
+langchain-text-splitters==1.1.0
     # via
     #   -r ./comps/text2query/src/requirements.in
-    #   langchain
+    #   langchain-classic
+langgraph==1.0.5
+    # via langchain
+langgraph-checkpoint==3.0.1
+    # via
+    #   langgraph
+    #   langgraph-prebuilt
+langgraph-prebuilt==1.0.5
+    # via langgraph
+langgraph-sdk==0.3.1
+    # via langgraph
 langsmith==0.5.0
     # via
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
 lxml==6.0.2
@@ -247,7 +259,10 @@ opt-einsum==3.4.0
 orjson==3.11.5
     # via
     #   docarray
+    #   langgraph-sdk
     #   langsmith
+ormsgpack==1.12.1
+    # via langgraph-checkpoint
 packaging==25.0
     # via
     #   huggingface-hub
@@ -288,7 +303,9 @@ pydantic==2.12.5
     #   docarray
     #   fastapi
     #   langchain
+    #   langchain-classic
     #   langchain-core
+    #   langgraph
     #   langsmith
     #   openai
     #   pydantic-settings
@@ -311,7 +328,7 @@ pytz==2025.2
 pyyaml==6.0.3
     # via
     #   huggingface-hub
-    #   langchain
+    #   langchain-classic
     #   langchain-community
     #   langchain-core
 referencing==0.37.0
@@ -322,7 +339,8 @@ regex==2025.11.3
     # via tiktoken
 requests==2.32.5
     # via
-    #   langchain
+    #   huggingface-hub
+    #   langchain-classic
     #   langchain-community
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
@@ -350,8 +368,6 @@ scipy==1.16.3 ; python_full_version >= '3.11'
     #   trimesh
 shapely==2.1.2
     # via trimesh
-shellingham==1.5.4
-    # via huggingface-hub
 shortuuid==1.0.13
     # via -r ./comps/text2query/src/requirements.in
 six==1.17.0
@@ -361,7 +377,7 @@ sniffio==1.3.1
 sqlalchemy==2.0.45
     # via
     #   -r ./comps/text2query/src/requirements.in
-    #   langchain
+    #   langchain-classic
     #   langchain-community
 starlette==0.50.0
     # via
@@ -384,8 +400,6 @@ tqdm==4.67.1
     #   openai
 trimesh==4.10.1
     # via docarray
-typer-slim==0.20.1
-    # via huggingface-hub
 types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250913
@@ -411,7 +425,6 @@ typing-extensions==4.15.0
     #   referencing
     #   sqlalchemy
     #   starlette
-    #   typer-slim
     #   typing-inspect
     #   typing-inspection
     #   uvicorn
@@ -431,13 +444,17 @@ urllib3==2.6.2
     #   requests
     #   types-requests
 uuid-utils==0.12.0
-    # via langsmith
+    # via
+    #   langchain-core
+    #   langsmith
 uvicorn==0.40.0
     # via -r ./comps/text2query/src/requirements.in
 vhacdx==0.0.10
     # via trimesh
 xxhash==3.6.0
-    # via trimesh
+    # via
+    #   langgraph
+    #   trimesh
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
