@@ -348,7 +348,9 @@ threadpoolctl==3.6.0
 timm==1.0.22
     # via open-clip-torch
 tokenizers==0.10.3
-    # via transformers
+    # via
+    #   -r ./comps/third_parties/clip/src/requirements.in
+    #   transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
