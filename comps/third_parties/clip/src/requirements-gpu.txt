@@ -31,11 +31,7 @@ charset-normalizer==3.4.4
     #   requests
     #   trimesh
 click==8.3.1
-    # via
-    #   nltk
-    #   sacremoses
-    #   typer-slim
-    #   uvicorn
+    # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -80,21 +76,21 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.2.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   huggingface-hub
     #   langsmith
     #   trimesh
-huggingface-hub==1.2.3
+huggingface-hub==0.36.0
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   open-clip-torch
     #   sentence-transformers
     #   timm
+    #   tokenizers
     #   transformers
 idna==3.11
     # via
@@ -111,10 +107,7 @@ jaxlib==0.8.2
 jinja2==3.1.6
     # via torch
 joblib==1.5.3
-    # via
-    #   nltk
-    #   sacremoses
-    #   scikit-learn
+    # via scikit-learn
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
@@ -168,8 +161,6 @@ networkx==3.6.1
     # via
     #   torch
     #   trimesh
-nltk==3.9.2
-    # via sentence-transformers
 numpy==2.4.0
     # via
     #   docarray
@@ -183,7 +174,6 @@ numpy==2.4.0
     #   pycollada
     #   scikit-learn
     #   scipy
-    #   sentence-transformers
     #   shapely
     #   torchvision
     #   transformers
@@ -330,12 +320,11 @@ referencing==0.37.0
 regex==2025.11.3
     # via
     #   dateparser
-    #   nltk
     #   open-clip-torch
-    #   sacremoses
     #   transformers
 requests==2.32.5
     # via
+    #   huggingface-hub
     #   langchain
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
@@ -351,12 +340,11 @@ rpds-py==0.30.0
     #   referencing
 rtree==1.4.1
     # via trimesh
-sacremoses==0.1.1
-    # via transformers
 safetensors==0.7.0
     # via
     #   open-clip-torch
     #   timm
+    #   transformers
 scikit-learn==1.8.0
     # via sentence-transformers
 scipy==1.16.3
@@ -366,16 +354,12 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==2.2.2
+sentence-transformers==5.2.0
     # via -r ./comps/third_parties/clip/src/requirements.in
-sentencepiece==0.2.1
-    # via sentence-transformers
 setuptools==80.9.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.2
     # via trimesh
-shellingham==1.5.4
-    # via huggingface-hub
 shortuuid==1.0.13
     # via -r ./comps/third_parties/clip/src/requirements.in
 six==1.17.0
@@ -397,7 +381,7 @@ threadpoolctl==3.6.0
     # via scikit-learn
 timm==1.0.22
     # via open-clip-torch
-tokenizers==0.10.3
+tokenizers==0.22.1
     # via transformers
 torch==2.9.1
     # via
@@ -408,24 +392,21 @@ torch==2.9.1
 torchvision==0.24.1
     # via
     #   open-clip-torch
-    #   sentence-transformers
     #   timm
 tqdm==4.67.1
     # via
     #   huggingface-hub
-    #   nltk
     #   open-clip-torch
-    #   sacremoses
     #   sentence-transformers
     #   transformers
-transformers==4.12.2
-    # via sentence-transformers
+transformers==4.57.3
+    # via
+    #   -r ./comps/third_parties/clip/src/requirements.in
+    #   sentence-transformers
 trimesh==4.10.1
     # via docarray
 triton==3.5.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-typer-slim==0.21.0
-    # via huggingface-hub
 types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250913
@@ -446,10 +427,10 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   sentence-transformers
     #   sqlalchemy
     #   starlette
     #   torch
-    #   typer-slim
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
