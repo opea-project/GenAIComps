@@ -1,12 +1,10 @@
 docarray[full]
 fastapi
 hanging_threads
-langchain>=0.2.9,<1.0.0
-langchain-core>=0.3.80
+langchain==0.2.9
 langchain-huggingface
-langchain_community>=0.3.27
+langchain_community==0.2.7
 langchain_openai
-langchain-text-splitters>=0.3.9
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -16,7 +14,7 @@ pillow>=11.3.0
 prometheus_fastapi_instrumentator
 psycopg2-binary 
 pyarrow
-pydantic==2.11.7
+pydantic
 shortuuid
 sqlalchemy
 starlette>=0.49.1

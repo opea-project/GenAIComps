@@ -3,7 +3,9 @@
 aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.13.2
-    # via langchain-community
+    # via
+    #   langchain
+    #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
 annotated-doc==0.0.4
@@ -36,9 +38,7 @@ charset-normalizer==3.4.4
     #   requests
     #   trimesh
 click==8.3.1
-    # via
-    #   typer-slim
-    #   uvicorn
+    # via uvicorn
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
@@ -59,13 +59,18 @@ exceptiongroup==1.3.1 ; python_full_version < '3.11'
 fastapi==0.128.0
     # via -r ./comps/text2query/src/requirements.in
 filelock==3.20.1
-    # via huggingface-hub
+    # via
+    #   huggingface-hub
+    #   torch
+    #   transformers
 frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
 fsspec==2025.12.0
-    # via huggingface-hub
+    # via
+    #   huggingface-hub
+    #   torch
 googleapis-common-protos==1.72.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -80,22 +85,21 @@ h11==0.16.0
     #   uvicorn
 hanging-threads==2.0.7
     # via -r ./comps/text2query/src/requirements.in
-hf-xet==1.2.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   huggingface-hub
     #   langsmith
     #   openai
     #   trimesh
-httpx-sse==0.4.3
-    # via langchain-community
-huggingface-hub==1.2.3
+huggingface-hub==0.36.0
     # via
     #   langchain-huggingface
+    #   sentence-transformers
     #   tokenizers
+    #   transformers
 idna==3.11
     # via
     #   anyio
@@ -104,16 +108,16 @@ idna==3.11
     #   yarl
 importlib-metadata==8.7.1
     # via opentelemetry-api
-jax==0.6.2 ; python_full_version < '3.11'
+jax==0.5.3
     # via docarray
-jax==0.8.2 ; python_full_version >= '3.11'
-    # via docarray
-jaxlib==0.6.2 ; python_full_version < '3.11'
+jaxlib==0.5.3
     # via jax
-jaxlib==0.8.2 ; python_full_version >= '3.11'
-    # via jax
+jinja2==3.1.6
+    # via torch
 jiter==0.12.0
     # via openai
+joblib==1.5.3
+    # via scikit-learn
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
@@ -122,29 +126,26 @@ jsonschema==4.25.1
     # via trimesh
 jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain==0.3.27
+langchain==0.2.9
     # via
     #   -r ./comps/text2query/src/requirements.in
     #   langchain-community
-langchain-community==0.3.31
+langchain-community==0.2.7
     # via -r ./comps/text2query/src/requirements.in
-langchain-core==0.3.81
+langchain-core==0.2.43
     # via
-    #   -r ./comps/text2query/src/requirements.in
     #   langchain
     #   langchain-community
     #   langchain-huggingface
     #   langchain-openai
     #   langchain-text-splitters
-langchain-huggingface==0.3.1
+langchain-huggingface==0.0.3
     # via -r ./comps/text2query/src/requirements.in
-langchain-openai==0.3.35
+langchain-openai==0.1.25
     # via -r ./comps/text2query/src/requirements.in
-langchain-text-splitters==0.3.11
-    # via
-    #   -r ./comps/text2query/src/requirements.in
-    #   langchain
-langsmith==0.5.1
+langchain-text-splitters==0.2.4
+    # via langchain
+langsmith==0.1.147
     # via
     #   langchain
     #   langchain-community
@@ -159,14 +160,18 @@ mapbox-earcut==2.0.0
     # via trimesh
 markdown-it-py==4.0.0
     # via rich
+markupsafe==3.0.3
+    # via jinja2
 marshmallow==3.26.2
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
-ml-dtypes==0.5.4
+ml-dtypes==0.4.1
     # via
     #   jax
     #   jaxlib
+mpmath==1.3.0
+    # via sympy
 multidict==6.7.0
     # via
     #   aiohttp
@@ -174,44 +179,73 @@ multidict==6.7.0
 mypy-extensions==1.1.0
     # via typing-inspect
 networkx==3.4.2 ; python_full_version < '3.11'
-    # via trimesh
+    # via
+    #   torch
+    #   trimesh
 networkx==3.6.1 ; python_full_version >= '3.11'
-    # via trimesh
-numpy==2.2.6 ; python_full_version < '3.11'
+    # via
+    #   torch
+    #   trimesh
+numpy==1.26.4
     # via
     #   -r ./comps/text2query/src/requirements.in
     #   docarray
     #   embreex
     #   jax
     #   jaxlib
+    #   langchain
     #   langchain-community
     #   manifold3d
     #   mapbox-earcut
     #   ml-dtypes
     #   pandas
     #   pycollada
+    #   scikit-learn
     #   scipy
     #   shapely
+    #   transformers
     #   trimesh
     #   vhacdx
-numpy==2.4.0 ; python_full_version >= '3.11'
+nvidia-cublas-cu12==12.8.4.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via
-    #   -r ./comps/text2query/src/requirements.in
-    #   docarray
-    #   embreex
-    #   jax
-    #   jaxlib
-    #   langchain-community
-    #   manifold3d
-    #   mapbox-earcut
-    #   ml-dtypes
-    #   pandas
-    #   pycollada
-    #   scipy
-    #   shapely
-    #   trimesh
-    #   vhacdx
-openai==2.14.0
+    #   nvidia-cudnn-cu12
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cuda-cupti-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-nvrtc-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cuda-runtime-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cudnn-cu12==9.10.2.21 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufft-cu12==11.3.3.83 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cufile-cu12==1.13.1.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-curand-cu12==10.3.9.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusolver-cu12==11.7.3.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-cusparse-cu12==12.5.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cusolver-cu12
+    #   torch
+nvidia-cusparselt-cu12==0.7.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nccl-cu12==2.27.5 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nvjitlink-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via
+    #   nvidia-cufft-cu12
+    #   nvidia-cusolver-cu12
+    #   nvidia-cusparse-cu12
+    #   torch
+nvidia-nvshmem-cu12==3.3.20 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
+openai==1.109.1
     # via langchain-openai
 opentelemetry-api==1.39.1
     # via
@@ -248,12 +282,12 @@ orjson==3.11.5
     # via
     #   docarray
     #   langsmith
-packaging==25.0
+packaging==24.2
     # via
     #   huggingface-hub
     #   langchain-core
-    #   langsmith
     #   marshmallow
+    #   transformers
 pandas==2.3.3
     # via
     #   -r ./comps/text2query/src/requirements.in
@@ -282,7 +316,7 @@ pyarrow==22.0.0
     # via -r ./comps/text2query/src/requirements.in
 pycollada==0.9.2
     # via trimesh
-pydantic==2.11.7
+pydantic==2.12.5
     # via
     #   -r ./comps/text2query/src/requirements.in
     #   docarray
@@ -291,11 +325,8 @@ pydantic==2.11.7
     #   langchain-core
     #   langsmith
     #   openai
-    #   pydantic-settings
-pydantic-core==2.33.2
+pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
-    # via langchain-community
 pydub==0.25.1
     # via docarray
 pygments==2.19.2
@@ -304,8 +335,6 @@ python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
-python-dotenv==1.2.1
-    # via pydantic-settings
 pytz==2025.2
     # via pandas
 pyyaml==6.0.3
@@ -314,20 +343,25 @@ pyyaml==6.0.3
     #   langchain
     #   langchain-community
     #   langchain-core
+    #   transformers
 referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
 regex==2025.11.3
-    # via tiktoken
+    # via
+    #   tiktoken
+    #   transformers
 requests==2.32.5
     # via
+    #   huggingface-hub
     #   langchain
     #   langchain-community
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-toolbelt
     #   tiktoken
+    #   transformers
 requests-toolbelt==1.0.0
     # via langsmith
 rich==14.2.0
@@ -338,20 +372,32 @@ rpds-py==0.30.0
     #   referencing
 rtree==1.4.1
     # via trimesh
+safetensors==0.7.0
+    # via transformers
+scikit-learn==1.7.2 ; python_full_version < '3.11'
+    # via sentence-transformers
+scikit-learn==1.8.0 ; python_full_version >= '3.11'
+    # via sentence-transformers
 scipy==1.15.3 ; python_full_version < '3.11'
     # via
     #   jax
     #   jaxlib
+    #   scikit-learn
+    #   sentence-transformers
     #   trimesh
 scipy==1.16.3 ; python_full_version >= '3.11'
     # via
     #   jax
     #   jaxlib
+    #   scikit-learn
+    #   sentence-transformers
     #   trimesh
+sentence-transformers==5.2.0
+    # via langchain-huggingface
+setuptools==80.9.0 ; python_full_version >= '3.12'
+    # via torch
 shapely==2.1.2
     # via trimesh
-shellingham==1.5.4
-    # via huggingface-hub
 shortuuid==1.0.13
     # via -r ./comps/text2query/src/requirements.in
 six==1.17.0
@@ -370,22 +416,37 @@ starlette==0.50.0
     #   prometheus-fastapi-instrumentator
 svg-path==7.0
     # via trimesh
-tenacity==9.1.2
+sympy==1.14.0
+    # via torch
+tenacity==8.5.0
     # via
+    #   langchain
     #   langchain-community
     #   langchain-core
+threadpoolctl==3.6.0
+    # via scikit-learn
 tiktoken==0.12.0
     # via langchain-openai
 tokenizers==0.22.1
-    # via langchain-huggingface
+    # via
+    #   langchain-huggingface
+    #   transformers
+torch==2.9.1
+    # via sentence-transformers
 tqdm==4.67.1
     # via
     #   huggingface-hub
     #   openai
+    #   sentence-transformers
+    #   transformers
+transformers==4.57.3
+    # via
+    #   langchain-huggingface
+    #   sentence-transformers
 trimesh==4.10.1
     # via docarray
-typer-slim==0.21.0
-    # via huggingface-hub
+triton==3.5.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+    # via torch
 types-pillow==10.2.0.20240822
     # via docarray
 types-requests==2.32.4.20250913
@@ -409,9 +470,10 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   referencing
+    #   sentence-transformers
     #   sqlalchemy
     #   starlette
-    #   typer-slim
+    #   torch
     #   typing-inspect
     #   typing-inspection
     #   uvicorn
@@ -420,9 +482,7 @@ typing-inspect==0.9.0
     #   dataclasses-json
     #   docarray
 typing-inspection==0.4.2
-    # via
-    #   pydantic
-    #   pydantic-settings
+    # via pydantic
 tzdata==2025.3
     # via pandas
 urllib3==2.6.2
@@ -430,8 +490,6 @@ urllib3==2.6.2
     #   -r ./comps/text2query/src/requirements.in
     #   requests
     #   types-requests
-uuid-utils==0.12.0
-    # via langsmith
 uvicorn==0.40.0
     # via -r ./comps/text2query/src/requirements.in
 vhacdx==0.0.10
@@ -442,5 +500,3 @@ yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
     # via importlib-metadata
-zstandard==0.25.0
-    # via langsmith
