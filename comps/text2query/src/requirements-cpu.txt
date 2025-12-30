@@ -271,7 +271,7 @@ pyarrow==22.0.0
     # via -r ./comps/text2query/src/requirements.in
 pycollada==0.9.2
     # via trimesh
-pydantic==2.12.5
+pydantic==2.11.7
     # via
     #   -r ./comps/text2query/src/requirements.in
     #   docarray
@@ -280,7 +280,7 @@ pydantic==2.12.5
     #   langchain-core
     #   langsmith
     #   openai
-pydantic-core==2.41.5
+pydantic-core==2.33.2
     # via pydantic
 pydub==0.25.1
     # via docarray
