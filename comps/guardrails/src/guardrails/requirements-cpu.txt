@@ -75,9 +75,9 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 faker==27.4.0
     # via llm-guard
-fastapi==0.124.4
+fastapi==0.127.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-filelock==3.20.0
+filelock==3.20.1
     # via
     #   huggingface-hub
     #   tldextract
@@ -127,18 +127,18 @@ idna==3.11
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via opentelemetry-api
-jax==0.8.1
+jax==0.8.2
     # via docarray
-jaxlib==0.8.1
+jaxlib==0.8.2
     # via jax
 jinja2==3.1.6
     # via
     #   spacy
 jiter==0.12.0
     # via openai
-joblib==1.5.2
+joblib==1.5.3
     # via nltk
 json-repair==0.28.4
     # via llm-guard
@@ -150,11 +150,11 @@ jsonschema==4.25.1
     # via trimesh
 jsonschema-specifications==2025.9.1
     # via jsonschema
-langchain-classic==1.0.0
+langchain-classic==1.0.1
     # via langchain-community
 langchain-community==0.4.1
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-langchain-core==1.2.0
+langchain-core==1.2.5
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   langchain-classic
@@ -164,11 +164,11 @@ langchain-core==1.2.0
     #   langchain-text-splitters
 langchain-huggingface==1.2.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-langchain-openai==1.1.3
+langchain-openai==1.1.6
     # via -r ./comps/guardrails/src/guardrails/requirements.in
 langchain-text-splitters==1.1.0
     # via langchain-classic
-langsmith==0.4.59
+langsmith==0.5.1
     # via
     #   langchain-classic
     #   langchain-community
@@ -187,7 +187,7 @@ markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
-marshmallow==3.26.1
+marshmallow==3.26.2
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
@@ -213,7 +213,7 @@ networkx==3.6.1
     #   trimesh
 nltk==3.9.2
     # via llm-guard
-numpy==2.3.5
+numpy==2.4.0
     # via
     #   blis
     #   docarray
@@ -244,7 +244,7 @@ oldest-supported-numpy==2023.8.3 ; python_full_version == '3.12.*'
     # via llm-guard
 oldest-supported-numpy==2023.12.21 ; python_full_version >= '3.13'
     # via llm-guard
-openai==2.11.0
+openai==2.14.0
     # via langchain-openai
 opentelemetry-api==1.39.1
     # via
@@ -481,7 +481,7 @@ transformers==4.57.3
     #   llm-guard
 trimesh==4.10.1
     # via docarray
-typer-slim==0.20.0
+typer-slim==0.20.1
     # via
     #   spacy
     #   weasel
@@ -532,7 +532,7 @@ uuid-utils==0.12.0
     # via
     #   langchain-core
     #   langsmith
-uvicorn==0.38.0
+uvicorn==0.40.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
 vhacdx==0.0.10
     # via trimesh
