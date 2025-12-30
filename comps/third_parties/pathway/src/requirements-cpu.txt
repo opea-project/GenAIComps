@@ -11,10 +11,18 @@ aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.13.2
     # via
+    #   aiohttp-cors
+    #   instructor
     #   langchain-community
+    #   litellm
+    #   llama-index-core
     #   pathway
+aiohttp-cors==0.8.1
+    # via pathway
 aiosignal==1.4.0
     # via aiohttp
+aiosqlite==0.22.1
+    # via llama-index-core
 annotated-types==0.7.0
     # via pydantic
 antlr4-python3-runtime==4.9.3
@@ -26,8 +34,12 @@ anyio==4.12.0
     #   openai
     #   sse-starlette
     #   starlette
-async-timeout==5.0.1 ; python_full_version < '3.11.3'
-    # via redis
+appdirs==1.4.4
+    # via fs
+asttokens==3.0.1
+    # via stack-data
+async-lru==2.0.5
+    # via pathway
 attrs==25.4.0
     # via
     #   aiohttp
@@ -39,21 +51,28 @@ authlib==1.6.6
     # via fastmcp
 backoff==2.2.1
     # via unstructured
-backports-tarfile==1.2.0 ; python_full_version < '3.12'
-    # via jaraco-context
-beartype==0.22.9
-    # via
-    #   pathway
-    #   py-key-value-aio
-    #   py-key-value-shared
+banks==2.2.0
+    # via llama-index-core
+beartype==0.15.0
+    # via pathway
 beautifulsoup4==4.14.3
     # via
     #   docling
     #   unstructured
-cachetools==6.2.4
+bleach==6.3.0
+    # via panel
+bokeh==3.8.1
     # via
-    #   google-auth
-    #   py-key-value-aio
+    #   jupyter-bokeh
+    #   panel
+boto3==1.42.18
+    # via pathway
+botocore==1.42.18
+    # via
+    #   boto3
+    #   s3transfer
+cachetools==6.2.4
+    # via google-auth
 certifi==2025.11.12
     # via
     #   docling
@@ -62,6 +81,8 @@ certifi==2025.11.12
     #   requests
 cffi==2.0.0 ; platform_python_implementation != 'PyPy'
     # via cryptography
+cfgv==3.5.0
+    # via pre-commit
 charset-normalizer==3.4.4
     # via
     #   pdfminer-six
@@ -69,32 +90,38 @@ charset-normalizer==3.4.4
     #   unstructured
 click==8.3.1
     # via
+    #   litellm
     #   nltk
     #   ocrmac
     #   pathway
     #   python-oxmsg
     #   typer
     #   uvicorn
-cloudpickle==3.1.2
-    # via pydocket
-colorama==0.4.6 ; sys_platform == 'win32'
+cohere==5.20.1
+    # via pathway
+colorama==0.4.6
     # via
     #   click
     #   colorlog
+    #   griffe
+    #   ipython
     #   tqdm
 coloredlogs==15.0.1
     # via onnxruntime
 colorlog==6.10.1
     # via rapidocr
+comm==0.2.3
+    # via ipywidgets
 contourpy==1.3.3
-    # via matplotlib
+    # via
+    #   bokeh
+    #   matplotlib
 cryptography==46.0.3
     # via
     #   authlib
     #   msoffcrypto-tool
     #   pdfminer-six
     #   pyjwt
-    #   secretstorage
     #   unstructured-client
 cycler==0.12.1
     # via matplotlib
@@ -103,15 +130,28 @@ cyclopts==4.4.3
 dataclasses-json==0.6.7
     # via
     #   langchain-community
+    #   llama-index-core
     #   unstructured
+decorator==5.2.1
+    # via ipython
+deltalake==0.17.4
+    # via pathway
 deprecated==1.3.1
-    # via pikepdf
+    # via
+    #   banks
+    #   llama-index-core
+    #   llama-index-instrumentation
+    #   pikepdf
 dill==0.4.0
     # via multiprocess
+dirtyjson==1.0.8
+    # via llama-index-core
 diskcache==5.6.3
     # via
+    #   instructor
     #   pathway
-    #   py-key-value-aio
+distlib==0.4.0
+    # via virtualenv
 distro==1.9.0
     # via openai
 dnspython==2.8.0
@@ -128,7 +168,9 @@ docling-ibm-models==3.10.3
 docling-parse==4.7.2
     # via docling
 docstring-parser==0.17.0
-    # via cyclopts
+    # via
+    #   cyclopts
+    #   instructor
 docutils==0.22.4
     # via rich-rst
 effdet==0.4.1
@@ -141,19 +183,25 @@ et-xmlfile==2.0.0
     # via openpyxl
 exceptiongroup==1.3.1
     # via fastmcp
-faker==39.0.0
+executing==2.2.1
+    # via stack-data
+faker==40.1.0
     # via polyfactory
-fakeredis==2.33.0
-    # via pydocket
-fastmcp==2.14.1
-    # via -r ./comps/third_parties/pathway/src/requirements.in
+fastavro==1.12.1
+    # via cohere
+fastmcp==2.12.4
+    # via pathway
+fastuuid==0.14.0
+    # via litellm
 filelock==3.20.1
     # via
     #   huggingface-hub
     #   transformers
+    #   virtualenv
 filetype==1.2.0
     # via
     #   docling
+    #   llama-index-core
     #   unstructured
 flatbuffers==25.12.19
     # via onnxruntime
@@ -163,34 +211,94 @@ frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
+fs==2.4.16
+    # via pathway
 fsspec==2025.12.0
     # via
     #   huggingface-hub
-google-api-core==2.28.1
-    # via google-cloud-vision
+    #   llama-index-core
+geographiclib==2.1
+    # via geopy
+geopy==2.4.1
+    # via pathway
+gitdb==4.0.12
+    # via gitpython
+gitpython==3.1.45
+    # via pathway
+google-ai-generativelanguage==0.6.15
+    # via google-generativeai
+google-api-core==2.24.2
+    # via
+    #   google-ai-generativelanguage
+    #   google-api-python-client
+    #   google-cloud-bigquery
+    #   google-cloud-core
+    #   google-cloud-pubsub
+    #   google-cloud-vision
+    #   google-generativeai
+    #   pathway
+google-api-python-client==2.187.0
+    # via
+    #   google-generativeai
+    #   pathway
 google-auth==2.45.0
     # via
+    #   google-ai-generativelanguage
     #   google-api-core
+    #   google-api-python-client
+    #   google-auth-httplib2
+    #   google-cloud-bigquery
+    #   google-cloud-core
+    #   google-cloud-pubsub
     #   google-cloud-vision
+    #   google-generativeai
+google-auth-httplib2==0.3.0
+    # via google-api-python-client
+google-cloud-bigquery==3.29.0
+    # via pathway
+google-cloud-core==2.5.0
+    # via google-cloud-bigquery
+google-cloud-pubsub==2.34.0
+    # via pathway
 google-cloud-vision==3.11.0
     # via unstructured
+google-crc32c==1.8.0
+    # via google-resumable-media
+google-generativeai==0.8.6
+    # via pathway
+google-resumable-media==2.8.0
+    # via google-cloud-bigquery
 googleapis-common-protos==1.72.0
     # via
     #   google-api-core
+    #   grpc-google-iam-v1
     #   grpcio-status
-greenlet==3.3.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+    #   opentelemetry-exporter-otlp-proto-grpc
+greenlet==3.3.0
     # via sqlalchemy
+griffe==1.15.0
+    # via banks
+grpc-google-iam-v1==0.14.3
+    # via google-cloud-pubsub
 grpcio==1.76.0
     # via
     #   google-api-core
+    #   google-cloud-pubsub
     #   google-cloud-vision
+    #   googleapis-common-protos
+    #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.76.0
-    # via google-api-core
+    #   opentelemetry-exporter-otlp-proto-grpc
+grpcio-status==1.71.2
+    # via
+    #   google-api-core
+    #   google-cloud-pubsub
 h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
+h3==4.4.1
+    # via pathway
 hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
     # via huggingface-hub
 html5lib==1.1
@@ -199,11 +307,17 @@ httpcore==1.0.9
     # via
     #   httpx
     #   unstructured-client
+httplib2==0.31.0
+    # via
+    #   google-api-python-client
+    #   google-auth-httplib2
 httpx==0.28.1
     # via
+    #   cohere
     #   fastmcp
-    #   langgraph-sdk
     #   langsmith
+    #   litellm
+    #   llama-index-core
     #   mcp
     #   openai
     #   unstructured-client
@@ -224,6 +338,8 @@ huggingface-hub==0.36.0
     #   unstructured-inference
 humanfriendly==10.0
     # via coloredlogs
+identify==2.6.15
+    # via pre-commit
 idna==3.11
     # via
     #   anyio
@@ -233,20 +349,35 @@ idna==3.11
     #   yarl
 importlib-metadata==8.7.1
     # via
-    #   keyring
+    #   litellm
     #   opentelemetry-api
-jaraco-classes==3.4.0
-    # via keyring
-jaraco-context==6.0.2
-    # via keyring
-jaraco-functools==4.4.0
-    # via keyring
-jeepney==0.9.0 ; sys_platform == 'linux'
+instructor==1.12.0
+    # via pathway
+ipython==9.8.0
+    # via ipywidgets
+ipython-pygments-lexers==1.1.1
+    # via ipython
+ipywidgets==8.1.8
+    # via jupyter-bokeh
+isodate==0.7.2
+    # via openapi-core
+jedi==0.19.2
+    # via ipython
+jinja2==3.1.6
     # via
-    #   keyring
-    #   secretstorage
-jiter==0.12.0
-    # via openai
+    #   banks
+    #   bokeh
+    #   instructor
+    #   litellm
+jiter==0.10.0
+    # via
+    #   instructor
+    #   openai
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
+    #   pathway
 joblib==1.5.3
     # via
     #   nltk
@@ -262,57 +393,73 @@ jsonref==1.1.0
 jsonschema==4.25.1
     # via
     #   docling-core
+    #   litellm
     #   mcp
+    #   openapi-core
+    #   openapi-schema-validator
+    #   openapi-spec-validator
 jsonschema-path==0.3.4
-    # via fastmcp
+    # via
+    #   openapi-core
+    #   openapi-spec-validator
 jsonschema-specifications==2025.9.1
-    # via jsonschema
-keyring==25.7.0
-    # via py-key-value-aio
+    # via
+    #   jsonschema
+    #   openapi-schema-validator
+jupyter-bokeh==4.0.5
+    # via pathway
+jupyterlab-widgets==3.0.16
+    # via ipywidgets
 kiwisolver==1.4.9
     # via matplotlib
-langchain==1.2.0
-    # via -r ./comps/third_parties/pathway/src/requirements.in
-langchain-classic==1.0.1
-    # via langchain-community
-langchain-community==0.4.1
-    # via -r ./comps/third_parties/pathway/src/requirements.in
-langchain-core==1.2.5
+langchain==0.3.27
+    # via
+    #   -r ./comps/third_parties/pathway/src/requirements.in
+    #   langchain-community
+    #   pathway
+langchain-community==0.3.31
+    # via
+    #   -r ./comps/third_parties/pathway/src/requirements.in
+    #   pathway
+langchain-core==0.3.81
     # via
     #   -r ./comps/third_parties/pathway/src/requirements.in
     #   langchain
-    #   langchain-classic
     #   langchain-community
     #   langchain-huggingface
     #   langchain-text-splitters
-    #   langgraph
-    #   langgraph-checkpoint
-    #   langgraph-prebuilt
-langchain-huggingface==1.2.0
+langchain-huggingface==0.3.1
     # via -r ./comps/third_parties/pathway/src/requirements.in
-langchain-text-splitters==1.1.0
-    # via langchain-classic
+langchain-text-splitters==0.3.11
+    # via langchain
 langdetect==1.0.9
     # via unstructured
-langgraph==1.0.5
-    # via langchain
-langgraph-checkpoint==3.0.1
-    # via
-    #   langgraph
-    #   langgraph-prebuilt
-langgraph-prebuilt==1.0.5
-    # via langgraph
-langgraph-sdk==0.3.1
-    # via langgraph
 langsmith==0.5.1
     # via
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
 latex2mathml==3.78.1
     # via docling-core
-lupa==2.6
-    # via fakeredis
+lazy-object-proxy==1.12.0
+    # via openapi-spec-validator
+linkify-it-py==2.0.3
+    # via panel
+litellm==1.77.2.post1
+    # via pathway
+llama-index-core==0.12.52.post1
+    # via
+    #   llama-index-readers-pathway
+    #   llama-index-retrievers-pathway
+    #   pathway
+llama-index-instrumentation==0.4.2
+    # via llama-index-workflows
+llama-index-readers-pathway==0.3.0
+    # via pathway
+llama-index-retrievers-pathway==0.3.0
+    # via pathway
+llama-index-workflows==1.3.0
+    # via llama-index-core
 lxml==6.0.2
     # via
     #   docling
@@ -321,29 +468,38 @@ lxml==6.0.2
     #   python-pptx
     #   unstructured
 markdown==3.10
-    # via unstructured
+    # via
+    #   panel
+    #   unstructured
 markdown-it-py==4.0.0
-    # via rich
+    # via
+    #   mdit-py-plugins
+    #   panel
+    #   rich
 marko==2.2.1
     # via docling
 markupsafe==3.0.3
-    # via jinja2
+    # via
+    #   jinja2
+    #   werkzeug
 marshmallow==3.26.2
     # via dataclasses-json
 matplotlib==3.10.8
     # via unstructured-inference
+matplotlib-inline==0.2.1
+    # via ipython
 mcp==1.25.0
     # via
     #   -r ./comps/third_parties/pathway/src/requirements.in
     #   fastmcp
+mdit-py-plugins==0.5.0
+    # via panel
 mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.5.4
     # via onnx
 more-itertools==10.8.0
-    # via
-    #   jaraco-classes
-    #   jaraco-functools
+    # via openapi-core
 mpire==2.10.2
     # via semchunk
 mpmath==1.3.0
@@ -358,17 +514,31 @@ multiprocess==0.70.18
     # via mpire
 mypy-extensions==1.1.0
     # via typing-inspect
+narwhals==2.14.0
+    # via
+    #   bokeh
+    #   panel
+nest-asyncio==1.6.0
+    # via llama-index-core
 networkx==3.6.1
     # via
+    #   llama-index-core
+    #   pathway
     #   unstructured
 nltk==3.9.2
-    # via unstructured
+    # via
+    #   llama-index-core
+    #   unstructured
+nodeenv==1.10.0
+    # via pre-commit
 numpy==2.4.0
     # via
     #   accelerate
+    #   bokeh
     #   contourpy
     #   docling-ibm-models
     #   langchain-community
+    #   llama-index-core
     #   matplotlib
     #   ml-dtypes
     #   onnx
@@ -403,10 +573,22 @@ onnxruntime==1.23.2
     # via
     #   unstructured
     #   unstructured-inference
-openai==2.14.0
-    # via -r ./comps/third_parties/pathway/src/requirements.in
+openai==1.109.1
+    # via
+    #   -r ./comps/third_parties/pathway/src/requirements.in
+    #   instructor
+    #   litellm
+    #   pathway
+openapi-core==0.22.0
+    # via fastmcp
 openapi-pydantic==0.5.1
     # via fastmcp
+openapi-schema-validator==0.6.3
+    # via
+    #   openapi-core
+    #   openapi-spec-validator
+openapi-spec-validator==0.7.2
+    # via openapi-core
 opencv-python==4.11.0.86
     # via
     #   rapidocr
@@ -417,70 +599,85 @@ openpyxl==3.1.5
     #   unstructured
 opentelemetry-api==1.39.1
     # via
-    #   opentelemetry-exporter-prometheus
-    #   opentelemetry-instrumentation
+    #   google-cloud-pubsub
+    #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   pydocket
-opentelemetry-exporter-prometheus==0.60b1
-    # via pydocket
-opentelemetry-instrumentation==0.60b1
-    # via pydocket
+    #   pathway
+opentelemetry-exporter-otlp-proto-common==1.39.1
+    # via opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-exporter-otlp-proto-grpc==1.39.1
+    # via pathway
+opentelemetry-proto==1.39.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-sdk==1.39.1
-    # via opentelemetry-exporter-prometheus
+    # via
+    #   google-cloud-pubsub
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   pathway
 opentelemetry-semantic-conventions==0.60b1
-    # via
-    #   opentelemetry-instrumentation
-    #   opentelemetry-sdk
-orjson==3.11.5
-    # via
-    #   langgraph-sdk
-    #   langsmith
-ormsgpack==1.12.1
-    # via langgraph-checkpoint
+    # via opentelemetry-sdk
+orjson==3.11.5 ; platform_python_implementation != 'PyPy'
+    # via langsmith
 packaging==25.0
     # via
     #   accelerate
+    #   bokeh
+    #   google-cloud-bigquery
     #   huggingface-hub
     #   langchain-core
     #   langsmith
     #   marshmallow
     #   matplotlib
     #   onnxruntime
-    #   opentelemetry-instrumentation
+    #   panel
     #   pikepdf
     #   safetensors
     #   transformers
     #   unstructured-pytesseract
 pandas==2.3.3
     # via
+    #   bokeh
     #   docling
     #   docling-core
+    #   panel
     #   pathway
     #   unstructured
     #   unstructured-inference
+panel==1.8.4
+    # via pathway
+param==2.3.1
+    # via
+    #   panel
+    #   pyviz-comms
+parso==0.8.5
+    # via jedi
 pathable==0.4.4
     # via jsonschema-path
-pathvalidate==3.3.1
-    # via py-key-value-aio
-pathway==0.2.0
+pathway==0.27.1
     # via -r ./comps/third_parties/pathway/src/requirements.in
 pdf2image==1.17.0
     # via unstructured
-pdfminer-six==20251228
+pdfminer-six==20251229
     # via
     #   unstructured
     #   unstructured-inference
+pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
+    # via ipython
 pi-heif==1.1.1
     # via unstructured
 pikepdf==10.1.0
     # via unstructured
 pillow==11.3.0
     # via
+    #   bokeh
     #   docling
     #   docling-core
     #   docling-ibm-models
     #   docling-parse
+    #   llama-index-core
     #   matplotlib
     #   ocrmac
     #   pdf2image
@@ -490,44 +687,56 @@ pillow==11.3.0
     #   rapidocr
     #   unstructured-pytesseract
 platformdirs==4.5.1
-    # via fastmcp
+    # via
+    #   banks
+    #   llama-index-core
+    #   virtualenv
 pluggy==1.6.0
     # via docling
 polyfactory==3.2.0
     # via docling
-prometheus-client==0.23.1
-    # via
-    #   opentelemetry-exporter-prometheus
-    #   pydocket
+pre-commit==4.5.1
+    # via instructor
+prompt-toolkit==3.0.52
+    # via ipython
 propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
 proto-plus==1.27.0
     # via
+    #   google-ai-generativelanguage
     #   google-api-core
+    #   google-cloud-pubsub
     #   google-cloud-vision
-protobuf==6.33.2
+protobuf==5.29.5
     # via
+    #   google-ai-generativelanguage
     #   google-api-core
+    #   google-cloud-pubsub
     #   google-cloud-vision
+    #   google-generativeai
     #   googleapis-common-protos
+    #   grpc-google-iam-v1
     #   grpcio-status
     #   onnx
     #   onnxruntime
+    #   opentelemetry-proto
     #   proto-plus
 psutil==7.2.1
     # via
     #   accelerate
     #   unstructured
-py-key-value-aio==0.3.0
+ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
+    # via pexpect
+pure-eval==0.2.3
+    # via stack-data
+pyarrow==18.1.0
     # via
-    #   fastmcp
-    #   pydocket
-py-key-value-shared==0.3.0
-    # via py-key-value-aio
-pyarrow==22.0.0
-    # via pathway
+    #   deltalake
+    #   pathway
+pyarrow-hotfix==0.7
+    # via deltalake
 pyasn1==0.6.1
     # via
     #   pyasn1-modules
@@ -542,32 +751,42 @@ pycparser==2.23 ; implementation_name != 'PyPy' and platform_python_implementati
     # via cffi
 pydantic==2.12.5
     # via
+    #   banks
+    #   cohere
     #   docling
     #   docling-core
     #   docling-ibm-models
     #   docling-parse
     #   fastmcp
+    #   google-generativeai
+    #   instructor
     #   langchain
-    #   langchain-classic
     #   langchain-core
-    #   langgraph
     #   langsmith
+    #   litellm
+    #   llama-index-core
+    #   llama-index-instrumentation
+    #   llama-index-workflows
     #   mcp
     #   openai
     #   openapi-pydantic
+    #   pathway
     #   pydantic-settings
     #   unstructured-client
 pydantic-core==2.41.5
-    # via pydantic
+    # via
+    #   cohere
+    #   instructor
+    #   pydantic
 pydantic-settings==2.12.0
     # via
     #   docling
     #   langchain-community
     #   mcp
-pydocket==0.16.3
-    # via fastmcp
 pygments==2.19.2
     # via
+    #   ipython
+    #   ipython-pygments-lexers
     #   mpire
     #   rich
 pyjwt==2.10.1
@@ -594,7 +813,9 @@ pyobjc-framework-vision==12.1 ; sys_platform == 'darwin'
 pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
-    # via matplotlib
+    # via
+    #   httplib2
+    #   matplotlib
 pypdf==6.5.0
     # via
     #   unstructured
@@ -609,6 +830,8 @@ pyreadline3==3.5.4 ; sys_platform == 'win32'
     # via humanfriendly
 python-dateutil==2.9.0.post0
     # via
+    #   botocore
+    #   google-cloud-bigquery
     #   matplotlib
     #   pandas
 python-docx==1.2.0
@@ -618,11 +841,10 @@ python-docx==1.2.0
 python-dotenv==1.2.1
     # via
     #   fastmcp
+    #   litellm
     #   pydantic-settings
 python-iso639==2025.11.16
     # via unstructured
-python-json-logger==4.0.0
-    # via pydocket
 python-magic==0.4.27
     # via unstructured
 python-multipart==0.0.21
@@ -639,23 +861,26 @@ python-sat==1.8.dev26
     # via pathway
 pytz==2025.2
     # via pandas
+pyviz-comms==3.0.6
+    # via panel
 pywin32==311 ; sys_platform == 'win32'
     # via
     #   docling-parse
     #   mcp
     #   mpire
-pywin32-ctypes==0.2.3 ; sys_platform == 'win32'
-    # via keyring
 pyyaml==6.0.3
     # via
     #   accelerate
+    #   bokeh
     #   docling-core
     #   huggingface-hub
     #   jsonschema-path
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langchain-core
+    #   llama-index-core
     #   omegaconf
+    #   pre-commit
     #   rapidocr
     #   timm
     #   transformers
@@ -665,11 +890,6 @@ rapidfuzz==3.14.3
     #   unstructured-inference
 rapidocr==3.4.5
     # via docling
-redis==7.1.0
-    # via
-    #   fakeredis
-    #   py-key-value-aio
-    #   pydocket
 referencing==0.36.2
     # via
     #   jsonschema
@@ -682,13 +902,20 @@ regex==2025.11.3
     #   transformers
 requests==2.32.5
     # via
+    #   cohere
     #   docling
     #   google-api-core
+    #   google-cloud-bigquery
     #   huggingface-hub
+    #   instructor
     #   jsonschema-path
-    #   langchain-classic
+    #   langchain
     #   langchain-community
     #   langsmith
+    #   llama-index-core
+    #   llama-index-readers-pathway
+    #   llama-index-retrievers-pathway
+    #   panel
     #   pathway
     #   rapidocr
     #   requests-toolbelt
@@ -699,12 +926,14 @@ requests-toolbelt==1.0.0
     # via
     #   langsmith
     #   unstructured-client
+rfc3339-validator==0.1.4
+    # via openapi-schema-validator
 rich==14.2.0
     # via
     #   cyclopts
     #   fastmcp
+    #   instructor
     #   pathway
-    #   pydocket
     #   rich-rst
     #   typer
 rich-rst==1.3.2
@@ -719,6 +948,8 @@ rtree==1.4.1
     # via
     #   docling
     #   docling-ibm-models
+s3transfer==0.16.0
+    # via boto3
 safetensors==0.7.0
     # via
     #   accelerate
@@ -735,37 +966,44 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   unstructured-inference
-secretstorage==3.5.0 ; sys_platform == 'linux'
-    # via keyring
 semchunk==2.2.2
     # via docling-core
 sentence-transformers==5.2.0
     # via -r ./comps/third_parties/pathway/src/requirements.in
+setuptools==80.9.0
+    # via
+    #   fs
+    #   llama-index-core
 shapely==2.1.2
-    # via rapidocr
+    # via
+    #   pathway
+    #   rapidocr
 shellingham==1.5.4
     # via typer
 six==1.17.0
     # via
+    #   fs
     #   html5lib
     #   langdetect
     #   python-dateutil
     #   python-sat
     #   rapidocr
+    #   rfc3339-validator
+smmap==5.0.2
+    # via gitdb
 sniffio==1.3.1
     # via openai
-sortedcontainers==2.4.0
-    # via fakeredis
 soupsieve==2.8.1
     # via beautifulsoup4
 sqlalchemy==2.0.45
     # via
-    #   langchain-classic
+    #   langchain
     #   langchain-community
-sqlglot==10.6.1
-    # via pathway
+    #   llama-index-core
 sse-starlette==3.1.1
     # via mcp
+stack-data==0.6.3
+    # via ipython
 starlette==0.50.0
     # via
     #   -r ./comps/third_parties/pathway/src/requirements.in
@@ -780,33 +1018,52 @@ tabulate==0.9.0
     #   docling-parse
 tenacity==9.1.2
     # via
+    #   instructor
     #   langchain-community
     #   langchain-core
+    #   llama-index-core
+    #   pathway
 threadpoolctl==3.6.0
     # via scikit-learn
 tiktoken==0.12.0
-    # via -r ./comps/third_parties/pathway/src/requirements.in
+    # via
+    #   -r ./comps/third_parties/pathway/src/requirements.in
+    #   litellm
+    #   llama-index-core
+    #   pathway
 timm==1.0.22
     # via
     #   effdet
     #   unstructured-inference
 tokenizers==0.22.1
     # via
+    #   cohere
     #   langchain-huggingface
+    #   litellm
     #   transformers
+tornado==6.5.4 ; sys_platform != 'emscripten'
+    # via bokeh
 tqdm==4.67.1
     # via
     #   docling
     #   docling-ibm-models
+    #   google-generativeai
     #   huggingface-hub
+    #   llama-index-core
     #   mpire
     #   nltk
     #   openai
+    #   panel
     #   rapidocr
     #   semchunk
     #   sentence-transformers
     #   transformers
     #   unstructured
+traitlets==5.14.3
+    # via
+    #   ipython
+    #   ipywidgets
+    #   matplotlib-inline
 transformers==4.57.3
     # via
     #   docling-core
@@ -829,28 +1086,37 @@ typer==0.19.2
     # via
     #   docling
     #   docling-core
-    #   pydocket
+    #   instructor
+types-requests==2.32.4.20250913
+    # via cohere
 typing-extensions==4.15.0
     # via
     #   aiosignal
     #   anyio
     #   beautifulsoup4
+    #   cohere
     #   docling-core
     #   exceptiongroup
+    #   google-generativeai
     #   grpcio
     #   huggingface-hub
+    #   ipython
     #   langchain-core
+    #   llama-index-core
+    #   llama-index-workflows
     #   mcp
     #   onnx
     #   openai
+    #   openapi-core
     #   opentelemetry-api
+    #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
+    #   panel
+    #   pathway
     #   polyfactory
-    #   py-key-value-shared
     #   pydantic
     #   pydantic-core
-    #   pydocket
     #   python-docx
     #   python-oxmsg
     #   python-pptx
@@ -863,7 +1129,9 @@ typing-extensions==4.15.0
     #   typing-inspection
     #   unstructured
 typing-inspect==0.9.0
-    # via dataclasses-json
+    # via
+    #   dataclasses-json
+    #   llama-index-core
 typing-inspection==0.4.2
     # via
     #   mcp
@@ -873,6 +1141,8 @@ tzdata==2025.3
     # via
     #   faker
     #   pandas
+uc-micro-py==1.0.3
+    # via linkify-it-py
 unstructured==0.18.21
     # via -r ./comps/third_parties/pathway/src/requirements.in
 unstructured-client==0.42.6
@@ -881,33 +1151,41 @@ unstructured-inference==1.1.1
     # via unstructured
 unstructured-pytesseract==0.3.15
     # via unstructured
+uritemplate==4.2.0
+    # via google-api-python-client
 urllib3==2.6.2
     # via
     #   -r ./comps/third_parties/pathway/src/requirements.in
+    #   botocore
     #   requests
+    #   types-requests
 uuid-utils==0.12.0
-    # via
-    #   langchain-core
-    #   langsmith
-uvicorn==0.40.0
-    # via
-    #   fastmcp
-    #   mcp
+    # via langsmith
+uvicorn==0.40.0 ; sys_platform != 'emscripten'
+    # via mcp
+virtualenv==20.35.4
+    # via pre-commit
+wcwidth==0.2.14
+    # via prompt-toolkit
 webencodings==0.5.1
-    # via html5lib
-websockets==15.0.1
-    # via fastmcp
-wrapt==1.17.3
+    # via
+    #   bleach
+    #   html5lib
+werkzeug==3.1.4
+    # via openapi-core
+widgetsnbextension==4.0.15
+    # via ipywidgets
+wrapt==2.0.1
     # via
     #   deprecated
-    #   opentelemetry-instrumentation
+    #   llama-index-core
     #   unstructured
 xlrd==2.0.2
     # via unstructured
 xlsxwriter==3.2.9
     # via python-pptx
-xxhash==3.6.0
-    # via langgraph
+xyzservices==2025.11.0
+    # via bokeh
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0

@@ -3,7 +3,6 @@ langchain-core>=0.3.81
 langchain-community
 langchain-huggingface
 docling
-fastmcp>=2.13.0
 mcp>=1.23.0
 openai
 pathway[xpack-llm]
