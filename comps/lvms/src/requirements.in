@@ -3,7 +3,7 @@ datasets
 docarray[full]
 fastapi
 huggingface_hub
-langchain-core>=0.3.80
+langchain-core>=1.2.5
 mcp>=1.23.0
 openai
 opentelemetry-api
