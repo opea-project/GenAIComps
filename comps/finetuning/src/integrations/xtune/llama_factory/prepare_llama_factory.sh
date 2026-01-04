@@ -4,7 +4,7 @@
 
 echo "prepare llama-factory for xtune"
 git clone https://github.com/hiyouga/LLaMA-Factory.git
-cd LLaMA-Factory && git fetch origin pull/8535/head:xtune && git checkout xtune && cd ..
+cd LLaMA-Factory && git fetch origin pull/9626/head:xtune && git checkout xtune && cd ..
 rm -rf LLaMA-Factory/src/llamafactory/train/sft/workflow.py
 rsync -avPr LLaMA-Factory/  .
 rm -rf LLaMA-Factory
