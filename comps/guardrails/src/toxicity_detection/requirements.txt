@@ -2,9 +2,9 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/guardrails/src/toxicity_detection/requirements.in --universal -o ./comps/guardrails/src/toxicity_detection/requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
@@ -34,21 +34,16 @@ charset-normalizer==3.4.4
     #   trimesh
 click==8.3.1
     # via uvicorn
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via
-    #   click
-    #   colorlog
-    #   tqdm
 colorlog==6.10.1
     # via trimesh
 dataclasses-json==0.6.7
     # via langchain-community
-docarray==0.41.0
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
-embreex==2.17.7.post7 ; platform_machine == 'x86_64'
+docarray[full]==0.41.0
+    # via -r requirements.in
+embreex==2.17.7.post7
     # via trimesh
 fastapi==0.127.0
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 filelock==3.20.1
     # via
     #   huggingface-hub
@@ -63,7 +58,7 @@ googleapis-common-protos==1.72.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.3.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+greenlet==3.3.0
     # via sqlalchemy
 grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -71,20 +66,20 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+hf-xet==1.2.0
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   langsmith
     #   trimesh
 httpx-sse==0.4.3
     # via langchain-community
 huggingface-hub==0.36.0
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   langchain-huggingface
     #   tokenizers
     #   transformers
@@ -111,19 +106,19 @@ jsonschema-specifications==2025.9.1
 langchain-classic==1.0.1
     # via langchain-community
 langchain-community==0.4.1
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 langchain-core==1.2.5
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   langchain-classic
     #   langchain-community
     #   langchain-huggingface
     #   langchain-text-splitters
 langchain-huggingface==1.2.0
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 langchain-text-splitters==1.1.0
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   langchain-classic
 langsmith==0.5.1
     # via
@@ -134,8 +129,6 @@ lxml==6.0.2
     # via trimesh
 lz4==4.4.5
     # via docarray
-manifold3d==3.3.2 ; python_full_version < '3.14'
-    # via trimesh
 mapbox-earcut==2.0.0
     # via trimesh
 markdown-it-py==4.0.0
@@ -163,7 +156,6 @@ numpy==2.4.0
     #   jax
     #   jaxlib
     #   langchain-community
-    #   manifold3d
     #   mapbox-earcut
     #   ml-dtypes
     #   pandas
@@ -175,13 +167,13 @@ numpy==2.4.0
     #   vhacdx
 opentelemetry-api==1.39.1
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-otlp==1.39.1
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -197,7 +189,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.39.1
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.60b1
@@ -219,17 +211,15 @@ pandas==2.3.3
     # via docarray
 pillow==12.0.0
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   docarray
     #   trimesh
-predictionguard==2.9.2 ; python_full_version < '3.12'
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
-predictionguard==2.10.0 ; python_full_version >= '3.12'
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+predictionguard==2.10.0
+    # via -r requirements.in
 prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 propcache==0.4.1
     # via
     #   aiohttp
@@ -267,7 +257,7 @@ pytz==2025.2
     # via pandas
 pyyaml==6.0.3
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   huggingface-hub
     #   langchain-classic
     #   langchain-community
@@ -281,7 +271,7 @@ regex==2025.11.3
     # via transformers
 requests==2.32.5
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   huggingface-hub
     #   langchain-classic
     #   langchain-community
@@ -310,7 +300,7 @@ scipy==1.16.3
 shapely==2.1.2
     # via trimesh
 shortuuid==1.0.13
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 sqlalchemy==2.0.45
@@ -319,7 +309,7 @@ sqlalchemy==2.0.45
     #   langchain-community
 starlette==0.50.0
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 svg-path==7.0
@@ -339,8 +329,8 @@ tqdm==4.67.1
     #   huggingface-hub
     #   transformers
 transformers==4.57.3
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
-trimesh==4.10.1
+    # via -r requirements.in
+trimesh[easy]==4.10.1
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
@@ -348,8 +338,6 @@ types-requests==2.32.4.20250913
     # via docarray
 typing-extensions==4.15.0
     # via
-    #   aiosignal
-    #   anyio
     #   fastapi
     #   grpcio
     #   huggingface-hub
@@ -361,9 +349,7 @@ typing-extensions==4.15.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
-    #   referencing
     #   sqlalchemy
-    #   starlette
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -378,7 +364,7 @@ tzdata==2025.3
     # via pandas
 urllib3==2.6.2
     # via
-    #   -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    #   -r requirements.in
     #   requests
     #   types-requests
 uuid-utils==0.12.0
@@ -386,7 +372,7 @@ uuid-utils==0.12.0
     #   langchain-core
     #   langsmith
 uvicorn==0.40.0
-    # via -r ./comps/guardrails/src/toxicity_detection/requirements.in
+    # via -r requirements.in
 vhacdx==0.0.10
     # via trimesh
 xxhash==3.6.0

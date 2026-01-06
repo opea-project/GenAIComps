@@ -2,8 +2,8 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/prompt_template/src/requirements.in --universal -o ./comps/prompt_template/src/requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
-    # via -r ./comps/prompt_template/src/requirements.in
+aiohttp==3.13.3
+    # via -r requirements.in
 aiosignal==1.4.0
     # via aiohttp
 annotated-doc==0.0.4
@@ -32,18 +32,14 @@ charset-normalizer==3.4.4
     #   trimesh
 click==8.3.1
     # via uvicorn
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via
-    #   click
-    #   colorlog
 colorlog==6.10.1
     # via trimesh
-docarray==0.41.0
-    # via -r ./comps/prompt_template/src/requirements.in
-embreex==2.17.7.post7 ; platform_machine == 'x86_64'
+docarray[full]==0.41.0
+    # via -r requirements.in
+embreex==2.17.7.post7
     # via trimesh
 fastapi==0.127.0
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 frozenlist==1.8.0
     # via
     #   aiohttp
@@ -56,14 +52,14 @@ grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   httpcore
     #   uvicorn
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   trimesh
 idna==3.11
     # via
@@ -78,7 +74,7 @@ jax==0.8.2
 jaxlib==0.8.2
     # via jax
 jinja2==3.1.6
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 jsonschema==4.25.1
     # via trimesh
 jsonschema-specifications==2025.9.1
@@ -87,8 +83,6 @@ lxml==6.0.2
     # via trimesh
 lz4==4.4.5
     # via docarray
-manifold3d==3.3.2 ; python_full_version < '3.14'
-    # via trimesh
 mapbox-earcut==2.0.0
     # via trimesh
 markdown-it-py==4.0.0
@@ -115,7 +109,6 @@ numpy==2.4.0
     #   embreex
     #   jax
     #   jaxlib
-    #   manifold3d
     #   mapbox-earcut
     #   ml-dtypes
     #   pandas
@@ -126,13 +119,13 @@ numpy==2.4.0
     #   vhacdx
 opentelemetry-api==1.39.1
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-otlp==1.39.1
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -148,7 +141,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.39.1
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.60b1
@@ -161,13 +154,13 @@ pandas==2.3.3
     # via docarray
 pillow==12.0.0
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   docarray
     #   trimesh
 prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 propcache==0.4.1
     # via
     #   aiohttp
@@ -181,14 +174,14 @@ pycollada==0.9.2
     # via trimesh
 pydantic==2.7.2
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   docarray
     #   fastapi
 pydantic-core==2.18.3
     # via pydantic
 pydub==0.25.1
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   docarray
 pygments==2.19.2
     # via rich
@@ -197,11 +190,11 @@ python-dateutil==2.9.0.post0
     #   pandas
     #   pycollada
 python-dotenv==1.2.1
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 pytz==2025.2
     # via pandas
 pyyaml==6.0.3
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 referencing==0.37.0
     # via
     #   jsonschema
@@ -221,22 +214,20 @@ scipy==1.16.3
     #   jax
     #   jaxlib
     #   trimesh
-setuptools==80.9.0
-    # via -r ./comps/prompt_template/src/requirements.in
 shapely==2.1.2
     # via trimesh
 shortuuid==1.0.13
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 starlette==0.50.0
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 svg-path==7.0
     # via trimesh
-trimesh==4.10.1
+trimesh[easy]==4.10.1
     # via docarray
 types-pillow==10.2.0.20240822
     # via docarray
@@ -244,8 +235,6 @@ types-requests==2.32.4.20250913
     # via docarray
 typing-extensions==4.15.0
     # via
-    #   aiosignal
-    #   anyio
     #   fastapi
     #   grpcio
     #   opentelemetry-api
@@ -255,8 +244,6 @@ typing-extensions==4.15.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
-    #   referencing
-    #   starlette
     #   typing-inspect
 typing-inspect==0.9.0
     # via docarray
@@ -264,11 +251,11 @@ tzdata==2025.3
     # via pandas
 urllib3==2.6.2
     # via
-    #   -r ./comps/prompt_template/src/requirements.in
+    #   -r requirements.in
     #   requests
     #   types-requests
 uvicorn==0.40.0
-    # via -r ./comps/prompt_template/src/requirements.in
+    # via -r requirements.in
 vhacdx==0.0.10
     # via trimesh
 xxhash==3.6.0

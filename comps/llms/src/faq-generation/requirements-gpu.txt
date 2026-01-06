@@ -2,7 +2,7 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/llms/src/faq-generation/requirements.in --universal -o ./comps/llms/src/faq-generation/requirements-gpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
