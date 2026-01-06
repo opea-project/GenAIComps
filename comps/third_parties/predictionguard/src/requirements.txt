@@ -2,8 +2,8 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/third_parties/predictionguard/src/requirements.in --universal -o ./comps/third_parties/predictionguard/src/requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+aiohttp==3.13.3
+    # via -r requirements.in
 aiosignal==1.4.0
     # via aiohttp
 annotated-doc==0.0.4
@@ -25,12 +25,10 @@ charset-normalizer==3.4.4
     # via requests
 click==8.3.1
     # via uvicorn
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via click
 docarray==0.41.0
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 fastapi==0.127.0
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 frozenlist==1.8.0
     # via
     #   aiohttp
@@ -48,7 +46,7 @@ h11==0.16.0
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 idna==3.11
     # via
     #   anyio
@@ -71,13 +69,13 @@ numpy==2.4.0
     # via docarray
 opentelemetry-api==1.39.1
     # via
-    #   -r ./comps/third_parties/predictionguard/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-otlp==1.39.1
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -93,7 +91,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.39.1
     # via
-    #   -r ./comps/third_parties/predictionguard/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.60b1
@@ -101,15 +99,13 @@ opentelemetry-semantic-conventions==0.60b1
 orjson==3.11.5
     # via docarray
 pillow==12.0.0
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
-predictionguard==2.9.2 ; python_full_version < '3.12'
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
-predictionguard==2.10.0 ; python_full_version >= '3.12'
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
+predictionguard==2.10.0
+    # via -r requirements.in
 prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 propcache==0.4.1
     # via
     #   aiohttp
@@ -127,19 +123,19 @@ pydantic-core==2.41.5
 pygments==2.19.2
     # via rich
 pyyaml==6.0.3
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 requests==2.32.5
     # via
-    #   -r ./comps/third_parties/predictionguard/src/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-http
     #   predictionguard
 rich==14.2.0
     # via docarray
 shortuuid==1.0.13
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 starlette==0.50.0
     # via
-    #   -r ./comps/third_parties/predictionguard/src/requirements.in
+    #   -r requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 tabulate==0.9.0
@@ -148,8 +144,6 @@ types-requests==2.32.4.20250913
     # via docarray
 typing-extensions==4.15.0
     # via
-    #   aiosignal
-    #   anyio
     #   fastapi
     #   grpcio
     #   opentelemetry-api
@@ -159,7 +153,6 @@ typing-extensions==4.15.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
-    #   starlette
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -168,11 +161,11 @@ typing-inspection==0.4.2
     # via pydantic
 urllib3==2.6.2
     # via
-    #   -r ./comps/third_parties/predictionguard/src/requirements.in
+    #   -r requirements.in
     #   requests
     #   types-requests
 uvicorn==0.40.0
-    # via -r ./comps/third_parties/predictionguard/src/requirements.in
+    # via -r requirements.in
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0

@@ -2,7 +2,7 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 --index-strategy unsafe-best-match ./comps/third_parties/funasr/src/requirements.in --universal -o ./comps/third_parties/funasr/src/requirements-cpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via
     #   -r ./comps/third_parties/funasr/src/requirements.in
     #   fsspec

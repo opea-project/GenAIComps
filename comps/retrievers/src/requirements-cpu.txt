@@ -8,7 +8,7 @@ aiofiles==25.1.0
     # via -r ./comps/retrievers/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via
     #   aiohttp-cors
     #   aiohttp-retry

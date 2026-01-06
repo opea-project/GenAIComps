@@ -4,7 +4,7 @@ accelerate==1.12.0
     # via -r ./comps/image2image/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via fsspec
 aiosignal==1.4.0
     # via aiohttp
