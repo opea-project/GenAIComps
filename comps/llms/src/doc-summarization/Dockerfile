@@ -6,7 +6,12 @@ FROM python:3.11-slim
 ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    libjemalloc-dev
+    libjemalloc-dev \
+    pkg-config \
+    build-essential \
+    python3-dev \
+    ffmpeg \
+    cython3
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -23,7 +28,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools uv && \
       $uvpip -r /home/user/comps/llms/src/doc-summarization/requirements-gpu.txt; \
     fi
 
-ENV PYTHONPATH=$PYTHONPATH:/home/user
+ENV PYTHONPATH=/home/user:$PYTHONPATH
 
 # air gapped support: set model cache dir
 RUN mkdir -p /data && chown -R user /data
