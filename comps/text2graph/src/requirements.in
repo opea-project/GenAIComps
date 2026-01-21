@@ -6,6 +6,7 @@ langchain-core>=0.3.80
 langchain-huggingface
 langchain_community>=0.3.27
 langchain-text-splitters>=0.3.9
+mcp>=1.23.0
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -16,6 +17,7 @@ prometheus_fastapi_instrumentator
 psycopg2-binary 
 pyarrow
 pydantic
+transformers
 shortuuid
 sqlalchemy
 starlette>=0.49.1

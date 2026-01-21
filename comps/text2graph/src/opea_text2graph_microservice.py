@@ -8,6 +8,7 @@ import sys
 from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
+from comps.cores.mega.constants import MCPFuncType
 from comps.text2graph.src.integrations.opea import Input, OpeaText2GRAPH
 
 cur_path = pathlib.Path(__file__).parent.resolve()
@@ -18,6 +19,7 @@ logger = CustomLogger("text2graph")
 logflag = os.getenv("LOGFLAG", False)
 
 text2graph_component_name = os.getenv("TEXT2GRAPH_COMPONENT_NAME", "OPEA_TEXT2GRAPH")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
@@ -31,6 +33,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/text2graph",
     host="0.0.0.0",
     port=8090,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Extract graph triplets from text.",
 )
 async def execute_agent(input_text: str):
     """Execute triplet extraction from text file.

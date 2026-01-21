@@ -7,8 +7,6 @@ import os
 import time
 from typing import Annotated, Optional
 
-from langchain.agents.agent_types import AgentType
-from langchain_huggingface import HuggingFaceEndpoint
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType

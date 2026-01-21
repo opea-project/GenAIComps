@@ -153,9 +153,11 @@ mapbox-earcut==2.0.0
 markdown-it-py==4.0.0
     # via rich
 marshmallow==3.26.2
+    # via markdown-it-py
+mcp==1.25.0
     # via dataclasses-json
 mdurl==0.1.2
-    # via markdown-it-py
+    # via -r ./comps/text2graph/src/requirements.in
 ml-dtypes==0.5.4
     # via
     #   jax
@@ -294,6 +296,8 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
+regex==2025.11.3
+    # via transformers
 requests==2.32.5
     # via
     #   huggingface-hub
@@ -302,6 +306,7 @@ requests==2.32.5
     #   langsmith
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-toolbelt
+    #   transformers
 requests-toolbelt==1.0.0
     # via langsmith
 rich==14.2.0
@@ -312,6 +317,8 @@ rpds-py==0.30.0
     #   referencing
 rtree==1.4.1
     # via trimesh
+safetensors==0.7.0
+    # via transformers
 scipy==1.16.3
     # via
     #   jax
@@ -340,9 +347,15 @@ tenacity==9.1.2
     #   langchain-community
     #   langchain-core
 tokenizers==0.22.1
-    # via langchain-huggingface
+    # via
+    #   langchain-huggingface
+    #   transformers
 tqdm==4.67.1
-    # via huggingface-hub
+    # via
+    #   huggingface-hub
+    #   transformers
+transformers==4.57.3
+    # via -r ./comps/text2graph/src/requirements.in
 trimesh==4.10.1
     # via docarray
 types-pillow==10.2.0.20240822
