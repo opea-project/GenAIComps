@@ -23,6 +23,7 @@ export MODEL=stabilityai/stable-diffusion-2-1
 export MODEL=stabilityai/stable-diffusion-xl-base-1.0
 # SD3
 export MODEL=stabilityai/stable-diffusion-3-medium-diffusers
+export ENABLE_MCP=${ENABLE_MCP:-false}
 ```
 
 Set huggingface token:
@@ -36,6 +37,8 @@ Start the OPEA Microservice:
 ```bash
 python opea_text2image_microservice.py --bf16 --model_name_or_path $MODEL --token $HF_TOKEN
 ```
+
+Note: when ENABLE_MCP=true, the service starts an MCP SSE server instead of the regular HTTP endpoint.
 
 # 🚀2. Start Microservice with Docker (Option 2)
 
@@ -52,6 +55,7 @@ export MODEL=stabilityai/stable-diffusion-2-1
 export MODEL=stabilityai/stable-diffusion-xl-base-1.0
 # SD3
 export MODEL=stabilityai/stable-diffusion-3-medium-diffusers
+export ENABLE_MCP=${ENABLE_MCP:-false}
 ```
 
 ### 2.1.1 Text-to-Image Service Image on Xeon
@@ -79,7 +83,7 @@ docker build -t opea/text2image-gaudi:latest --build-arg https_proxy=$https_prox
 Start text-to-image service on Xeon with below command:
 
 ```bash
-docker run --ipc=host -p 9379:9379 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image:latest
+docker run --ipc=host -p 9379:9379 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL -e ENABLE_MCP=$ENABLE_MCP opea/text2image:latest
 ```
 
 Or use docker compose with below command:
@@ -94,7 +98,7 @@ docker compose -f compose.yaml up text2image -d
 Start text-to-image service on Gaudi with below command:
 
 ```bash
-docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image-gaudi:latest
+docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL -e ENABLE_MCP=$ENABLE_MCP opea/text2image-gaudi:latest
 ```
 
 Or use docker compose with below command:

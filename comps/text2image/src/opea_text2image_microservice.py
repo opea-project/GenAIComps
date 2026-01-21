@@ -16,9 +16,11 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.text2image.src.integrations.native import OpeaText2image
 
 logger = CustomLogger("opea_text2image_microservice")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 
 @register_microservice(
@@ -29,6 +31,9 @@ logger = CustomLogger("opea_text2image_microservice")
     port=9379,
     input_datatype=SDInputs,
     output_datatype=SDOutputs,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Generate image(s) from a text prompt.",
 )
 @register_statistics(names=["opea_service@text2image"])
 async def text2image(input: SDInputs):
