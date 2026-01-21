@@ -8,6 +8,7 @@ import sys
 from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
+from comps.cores.mega.constants import MCPFuncType
 from comps.text2kg.src.integrations.opea import Input, OpeaText2KG
 
 cur_path = pathlib.Path(__file__).parent.resolve()
@@ -18,6 +19,7 @@ logger = CustomLogger("text2kg")
 logflag = os.getenv("LOGFLAG", False)
 
 text2kg_component_name = os.getenv("TEXT2KG_COMPONENT_NAME", "OPEA_TEXT2KG")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
@@ -31,6 +33,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/text2kg",
     host="0.0.0.0",
     port=os.getenv("TEXT2KG_PORT"),
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Answer queries by extracting knowledge from text.",
 )
 async def execute_agent(input_text: str):
     """Execute triplet extraction from text file.

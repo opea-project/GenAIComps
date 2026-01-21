@@ -15,6 +15,7 @@ services:
          - no_proxy=${no_proxy}
          - https_proxy=${https_proxy}
          - http_proxy=${http_proxy}
+         - ENABLE_MCP=${ENABLE_MCP:-false}
          - LLM_MODEL_ID=${LLM_MODEL_ID:-"HuggingFaceH4/zephyr-7b-alpha"}
          - HF_TOKEN=${HF_TOKEN}
      depends_on:

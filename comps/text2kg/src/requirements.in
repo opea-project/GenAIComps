@@ -11,6 +11,7 @@ llama-index-core>=0.13.0
 llama_index-embeddings-huggingface 
 llama_index-llms-huggingface
 langchain-text-splitters>=0.3.9
+mcp>=1.23.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
