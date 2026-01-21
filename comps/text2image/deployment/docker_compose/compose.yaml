@@ -11,6 +11,7 @@ services:
       - no_proxy=${no_proxy}
       - https_proxy=${https_proxy}
       - http_proxy=${http_proxy}
+      - ENABLE_MCP=${ENABLE_MCP:-false}
       - MODEL=${MODEL}
       - HF_TOKEN=${HF_TOKEN}
     ipc: host

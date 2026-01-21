@@ -132,9 +132,11 @@ mapbox-earcut==2.0.0
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
+    # via markdown-it-py
+mcp==1.25.0
     # via jinja2
 mdurl==0.1.2
-    # via markdown-it-py
+    # via -r ./comps/text2image/src/requirements.in
 ml-dtypes==0.5.4
     # via
     #   jax
@@ -261,12 +263,12 @@ pyarrow==22.0.0
     # via datasets
 pycollada==0.9.2
     # via trimesh
-pydantic==2.7.2
+pydantic==2.12.5
     # via
     #   -r ./comps/text2image/src/requirements.in
     #   docarray
     #   fastapi
-pydantic-core==2.18.3
+pydantic-core==2.41.5
     # via pydantic
 pydub==0.25.1
     # via
