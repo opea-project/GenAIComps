@@ -17,6 +17,7 @@ prometheus_fastapi_instrumentator
 psycopg2-binary 
 pyarrow
 pydantic
+transformers
 shortuuid
 sqlalchemy
 starlette>=0.49.1
