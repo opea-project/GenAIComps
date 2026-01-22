@@ -216,3 +216,9 @@ This request should return text containing:
 `"Violated policies: <category>, please check your input."`
 
 Where `category` is `Violent Crimes` or `harmful` for `Llama-Guard-2-8B` or `wildguard`, respectively.
+
+## MCP Usage (Optional)
+
+Set `ENABLE_MCP=true` to run the Guardrails service in MCP (Model Context Protocol) mode. When MCP is enabled, the service exposes tools over the MCP SSE server on port `${GUARDRAIL_PORT}` and regular HTTP endpoints are not served.
+
+The MCP tool maps to the `safety_guard` function, which accepts the same payloads as the HTTP API (e.g., `TextDoc` with a `text` field).

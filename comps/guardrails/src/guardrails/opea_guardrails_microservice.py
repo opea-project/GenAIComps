@@ -28,9 +28,11 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_guardrails_microservice")
 logflag = os.getenv("LOGFLAG", False)
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 input_usvc_config = {**dotenv_values("utils/.input_env"), **os.environ}
 
@@ -56,6 +58,9 @@ output_guardrail = OPEALLMGuardOutputGuardrail(output_usvc_config)
     port=9090,
     input_datatype=Union[LLMParamsDoc, GeneratedDoc, TextDoc],
     output_datatype=Union[TextDoc, GeneratedDoc],
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Apply safety guardrails to input or output text.",
 )
 @register_statistics(names=["opea_service@guardrails"])
 async def safety_guard(input: Union[LLMParamsDoc, GeneratedDoc, TextDoc]) -> Union[TextDoc, GeneratedDoc]:
