@@ -351,13 +351,13 @@ shapely==2.1.2
 shortuuid==1.0.13
     # via -r ./comps/image2video/src/requirements.in
 six==1.17.0
-    # via python-dateutil
-starlette==0.50.0
     # via
     #   -r ./comps/image2video/src/requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 sse-starlette==3.0.4
+    # via python-dateutil
+starlette==0.50.0
     # via mcp
 svg-path==7.0
     # via trimesh
