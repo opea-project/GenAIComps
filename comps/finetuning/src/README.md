@@ -8,6 +8,7 @@ Fine-tuning microservice involves adapting a model to a specific task or dataset
 2. [🚀2. Start Microservice with Docker (Option 2)](#2-Start-Microservice-with-Docker-Option-2)
 3. [🚀3. Consume Finetuning Service](#3-Consume-Finetuning-Service)
 4. [🚀4. Descriptions for Finetuning parameters](#4-Descriptions-for-Finetuning-parameters)
+5. [🤖5. MCP Usage (Optional)](#5-MCP-Usage-Optional)
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
@@ -318,3 +319,9 @@ Please see [Xtune doc](./integrations/xtune/README.md) for details.
 ## 🚀4. Descriptions for Finetuning parameters
 
 We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters, see the definitions at [finetune_config](https://github.com/opea-project/GenAIComps/blob/main/comps/finetuning/src/integrations/finetune_config.py).
+
+## 🤖5. MCP Usage (Optional)
+
+Set `ENABLE_MCP=true` to run the service in MCP (Model Context Protocol) mode. When MCP is enabled, the service exposes tools over the MCP SSE server on port 8015 and regular HTTP endpoints are not served.
+
+The MCP tools map to the same functionality as the HTTP APIs (create/list/retrieve/cancel jobs and list checkpoints). For training data upload in MCP mode, use the base64 upload tool `upload_training_files_mcp` with `filename`, `content_base64`, and optional `purpose` fields.
