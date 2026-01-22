@@ -40,6 +40,7 @@ export VALIDATION_SCHEMA='{
     "PLACE": ["HAS", "PART_OF", "WORKED_AT"],
     "ORGANIZATION": ["HAS", "PART_OF", "WORKED_WITH"]
 }'
+export ENABLE_MCP=${ENABLE_MCP:-false}
 ```
 
 ### 3. Text2kg
@@ -58,8 +59,10 @@ docker build -f Dockerfile -t opea/text2kg:latest ../../../
 Launch the docker container
 
 ```bash
-docker run -i -t --net=host --ipc=host -p TEXT2KG_PORT -e HF_TOKEN=${HF_TOKEN} -e LLM_MODEL_ID=${LLM_MODEL_ID} opea/text2kg:latest -v data:/home/user/comps/text2kg/src/data /bin/bash
+docker run -i -t --net=host --ipc=host -p TEXT2KG_PORT -e HF_TOKEN=${HF_TOKEN} -e LLM_MODEL_ID=${LLM_MODEL_ID} -e ENABLE_MCP=${ENABLE_MCP} opea/text2kg:latest -v data:/home/user/comps/text2kg/src/data /bin/bash
 ```
+
+Note: when ENABLE_MCP=true, the service starts an MCP SSE server instead of the regular HTTP endpoint.
 
 ## 🚀 2. Start text2kg and dependent microservices with docker-compose (Option 2)
 

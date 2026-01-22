@@ -10,6 +10,8 @@ export https_proxy=${https_proxy}
 export http_proxy=${http_proxy}
 export no_proxy=${no_proxy}
 export your_ip=${your_ip}
+export host_ip=${host_ip:-$(hostname -I | awk '{print $1}')}
+export ENABLE_MCP=${ENABLE_MCP:-false}
 ################################################################
 # Configure LLM Parameters based on the model selected.
 ################################################################
@@ -28,8 +30,8 @@ export NEO4J_USERNAME=${NEO4J_USERNAME:-"neo4j"}
 export NEO4J_PASSWORD=${NEO4J_PASSWORD:-"neo4j_password"}
 export NEO4J_URL=${NEO4J_URL:-"neo4j://localhost:7687"}
 export NEO4J_URI=${NEO4J_URI:-"neo4j://localhost:7687"}
-export NEO4J_PORT1=${NEO4J_PORT1:-7474}:7474
-export NEO4J_PORT2=${NEO4J_PORT2:-7687}:7687
+export NEO4J_PORT1=${NEO4J_PORT1:-7474}
+export NEO4J_PORT2=${NEO4J_PORT2:-7687}
 export NEO4J_AUTH=neo4j/password
 export NEO4J_PLUGINS=\[\"apoc\"\]
 export NEO4J_HEALTH_URL="http://localhost:7474"

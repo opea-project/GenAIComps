@@ -8,12 +8,9 @@ import time
 from typing import Annotated, Optional
 
 import requests
-from langchain.agents.agent_types import AgentType
-from langchain_huggingface import HuggingFaceEndpoint
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2kg.src.integrations.kg_graph_agent import GenerateKG
 
 logger = CustomLogger("comps-text2kg")
 logflag = os.getenv("LOGFLAG", False)
@@ -22,26 +19,29 @@ graph_params = {
     "max_string_length": 3600,
 }
 
-generation_params = {
-    "max_new_tokens": 1024,
-    "top_k": 10,
-    "top_p": 0.95,
-    "temperature": 0.01,
-    "repetition_penalty": 1.03,
-    "streaming": True,
-}
-
 TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
-
-llm = HuggingFaceEndpoint(
-    endpoint_url=TGI_LLM_ENDPOINT,
-    task="text-generation",
-    **generation_params,
-)
 
 
 class Input(BaseModel):
     input_text: str
+
+
+# Global variable to store the index, initialized lazily
+_neo4j_index = None
+_gdb = None
+
+
+def _get_neo4j_index():
+    """Lazily initialize the knowledge graph index."""
+    global _neo4j_index, _gdb
+    if _neo4j_index is None:
+        from comps.text2kg.src.integrations.kg_graph_agent import GenerateKG
+
+        _gdb = GenerateKG(
+            data_directory="data/", embedding_model="BAAI/bge-small-en-v1.5", llm_endpoint_url=TGI_LLM_ENDPOINT
+        )
+        _neo4j_index = _gdb.prepare_and_save_graphdb()
+    return _neo4j_index
 
 
 @OpeaComponentRegistry.register("OPEA_TEXT2KG")
@@ -50,14 +50,8 @@ class OpeaText2KG(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2KG.name.lower(), description, config)
-        global neo4j_index
-        health_status = self.check_health()
-        if not health_status:
-            logger.error("OpeaText2KG health check failed.")
-        gdb = GenerateKG(
-            data_directory="data/", embedding_model="BAAI/bge-small-en-v1.5", llm="HuggingFaceH4/zephyr-7b-alpha"
-        )
-        neo4j_index = gdb.prepare_and_save_graphdb()
+        # Defer graph initialization to first invocation
+        logger.info("OpeaText2KG initialized. Graph will be created on first query.")
 
     async def check_health(self) -> bool:
         """Checks the health of connection to the neo4j service.
@@ -67,6 +61,9 @@ class OpeaText2KG(OpeaComponent):
         """
         try:
             neo4j_health_url = os.getenv("NEO4J_HEALTH_URL")
+            if not neo4j_health_url:
+                logger.warning("NEO4J_HEALTH_URL not set, skipping health check.")
+                return True
             response = requests.get(neo4j_health_url, timeout=5)
             if response.status_code == 200:
                 return True
@@ -85,6 +82,8 @@ class OpeaText2KG(OpeaComponent):
         Returns:
             text : dict
         """
+        # Lazy initialization of the knowledge graph
+        neo4j_index = _get_neo4j_index()
 
         query_engine = neo4j_index.as_query_engine(include_text=False, response_mode="tree_summarize")
 

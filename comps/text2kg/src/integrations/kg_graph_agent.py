@@ -11,28 +11,36 @@ from llama_index.core import KnowledgeGraphIndex, Settings, SimpleDirectoryReade
 from llama_index.core.prompts import PromptTemplate
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.graph_stores.neo4j import Neo4jGraphStore, Neo4jPropertyGraphStore
-from llama_index.llms.huggingface import HuggingFaceLLM
+from llama_index.llms.openai_like import OpenAILike
 
 nest_asyncio.apply()
 
 
 class GenerateKG:
-    def __init__(self, llm, embedding_model, data_directory):
+    def __init__(self, llm_endpoint_url, embedding_model, data_directory):
         self.data_directory = data_directory
-        self.llm = llm
-        self.embed_model = embedding_model
+        # Create HuggingFaceEmbedding instance from model name
+        self.embed_model = HuggingFaceEmbedding(model_name=embedding_model)
+        # Create TGI LLM using OpenAI-compatible API endpoint
+        model_name = os.environ.get("LLM_MODEL_ID", "HuggingFaceH4/zephyr-7b-alpha")
+        self.llm = OpenAILike(
+            model=model_name,
+            api_base=llm_endpoint_url,
+            api_key=os.environ.get("HF_TOKEN", "not-needed"),
+            is_chat_model=True,
+        )
         Settings.llm = self.llm
         Settings.embed_model = self.embed_model
-        self.NEO4J_URL = os.environ.get["NEO4J_URL"]
-        self.NEO4J_URI = os.environ.get["NEO4J_URI"]
-        self.NEO4J_USERNAME = os.environ.get["NEO4J_USERNAME"]
-        self.NEO4J_PASSWORD = os.environ.get["NEO4J_PASSWORD"]
-        self.NEO4J_DATABASE = os.environ["NEO4J_DATABASE"]
+        self.NEO4J_URL = os.environ.get("NEO4J_URL")
+        self.NEO4J_URI = os.environ.get("NEO4J_URI")
+        self.NEO4J_USERNAME = os.environ.get("NEO4J_USERNAME")
+        self.NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD")
+        self.NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE", "neo4j")
         print(" loading and preparing llm and embedding models")
 
     def __load_docs(self):
 
-        DATA_DIRECTORY = os.environ.get["DATA_DIRECTORY"]
+        DATA_DIRECTORY = os.environ.get("DATA_DIRECTORY")
         reader = SimpleDirectoryReader(input_dir=DATA_DIRECTORY)
         documents = reader.load_data()
         print("loading documents")
@@ -77,9 +85,7 @@ class GenerateKG:
 
     def __create_index(self, documents, embed_model, llm):
         """Creates index in neo4j database."""
-        graph_store = self.__neo4j_link(
-            self.NEO4J_URL, self.NEO4J_URI, self.NEO4J_USERNAME, self.NEO4J_PASSWORD, self.NEO4J_DATABASE
-        )
+        graph_store = self.__neo4j_link()
         neo4j_index = self.__graph_index(documents, llm, embed_model, graph_store)
         print(f" neo4j index {neo4j_index.index_struct}")
         print("creating graph index for documents")
