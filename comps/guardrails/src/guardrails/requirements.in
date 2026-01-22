@@ -7,6 +7,7 @@ langchain-huggingface
 langchain-openai
 langchain-core>=1.2.5
 llm_guard
+mcp>=1.23.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

@@ -113,7 +113,9 @@ httpx==0.28.1
     #   openai
     #   trimesh
 httpx-sse==0.4.3
-    # via langchain-community
+    # via
+    #   langchain-community
+    #   mcp
 huggingface-hub==0.36.0
     # via
     #   -r ./comps/guardrails/src/guardrails/requirements.in
@@ -189,6 +191,8 @@ markupsafe==3.0.3
     # via jinja2
 marshmallow==3.26.2
     # via dataclasses-json
+mcp==1.25.0
+    # via -r ./comps/guardrails/src/guardrails/requirements.in
 mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.5.4
@@ -343,18 +347,26 @@ pydantic==2.12.5
 pydantic-core==2.41.5
     # via pydantic
 pydantic-settings==2.12.0
-    # via langchain-community
+    # via
+    #   langchain-community
+    #   mcp
 pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
+pyjwt==2.10.1
+    # via mcp
 python-dateutil==2.9.0.post0
     # via
     #   faker
     #   pandas
     #   pycollada
 python-dotenv==1.2.1
-    # via pydantic-settings
+    # via
+    #   mcp
+    #   pydantic-settings
+python-multipart==0.0.21
+    # via mcp
 pytz==2025.2
     # via pandas
 pyyaml==6.0.3
@@ -426,7 +438,9 @@ six==1.17.0
 smart-open==7.5.0
     # via weasel
 sniffio==1.3.1
-    # via openai
+    # via
+    #   anyio
+    #   openai
 spacy==3.8.11
     # via presidio-analyzer
 spacy-legacy==3.0.12
@@ -448,6 +462,8 @@ starlette==0.50.0
     #   -r ./comps/guardrails/src/guardrails/requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
+sse-starlette==3.0.4
+    # via mcp
 structlog==25.5.0
     # via llm-guard
 svg-path==7.0
