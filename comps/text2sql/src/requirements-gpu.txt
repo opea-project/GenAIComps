@@ -23,8 +23,6 @@ attrs==25.3.0
     #   aiohttp
     #   jsonschema
     #   referencing
-av==14.4.0
-    # via docarray
 certifi==2025.6.15
     # via
     #   httpcore

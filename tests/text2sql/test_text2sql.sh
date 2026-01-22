@@ -4,7 +4,7 @@
 
 set -x
 
-WORKPATH=$(git rev-parse --show-toplevel)
+WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 export DATA_PATH=${model_cache:-./data}
@@ -63,11 +63,7 @@ function start_service() {
     unset http_proxy
 
     cd $WORKPATH/comps/text2sql/deployment/docker_compose
-    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log 2>&1
-    if [ $? -ne 0 ]; then
-        cat ${LOG_PATH}/start_services_with_compose.log
-        exit 1
-    fi
+    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
     check_tgi_connection "${TGI_LLM_ENDPOINT}/health"
 }
 
