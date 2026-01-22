@@ -9,6 +9,7 @@ from fastapi import status
 from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
+from comps.cores.mega.constants import MCPFuncType
 from comps.text2sql.src.integrations.opea import DBConnectionInput, Input, OpeaText2SQL
 
 cur_path = pathlib.Path(__file__).parent.resolve()
@@ -19,6 +20,7 @@ logger = CustomLogger("text2sql")
 logflag = os.getenv("LOGFLAG", False)
 
 text2sql_component_name = os.getenv("TEXT2SQL_COMPONENT_NAME", "OPEA_TEXT2SQL")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     text2sql_component_name,
@@ -31,6 +33,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/postgres/health",
     host="0.0.0.0",
     port=8080,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Check the connection to the PostgreSQL database.",
 )
 async def postgres_connection_check(input: DBConnectionInput):
     """Check the connection to the PostgreSQL database.
@@ -60,6 +65,9 @@ async def postgres_connection_check(input: DBConnectionInput):
     endpoint="/v1/text2sql",
     host="0.0.0.0",
     port=8080,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Generate and execute SQL from natural language input.",
 )
 async def execute_agent(input: Input):
     """Execute a SQL query from the input text.
