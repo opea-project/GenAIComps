@@ -117,6 +117,8 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 docker run  --runtime=runc --name="comps-langchain-text2sql"  -p 9090:8080 --ipc=host -e llm_endpoint_url=${TGI_LLM_ENDPOINT} opea/text2sql:latest
 ```
 
+Note: when ENABLE_MCP=true, the service starts an MCP SSE server instead of the regular HTTP endpoint.
+
 #### Run via docker compose (Option B)
 
 ##### Setup Environment Variables.
@@ -128,6 +130,7 @@ export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
+export ENABLE_MCP=${ENABLE_MCP:-false}
 export LLM_ENDPOINT_PORT=${TGI_PORT}
 export host_ip=${your_ip}
 ```

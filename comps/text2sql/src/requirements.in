@@ -1,8 +1,9 @@
-docarray[full]
+docarray
 fastapi
 langchain==0.2.9
 langchain-huggingface
 langchain_community==0.2.7
+mcp>=1.23.0
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp

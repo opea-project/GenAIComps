@@ -23,8 +23,6 @@ attrs==25.3.0
     #   aiohttp
     #   jsonschema
     #   referencing
-av==14.4.0
-    # via docarray
 certifi==2025.6.15
     # via
     #   httpcore
@@ -146,9 +144,11 @@ markdown-it-py==3.0.0
 markupsafe==3.0.2
     # via jinja2
 marshmallow==3.26.1
+    # via markdown-it-py
+mcp==1.25.0
     # via dataclasses-json
 mdurl==0.1.2
-    # via markdown-it-py
+    # via -r ./comps/text2sql/src/requirements.in
 ml-dtypes==0.4.1
     # via
     #   jax
