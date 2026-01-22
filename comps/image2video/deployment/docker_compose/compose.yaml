@@ -12,6 +12,7 @@ services:
       - https_proxy=${https_proxy}
       - http_proxy=${http_proxy}
       - HF_TOKEN=${HF_TOKEN}
+      - ENABLE_MCP=${ENABLE_MCP:-false}
     ipc: host
     restart: always
   image2video-gaudi:

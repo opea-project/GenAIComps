@@ -133,3 +133,11 @@ To stop and remove the container you started manually, use the `docker stop` and
   docker stop image2video-gaudi-service
   docker rm image2video-gaudi-service
   ```
+
+---
+
+## MCP Usage (Optional)
+
+Set `ENABLE_MCP=true` to run the Image-to-Video service in MCP (Model Context Protocol) mode. When MCP is enabled, the service exposes tools over the MCP SSE server on port `9369` and regular HTTP endpoints are not served.
+
+The MCP tool maps to the `image2video` function and accepts the same payload as the HTTP API.
