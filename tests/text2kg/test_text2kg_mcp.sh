@@ -72,7 +72,7 @@ function validate_microservice() {
         exit 1
     fi
 
-    pip install mcp
+    pip install --break-system-packages mcp
     python3 $WORKPATH/tests/text2kg/validate_mcp.py $host_addr $TEXT2KG_PORT
     echo "===================  END VALIDATE ========================"
 }

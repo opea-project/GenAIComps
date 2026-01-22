@@ -10,6 +10,7 @@ llama_index>=0.13.0
 llama-index-core>=0.13.0
 llama_index-embeddings-huggingface 
 llama_index-llms-huggingface
+llama-index-llms-openai-like
 langchain-text-splitters>=0.3.9
 mcp>=1.23.0
 opentelemetry-api

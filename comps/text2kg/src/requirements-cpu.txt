@@ -214,6 +214,8 @@ llama-index-instrumentation==0.4.2
 llama-index-llms-huggingface==0.6.1
     # via -r ./comps/text2kg/src/requirements.in
 llama-index-llms-openai==0.6.12
+    # via -r ./comps/text2kg/src/requirements.in
+llama-index-llms-openai-like==0.5.3
     # via
     #   llama-index
     #   llama-index-cli
