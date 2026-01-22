@@ -4,11 +4,12 @@
 import os
 import random
 import re
+import threading
 import time
 import urllib.parse
 import uuid
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from fastapi import BackgroundTasks, File, Form, HTTPException, UploadFile
 from pydantic_yaml import to_yaml_file
@@ -66,6 +67,14 @@ def update_job_status(job_id: FineTuningJobID):
         time.sleep(CHECK_JOB_STATUS_INTERVAL)
 
 
+def schedule_job_status_update(background_tasks: Optional[BackgroundTasks], job_id: FineTuningJobID):
+    if background_tasks is None:
+        thread = threading.Thread(target=update_job_status, args=(job_id,), daemon=True)
+        thread.start()
+    else:
+        background_tasks.add_task(update_job_status, job_id)
+
+
 async def save_content_to_local_disk(save_path: str, content):
     save_path = Path(save_path)
     try:
@@ -92,7 +101,7 @@ class XtuneFinetuning(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, "finetuning", description, config)
 
-    def create_finetuning_jobs(self, request: FineTuningParams, background_tasks: BackgroundTasks):
+    def create_finetuning_jobs(self, request: FineTuningParams, background_tasks: Optional[BackgroundTasks] = None):
         model = request.model
         train_file = request.training_file
         finetune_config = FinetuneConfig(General=request.General)
@@ -141,7 +150,7 @@ class XtuneFinetuning(OpeaComponent):
         running_finetuning_jobs[job.id] = job
         finetuning_job_to_ray_job[job.id] = ray_job_id
 
-        background_tasks.add_task(update_job_status, job.id)
+        schedule_job_status_update(background_tasks, job.id)
 
         return job
 

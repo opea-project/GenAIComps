@@ -4,12 +4,13 @@ docarray
 fastapi
 httpx
 langchain-core>=0.3.81
+mcp>=1.23.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 peft
 prometheus-fastapi-instrumentator
-pydantic==2.8.2
+pydantic==2.12.5
 pydantic_yaml
 python-multipart
 pyyaml
