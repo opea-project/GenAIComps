@@ -29,3 +29,9 @@ The following configurations have been validated for the Image-to-Video microser
 | **Deploy Method** | **Core Models**              | **Platform**      |
 | ----------------- | ---------------------------- | ----------------- |
 | Docker Compose    | Stable Video Diffusion (SVD) | Intel Xeon/Gaudi2 |
+
+## MCP Usage (Optional)
+
+Set `ENABLE_MCP=true` to run the Image-to-Video service in MCP (Model Context Protocol) mode. When MCP is enabled, the service exposes tools over the MCP SSE server on port `9369` and regular HTTP endpoints are not served.
+
+The MCP tool maps to the `image2video` function and accepts the same payload as the HTTP API (e.g., an `ImagesPath` object with `images_path` entries).

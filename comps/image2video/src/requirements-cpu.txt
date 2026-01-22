@@ -95,6 +95,8 @@ httpx==0.28.1
     # via
     #   datasets
     #   trimesh
+httpx-sse==0.4.3
+    # via mcp
 huggingface-hub==0.36.0
     # via
     #   accelerate
@@ -137,6 +139,8 @@ markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
+mcp==1.25.0
+    # via -r ./comps/image2video/src/requirements.in
 mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.4.1
@@ -263,18 +267,27 @@ pydantic==2.12.5
     #   -r ./comps/image2video/src/requirements.in
     #   docarray
     #   fastapi
+    #   mcp
 pydantic-core==2.41.5
     # via pydantic
+pydantic-settings==2.12.0
+    # via mcp
 pydub==0.25.1
     # via
     #   -r ./comps/image2video/src/requirements.in
     #   docarray
 pygments==2.19.2
     # via rich
+pyjwt==2.10.1
+    # via mcp
 python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
+python-dotenv==1.2.1
+    # via pydantic-settings
+python-multipart==0.0.21
+    # via mcp
 pytz==2025.2
     # via pandas
 pyyaml==6.0.3
@@ -344,6 +357,8 @@ starlette==0.50.0
     #   -r ./comps/image2video/src/requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
+sse-starlette==3.0.4
+    # via mcp
 svg-path==7.0
     # via trimesh
 threadpoolctl==3.6.0

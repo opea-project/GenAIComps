@@ -16,9 +16,11 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.image2video.src.integrations.native import OpeaImage2video
 
 logger = CustomLogger("opea_image2video_microservice")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 component_loader = None
 
@@ -31,6 +33,9 @@ component_loader = None
     port=9369,
     input_datatype=ImagesPath,
     output_datatype=VideoPath,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Generate a short video clip from one or more images.",
 )
 @register_statistics(names=["opea_service@image2video"])
 async def image2video(input: ImagesPath):
