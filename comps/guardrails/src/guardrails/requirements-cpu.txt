@@ -453,16 +453,16 @@ sqlalchemy==2.0.45
     #   langchain-community
 srsly==2.5.2
     # via
+    #   -r ./comps/guardrails/src/guardrails/requirements.in
+    #   fastapi
+    #   prometheus-fastapi-instrumentator
+sse-starlette==3.0.4
+    # via
     #   confection
     #   spacy
     #   thinc
     #   weasel
 starlette==0.50.0
-    # via
-    #   -r ./comps/guardrails/src/guardrails/requirements.in
-    #   fastapi
-    #   prometheus-fastapi-instrumentator
-sse-starlette==3.0.4
     # via mcp
 structlog==25.5.0
     # via llm-guard
