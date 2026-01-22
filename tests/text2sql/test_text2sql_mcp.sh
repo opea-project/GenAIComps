@@ -27,6 +27,10 @@ export service_name="text2sql"
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/text2sql:$TAG -f comps/text2sql/src/Dockerfile .
+    if ! docker image inspect opea/text2sql:$TAG >/dev/null 2>&1; then
+        echo "ERROR: image opea/text2sql:$TAG not found after build."
+        exit 1
+    fi
 }
 
 check_tgi_connection() {
@@ -66,6 +70,10 @@ function start_service() {
         exit 1
     fi
     check_tgi_connection "${TGI_LLM_ENDPOINT}/health"
+    if [ $? -ne 0 ]; then
+        docker logs tgi-server || true
+        exit 1
+    fi
 }
 
 function validate_microservice() {
@@ -91,8 +99,9 @@ function validate_microservice() {
         exit 1
     fi
 
-    pip install mcp
-    python3 $WORKPATH/tests/text2sql/validate_mcp.py \
+    python3 -m venv /tmp/mcp-venv
+    /tmp/mcp-venv/bin/pip install mcp
+    /tmp/mcp-venv/bin/python $WORKPATH/tests/text2sql/validate_mcp.py \
         $host_addr \
         $TEXT2SQL_PORT \
         $POSTGRES_USER \
