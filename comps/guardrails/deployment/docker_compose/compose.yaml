@@ -147,6 +147,20 @@ services:
       PII_DETECTION_COMPONENT_NAME: "PREDICTIONGUARD_PII_DETECTION"
     restart: unless-stopped
 
+  # polite guard service
+  guardrails-polite-guard-server:
+    image: ${REGISTRY:-opea}/guardrails-polite-guard:${TAG:-latest}
+    container_name: guardrails-polite-guard-server
+    ports:
+      - "${POLITE_GUARD_PORT:-9092}:9092"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
   # predictionguard injection service
   injection-predictionguard-server:
     image: ${REGISTRY:-opea}/injection-predictionguard:${TAG:-latest}
