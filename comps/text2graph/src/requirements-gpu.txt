@@ -129,7 +129,7 @@ langchain-text-splitters==1.1.0
     #   langchain-classic
 langgraph==1.0.5
     # via langchain
-langgraph-checkpoint==3.0.1
+langgraph-checkpoint==4.0.0
     # via
     #   langgraph
     #   langgraph-prebuilt

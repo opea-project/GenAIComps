@@ -266,7 +266,7 @@ langchainhub==0.1.21
     # via -r ./comps/guardrails/src/hallucination_detection/requirements.in
 langgraph==1.0.5
     # via langchain
-langgraph-checkpoint==3.0.1
+langgraph-checkpoint==4.0.0
     # via
     #   langgraph
     #   langgraph-prebuilt
