@@ -134,7 +134,7 @@ multiprocess==0.70.18
     # via
     #   datasets
     #   evaluate
-nltk==3.9.2
+nltk==3.9.3
     # via rouge-score
 numexpr==2.14.1
     # via lm-eval
