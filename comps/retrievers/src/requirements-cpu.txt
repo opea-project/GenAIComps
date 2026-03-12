@@ -685,7 +685,7 @@ opentelemetry-semantic-conventions==0.48b0
     # via opentelemetry-sdk
 opt-einsum==3.4.0
     # via jax
-orjson==3.11.5
+orjson==3.11.6
     # via
     #   docarray
     #   langsmith
@@ -1126,7 +1126,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.5 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
