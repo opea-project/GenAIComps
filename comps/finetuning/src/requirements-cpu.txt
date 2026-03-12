@@ -247,7 +247,7 @@ opentelemetry-sdk==1.34.1
     #   ray
 opentelemetry-semantic-conventions==0.55b1
     # via opentelemetry-sdk
-orjson==3.10.18
+orjson==3.11.6
     # via docarray
 ormsgpack==1.7.0
     # via ray
