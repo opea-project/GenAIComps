@@ -131,9 +131,9 @@ langchain-text-splitters==1.1.0
     # via
     #   -r ./comps/third_parties/video-llama/src/requirements.in
     #   langchain-classic
-langgraph==1.0.5
+langgraph==1.0.10rc1
     # via langchain
-langgraph-checkpoint==3.0.1
+langgraph-checkpoint==4.0.0
     # via
     #   langgraph
     #   langgraph-prebuilt
@@ -214,7 +214,7 @@ opentelemetry-sdk==1.39.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
-orjson==3.11.5
+orjson==3.11.6
     # via
     #   docarray
     #   langgraph-sdk
