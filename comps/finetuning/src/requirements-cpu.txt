@@ -342,7 +342,7 @@ pyyaml==6.0.2
     #   ray
     #   transformers
     #   uvicorn
-ray==2.47.1
+ray==2.54.0
     # via -r ./comps/finetuning/src/requirements.in
 referencing==0.36.2
     # via
