@@ -47,7 +47,7 @@ attrs==25.4.0
     #   jsonlines
     #   jsonschema
     #   referencing
-authlib==1.6.6
+authlib==1.6.7
     # via fastmcp
 backoff==2.2.1
     # via unstructured
@@ -816,7 +816,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.8.0
     # via
     #   unstructured
     #   unstructured-client
@@ -1041,7 +1041,7 @@ tokenizers==0.22.1
     #   langchain-huggingface
     #   litellm
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.5 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
