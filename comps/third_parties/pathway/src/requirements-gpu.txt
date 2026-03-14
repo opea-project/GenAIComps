@@ -663,7 +663,7 @@ opentelemetry-sdk==1.39.1
     #   pathway
 opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
-orjson==3.11.5 ; platform_python_implementation != 'PyPy'
+orjson==3.11.6 ; platform_python_implementation != 'PyPy'
     # via langsmith
 packaging==25.0
     # via
@@ -1103,7 +1103,7 @@ torchvision==0.24.1
     #   docling-ibm-models
     #   effdet
     #   timm
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.5 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
