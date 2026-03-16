@@ -247,7 +247,7 @@ opentelemetry-sdk==1.34.1
     #   ray
 opentelemetry-semantic-conventions==0.55b1
     # via opentelemetry-sdk
-orjson==3.10.18
+orjson==3.11.6
     # via docarray
 ormsgpack==1.7.0
     # via ray
@@ -322,7 +322,7 @@ pydantic-yaml==1.5.1
     # via -r ./comps/finetuning/src/requirements.in
 pygments==2.19.1
     # via rich
-pyopenssl==25.1.0
+pyopenssl==26.0.0
     # via ray
 python-dateutil==2.9.0.post0
     # via pandas
