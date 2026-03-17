@@ -47,7 +47,7 @@ attrs==25.4.0
     #   jsonlines
     #   jsonschema
     #   referencing
-authlib==1.6.6
+authlib==1.6.9
     # via fastmcp
 backoff==2.2.1
     # via unstructured
@@ -189,7 +189,7 @@ faker==40.1.0
     # via polyfactory
 fastavro==1.12.1
     # via cohere
-fastmcp==2.12.4
+fastmcp==2.14.2
     # via pathway
 fastuuid==0.14.0
     # via litellm
@@ -663,7 +663,7 @@ opentelemetry-sdk==1.39.1
     #   pathway
 opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
-orjson==3.11.5 ; platform_python_implementation != 'PyPy'
+orjson==3.11.6 ; platform_python_implementation != 'PyPy'
     # via langsmith
 packaging==25.0
     # via
@@ -782,7 +782,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   rsa
