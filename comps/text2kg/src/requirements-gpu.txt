@@ -368,7 +368,7 @@ opentelemetry-semantic-conventions==0.60b1
     # via opentelemetry-sdk
 opt-einsum==3.4.0
     # via jax
-orjson==3.11.5
+orjson==3.11.6
     # via
     #   docarray
     #   langsmith
@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.9.1
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
