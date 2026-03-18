@@ -219,7 +219,7 @@ optimum==2.1.0
     # via optimum-habana
 optimum-habana==1.19.1
     # via -r ./comps/image2video/src/requirements.in
-orjson==3.11.5
+orjson==3.11.6
     # via docarray
 packaging==25.0
     # via
