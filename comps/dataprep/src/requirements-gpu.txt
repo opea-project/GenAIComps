@@ -752,7 +752,7 @@ opentelemetry-semantic-conventions==0.48b0
     # via opentelemetry-sdk
 opt-einsum==3.4.0
     # via jax
-orjson==3.11.5
+orjson==3.11.6
     # via
     #   docarray
     #   langsmith
@@ -902,7 +902,7 @@ pure-eval==0.2.3
     # via stack-data
 py4j==0.10.9.9
     # via pyspark
-pyasn1==0.6.1
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   rsa
@@ -1386,7 +1386,7 @@ tzdata==2025.3
     #   tzlocal
 tzlocal==5.3.1
     # via -r ./comps/dataprep/src/requirements.in
-ujson==5.11.0
+ujson==5.12.0
     # via pymilvus
 umap-learn==0.5.9.post2
     # via graspologic
