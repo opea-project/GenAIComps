@@ -583,7 +583,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.9.3
     # via llama-index-core
 numba==0.63.1
     # via
@@ -867,7 +867,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   rsa
@@ -1288,7 +1288,7 @@ tzdata==2025.3
     #   pandas
 uc-micro-py==1.0.3
     # via linkify-it-py
-ujson==5.11.0
+ujson==5.12.0
     # via pymilvus
 umap-learn==0.5.9.post2
     # via graspologic

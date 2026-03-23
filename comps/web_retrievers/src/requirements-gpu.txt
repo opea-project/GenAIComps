@@ -416,7 +416,7 @@ protobuf==6.33.2
     #   onnxruntime
     #   opentelemetry-proto
     #   proto-plus
-pyasn1==0.6.1
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   rsa

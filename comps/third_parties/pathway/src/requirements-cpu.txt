@@ -47,7 +47,7 @@ attrs==25.4.0
     #   jsonlines
     #   jsonschema
     #   referencing
-authlib==1.6.6
+authlib==1.6.9
     # via fastmcp
 backoff==2.2.1
     # via unstructured
@@ -189,7 +189,7 @@ faker==40.1.0
     # via polyfactory
 fastavro==1.12.1
     # via cohere
-fastmcp==2.12.4
+fastmcp==2.14.2
     # via pathway
 fastuuid==0.14.0
     # via litellm
@@ -525,7 +525,7 @@ networkx==3.6.1
     #   llama-index-core
     #   pathway
     #   unstructured
-nltk==3.9.2
+nltk==3.9.3
     # via
     #   llama-index-core
     #   unstructured
@@ -565,7 +565,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.21.0rc1
     # via
     #   unstructured
     #   unstructured-inference
@@ -737,7 +737,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   rsa
@@ -816,7 +816,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.9.1
     # via
     #   unstructured
     #   unstructured-client

@@ -41,7 +41,7 @@ blake3==1.0.8
     # via vllm
 cachetools==6.2.4
     # via vllm
-cbor2==5.7.1
+cbor2==5.9.0
     # via vllm
 certifi==2025.11.12
     # via
