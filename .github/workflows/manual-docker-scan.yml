@@ -67,7 +67,7 @@ jobs:
           format: "spdx-json"
 
       - name: Security Scan Container
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.35.0
         if: ${{ fromJSON(inputs.trivy-scan) }}
         with:
           image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
