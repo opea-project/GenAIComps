@@ -266,7 +266,7 @@ networkx==3.6.1
     # via
     #   llama-index-core
     #   trimesh
-nltk==3.9.2
+nltk==3.9.4
     # via
     #   llama-index
     #   llama-index-core
@@ -392,7 +392,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.9.2
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag

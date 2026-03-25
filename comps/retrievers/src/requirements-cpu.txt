@@ -579,7 +579,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.9.4
     # via llama-index-core
 numba==0.63.1
     # via

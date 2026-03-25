@@ -570,7 +570,7 @@ networkx==3.6.1
     #   unstructured
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.9.4
     # via
     #   llama-index
     #   llama-index-core
@@ -648,7 +648,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.17.0
+onnx==1.21.0rc1
     # via
     #   unstructured
     #   unstructured-inference
@@ -944,7 +944,7 @@ pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
     # via matplotlib
-pypdf==6.5.0
+pypdf==6.9.2
     # via
     #   llama-index-readers-file
     #   unstructured
