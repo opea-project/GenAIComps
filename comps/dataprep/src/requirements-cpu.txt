@@ -944,7 +944,7 @@ pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
     # via matplotlib
-pypdf==6.5.0
+pypdf==6.9.2
     # via
     #   llama-index-readers-file
     #   unstructured
@@ -1048,7 +1048,7 @@ regex==2025.11.3
     #   nltk
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   docling
     #   google-api-core
