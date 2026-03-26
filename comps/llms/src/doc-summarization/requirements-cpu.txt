@@ -376,7 +376,7 @@ regex==2024.11.6
     # via
     #   tiktoken
     #   transformers
-requests==2.32.4
+requests==2.33.0
     # via
     #   huggingface-hub
     #   langchain

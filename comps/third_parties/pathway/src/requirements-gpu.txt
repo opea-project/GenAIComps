@@ -529,7 +529,7 @@ networkx==3.6.1
     #   pathway
     #   torch
     #   unstructured
-nltk==3.9.2
+nltk==3.9.4
     # via
     #   llama-index-core
     #   unstructured
@@ -609,7 +609,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.21.0rc1
     # via
     #   unstructured
     #   unstructured-inference
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.9.2
     # via
     #   unstructured
     #   unstructured-client
@@ -945,7 +945,7 @@ regex==2025.11.3
     #   nltk
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   cohere
     #   docling

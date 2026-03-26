@@ -134,7 +134,7 @@ multiprocess==0.70.18
     # via
     #   datasets
     #   evaluate
-nltk==3.9.2
+nltk==3.9.4
     # via rouge-score
 numexpr==2.14.1
     # via lm-eval
@@ -229,7 +229,7 @@ regex==2025.11.3
     #   nltk
     #   sacrebleu
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   datasets
     #   evaluate

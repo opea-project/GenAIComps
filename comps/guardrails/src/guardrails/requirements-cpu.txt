@@ -211,7 +211,7 @@ mypy-extensions==1.1.0
 networkx==3.6.1
     # via
     #   trimesh
-nltk==3.9.2
+nltk==3.9.4
     # via llm-guard
 numpy==2.4.0
     # via
@@ -377,7 +377,7 @@ regex==2024.7.24
     #   presidio-analyzer
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   bc-detect-secrets
     #   huggingface-hub

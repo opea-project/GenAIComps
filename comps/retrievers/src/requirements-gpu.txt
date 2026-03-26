@@ -583,7 +583,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.9.4
     # via llama-index-core
 numba==0.63.1
     # via
@@ -1007,7 +1007,7 @@ regex==2025.11.3
     #   nltk
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   docling
     #   google-api-core
