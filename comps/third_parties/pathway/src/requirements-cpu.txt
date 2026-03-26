@@ -816,7 +816,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.9.2
     # via
     #   unstructured
     #   unstructured-client
@@ -900,7 +900,7 @@ regex==2025.11.3
     #   nltk
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   cohere
     #   docling
