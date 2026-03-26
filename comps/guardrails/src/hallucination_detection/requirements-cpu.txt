@@ -568,7 +568,7 @@ regex==2025.11.3
     #   tiktoken
     #   transformers
     #   vllm
-requests==2.32.5
+requests==2.33.0
     # via
     #   flashinfer-python
     #   huggingface-hub
