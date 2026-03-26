@@ -377,7 +377,7 @@ regex==2024.7.24
     #   presidio-analyzer
     #   tiktoken
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   bc-detect-secrets
     #   huggingface-hub

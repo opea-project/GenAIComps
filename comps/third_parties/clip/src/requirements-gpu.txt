@@ -322,7 +322,7 @@ regex==2025.11.3
     #   dateparser
     #   open-clip-torch
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   huggingface-hub
     #   langchain
