@@ -229,7 +229,7 @@ regex==2025.11.3
     #   nltk
     #   sacrebleu
     #   transformers
-requests==2.32.5
+requests==2.33.0
     # via
     #   datasets
     #   evaluate
