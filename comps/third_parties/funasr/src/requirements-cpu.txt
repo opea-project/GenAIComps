@@ -67,7 +67,7 @@ colorlog==6.10.1
     # via trimesh
 crcmod==1.7
     # via oss2
-cryptography==46.0.3
+cryptography==46.0.6
     # via
     #   aliyun-python-sdk-core
     #   pyjwt
