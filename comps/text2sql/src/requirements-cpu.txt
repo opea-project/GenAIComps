@@ -2,7 +2,7 @@
 #    uv pip compile --index-strategy unsafe-best-match ./comps/text2sql/src/requirements.in --universal -o ./comps/text2sql/src/requirements-cpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.13
+aiohttp==3.13.4
     # via
     #   langchain
     #   langchain-community
