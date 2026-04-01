@@ -9,7 +9,7 @@ aiofiles==25.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.4
     # via
     #   aiohttp-cors
     #   instructor
@@ -609,7 +609,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.21.0
     # via
     #   unstructured
     #   unstructured-inference
