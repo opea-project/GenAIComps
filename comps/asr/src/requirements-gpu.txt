@@ -4,7 +4,7 @@ accelerate==1.12.0
     # via -r ./comps/asr/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.4
     # via
     #   -r ./comps/asr/src/requirements.in
     #   fsspec
@@ -47,7 +47,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   tqdm
 colorlog==6.10.1
     # via trimesh
-cryptography==46.0.3
+cryptography==46.0.6
     # via pyjwt
 datasets==4.4.1
     # via -r ./comps/asr/src/requirements.in

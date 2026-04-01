@@ -2,7 +2,7 @@
 #    uv pip compile --python=/usr/local/bin/python3.11 ./comps/web_retrievers/src/requirements.in --universal -o ./comps/web_retrievers/src/requirements-gpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.4
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
@@ -67,7 +67,7 @@ coloredlogs==15.0.1
     # via onnxruntime
 colorlog==6.10.1
     # via trimesh
-cryptography==46.0.3
+cryptography==46.0.6
     # via pyjwt
 dataclasses-json==0.6.7
     # via langchain-community
