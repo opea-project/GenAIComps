@@ -8,7 +8,7 @@ aiofiles==25.1.0
     # via -r ./comps/retrievers/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.4
     # via
     #   aiohttp-cors
     #   aiohttp-retry
@@ -1126,7 +1126,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.5 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
