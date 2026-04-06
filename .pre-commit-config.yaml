@@ -12,7 +12,7 @@ exclude: |
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
         files: (.*\.(py|md|rst|yaml|yml|json|ts|js|html|svelte|sh))$
@@ -27,7 +27,7 @@ repos:
         files: (.*\.(py|rst|cmake|yaml|yml|json|ts|js|html|svelte|sh))$
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.5
+    rev: v1.5.6
     hooks:
       - id: insert-license
         files: (Dockerfile)$
@@ -75,7 +75,7 @@ repos:
         name: Unused noqa
 
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 8.0.1
     hooks:
       - id: isort
 
@@ -105,14 +105,14 @@ repos:
         additional_dependencies: ["prettier@latest"]
         minimum_pre_commit_version: "0"
 
-  - repo: https://github.com/psf/black.git
-    rev: 25.1.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.3.1
     hooks:
       - id: black
         files: (.*\.py)$
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.19.1
+    rev: 1.20.0
     hooks:
       - id: blacken-docs
         args: [--line-length=120, --skip-errors]
@@ -120,7 +120,7 @@ repos:
           - black==24.10.0
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
         args: [-w]
@@ -128,7 +128,7 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.2
+    rev: v0.15.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix, --no-cache]
