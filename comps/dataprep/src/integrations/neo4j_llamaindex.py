@@ -406,12 +406,10 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     def read_entity_info(self) -> dict:
         entity_info = {}
         with self.driver.session() as session:
-            result = session.run(
-                """
+            result = session.run("""
                 MATCH (e:Entity)-[:BELONGS_TO]->(c:Cluster)
                 RETURN e.id AS entity_id, collect(DISTINCT c.id) AS cluster_ids
-                """
-            )
+                """)
             for record in result:
                 # entity_info[record['entity_id']] = record['cluster_ids']
                 entity_info[record["entity_id"]] = [int(cluster_id) for cluster_id in record["cluster_ids"]]
@@ -455,12 +453,10 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         """Read all community summaries from Neo4j."""
         community_summaries = {}
         with self.driver.session() as session:
-            result = session.run(
-                """
+            result = session.run("""
                 MATCH (c:Cluster)
                 RETURN c.id AS community_id, c.summary AS summary
-                """
-            )
+                """)
             for record in result:
                 community_summaries[int(record["community_id"])] = record["summary"]
         return community_summaries

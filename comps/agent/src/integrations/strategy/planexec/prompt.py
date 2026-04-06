@@ -42,8 +42,7 @@ The result of the final step should be the final answer. Make sure that each ste
     ]
 )
 
-answer_make_prompt = ChatPromptTemplate.from_template(
-    """For the given objective, come up with Final Answer. \
+answer_make_prompt = ChatPromptTemplate.from_template("""For the given objective, come up with Final Answer. \
 You need to follow rules listed below: \
 1. Response with a complete sentence. \
 2. Reply with keyword: 'Response'. \
@@ -54,8 +53,7 @@ Your objective was this:
 You have currently done the follow steps and information::
 {past_steps}
 
-"""
-)
+""")
 
 replanner_prompt = ChatPromptTemplate.from_template(
     """For the given objective, come up with Final Answer or additional step by step plan. \
