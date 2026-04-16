@@ -222,7 +222,7 @@ langchain-text-splitters==0.3.11
     #   langchain
 langdetect==1.0.9
     # via unstructured
-langsmith==0.5.1
+langsmith==0.7.31
     # via
     #   langchain
     #   langchain-community
@@ -491,7 +491,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.10.2
     # via
     #   llama-index-readers-file
     #   unstructured-client

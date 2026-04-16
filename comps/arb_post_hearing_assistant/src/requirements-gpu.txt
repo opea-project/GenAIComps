@@ -142,7 +142,7 @@ langchain-text-splitters==0.3.11
     #   langchain
 langchainhub==0.1.21
     # via -r ./comps/arb_post_hearing_assistant/src/requirements.in
-langsmith==0.5.0
+langsmith==0.7.31
     # via
     #   langchain
     #   langchain-community

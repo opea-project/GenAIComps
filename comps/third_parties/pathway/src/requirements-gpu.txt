@@ -437,7 +437,7 @@ langchain-text-splitters==0.3.11
     # via langchain
 langdetect==1.0.9
     # via unstructured
-langsmith==0.5.1
+langsmith==0.7.31
     # via
     #   langchain
     #   langchain-community
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.10.2
     # via
     #   unstructured
     #   unstructured-client
@@ -892,7 +892,7 @@ python-iso639==2025.11.16
     # via unstructured
 python-magic==0.4.27
     # via unstructured
-python-multipart==0.0.21
+python-multipart==0.0.26
     # via
     #   mcp
     #   unstructured-inference
