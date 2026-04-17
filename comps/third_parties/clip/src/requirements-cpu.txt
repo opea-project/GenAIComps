@@ -123,7 +123,7 @@ langchain-text-splitters==0.3.11
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   langchain
-langsmith==0.5.1
+langsmith==0.7.31
     # via
     #   langchain
     #   langchain-core

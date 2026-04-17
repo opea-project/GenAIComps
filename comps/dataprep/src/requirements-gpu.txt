@@ -428,7 +428,7 @@ langchain-vdms==0.1.4
     # via -r ./comps/dataprep/src/requirements.in
 langdetect==1.0.9
     # via unstructured
-langsmith==0.3.45
+langsmith==0.7.31
     # via
     #   langchain
     #   langchain-community
@@ -989,7 +989,7 @@ pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
     # via matplotlib
-pypdf==6.5.0
+pypdf==6.10.2
     # via
     #   llama-index-readers-file
     #   unstructured
@@ -1033,7 +1033,7 @@ python-iso639==2025.11.16
     # via unstructured
 python-magic==0.4.27
     # via unstructured
-python-multipart==0.0.21
+python-multipart==0.0.26
     # via unstructured-inference
 python-oxmsg==0.0.2
     # via unstructured

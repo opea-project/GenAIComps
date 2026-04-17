@@ -168,7 +168,7 @@ langchain-openai==1.1.6
     # via -r ./comps/guardrails/src/guardrails/requirements.in
 langchain-text-splitters==1.1.0
     # via langchain-classic
-langsmith==0.5.1
+langsmith==0.7.31
     # via
     #   langchain-classic
     #   langchain-community

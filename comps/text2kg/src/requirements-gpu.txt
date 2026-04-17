@@ -174,7 +174,7 @@ langchain-text-splitters==1.1.0
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   langchain-classic
-langsmith==0.5.0
+langsmith==0.7.31
     # via
     #   langchain-classic
     #   langchain-core
@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.10.2
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
