@@ -283,7 +283,7 @@ llama-index-workflows==2.11.6
     # via llama-index-core
 llama-parse==0.6.54
     # via llama-index-readers-llama-parse
-lxml==6.0.2
+lxml==6.1.0
     # via
     #   trimesh
     #   unstructured
@@ -327,7 +327,7 @@ networkx==3.6.1 ; python_full_version >= '3.11'
     # via
     #   llama-index-core
     #   trimesh
-nltk==3.9.2
+nltk==3.9.4
     # via
     #   llama-index
     #   llama-index-core
@@ -501,7 +501,7 @@ python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via
     #   llama-cloud-services
     #   pydantic-settings

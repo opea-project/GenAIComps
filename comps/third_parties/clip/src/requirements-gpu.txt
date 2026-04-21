@@ -131,7 +131,7 @@ langsmith==0.5.1
     # via
     #   langchain
     #   langchain-core
-lxml==6.0.2
+lxml==6.1.0
     # via trimesh
 lz4==4.4.5
     # via docarray
