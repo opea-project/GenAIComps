@@ -155,7 +155,7 @@ langsmith==0.5.1
     #   langchain
     #   langchain-community
     #   langchain-core
-lxml==5.4.0
+lxml==6.1.0
     # via trimesh
 lz4==4.4.4
     # via docarray
@@ -357,7 +357,7 @@ python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
-python-dotenv==1.1.0
+python-dotenv==1.2.2
     # via pydantic-settings
 pytz==2025.2
     # via pandas

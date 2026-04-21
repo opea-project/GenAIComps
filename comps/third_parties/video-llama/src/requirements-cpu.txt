@@ -269,7 +269,7 @@ pygments==2.19.2
     # via rich
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via pydantic-settings
 pytorchvideo==0.1.5
     # via -r ./comps/third_parties/video-llama/src/requirements.in

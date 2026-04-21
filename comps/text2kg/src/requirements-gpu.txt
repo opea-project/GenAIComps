@@ -228,7 +228,7 @@ llama-index-workflows==2.11.5
     # via llama-index-core
 llama-parse==0.6.54
     # via llama-index-readers-llama-parse
-lxml==6.0.2
+lxml==6.1.0
     # via trimesh
 lz4==4.4.5
     # via docarray
@@ -445,7 +445,7 @@ python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via llama-cloud-services
 pytz==2025.2
     # via

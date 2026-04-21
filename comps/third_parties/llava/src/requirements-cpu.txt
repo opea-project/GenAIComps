@@ -121,7 +121,7 @@ langchain-core==1.2.5
     # via -r ./comps/third_parties/llava/src/requirements.in
 langsmith==0.5.1
     # via langchain-core
-lxml==6.0.2
+lxml==6.1.0
     # via trimesh
 lz4==4.4.5
     # via docarray
