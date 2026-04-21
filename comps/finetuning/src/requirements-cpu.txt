@@ -326,7 +326,7 @@ pyopenssl==25.1.0
     # via ray
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.1.0
+python-dotenv==1.2.2
     # via uvicorn
 python-multipart==0.0.20
     # via -r ./comps/finetuning/src/requirements.in
