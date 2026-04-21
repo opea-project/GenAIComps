@@ -111,7 +111,7 @@ jsonlines==4.0.0
     # via lm-eval
 lm-eval==0.4.3
     # via -r ./comps/llms/utils/lm-eval/requirements.in
-lxml==6.0.2
+lxml==6.1.0
     # via sacrebleu
 markupsafe==3.0.3
     # via jinja2

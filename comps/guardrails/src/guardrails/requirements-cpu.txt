@@ -175,7 +175,7 @@ langsmith==0.5.1
     #   langchain-core
 llm-guard==0.3.15
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-lxml==6.0.2
+lxml==6.1.0
     # via trimesh
 lz4==4.4.5
     # via docarray
@@ -353,7 +353,7 @@ python-dateutil==2.9.0.post0
     #   faker
     #   pandas
     #   pycollada
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via pydantic-settings
 pytz==2025.2
     # via pandas
