@@ -170,7 +170,7 @@ llvmlite==0.46.0
     #   -r ./comps/third_parties/funasr/src/requirements.in
     #   numba
     #   pynndescent
-lxml==6.0.2
+lxml==6.1.0
     # via trimesh
 lz4==4.4.5
     # via docarray
@@ -340,7 +340,7 @@ python-dateutil==2.9.0.post0
     # via
     #   pandas
     #   pycollada
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via pydantic-settings
 python-multipart==0.0.21
     # via

@@ -502,7 +502,7 @@ llvmlite==0.46.0
     # via
     #   numba
     #   pynndescent
-lxml==5.4.0
+lxml==6.1.0
     # via
     #   docling
     #   python-docx
@@ -911,7 +911,7 @@ python-docx==1.2.0
     # via
     #   -r ./comps/retrievers/src/requirements.in
     #   docling
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via
     #   pydantic-settings
     #   pymilvus
