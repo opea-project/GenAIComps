@@ -53,3 +53,7 @@ For details, please refer to this [readme](src/README_arangodb.md)
 ## Retriever Microservice with openGauss
 
 For details, please refer to this [readme](src/README_opengauss.md)
+
+## Retriever Microservice with Seahorse Cloud
+
+For details, please refer to this [readme](src/README_seahorse.md)

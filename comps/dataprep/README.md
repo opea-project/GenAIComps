@@ -43,6 +43,7 @@ Dataprep microservice are supported on various databases, as shown in the table 
 | `financial domain data` | [Dataprep Microservice for financial domain data](src/README_finance.md) |
 | `MariaDB`               | [Dataprep Microservice with MariaDB Vector](src/README_mariadb.md)       |
 | `ArangoDB`              | [Dataprep Microservice with ArangoDB Vector](src/README_arangodb.md)     |
+| `Seahorse Cloud`        | [Dataprep Microservice with Seahorse Cloud](src/README_seahorse.md)      |
 
 ## Running in the air gapped environment
 
