@@ -281,6 +281,7 @@ httpcore==1.0.9
 httpx==0.28.1
     # via
     #   langchain-pinecone
+    #   langchain-seahorse
     #   langsmith
     #   llama-cloud
     #   llama-index-core
@@ -395,6 +396,7 @@ langchain-core==0.3.81
     #   langchain-opengauss
     #   langchain-pinecone
     #   langchain-redis
+    #   langchain-seahorse
     #   langchain-text-splitters
     #   langchain-vdms
 langchain-elasticsearch==0.4.0
@@ -416,6 +418,8 @@ langchain-opengauss==0.1.5
 langchain-pinecone==0.2.13
     # via -r ./comps/dataprep/src/requirements.in
 langchain-redis==0.2.4
+    # via -r ./comps/dataprep/src/requirements.in
+langchain-seahorse==0.4.0
     # via -r ./comps/dataprep/src/requirements.in
 langchain-text-splitters==0.3.11
     # via
@@ -886,6 +890,7 @@ pydantic==2.12.5
     #   langchain-core
     #   langchain-opengauss
     #   langchain-pinecone
+    #   langchain-seahorse
     #   langsmith
     #   llama-cloud
     #   llama-cloud-services
