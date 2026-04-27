@@ -244,6 +244,18 @@ services:
       mariadb-server:
         condition: service_healthy
 
+  retriever-seahorse:
+    extends: retriever
+    container_name: retriever-seahorse
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_SEAHORSE}
+      SEAHORSE_BASE_URL: ${SEAHORSE_BASE_URL}
+      SEAHORSE_API_KEY: ${SEAHORSE_API_KEY}
+      SEAHORSE_EMBEDDING_MODE: ${SEAHORSE_EMBEDDING_MODE:-builtin}
+      SEAHORSE_SEARCH_MODE: ${SEAHORSE_SEARCH_MODE:-hybrid}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
+
 networks:
   default:
     driver: bridge

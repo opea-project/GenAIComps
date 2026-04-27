@@ -513,6 +513,29 @@ services:
       retries: 10
     restart: unless-stopped
 
+  dataprep-seahorse:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-seahorse-server
+    ports:
+      - "${DATAPREP_PORT:-5000}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_SEAHORSE"
+      SEAHORSE_BASE_URL: ${SEAHORSE_BASE_URL}
+      SEAHORSE_API_KEY: ${SEAHORSE_API_KEY}
+      SEAHORSE_EMBEDDING_MODE: ${SEAHORSE_EMBEDDING_MODE:-builtin}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
 networks:
   default:
     driver: bridge
