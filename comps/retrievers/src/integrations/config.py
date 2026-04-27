@@ -253,3 +253,11 @@ OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "tru
 #######################################################
 MARIADB_CONNECTION_URL = os.getenv("MARIADB_CONNECTION_URL", "localhost")
 MARIADB_COLLECTION_NAME = os.getenv("MARIADB_COLLECTION_NAME", "rag_mariadbvector")
+
+#######################################################
+# Seahorse Cloud                                      #
+#######################################################
+SEAHORSE_BASE_URL = os.getenv("SEAHORSE_BASE_URL", "")
+SEAHORSE_API_KEY = os.getenv("SEAHORSE_API_KEY", "")
+SEAHORSE_SEARCH_MODE = os.getenv("SEAHORSE_SEARCH_MODE", "hybrid").strip().lower()
+SEAHORSE_EMBEDDING_MODE = os.getenv("SEAHORSE_EMBEDDING_MODE", "builtin").strip().lower()

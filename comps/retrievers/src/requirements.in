@@ -18,6 +18,7 @@ langchain-mariadb
 langchain-openai
 langchain-pinecone
 langchain-opengauss
+langchain-seahorse>=0.4.0
 langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
