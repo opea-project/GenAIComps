@@ -91,3 +91,4 @@ class OpeaWhisperAsr(OpeaComponent):
             # Handle connection errors, timeouts, etc.
             logger.error(f"Health check failed: {e}")
         return False
+
