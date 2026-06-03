@@ -8,7 +8,7 @@ aiofiles==25.1.0
     # via -r ./comps/retrievers/src/requirements.in
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.0
     # via
     #   aiohttp-cors
     #   aiohttp-retry
@@ -166,7 +166,7 @@ docarray==0.41.0
     # via -r ./comps/retrievers/src/requirements.in
 docling==2.55.1
     # via -r ./comps/retrievers/src/requirements.in
-docling-core==2.57.0
+docling-core==2.74.1
     # via
     #   docling
     #   docling-ibm-models
@@ -346,7 +346,7 @@ hyperframe==6.1.0
     # via h2
 hyppo==0.5.2
     # via graspologic
-idna==3.11
+idna==3.15
     # via
     #   anyio
     #   httpx
