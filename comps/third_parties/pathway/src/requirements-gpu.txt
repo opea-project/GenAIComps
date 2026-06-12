@@ -47,7 +47,7 @@ attrs==25.4.0
     #   jsonlines
     #   jsonschema
     #   referencing
-authlib==1.6.6
+authlib==1.6.12
     # via fastmcp
 backoff==2.2.1
     # via unstructured
@@ -776,7 +776,7 @@ ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pyarrow==18.1.0
+pyarrow==23.0.1
     # via
     #   deltalake
     #   pathway
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.12.0
     # via
     #   unstructured
     #   unstructured-client
@@ -1088,7 +1088,7 @@ tokenizers==0.22.1
     #   langchain-huggingface
     #   litellm
     #   transformers
-torch==2.9.1
+torch==2.12.0
     # via
     #   accelerate
     #   docling-ibm-models
@@ -1103,7 +1103,7 @@ torchvision==0.24.1
     #   docling-ibm-models
     #   effdet
     #   timm
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.6 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via

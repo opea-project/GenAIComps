@@ -816,7 +816,7 @@ ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pyarrow==18.1.0
+pyarrow==23.0.1
     # via
     #   deltalake
     #   pathway
@@ -1126,7 +1126,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.6 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
