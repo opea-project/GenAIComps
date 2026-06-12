@@ -195,7 +195,7 @@ psutil==7.2.0
     # via
     #   accelerate
     #   peft
-pyarrow==22.0.0
+pyarrow==23.0.1
     # via datasets
 pybind11==3.0.1
     # via lm-eval

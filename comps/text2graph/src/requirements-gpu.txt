@@ -253,7 +253,7 @@ protobuf==6.33.2
     #   opentelemetry-proto
 psycopg2-binary==2.9.11
     # via -r ./comps/text2graph/src/requirements.in
-pyarrow==22.0.0
+pyarrow==23.0.1
     # via -r ./comps/text2graph/src/requirements.in
 pycollada==0.9.2
     # via trimesh
