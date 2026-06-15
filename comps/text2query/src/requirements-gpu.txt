@@ -297,7 +297,7 @@ protobuf==5.29.5
     #   opentelemetry-proto
 psycopg2-binary==2.9.10
     # via -r ./comps/text2sql/src/requirements.in
-pyarrow==20.0.0
+pyarrow==23.0.1
     # via -r ./comps/text2sql/src/requirements.in
 pycollada==0.9
     # via trimesh
@@ -402,7 +402,7 @@ tokenizers==0.21.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.7.1
+torch==2.12.0
     # via sentence-transformers
 tqdm==4.67.1
     # via
