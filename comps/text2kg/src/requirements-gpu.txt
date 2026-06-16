@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.12.0
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
@@ -548,7 +548,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.9.1
+torch==2.12.0
     # via
     #   accelerate
     #   llama-index-llms-huggingface
