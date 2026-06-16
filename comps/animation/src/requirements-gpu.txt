@@ -525,7 +525,7 @@ tomli==2.3.0 ; python_full_version < '3.11'
     # via yapf
 tomlkit==0.13.3
     # via gradio
-torch==2.9.1
+torch==2.12.0
     # via
     #   basicsr
     #   facexlib
