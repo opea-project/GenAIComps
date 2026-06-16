@@ -9,7 +9,7 @@ aiofiles==25.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.1
     # via
     #   aiohttp-cors
     #   instructor
@@ -847,7 +847,7 @@ python-iso639==2025.11.16
     # via unstructured
 python-magic==0.4.27
     # via unstructured
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via
     #   mcp
     #   unstructured-inference
