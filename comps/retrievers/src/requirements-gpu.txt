@@ -916,7 +916,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via python-arango
 pylatexenc==2.10
     # via docling
@@ -1186,7 +1186,7 @@ torchvision==0.24.1
     # via
     #   docling-ibm-models
     #   easyocr
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.7 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via

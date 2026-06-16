@@ -448,7 +448,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via mcp
 pyparsing==3.3.1
     # via httplib2
