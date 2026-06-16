@@ -956,7 +956,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via python-arango
 pylatexenc==2.10
     # via docling
@@ -989,7 +989,7 @@ pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
     # via matplotlib
-pypdf==6.5.0
+pypdf==6.12.0
     # via
     #   llama-index-readers-file
     #   unstructured
@@ -1261,7 +1261,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.9.1
+torch==2.12.0
     # via
     #   accelerate
     #   docling-ibm-models
