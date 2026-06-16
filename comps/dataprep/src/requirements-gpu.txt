@@ -956,7 +956,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via python-arango
 pylatexenc==2.10
     # via docling
@@ -1033,7 +1033,7 @@ python-iso639==2025.11.16
     # via unstructured
 python-magic==0.4.27
     # via unstructured
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via unstructured-inference
 python-oxmsg==0.0.2
     # via unstructured

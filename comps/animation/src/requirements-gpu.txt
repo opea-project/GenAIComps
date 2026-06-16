@@ -414,7 +414,7 @@ python-dateutil==2.9.0.post0
     #   matplotlib
     #   pandas
     #   pycollada
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via gradio
 pytz==2025.2
     # via pandas
