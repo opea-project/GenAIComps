@@ -988,7 +988,7 @@ python-iso639==2025.11.16
     # via unstructured
 python-magic==0.4.27
     # via unstructured
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via unstructured-inference
 python-oxmsg==0.0.2
     # via unstructured

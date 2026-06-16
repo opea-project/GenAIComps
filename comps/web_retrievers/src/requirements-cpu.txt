@@ -424,7 +424,7 @@ python-dotenv==1.2.1
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via mcp
 pytz==2025.2
     # via pandas

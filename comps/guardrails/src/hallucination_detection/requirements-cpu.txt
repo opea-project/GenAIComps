@@ -532,7 +532,7 @@ python-dotenv==1.2.1
     #   uvicorn
 python-json-logger==4.0.0
     # via vllm
-python-multipart==0.0.21
+python-multipart==0.0.31
     # via
     #   fastapi
     #   mcp
