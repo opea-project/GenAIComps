@@ -9,7 +9,7 @@ aiofiles==25.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.1
     # via
     #   aiohttp-cors
     #   instructor
@@ -834,7 +834,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via mcp
 pylatexenc==2.10
     # via docling
