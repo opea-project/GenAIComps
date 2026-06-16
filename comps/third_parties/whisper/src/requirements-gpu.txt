@@ -330,7 +330,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via mcp
 python-dateutil==2.9.0.post0
     # via
@@ -409,7 +409,7 @@ sympy==1.14.0
     # via torch
 tokenizers==0.22.1
     # via transformers
-torch==2.9.1
+torch==2.12.0
     # via accelerate
 tqdm==4.67.1
     # via
