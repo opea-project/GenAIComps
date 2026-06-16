@@ -9,7 +9,7 @@ aiofiles==25.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.1
     # via
     #   aiohttp-cors
     #   instructor
@@ -834,7 +834,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via mcp
 pylatexenc==2.10
     # via docling
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.12.0
     # via
     #   unstructured
     #   unstructured-client
@@ -1103,7 +1103,7 @@ torchvision==0.24.1
     #   docling-ibm-models
     #   effdet
     #   timm
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.7 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
