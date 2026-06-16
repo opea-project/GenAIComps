@@ -4,7 +4,7 @@ accelerate==1.12.0
     # via transformers
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.1
     # via
     #   huggingface-hub
     #   llama-index-core
@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.12.0
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
