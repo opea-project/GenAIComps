@@ -414,7 +414,7 @@ tokenizers==0.21.4
     # via
     #   langchain-huggingface
     #   transformers
-torch==2.9.1
+torch==2.12.0
     # via sentence-transformers
 tqdm==4.67.1
     # via
