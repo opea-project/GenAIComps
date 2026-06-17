@@ -426,7 +426,7 @@ sniffio==1.3.1
     # via openai
 sse-starlette==3.1.1
     # via mcp
-starlette==0.50.0
+starlette==1.3.1
     # via
     #   -r ./comps/lvms/src/requirements.in
     #   fastapi
