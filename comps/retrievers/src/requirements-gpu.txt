@@ -67,7 +67,7 @@ beautifulsoup4==4.14.3
     # via
     #   bs4
     #   docling
-bleach==6.3.0
+bleach==6.4.0
     # via panel
 bokeh==3.8.1
     # via

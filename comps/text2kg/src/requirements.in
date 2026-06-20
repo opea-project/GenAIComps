@@ -20,7 +20,7 @@ prometheus_fastapi_instrumentator
 pydantic
 pyprojroot
 shortuuid
-starlette>=0.49.1
+starlette>=1.3.1
 transformers
 urllib3>=2.6.0
 uvicorn

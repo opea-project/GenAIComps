@@ -73,7 +73,7 @@ colorama==0.4.6
     #   tqdm
 colorlog==6.10.1
     # via trimesh
-cryptography==46.0.3
+cryptography==48.0.1
     # via unstructured-client
 dataclasses-json==0.6.7
     # via
@@ -491,7 +491,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.13.3
     # via
     #   llama-index-readers-file
     #   unstructured-client
