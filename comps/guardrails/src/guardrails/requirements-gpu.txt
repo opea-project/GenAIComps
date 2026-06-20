@@ -215,7 +215,7 @@ networkx==3.6.1
     # via
     #   torch
     #   trimesh
-nltk==3.9.2
+nltk==3.9.4
     # via llm-guard
 numpy==2.4.0
     # via
