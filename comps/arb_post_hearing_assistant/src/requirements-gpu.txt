@@ -142,7 +142,7 @@ langchain-text-splitters==0.3.11
     #   langchain
 langchainhub==0.1.21
     # via -r ./comps/arb_post_hearing_assistant/src/requirements.in
-langsmith==0.5.0
+langsmith==0.8.18
     # via
     #   langchain
     #   langchain-community
@@ -314,7 +314,7 @@ pydantic==2.12.5
     #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via langchain-community
 pydub==0.25.1
     # via docarray
