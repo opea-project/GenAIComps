@@ -347,7 +347,7 @@ pydantic==2.12.5
     #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.9.1
+pydantic-settings==2.14.2
     # via langchain-community
 pydub==0.25.1
     # via docarray
