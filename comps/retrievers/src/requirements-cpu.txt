@@ -67,7 +67,7 @@ beautifulsoup4==4.14.3
     # via
     #   bs4
     #   docling
-bleach==6.3.0
+bleach==6.4.0
     # via panel
 bokeh==3.8.1
     # via
@@ -408,7 +408,7 @@ jupyterlab-widgets==3.0.16
     # via ipywidgets
 kiwisolver==1.4.9
     # via matplotlib
-langchain==0.3.27
+langchain==1.3.9
     # via
     #   langchain-arangodb
     #   langchain-community
@@ -579,7 +579,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.9.4
     # via llama-index-core
 numba==0.63.1
     # via
@@ -1225,7 +1225,7 @@ tzdata==2025.3
     #   pandas
 uc-micro-py==1.0.3
     # via linkify-it-py
-ujson==5.11.0
+ujson==5.13.0
     # via pymilvus
 umap-learn==0.5.9.post2
     # via graspologic
