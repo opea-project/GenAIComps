@@ -456,7 +456,7 @@ langchain-text-splitters==0.3.11
     # via langchain
 langchain-vdms==0.1.4
     # via -r ./comps/retrievers/src/requirements.in
-langsmith==0.3.45
+langsmith==0.8.18
     # via
     #   langchain
     #   langchain-community
@@ -904,7 +904,7 @@ pydantic==2.12.5
     #   tgi
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via
     #   docling
     #   langchain-community
@@ -1288,7 +1288,7 @@ tzdata==2025.3
     #   pandas
 uc-micro-py==1.0.3
     # via linkify-it-py
-ujson==5.11.0
+ujson==5.13.0
     # via pymilvus
 umap-learn==0.5.9.post2
     # via graspologic
