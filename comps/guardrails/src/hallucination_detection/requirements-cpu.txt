@@ -511,7 +511,7 @@ pydantic-extra-types==2.10.6
     # via
     #   fastapi
     #   mistral-common
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via
     #   fastapi
     #   langchain-community

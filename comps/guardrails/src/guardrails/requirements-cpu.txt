@@ -211,7 +211,7 @@ mypy-extensions==1.1.0
 networkx==3.6.1
     # via
     #   trimesh
-nltk==3.9.2
+nltk==3.9.4
     # via llm-guard
 numpy==2.4.0
     # via
@@ -342,7 +342,7 @@ pydantic==2.12.5
     #   weasel
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via langchain-community
 pydub==0.25.1
     # via docarray
