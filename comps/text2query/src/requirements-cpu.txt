@@ -130,7 +130,7 @@ langchain-huggingface==0.0.3
     # via -r ./comps/text2sql/src/requirements.in
 langchain-text-splitters==0.2.4
     # via langchain
-langsmith==0.1.147
+langsmith==0.8.18
     # via
     #   langchain
     #   langchain-community

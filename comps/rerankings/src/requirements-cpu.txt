@@ -177,7 +177,7 @@ langchain-text-splitters==1.1.0
     # via langchain-classic
 langgraph==1.0.5
     # via langchain
-langgraph-checkpoint==3.0.1
+langgraph-checkpoint==4.1.1
     # via
     #   langgraph
     #   langgraph-prebuilt
@@ -185,7 +185,7 @@ langgraph-prebuilt==1.0.5
     # via langgraph
 langgraph-sdk==0.3.1
     # via langgraph
-langsmith==0.5.1
+langsmith==0.8.18
     # via
     #   langchain-classic
     #   langchain-community
@@ -342,7 +342,7 @@ pydantic==2.12.5
     #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via langchain-community
 pydub==0.25.1
     # via
