@@ -434,7 +434,7 @@ langchain-text-splitters==0.3.11
     # via langchain
 langdetect==1.0.9
     # via unstructured
-langsmith==0.5.1
+langsmith==0.8.18
     # via
     #   langchain
     #   langchain-community
@@ -778,7 +778,7 @@ pydantic-core==2.41.5
     #   cohere
     #   instructor
     #   pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via
     #   docling
     #   langchain-community

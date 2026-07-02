@@ -190,7 +190,7 @@ ml-dtypes==0.5.4
     #   jaxlib
 modelscope==1.33.0
     # via funasr
-msgpack==1.1.2
+msgpack==1.2.1
     # via librosa
 multidict==6.7.0
     # via
@@ -324,7 +324,7 @@ pydantic==2.12.5
     #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.14.2
     # via mcp
 pydub==0.25.1
     # via
