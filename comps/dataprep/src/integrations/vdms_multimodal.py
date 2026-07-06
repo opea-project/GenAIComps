@@ -178,7 +178,6 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
 
     async def get_one_file(self, filename: str):
         """Download the file from remote."""
-
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config = read_config(os.path.join(current_dir, "./config/config.yaml"))
         UPLOAD_DIR = config["videos"]

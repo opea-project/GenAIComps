@@ -69,9 +69,8 @@ class ServiceOrchestratorWithYaml(DAG):
         return True
 
     def _construct_dag_from_rules(self, rules: List[str]) -> Tuple[bool, OrderedDict]:
-        """rules: ['(s1, s2) >> s3', 's3 >> (s4, s5)']
-        ['(s1, s2) >> s3 >> (s4, s5)']
-        """
+        """Rules: ['(s1, s2) >> s3', 's3 >> (s4, s5)']
+        ['(s1, s2) >> s3 >> (s4, s5)']"""
         is_valid = True
         for rule in rules:
             node_groups = [i.strip() for i in rule.split(">>")]  # ['(s1, s2)', 's3']

@@ -121,8 +121,7 @@ def swap(cypher_string, relations):
 
 
 def prepare_chat_template(question):
-    template = Template(
-        """
+    template = Template("""
 Generate Cypher statement to query a graph database to answer "$question"
 Instructions:
 Use only the provided relationship types and properties in the schema.
@@ -134,8 +133,7 @@ Use only the user's question to construct a Cypher statement.
 Do not include any text except the generated Cypher statement.
 
 Cypher output:
-    """
-    )
+    """)
     temp_str = template.substitute(question=question)
     return temp_str
 
@@ -188,8 +186,9 @@ def construct_schema(
 
 
 class CypherQueryCorrectorExt(CypherQueryCorrector):
-    """Extension of CypherQueryCorrector. CypherQueryCorrector corrects
-    relationship direction in generated Cypher statements.
+    """Extension of CypherQueryCorrector.
+
+    CypherQueryCorrector corrects relationship direction in generated Cypher statements.
 
     CypherQueryCorrectorExt can perform additional checks based on a schema.
     For example,

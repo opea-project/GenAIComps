@@ -173,7 +173,6 @@ class OpeaTextGenNativePhi4Multimodal(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         try:
             return initialized
         except Exception as e:
@@ -187,7 +186,6 @@ class OpeaTextGenNativePhi4Multimodal(OpeaComponent):
         Args:
             input (ChatCompletionRequest): The input text(s).
         """
-
         message = None
         if isinstance(input.messages, str):
             message = input.messages

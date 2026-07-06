@@ -106,7 +106,6 @@ class OpeaArangoDataprep(OpeaComponent):
         edge_properties: Union[List[str], str],
     ):
         """Initialize the LLM model & LLMGraphTransformer object."""
-
         # Process string inputs if needed
         if allowed_node_types and isinstance(allowed_node_types, str):
             allowed_node_types = allowed_node_types.split(",")
@@ -197,7 +196,6 @@ class OpeaArangoDataprep(OpeaComponent):
 
     def _initialize_embeddings(self):
         """Initialize the embeddings model."""
-
         if TEI_EMBEDDING_ENDPOINT and HF_TOKEN:
             self.embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
@@ -213,7 +211,6 @@ class OpeaArangoDataprep(OpeaComponent):
 
     def _initialize_client(self):
         """Initialize the ArangoDB connection."""
-
         self.client = ArangoClient(hosts=ARANGO_URL)
         sys_db = self.client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
 
@@ -226,7 +223,6 @@ class OpeaArangoDataprep(OpeaComponent):
 
     def check_health(self) -> bool:
         """Checks the health of the retriever service."""
-
         if logflag:
             logger.info("[ check health ] start to check health of ArangoDB")
         try:
@@ -251,7 +247,6 @@ class OpeaArangoDataprep(OpeaComponent):
         text_capitalization_strategy: str,
     ):
         """Ingest document to ArangoDB."""
-
         path = doc_path.path
         if logflag:
             logger.info(f"Parsing document {path}")
@@ -363,7 +358,6 @@ class OpeaArangoDataprep(OpeaComponent):
                 text_capitalization_strategy (str, optional): The text capitalization strategy. Defaults to "upper".
                 include_chunks (bool, optional): Whether to include chunks in the graph. Defaults to True.
         """
-
         files = input.files
         link_list = input.link_list
         chunk_size = input.chunk_size
@@ -493,7 +487,6 @@ class OpeaArangoDataprep(OpeaComponent):
             "type": "File",
             "parent": "",
         }"""
-
         res_list = []
 
         for graph in self.db.graphs():
@@ -530,7 +523,6 @@ class OpeaArangoDataprep(OpeaComponent):
             - A specific graph name (e.g GRAPH_1)
             - "all": delete all graphs created
         """
-
         if file_path == "all":
             for graph in self.db.graphs():
                 self.db.delete_graph(graph["name"], drop_collections=True)

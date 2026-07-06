@@ -30,7 +30,6 @@ class OpeaArbPostHearingAssistantTgi(OpeaArbPostHearingAssistant):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         try:
             url = f"{self.llm_endpoint}/generate"
             data = {"inputs": "What is Deep Learning?", "parameters": {"max_new_tokens": 17}}

@@ -163,9 +163,7 @@ def get_tool_output(messages, id):
 
 
 def assemble_history(messages):
-    """
-    messages: AI, TOOL, AI, TOOL, etc.
-    """
+    """Messages: AI, TOOL, AI, TOOL, etc."""
     query_history = ""
     breaker = "-" * 10
     n = 1

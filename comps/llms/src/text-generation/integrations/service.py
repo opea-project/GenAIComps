@@ -87,7 +87,6 @@ class OpeaTextGenService(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         try:
 
             async def send_simple_request():
@@ -181,7 +180,6 @@ class OpeaTextGenService(OpeaComponent):
         Args:
             input (Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]): The input text(s).
         """
-
         prompt_template = None
         input_variables = None
         if not isinstance(input, SearchedDoc) and input.chat_template:
@@ -232,7 +230,6 @@ class OpeaTextGenService(OpeaComponent):
                 best_of=input.best_of,
                 logit_bias=input.logit_bias,
                 logprobs=input.logprobs,"""
-
         if input.stream:
 
             async def stream_generator():

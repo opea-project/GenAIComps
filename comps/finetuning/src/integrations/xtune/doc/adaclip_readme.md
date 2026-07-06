@@ -293,12 +293,13 @@ You can enable optuna to automatic get the best param by adding `optuna_cfg` con
 ```
 
 The config example is: `src/llamafactory/adaclip_finetune/cfgs/bitfit-optuna.json`
-|Config name|Description|
-|:--|:--|
-|n_trials|The max number of trials. Must be set to an integer.|
-|n_warmup_steps|The pruning is disabled until the trial exceeds the given number of step(epochs). Note that this feature assumes that step starts at zero.
-|sampler|Choose samplers which optuna uses. now support `TPESampler`,`CmaEsSampler` and `GPSampler`.|
-|opt_params|The parameters you want to optimize.|
+
+| Config name    | Description                                                                                                                                |
+| :------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| n_trials       | The max number of trials. Must be set to an integer.                                                                                       |
+| n_warmup_steps | The pruning is disabled until the trial exceeds the given number of step(epochs). Note that this feature assumes that step starts at zero. |
+| sampler        | Choose samplers which optuna uses. now support `TPESampler`,`CmaEsSampler` and `GPSampler`.                                                |
+| opt_params     | The parameters you want to optimize.                                                                                                       |
 
 | Configs of opt_params | Description                                                                                                                                                                                        |
 | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

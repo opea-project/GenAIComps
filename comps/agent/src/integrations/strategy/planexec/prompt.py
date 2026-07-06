@@ -34,44 +34,46 @@ planner_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """For the given objective, come up with a chain-of-thoughts step by step plan. \
-This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
-The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps.""",
+            """For the given objective, come up with a chain-of-thoughts step by step plan.
+
+            \ This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
+            The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps.
+            """,
         ),
         ("placeholder", "{messages}"),
     ]
 )
 
-answer_make_prompt = ChatPromptTemplate.from_template(
-    """For the given objective, come up with Final Answer. \
-You need to follow rules listed below: \
-1. Response with a complete sentence. \
-2. Reply with keyword: 'Response'. \
+answer_make_prompt = ChatPromptTemplate.from_template("""For the given objective, come up with Final Answer.
 
-Your objective was this:
-{input}
+    \ You need to follow rules listed below: \
+    1. Response with a complete sentence. \
+    2. Reply with keyword: 'Response'. \
 
-You have currently done the follow steps and information::
-{past_steps}
+    Your objective was this:
+    {input}
 
-"""
-)
+    You have currently done the follow steps and information::
+    {past_steps}
+    """)
 
 replanner_prompt = ChatPromptTemplate.from_template(
-    """For the given objective, come up with Final Answer or additional step by step plan. \
-If you can respond with Final Answer, then reply with keyword: 'Response'. \
-If you need more steps, then reply with keyword: 'Plan'. \
-This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
-The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps.
+    """For the given objective, come up with Final Answer or additional step by step plan.
 
-Your objective was this:
-{input}
+    \ If you can respond with Final Answer, then reply with keyword: 'Response'. \
+    If you need more steps, then reply with keyword: 'Plan'. \
+    This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
+    The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps.
 
-Your original plan was this:
-{plan}
+    Your objective was this:
+    {input}
 
-You have currently done the follow steps:
-{past_steps}
+    Your original plan was this:
+    {plan}
 
-Update your plan accordingly. If no more steps are needed and you can return to the user, then respond with that. Otherwise, fill out the plan. Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."""
+    You have currently done the follow steps:
+    {past_steps}
+
+    Update your plan accordingly. If no more steps are needed and you can return to the user, then respond with that. Otherwise, fill out the plan. Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan.
+    """
 )

@@ -35,7 +35,6 @@ class ControllerFactory:
     @staticmethod
     def factory(controller_config: str, model_map: Dict):
         """Returns an instance of the appropriate controller based on the controller_type."""
-
         config = ControllerFactory.get_controller_config(controller_config)
 
         if CONTROLLER_TYPE == "routellm":

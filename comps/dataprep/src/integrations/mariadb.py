@@ -91,15 +91,13 @@ class DocumentsTable:
         """Create the documents table if it does not exist."""
         connection = mariadb.connect(**self.conn_args)
         cursor = connection.cursor()
-        cursor.execute(
-            f"""
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS {self._table_name} (
                 id VARCHAR(32) PRIMARY KEY,
                 name TEXT,
                 embedding_ids JSON
             )
-            """
-        )
+            """)
         connection.commit()
         cursor.close()
         connection.close()

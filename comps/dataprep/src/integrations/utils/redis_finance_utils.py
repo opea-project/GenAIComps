@@ -112,9 +112,7 @@ If none of the companies in the knowledge base match the company of interest, ou
 
 
 def parse_metadata_json(metadata):
-    """
-    metadata: str
-    """
+    """Metadata: str."""
     if "```json" in metadata:
         metadata = metadata.split("```json")[1]
         metadata = metadata.split("```")[0]

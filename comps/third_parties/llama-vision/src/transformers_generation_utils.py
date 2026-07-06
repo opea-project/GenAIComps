@@ -1197,7 +1197,6 @@ class GenerationMixin:
 
     def _validate_generated_length(self, generation_config, input_ids_length, has_default_max_length):
         """Performs validation related to the resulting generated length."""
-
         # Can't throw warnings/exceptions during compilation
         if is_torchdynamo_compiling():
             return
@@ -1254,7 +1253,6 @@ class GenerationMixin:
         inputs_tensor,
     ):
         """Prepared max and min length in generation configs to avoid clashes between similar attributes."""
-
         if generation_config.max_new_tokens is not None:
             if not has_default_max_length and generation_config.max_length is not None:
                 logger.warning(
@@ -1382,8 +1380,9 @@ class GenerationMixin:
     def _get_cache(
         self, cache_implementation: str, batch_size: int, max_cache_len: int, device: torch.device, model_kwargs
     ) -> Cache:
-        """Sets a cache for `generate`, that will persist across calls. A new cache will only be initialized a
-        new `generate` call requires a larger cache or uses a different batch size.
+        """Sets a cache for `generate`, that will persist across calls.
+
+        A new cache will only be initialized a new `generate` call requires a larger cache or uses a different batch size.
 
         Returns the resulting cache object.
         """
@@ -1464,7 +1463,6 @@ class GenerationMixin:
         If a cache is
         instantiated, writes it to `model_kwargs`, under the name expected by the model.
         """
-
         cache_name = "past_key_values" if "mamba" not in self.__class__.__name__.lower() else "cache_params"
         requires_cross_attention_cache = (
             self.config.is_encoder_decoder or model_kwargs.get("encoder_outputs") is not None
@@ -2314,7 +2312,6 @@ class GenerationMixin:
             `return_dict_in_generate=True` or a [`~generation.GenerateEncoderDecoderOutput`] if
             `model.config.is_encoder_decoder=True`.
         """
-
         if self.config.is_encoder_decoder:
             raise ValueError("DoLa decoding is only available for decoder-only models.")
         # init values

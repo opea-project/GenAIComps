@@ -29,7 +29,6 @@ class ArangoDBStore(OpeaStore):
                 - db: An instance of arango.database.StandardDatabase (optional).
                 - collection: An instance of arango.collection.StandardCollection (optional).
         """
-
         is_async = config.get("is_async", self.IS_ASYNC_DEFAULT)
 
         if is_async:
@@ -80,7 +79,6 @@ class ArangoDBStore(OpeaStore):
 
     def _initialize_connection(self) -> None:
         """Initializes the connection to the ArangoDB database and collection."""
-
         from arango import ArangoClient
 
         try:
@@ -109,7 +107,6 @@ class ArangoDBStore(OpeaStore):
 
     async def _initialize_connection_async(self) -> None:
         """Initializes the connection to the ArangoDB database and collection asynchronously."""
-
         from arangoasync import ArangoClient
         from arangoasync.auth import Auth
 
@@ -585,7 +582,6 @@ class ArangoDBStore(OpeaStore):
         Returns:
             list[dict]: A list of documents matching the search criteria.
         """
-
         # Handle nested field access (e.g., "data.user" -> doc.data.user)
         if "." in key:
             field_access = "doc." + key

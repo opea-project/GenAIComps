@@ -135,7 +135,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
     def search_by_filename(self, file_name: str) -> bool:
         """Search Elasticsearch by file name."""
-
         query = {"query": {"match": {"metadata.doc_name": {"query": file_name, "operator": "AND"}}}}
         results = self.es_client.search(index=INDEX_NAME, body=query)
 
@@ -147,7 +146,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
     async def ingest_doc_to_elastic(self, doc_path: DocPath) -> None:
         """Ingest documents to Elasticsearch."""
-
         path = doc_path.path
         file_name = path.split("/")[-1]
         if logflag:
@@ -205,7 +203,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
     async def ingest_link_to_elastic(self, link_list: List[str]) -> None:
         """Ingest data scraped from website links into Elasticsearch."""
-
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,
             chunk_overlap=CHUNK_OVERLAP,

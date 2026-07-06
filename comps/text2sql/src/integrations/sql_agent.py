@@ -144,7 +144,6 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
     @root_validator(pre=True)
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Initializes the LLM chain if it does not exist in the given values dictionary."""
-
         if "llm_chain" not in values:
             values["llm_chain"] = LLMChain(
                 llm=values.get("llm"),  # type: ignore[arg-type]
@@ -240,7 +239,6 @@ def custom_create_sql_agent(
     **kwargs: Any,
 ) -> AgentExecutor:
     """Creates a SQL agent with specified parameters."""
-
     tools = toolkit.get_tools()
     if prompt is None:
         prefix = prefix or SQL_PREFIX

@@ -176,7 +176,6 @@ class OpeaArangoRetriever(OpeaComponent):
             - The function dynamically constructs an AQL query based on the input parameters.
             - If `logflag` is enabled, the constructed query and bind variables are logged.
         """
-
         if traversal_max_depth < 1:
             traversal_max_depth = 1
 
@@ -291,7 +290,6 @@ class OpeaArangoRetriever(OpeaComponent):
         Returns:
             str: A formatted prompt string instructing how to summarize the document.
         """
-
         return f"""
             I've performed vector similarity on the following
             query to retrieve most relevant documents: '{query}'

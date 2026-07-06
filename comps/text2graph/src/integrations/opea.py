@@ -64,7 +64,6 @@ class OpeaText2GRAPH(OpeaComponent):
         Returns:
             text : dict
         """
-
         tb = TripletBuilder()
         graph_triplets = await tb.extract_graph(input_text)
 

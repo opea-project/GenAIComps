@@ -188,7 +188,6 @@ class OpeaRedisDataprepFinance(OpeaComponent):
     def _initialize_client(self, url) -> redis.Redis:
         if logflag:
             logger.info("[ initialize client ] initializing redis client...")
-
         """Initializes the redis client."""
         try:
             redis_pool = redis.ConnectionPool.from_url(url)
@@ -296,7 +295,6 @@ class OpeaRedisDataprepFinance(OpeaComponent):
 
     async def get_files(self):
         """Get file source names."""
-
         if logflag:
             logger.info("[ redis get ] start to get filenames of all uploaded files")
 

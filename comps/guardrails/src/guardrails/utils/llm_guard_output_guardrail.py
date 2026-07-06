@@ -41,10 +41,8 @@ class OPEALLMGuardOutputGuardrail:
             self._scanners_config = OutputScannersConfig(usv_config)
             self._scanners = self._scanners_config.create_enabled_output_scanners()
         except Exception as e:
-            logger.exception(
-                f"An unexpected error occurred during initializing \
-                    LLM Guard Output Guardrail scanners: {e}"
-            )
+            logger.exception(f"An unexpected error occurred during initializing \
+                    LLM Guard Output Guardrail scanners: {e}")
             raise
 
     def scan_llm_output(self, output_doc: GeneratedDoc) -> str:

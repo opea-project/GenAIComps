@@ -58,7 +58,6 @@ class GraphRAGQueryEngine(CustomQueryEngine):
 
     def custom_query(self, query_str: str, batch_size: int = 16) -> RetrievalResponseData:
         """Process all community summaries to generate answers to a specific query."""
-
         entities = self.get_entities(query_str, self._similarity_top_k)
         community_summaries = self.retrieve_community_summaries_cypher(entities)
         community_ids = list(community_summaries.keys())
@@ -131,10 +130,8 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         with self._graph_store.driver.session() as session:
             for entity in entities:
                 result = session.run(
-                    """
-                    MATCH (e:Entity {id: $entity_id})-[:BELONGS_TO]->(c:Cluster)
-                    RETURN c.id AS cluster_id, c.summary AS summary
-                    """,
+                    """MATCH (e:Entity {id: $entity_id})-[:BELONGS_TO]->(c:Cluster)
+                    RETURN c.id AS cluster_id, c.summary AS summary.""",
                     entity_id=entity,
                 )
                 for record in result:

@@ -109,7 +109,7 @@ class OpeaText2SQL(OpeaComponent):
             url = self.format_db_url(request)
         else:
             raise ValueError("Database connection URL must be provided in 'conn_url' field of the request.")
-
+        \
         """Execute a SQL query using the custom SQL agent.
 
         Args:

@@ -380,7 +380,6 @@ class OpeaMilvusDataprep(OpeaComponent):
             "type": "File",
             "parent": "",
         }"""
-
         if logflag:
             logger.info("[ milvus get ] start to get file structure")
 
