@@ -234,7 +234,7 @@ pandas==2.3.0
     # via
     #   -r ./comps/text2sql/src/requirements.in
     #   docarray
-pillow==11.2.1
+pillow==12.3.0
     # via
     #   docarray
     #   sentence-transformers
