@@ -263,7 +263,7 @@ packaging==25.0
     #   transformers
 pandas==2.3.3
     # via docarray
-pillow==12.0.0
+pillow==12.3.0
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   docarray

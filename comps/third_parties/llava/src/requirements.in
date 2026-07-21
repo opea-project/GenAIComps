@@ -6,7 +6,7 @@ langchain-core>=0.3.81
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-pillow>=11.3.0
+pillow>=12.3.0
 prometheus-fastapi-instrumentator
 pydantic>=2.7.2
 pydub

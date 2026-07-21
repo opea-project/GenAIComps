@@ -11,7 +11,7 @@ open_clip_torch
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-pillow>=11.3.0
+pillow>=12.3.0
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
