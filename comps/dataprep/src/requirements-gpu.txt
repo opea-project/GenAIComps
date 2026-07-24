@@ -902,7 +902,7 @@ pure-eval==0.2.3
     # via stack-data
 py4j==0.10.9.9
     # via pyspark
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
