@@ -737,7 +737,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
