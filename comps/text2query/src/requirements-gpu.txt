@@ -366,7 +366,7 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via langchain-huggingface
-setuptools==80.9.0 ; (python_full_version >= '3.12' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and sys_platform != 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+setuptools==83.0.0 ; (python_full_version >= '3.12' and platform_machine != 'x86_64') or (python_full_version >= '3.12' and sys_platform != 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
     # via
     #   torch
     #   triton

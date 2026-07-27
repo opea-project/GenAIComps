@@ -231,7 +231,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.54
     # via pathway
 google-api-core==2.25.2
     # via
@@ -822,7 +822,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
@@ -1044,7 +1044,7 @@ semchunk==2.2.2
     # via docling-core
 sentence-transformers==5.2.0
     # via -r ./comps/retrievers/src/requirements.in
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   fs
     #   grpcio-tools

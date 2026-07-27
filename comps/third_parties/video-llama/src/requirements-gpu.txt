@@ -360,7 +360,7 @@ sentence-transformers==5.2.0
     # via -r ./comps/third_parties/video-llama/src/requirements.in
 sentencepiece==0.2.1
     # via -r ./comps/third_parties/video-llama/src/requirements.in
-setuptools==80.9.0 ; python_full_version >= '3.12'
+setuptools==83.0.0 ; python_full_version >= '3.12'
     # via torch
 shortuuid==1.0.13
     # via -r ./comps/third_parties/video-llama/src/requirements.in

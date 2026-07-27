@@ -857,7 +857,7 @@ pure-eval==0.2.3
     # via stack-data
 py4j==0.10.9.9
     # via pyspark
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
@@ -944,7 +944,7 @@ pypandoc==1.16.2
     # via unstructured
 pyparsing==3.3.1
     # via matplotlib
-pypdf==6.5.0
+pypdf==6.14.2
     # via
     #   llama-index-readers-file
     #   unstructured
@@ -1126,7 +1126,7 @@ semchunk==2.2.2
     # via docling-core
 sentence-transformers==5.2.0
     # via -r ./comps/dataprep/src/requirements.in
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   grpcio-tools
     #   llama-index-core

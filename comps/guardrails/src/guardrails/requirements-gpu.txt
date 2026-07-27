@@ -456,7 +456,7 @@ scipy==1.16.3
     #   trimesh
 sentencepiece==0.2.1
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   spacy
     #   thinc
