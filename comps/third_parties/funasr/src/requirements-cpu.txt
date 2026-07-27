@@ -395,7 +395,7 @@ scipy==1.16.3
     #   umap-learn
 sentencepiece==0.2.1
     # via funasr
-setuptools==80.9.0
+setuptools==83.0.0
     # via modelscope
 shapely==2.1.2
     # via trimesh

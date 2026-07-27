@@ -223,7 +223,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.54
     # via pathway
 google-ai-generativelanguage==0.6.15
     # via google-generativeai
@@ -445,7 +445,7 @@ lazy-object-proxy==1.12.0
     # via openapi-spec-validator
 linkify-it-py==2.0.3
     # via panel
-litellm==1.77.2.post1
+litellm==1.93.0
     # via pathway
 llama-index-core==0.12.52.post1
     # via
@@ -737,7 +737,7 @@ pyarrow==18.1.0
     #   pathway
 pyarrow-hotfix==0.7
     # via deltalake
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
@@ -816,7 +816,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.14.2
     # via
     #   unstructured
     #   unstructured-client
@@ -970,7 +970,7 @@ semchunk==2.2.2
     # via docling-core
 sentence-transformers==5.2.0
     # via -r ./comps/third_parties/pathway/src/requirements.in
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   fs
     #   llama-index-core

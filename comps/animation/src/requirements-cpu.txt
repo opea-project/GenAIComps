@@ -420,7 +420,7 @@ scipy==1.15.3
     #   trimesh
 semantic-version==2.10.0
     # via gradio
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   tb-nightly
     #   trimesh

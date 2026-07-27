@@ -15,7 +15,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
-pypdf==6.4.0
+pypdf==6.14.2
 python-arango
 python-arango-async
 python-multipart

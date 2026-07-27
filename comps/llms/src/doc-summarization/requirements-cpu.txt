@@ -410,7 +410,7 @@ scipy==1.15.3
     #   trimesh
 sentence-transformers==4.1.0
     # via langchain-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
+setuptools==83.0.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.1
     # via trimesh

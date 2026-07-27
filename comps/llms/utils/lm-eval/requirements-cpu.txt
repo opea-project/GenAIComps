@@ -252,7 +252,7 @@ scipy==1.15.3 ; python_full_version < '3.11'
     # via scikit-learn
 scipy==1.16.3 ; python_full_version >= '3.11'
     # via scikit-learn
-setuptools==80.9.0
+setuptools==83.0.0
     # via
     #   pytablewriter
 six==1.17.0

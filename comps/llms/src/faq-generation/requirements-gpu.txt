@@ -374,7 +374,7 @@ scipy==1.16.3
     #   trimesh
 sentence-transformers==5.2.0
     # via langchain-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
+setuptools==83.0.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.2
     # via trimesh

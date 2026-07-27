@@ -369,7 +369,7 @@ scipy==1.16.3 ; python_full_version >= '3.11'
     #   jax
     #   jaxlib
     #   trimesh
-setuptools==80.9.0 ; python_full_version >= '3.12'
+setuptools==83.0.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.2
     # via trimesh

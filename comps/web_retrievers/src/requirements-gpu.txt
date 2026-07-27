@@ -416,7 +416,7 @@ protobuf==6.33.2
     #   onnxruntime
     #   opentelemetry-proto
     #   proto-plus
-pyasn1==0.6.1
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   rsa
@@ -535,7 +535,7 @@ sentence-transformers==5.2.0
     # via
     #   -r ./comps/web_retrievers/src/requirements.in
     #   langchain-huggingface
-setuptools==80.9.0 ; python_full_version >= '3.12'
+setuptools==83.0.0 ; python_full_version >= '3.12'
     # via torch
 shapely==2.1.2
     # via trimesh
