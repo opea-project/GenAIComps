@@ -223,7 +223,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.54
     # via pathway
 google-ai-generativelanguage==0.6.15
     # via google-generativeai
@@ -525,7 +525,7 @@ networkx==3.6.1
     #   llama-index-core
     #   pathway
     #   unstructured
-nltk==3.9.2
+nltk==3.10.0
     # via
     #   llama-index-core
     #   unstructured
@@ -565,7 +565,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.22.0
     # via
     #   unstructured
     #   unstructured-inference
@@ -789,7 +789,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via mcp
 pylatexenc==2.10
     # via docling

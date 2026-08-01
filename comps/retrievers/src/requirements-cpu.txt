@@ -231,7 +231,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.54
     # via pathway
 google-api-core==2.25.2
     # via
@@ -579,7 +579,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.10.0
     # via llama-index-core
 numba==0.63.1
     # via
@@ -871,7 +871,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via python-arango
 pylatexenc==2.10
     # via docling
