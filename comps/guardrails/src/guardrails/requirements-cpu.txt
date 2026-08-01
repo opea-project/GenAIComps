@@ -211,7 +211,7 @@ mypy-extensions==1.1.0
 networkx==3.6.1
     # via
     #   trimesh
-nltk==3.9.2
+nltk==3.10.0
     # via llm-guard
 numpy==2.4.0
     # via
