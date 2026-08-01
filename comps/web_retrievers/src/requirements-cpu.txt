@@ -144,7 +144,7 @@ html2text==2025.4.15
     # via -r ./comps/web_retrievers/src/requirements.in
 httpcore==1.0.9
     # via httpx
-httplib2==0.31.0
+httplib2==0.32.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
