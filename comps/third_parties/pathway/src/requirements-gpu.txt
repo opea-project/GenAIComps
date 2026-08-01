@@ -225,7 +225,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.54
     # via pathway
 google-ai-generativelanguage==0.6.15
     # via google-generativeai
@@ -309,7 +309,7 @@ httpcore==1.0.9
     # via
     #   httpx
     #   unstructured-client
-httplib2==0.31.0
+httplib2==0.32.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
@@ -529,7 +529,7 @@ networkx==3.6.1
     #   pathway
     #   torch
     #   unstructured
-nltk==3.9.2
+nltk==3.10.0
     # via
     #   llama-index-core
     #   unstructured
@@ -609,7 +609,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.22.0
     # via
     #   unstructured
     #   unstructured-inference
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.14.2
     # via
     #   unstructured
     #   unstructured-client
