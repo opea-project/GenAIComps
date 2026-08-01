@@ -570,7 +570,7 @@ networkx==3.6.1
     #   unstructured
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.10.0
     # via
     #   llama-index
     #   llama-index-core
@@ -911,7 +911,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.13.0
     # via python-arango
 pylatexenc==2.10
     # via docling
