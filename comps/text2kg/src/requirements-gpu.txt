@@ -270,7 +270,7 @@ networkx==3.6.1
     #   llama-index-core
     #   torch
     #   trimesh
-nltk==3.9.2
+nltk==3.10.0
     # via
     #   llama-index
     #   llama-index-core
