@@ -222,7 +222,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
             encoded_link = encode_filename(link)
             save_path = UPLOADED_FILES_PATH + encoded_link + ".txt"
-            doc_path = UPLOADED_FILES_PATH + link + ".txt"
+            doc_path = UPLOADED_FILES_PATH + encoded_link + ".txt"
             if logflag:
                 logger.info(f"[ ingest link ] save_path: {save_path}")
 
