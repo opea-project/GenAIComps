@@ -529,7 +529,7 @@ networkx==3.6.1
     #   pathway
     #   torch
     #   unstructured
-nltk==3.9.2
+nltk==3.10.3
     # via
     #   llama-index-core
     #   unstructured
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.16.1
     # via
     #   unstructured
     #   unstructured-client
