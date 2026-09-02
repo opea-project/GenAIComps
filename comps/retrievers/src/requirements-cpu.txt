@@ -57,7 +57,7 @@ av==16.0.1
     # via docarray
 backoff==2.2.1
     # via posthog
-banks==2.2.0
+banks==2.4.5
     # via llama-index-core
 beartype==0.15.0
     # via
@@ -579,7 +579,7 @@ networkx==3.6.1
     #   trimesh
 ninja==1.13.0
     # via easyocr
-nltk==3.9.2
+nltk==3.10.3
     # via llama-index-core
 numba==0.63.1
     # via
@@ -1126,7 +1126,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.8 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
@@ -1149,7 +1149,7 @@ traitlets==5.14.3
     #   ipython
     #   ipywidgets
     #   matplotlib-inline
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   docling-core
     #   docling-ibm-models

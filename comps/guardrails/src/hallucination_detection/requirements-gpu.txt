@@ -77,7 +77,7 @@ colorlog==6.10.1
     # via trimesh
 compressed-tensors==0.12.2
     # via vllm
-cryptography==46.0.3
+cryptography==50.0.0
     # via pyjwt
 cuda-bindings==13.1.1
     # via cuda-python

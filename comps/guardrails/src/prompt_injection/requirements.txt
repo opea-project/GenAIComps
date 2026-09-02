@@ -3,35 +3,36 @@
 aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.13.2
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 aiosignal==1.4.0
     # via aiohttp
 annotated-doc==0.0.4
-    # via fastapi
+    # via
+    #   fastapi
+    #   typer
 annotated-types==0.7.0
     # via pydantic
 anyio==4.12.0
-    # via starlette
+    # via
+    #   httpx
+    #   starlette
 attrs==25.4.0
     # via aiohttp
 certifi==2025.11.12
-    # via requests
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
 charset-normalizer==3.4.4
     # via requests
 click==8.3.1
     # via uvicorn
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via
-    #   click
-    #   tqdm
 docarray==0.41.0
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 fastapi==0.127.0
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 filelock==3.20.1
-    # via
-    #   huggingface-hub
-    #   transformers
+    # via huggingface-hub
 frozenlist==1.8.0
     # via
     #   aiohttp
@@ -45,17 +46,24 @@ googleapis-common-protos==1.72.0
 grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
-    # via uvicorn
-hf-xet==1.2.0 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
-    # via huggingface-hub
-huggingface-hub==0.36.0
     # via
-    #   -r ./comps/guardrails/src/prompt_injection/requirements.in
+    #   httpcore
+    #   uvicorn
+hf-xet==1.2.0
+    # via huggingface-hub
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via huggingface-hub
+huggingface-hub==1.5.0
+    # via
+    #   -r requirements.in
     #   tokenizers
     #   transformers
 idna==3.11
     # via
     #   anyio
+    #   httpx
     #   requests
     #   yarl
 importlib-metadata==8.7.1
@@ -76,13 +84,13 @@ numpy==2.4.0
     #   transformers
 opentelemetry-api==1.39.1
     # via
-    #   -r ./comps/guardrails/src/prompt_injection/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-otlp==1.39.1
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 opentelemetry-exporter-otlp-proto-common==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -98,7 +106,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.39.1
     # via
-    #   -r ./comps/guardrails/src/prompt_injection/requirements.in
+    #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-semantic-conventions==0.60b1
@@ -110,15 +118,13 @@ packaging==25.0
     #   huggingface-hub
     #   transformers
 pillow==12.0.0
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
-predictionguard==2.9.2 ; python_full_version < '3.12'
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
-predictionguard==2.10.0 ; python_full_version >= '3.12'
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
+predictionguard==2.10.0
+    # via -r requirements.in
 prometheus-client==0.23.1
     # via prometheus-fastapi-instrumentator
 prometheus-fastapi-instrumentator==7.1.0
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 propcache==0.4.1
     # via
     #   aiohttp
@@ -143,19 +149,21 @@ regex==2025.11.3
     # via transformers
 requests==2.32.5
     # via
-    #   huggingface-hub
     #   opentelemetry-exporter-otlp-proto-http
     #   predictionguard
-    #   transformers
 rich==14.2.0
-    # via docarray
+    # via
+    #   docarray
+    #   typer
 safetensors==0.7.0
     # via transformers
+shellingham==1.5.4
+    # via typer
 shortuuid==1.0.13
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 starlette==0.50.0
     # via
-    #   -r ./comps/guardrails/src/prompt_injection/requirements.in
+    #   -r requirements.in
     #   fastapi
     #   prometheus-fastapi-instrumentator
 tabulate==0.9.0
@@ -166,14 +174,16 @@ tqdm==4.67.1
     # via
     #   huggingface-hub
     #   transformers
-transformers==4.57.3
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+transformers==5.10.1
+    # via -r requirements.in
+typer==0.27.2
+    # via
+    #   huggingface-hub
+    #   transformers
 types-requests==2.32.4.20250913
     # via docarray
 typing-extensions==4.15.0
     # via
-    #   aiosignal
-    #   anyio
     #   fastapi
     #   grpcio
     #   huggingface-hub
@@ -184,7 +194,6 @@ typing-extensions==4.15.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
-    #   starlette
     #   typing-inspect
     #   typing-inspection
 typing-inspect==0.9.0
@@ -193,11 +202,11 @@ typing-inspection==0.4.2
     # via pydantic
 urllib3==2.6.2
     # via
-    #   -r ./comps/guardrails/src/prompt_injection/requirements.in
+    #   -r requirements.in
     #   requests
     #   types-requests
 uvicorn==0.40.0
-    # via -r ./comps/guardrails/src/prompt_injection/requirements.in
+    # via -r requirements.in
 yarl==1.22.0
     # via aiohttp
 zipp==3.23.0
