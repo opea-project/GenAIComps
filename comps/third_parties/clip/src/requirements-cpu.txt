@@ -339,7 +339,7 @@ tqdm==4.67.1
     #   open-clip-torch
     #   sentence-transformers
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   sentence-transformers
