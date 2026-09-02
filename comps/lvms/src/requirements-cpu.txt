@@ -48,7 +48,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   tqdm
 colorlog==6.10.1
     # via trimesh
-cryptography==46.0.3
+cryptography==50.0.0
     # via pyjwt
 datasets==4.4.2
     # via -r ./comps/lvms/src/requirements.in
@@ -402,7 +402,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.51.3
+transformers==5.10.1
     # via
     #   optimum
     #   optimum-habana
