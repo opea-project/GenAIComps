@@ -353,7 +353,7 @@ tqdm==4.67.1
     #   huggingface-hub
     #   openai
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via -r ./comps/llms/src/doc-summarization/requirements.in
 trimesh==4.10.1
     # via docarray

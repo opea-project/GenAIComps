@@ -134,7 +134,7 @@ multiprocess==0.70.18
     # via
     #   datasets
     #   evaluate
-nltk==3.9.2
+nltk==3.10.3
     # via rouge-score
 numexpr==2.14.1
     # via lm-eval
@@ -284,7 +284,7 @@ tqdm==4.67.1
     #   transformers
 tqdm-multiprocess==0.0.11
     # via lm-eval
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   bigcode-eval
     #   lm-eval
