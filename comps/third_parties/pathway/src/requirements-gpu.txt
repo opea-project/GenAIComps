@@ -529,7 +529,7 @@ networkx==3.6.1
     #   pathway
     #   torch
     #   unstructured
-nltk==3.9.2
+nltk==3.10.3
     # via
     #   llama-index-core
     #   unstructured
