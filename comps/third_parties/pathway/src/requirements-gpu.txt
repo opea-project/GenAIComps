@@ -529,7 +529,7 @@ networkx==3.6.1
     #   pathway
     #   torch
     #   unstructured
-nltk==3.9.2
+nltk==3.10.3
     # via
     #   llama-index-core
     #   unstructured
@@ -1103,7 +1103,7 @@ torchvision==0.24.1
     #   docling-ibm-models
     #   effdet
     #   timm
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.8 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
