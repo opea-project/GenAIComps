@@ -218,7 +218,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 logger.info(f"[ ingest link ] link: {link} content: {content}")
             encoded_link = encode_filename(link)
             save_path = self.upload_folder + encoded_link + ".txt"
-            doc_path = self.upload_folder + link + ".txt"
+            doc_path = self.upload_folder + encoded_link + ".txt"
             if logflag:
                 logger.info(f"[ ingest link ] save_path: {save_path}")
             await save_content_to_local_disk(save_path, content)
