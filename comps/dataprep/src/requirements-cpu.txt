@@ -116,7 +116,7 @@ colorlog==6.10.1
     #   trimesh
 contourpy==1.3.3
     # via matplotlib
-cryptography==46.0.3
+cryptography==50.0.0
     # via
     #   msoffcrypto-tool
     #   pdfminer-six
@@ -911,7 +911,7 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   mpire
     #   rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via python-arango
 pylatexenc==2.10
     # via docling

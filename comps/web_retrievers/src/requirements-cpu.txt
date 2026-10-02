@@ -67,7 +67,7 @@ coloredlogs==15.0.1
     # via onnxruntime
 colorlog==6.10.1
     # via trimesh
-cryptography==46.0.3
+cryptography==50.0.0
     # via pyjwt
 dataclasses-json==0.6.7
     # via langchain-community
@@ -284,7 +284,7 @@ numpy==2.4.0
     #   transformers
     #   trimesh
     #   vhacdx
-oauthlib==3.3.1
+oauthlib==4.0.0
     # via
     #   kubernetes
     #   requests-oauthlib
@@ -404,7 +404,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 pyparsing==3.3.1
     # via httplib2
