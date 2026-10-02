@@ -67,7 +67,7 @@ colorlog==6.10.1
     # via trimesh
 crcmod==1.7
     # via oss2
-cryptography==46.0.3
+cryptography==50.0.0
     # via
     #   aliyun-python-sdk-core
     #   pyjwt
@@ -332,7 +332,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 pynndescent==0.5.13
     # via umap-learn
