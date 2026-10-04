@@ -376,7 +376,7 @@ typing-inspect==0.9.0
     # via docarray
 tzdata==2025.3
     # via pandas
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/image2image/src/requirements.in
     #   requests
