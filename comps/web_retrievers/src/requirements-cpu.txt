@@ -404,7 +404,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 pyparsing==3.3.1
     # via httplib2
@@ -590,7 +590,7 @@ tzdata==2025.3
     # via pandas
 uritemplate==4.2.0
     # via google-api-python-client
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/web_retrievers/src/requirements.in
     #   kubernetes
