@@ -73,7 +73,8 @@ class GenerateRequest(BaseModel):
 # Function to construct instructions context
 def construct_instructions():
     instructions = [
-        """ Identify the person [with specific features / seen at a specific location / performing a specific action] in the provided data based on the video content.
+        """Identify the person [with specific features / seen at a specific location / performing a specific action] in the provided data based on the video content.
+
         Describe in detail the relevant actions of the individuals mentioned in the question.
         Provide full details of their actions being performed and roles. Focus on the individual and the actions being performed.
         Exclude information about their age and items on the shelf that are not directly observable.
@@ -87,6 +88,7 @@ def construct_instructions():
         Specify the type of activity and any relevant contextual details,
         Do not give repetitions, always give distinct and accurate information only.""",
         """Determine the interactions between individuals and items in the provided data.
+
         Describe the nature of the interaction between individuals and the items involved.
         Provide full details of their relevant actions and roles. Focus on the individuals and the action being performed by them.
         Exclude information about their age and items on the shelf that are not directly observable.
@@ -99,8 +101,10 @@ def construct_instructions():
         Provide detailed information corresponding to the specified time frames,
         Do not give repetitions, always give distinct and accurate information only.""",
         """Identify individuals based on their appearance as described in the provided data.
+
         Provide details about their identity and actions,
-        Do not give repetitions, always give distinct and accurate information only.""",
+        Do not give repetitions, always give distinct and accurate information only.
+        """,
         """Answer questions related to events and activities that occurred on a specific day.
         Provide a detailed account of the events,
         Do not give repetitions, always give distinct and accurate information only.""",

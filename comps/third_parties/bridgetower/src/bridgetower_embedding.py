@@ -84,7 +84,6 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
         Returns:
             List of embeddings, one for each image-text pairs.
         """
-
         # the length of texts must be equal to the length of images
         assert len(texts) == len(images), "the number of captions should be equal to the number of images"
 

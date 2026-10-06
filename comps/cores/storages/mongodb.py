@@ -22,7 +22,6 @@ class MongoDBStore(OpeaStore):
 
     def _initialize_db(self) -> None:
         """Initializes the MongoDB database connection and collection."""
-
         MONGO_HOST = self.config.get("MONGO_HOST", "localhost")
         MONGO_PORT = self.config.get("MONGO_PORT", 27017)
         DB_NAME = self.config.get("DB_NAME", "OPEA")

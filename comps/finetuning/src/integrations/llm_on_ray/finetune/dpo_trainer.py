@@ -179,7 +179,6 @@ class DPOTrainer(Trainer):
 
         We do this to avoid doing two forward passes, because it's faster for FSDP.
         """
-
         len_chosen = batch["input_ids"].shape[0] // 2
 
         model_kwargs = {}

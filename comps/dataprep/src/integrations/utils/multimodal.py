@@ -160,7 +160,6 @@ def resize_image(img_fpath, max_size=150):
 
 def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path: str, output_dir: str):
     """Generates an annotations.json from the transcript file."""
-
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
 

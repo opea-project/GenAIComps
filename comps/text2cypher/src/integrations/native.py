@@ -150,7 +150,6 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             str: the generated output.
         """
-
         global query_chain, initialized
         with initialization_lock:
             if not initialized:

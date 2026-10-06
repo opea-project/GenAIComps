@@ -66,11 +66,11 @@ def get_checkpoint_files(model_name_or_path, local_rank, token=None):
     # Creates a list of paths from all downloaded files in cache dir
 
     if any(file.suffix == ".bin" for file in Path(cached_repo_dir).rglob("*")):
-        (name, ext) = os.path.splitext(modeling_utils.WEIGHTS_NAME)
+        name, ext = os.path.splitext(modeling_utils.WEIGHTS_NAME)
     elif any(file.suffix == ".safetensors" for file in Path(cached_repo_dir).rglob("*")):
-        (name, ext) = os.path.splitext(modeling_utils.SAFE_WEIGHTS_NAME)
+        name, ext = os.path.splitext(modeling_utils.SAFE_WEIGHTS_NAME)
     else:
-        (name, ext) = ("*", ".pt")
+        name, ext = ("*", ".pt")
 
     file_list = [
         str(entry)

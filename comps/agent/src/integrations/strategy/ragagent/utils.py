@@ -50,9 +50,7 @@ def convert_json_to_tool_call(json_str, tool):
 
 
 def assemble_history(messages):
-    """
-    messages: AI (query writer), TOOL (retriever), HUMAN (Doc Grader), AI, TOOL, HUMAN, etc.
-    """
+    """Messages: AI (query writer), TOOL (retriever), HUMAN (Doc Grader), AI, TOOL, HUMAN, etc."""
     query_history = ""
     n = 1
     for m in messages[1:]:  # exclude the first message
@@ -67,9 +65,7 @@ def assemble_history(messages):
 
 
 def aggregate_docs(messages):
-    """
-    messages: AI (query writer), TOOL (retriever), HUMAN (Doc Grader
-    """
+    """Messages: AI (query writer), TOOL (retriever), HUMAN (Doc Grader."""
     docs = []
     context = ""
     for m in messages[::-1]:

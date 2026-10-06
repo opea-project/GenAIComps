@@ -117,5 +117,4 @@ class OpeaVideoReranking(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         return True

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """PyTorch Phi-4-MM model."""
+
 import math
 import warnings
 from typing import List, Optional, Tuple, Union
@@ -1563,7 +1564,6 @@ class Phi4MMDecoderLayer(nn.Module):
                 Arbitrary kwargs to be ignored, used for FSDP and other methods that injects code
                 into the model
         """
-
         residual = hidden_states
 
         hidden_states = self.input_layernorm(hidden_states)
@@ -1722,10 +1722,11 @@ PHI4MM_INPUTS_DOCSTRING = r"""
     PHI4MM_START_DOCSTRING,
 )
 class Phi4MMModel(Phi4MMPreTrainedModel):
-    """Transformer decoder consisting of *config.num_hidden_layers* layers. Each layer is a [`Phi4MMDecoderLayer`]
+    """Transformer decoder consisting of *config.num_hidden_layers* layers.
 
-    Args:
-        config: Phi4MMConfig
+    Each layer is a [`Phi4MMDecoderLayer`]
+        Args:
+            config: Phi4MMConfig
     """
 
     def __init__(self, config: Phi4MMConfig):
@@ -2316,8 +2317,7 @@ class Phi4MMForCausalLM(Phi4MMPreTrainedModel, GenerationMixin):
 
 
 @add_start_docstrings(
-    """
-    The [`Phi4MMModel`] with a sequence classification head on top (linear layer).
+    """The [`Phi4MMModel`] with a sequence classification head on top (linear layer).
 
     [`Phi4MMForSequenceClassification`] uses the last token in order to do the classification, as other causal models
     (e.g. GPT-2) do.
@@ -2421,10 +2421,8 @@ class Phi4MMForSequenceClassification(Phi4MMPreTrainedModel):
 
 
 @add_start_docstrings(
-    """
-    [`Phi4MMModel`] with a token classification head on top (a linear layer on top of the hidden-states output) e.g. for
-    Named-Entity-Recognition (NER) tasks.
-    """,
+    """[`Phi4MMModel`] with a token classification head on top (a linear layer on top of the hidden-states output) e.g. for
+    Named-Entity-Recognition (NER) tasks.""",
     PHI4MM_START_DOCSTRING,
 )
 # Copied from transformers.models.mpt.modeling_mpt.MptForTokenClassification with Mpt->Phi,MPT->PHI,self.transformer->self.model,transformer_outputs->model_outputs

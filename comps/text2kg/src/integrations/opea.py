@@ -85,7 +85,6 @@ class OpeaText2KG(OpeaComponent):
         Returns:
             text : dict
         """
-
         query_engine = neo4j_index.as_query_engine(include_text=False, response_mode="tree_summarize")
 
         result = query_engine.query(input_text)
