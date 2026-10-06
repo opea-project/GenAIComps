@@ -39,16 +39,20 @@ class ChatTemplate:
         if has_image:
             template = """The transcript associated with the image is '{context}'. {question}"""
         else:
-            template = (
-                """Refer to the following results obtained from the local knowledge base: '{context}'. {question}"""
-            )
+            template = """Refer to the following results obtained from the local knowledge base: '{context}'.
+
+                {question}
+                """
 
         return template.format(context=context, question=question)
 
     @staticmethod
     def generate_ui_tars_prompt_for_computer(prompt: str):
         template = (
-            r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task. """
+            r"""You are a GUI agent.
+
+            You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
+            """
             + r"""
 
 ## Output Format
@@ -83,7 +87,10 @@ call_user() # Submit the task and call the user when the task is unsolvable, or 
     @staticmethod
     def generate_ui_tars_prompt_for_mobile(prompt: str):
         template = (
-            r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task. """
+            r"""You are a GUI agent.
+
+            You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
+            """
             + """
 
 ## Output Format

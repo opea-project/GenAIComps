@@ -56,9 +56,7 @@ def get_tool_output(messages, id):
 
 
 def assemble_history(messages):
-    """
-    messages: AI, TOOL, AI, TOOL, etc.
-    """
+    """Messages: AI, TOOL, AI, TOOL, etc."""
     query_history = ""
     breaker = "-" * 10
     for m in messages[1:]:  # exclude the first message
@@ -229,9 +227,7 @@ def convert_from_message_object(message_object):
 
 
 def assemble_memory_from_store(config, store):
-    """
-    store: RedisPersistence
-    """
+    """Store: RedisPersistence."""
     assistant_id = config["configurable"]["user_id"]
     thread_id = config["configurable"]["thread_id"]
     namespace = f"{assistant_id}_{thread_id}"

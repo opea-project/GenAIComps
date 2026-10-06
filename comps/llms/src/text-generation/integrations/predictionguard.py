@@ -38,7 +38,6 @@ class OpeaTextGenPredictionguard(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         try:
             response = self.client.models.list()
             return response is not None

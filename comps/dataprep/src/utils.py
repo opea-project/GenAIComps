@@ -313,6 +313,7 @@ async def load_xml(xml_path):
 
 async def load_json(json_path):
     """Asynchronously load and process JSON file."""
+
     async with aiofiles.open(json_path, "r", encoding="utf-8") as file:
         content = await file.read()
     data = json.loads(content)
@@ -331,6 +332,7 @@ async def load_jsonl(jsonl_path):
 
 async def load_yaml(yaml_path):
     """Asynchronously load and process YAML file."""
+
     async with aiofiles.open(yaml_path, "r", encoding="utf-8") as file:
         content = await file.read()
     data = yaml.safe_load(content)

@@ -489,7 +489,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
         """Upload videos or audio files with speech, generate transcripts using whisper and ingest into redis."""
-
         if files:
             files_to_ingest = []
             uploaded_files_map = {}
@@ -598,7 +597,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     async def ingest_generate_captions(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
-
         if files:
             file_paths = []
             uploaded_files_saved_files_map = {}
@@ -840,7 +838,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     async def get_files(self):
         """Returns list of names of uploaded videos saved on the server."""
-
         if not Path(self.upload_folder).exists():
             logger.info("No file uploaded, return empty list.")
             return []

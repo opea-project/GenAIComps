@@ -320,7 +320,6 @@ class OpeaRedisDataprep(OpeaComponent):
     async def _initialize_client(self) -> redis.Redis:
         if logflag:
             logger.info("[ initialize client ] initializing redis client...")
-
         """Initializes the redis client."""
         try:
             client = await aioredis.from_url(REDIS_URL)
@@ -517,7 +516,6 @@ class OpeaRedisDataprep(OpeaComponent):
             "type": "File",
             "parent": "",
         }"""
-
         if logflag:
             logger.info("[ redis get ] start to get file structure")
 

@@ -30,8 +30,9 @@ class AgentState(TypedDict):
 
 
 class QueryWriter:
-    """Invokes llm to generate a response based on the current state. Given
-    the question, it will decide to retrieve using the retriever tool, or simply end.
+    """Invokes llm to generate a response based on the current state.
+
+    Given the question, it will decide to retrieve using the retriever tool, or simply end.
 
     Args:
         state (messages): The current state

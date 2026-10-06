@@ -29,7 +29,6 @@ class OpeaDocSumvLLM(OpeaDocSum):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
         try:
             response = requests.get(f"{self.llm_endpoint}/health")
             if response.status_code == 200:
