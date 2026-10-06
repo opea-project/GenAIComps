@@ -503,7 +503,7 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==5.2.0
+sentence-transformers==5.6.0
     # via llama-index-embeddings-huggingface
 setuptools==80.9.0
     # via
@@ -562,7 +562,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   llama-index-llms-huggingface

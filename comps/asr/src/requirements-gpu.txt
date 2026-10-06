@@ -300,7 +300,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 python-dateutil==2.9.0.post0
     # via
@@ -381,7 +381,7 @@ tqdm==4.67.1
     #   datasets
     #   huggingface-hub
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via -r ./comps/asr/src/requirements.in
 trimesh==4.10.1
     # via docarray

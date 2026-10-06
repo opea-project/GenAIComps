@@ -328,7 +328,7 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==5.2.0
+sentence-transformers==5.6.0
     # via langchain-huggingface
 shapely==2.1.2
     # via trimesh

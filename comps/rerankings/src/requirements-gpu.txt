@@ -448,7 +448,7 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==5.2.0
+sentence-transformers==5.6.0
     # via -r ./comps/rerankings/src/requirements.in
 setuptools==80.9.0 ; python_full_version >= '3.12'
     # via torch
@@ -494,7 +494,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.53.3
+transformers==5.10.1
     # via sentence-transformers
 trimesh==4.10.1
     # via docarray
