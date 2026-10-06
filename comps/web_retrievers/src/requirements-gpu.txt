@@ -448,7 +448,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 pyparsing==3.3.1
     # via httplib2
@@ -531,7 +531,7 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==5.2.0
+sentence-transformers==5.6.0
     # via
     #   -r ./comps/web_retrievers/src/requirements.in
     #   langchain-huggingface
@@ -591,7 +591,7 @@ tqdm==4.67.1
     #   huggingface-hub
     #   sentence-transformers
     #   transformers
-transformers==4.50.3
+transformers==5.10.1
     # via
     #   langchain-huggingface
     #   sentence-transformers

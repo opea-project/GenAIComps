@@ -326,7 +326,7 @@ scipy==1.16.3 ; python_full_version >= '3.11'
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==3.3.1
+sentence-transformers==5.6.0
     # via optimum-habana
 sentencepiece==0.2.1
     # via optimum-habana
@@ -353,7 +353,7 @@ tqdm==4.67.1
     #   huggingface-hub
     #   sentence-transformers
     #   transformers
-transformers==4.51.3
+transformers==5.10.1
     # via
     #   -r ./comps/third_parties/llama-vision/src/requirements.in
     #   optimum

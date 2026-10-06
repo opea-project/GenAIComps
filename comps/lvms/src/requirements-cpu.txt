@@ -304,7 +304,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.15.0
     # via mcp
 python-dateutil==2.9.0.post0
     # via
@@ -366,7 +366,7 @@ scipy==1.16.3
     #   scikit-learn
     #   sentence-transformers
     #   trimesh
-sentence-transformers==3.3.1
+sentence-transformers==5.6.0
     # via optimum-habana
 sentencepiece==0.2.1
     # via optimum-habana
@@ -402,7 +402,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.51.3
+transformers==5.10.1
     # via
     #   optimum
     #   optimum-habana
