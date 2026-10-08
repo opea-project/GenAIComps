@@ -491,7 +491,7 @@ pydub==0.25.1
     #   docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.19.0
     # via
     #   llama-index-readers-file
     #   unstructured-client
@@ -641,7 +641,7 @@ tqdm==4.67.1
     #   sentence-transformers
     #   transformers
     #   unstructured
-transformers==4.52.4
+transformers==5.10.1
     # via
     #   -r ./comps/text2cypher/src/requirements.in
     #   llama-index-llms-huggingface
