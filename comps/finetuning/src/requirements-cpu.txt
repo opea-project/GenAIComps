@@ -452,7 +452,7 @@ uvicorn==0.34.3
     #   ray
 uvloop==0.21.0 ; platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'
     # via uvicorn
-virtualenv==20.31.2
+virtualenv==21.7.13
     # via ray
 watchfiles==1.1.0
     # via
