@@ -284,7 +284,7 @@ tqdm==4.67.1
     #   transformers
 tqdm-multiprocess==0.0.11
     # via lm-eval
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   bigcode-eval
     #   lm-eval
@@ -305,7 +305,7 @@ typing-extensions==4.15.0
     #   pydantic-core
 tzdata==2025.3
     # via pandas
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/llms/utils/lm-eval/requirements.in
     #   requests
