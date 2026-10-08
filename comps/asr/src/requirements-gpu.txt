@@ -381,7 +381,7 @@ tqdm==4.67.1
     #   datasets
     #   huggingface-hub
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via -r ./comps/asr/src/requirements.in
 trimesh==4.10.1
     # via docarray
@@ -420,7 +420,7 @@ typing-inspection==0.4.2
     #   pydantic-settings
 tzdata==2025.3
     # via pandas
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/asr/src/requirements.in
     #   requests

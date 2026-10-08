@@ -339,7 +339,7 @@ tqdm==4.67.1
     #   open-clip-torch
     #   sentence-transformers
     #   transformers
-transformers==4.57.3
+transformers==5.10.1
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   sentence-transformers
@@ -380,7 +380,7 @@ tzdata==2025.3
     #   tzlocal
 tzlocal==5.3.1
     # via dateparser
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   requests
