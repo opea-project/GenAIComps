@@ -231,7 +231,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.62
     # via pathway
 google-api-core==2.25.2
     # via
@@ -1126,7 +1126,7 @@ tokenizers==0.22.1
     # via
     #   langchain-huggingface
     #   transformers
-tornado==6.5.4 ; sys_platform != 'emscripten'
+tornado==6.5.9 ; sys_platform != 'emscripten'
     # via bokeh
 tqdm==4.67.1
     # via
