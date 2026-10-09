@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.19.0
     # via
     #   unstructured
     #   unstructured-client
@@ -1218,7 +1218,7 @@ unstructured-pytesseract==0.3.15
     # via unstructured
 uritemplate==4.2.0
     # via google-api-python-client
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/third_parties/pathway/src/requirements.in
     #   botocore
@@ -1228,7 +1228,7 @@ uuid-utils==0.12.0
     # via langsmith
 uvicorn==0.40.0 ; sys_platform != 'emscripten'
     # via mcp
-virtualenv==20.35.4
+virtualenv==21.7.13
     # via pre-commit
 wcwidth==0.2.14
     # via prompt-toolkit
