@@ -590,7 +590,7 @@ tzdata==2025.3
     # via pandas
 uritemplate==4.2.0
     # via google-api-python-client
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/web_retrievers/src/requirements.in
     #   kubernetes
