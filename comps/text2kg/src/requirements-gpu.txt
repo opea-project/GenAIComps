@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.19.0
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
@@ -613,7 +613,7 @@ typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.3
     # via pandas
-urllib3==2.6.2
+urllib3==2.8.0
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   requests
