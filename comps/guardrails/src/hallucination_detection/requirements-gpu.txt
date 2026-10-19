@@ -306,7 +306,7 @@ markupsafe==3.0.3
     # via jinja2
 marshmallow==3.26.2
     # via dataclasses-json
-mcp==1.25.0
+mcp==1.30.0
     # via vllm
 mdurl==0.1.2
     # via markdown-it-py
@@ -330,7 +330,7 @@ msgpack==1.1.2
     # via ray
 msgspec==0.20.0
     # via vllm
-multidict==6.7.0
+multidict==6.9.1
     # via
     #   aiohttp
     #   yarl
