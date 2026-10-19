@@ -3,7 +3,7 @@ langchain-core>=0.3.81
 langchain-community
 langchain-huggingface
 docling
-mcp>=1.23.0
+mcp>=1.30.0
 openai
 pathway[xpack-llm]
 sentence-transformers
