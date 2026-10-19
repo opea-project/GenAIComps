@@ -159,7 +159,7 @@ ml-dtypes==0.5.4
     # via
     #   jax
     #   jaxlib
-multidict==6.7.0
+multidict==7.1.0
     # via
     #   aiohttp
     #   yarl
