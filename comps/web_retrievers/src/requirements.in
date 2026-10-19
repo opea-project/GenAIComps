@@ -11,7 +11,7 @@ langchain-google-community>=0.3.27
 langchain-huggingface
 langchain_community
 langchain-text-splitters>=0.3.9
-mcp>=1.23.0
+mcp>=1.30.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
