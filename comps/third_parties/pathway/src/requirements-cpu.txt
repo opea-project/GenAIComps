@@ -9,7 +9,7 @@ aiofiles==25.1.0
     # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.14.4
     # via
     #   aiohttp-cors
     #   instructor
@@ -670,7 +670,7 @@ pi-heif==1.1.1
     # via unstructured
 pikepdf==10.1.0
     # via unstructured
-pillow==11.3.0
+pillow==13.0.0
     # via
     #   bokeh
     #   docling
