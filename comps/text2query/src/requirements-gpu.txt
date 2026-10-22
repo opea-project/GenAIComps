@@ -2,7 +2,7 @@
 #    uv pip compile ./comps/text2sql/src/requirements.in --universal -o ./comps/text2sql/src/requirements-gpu.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.12.13
+aiohttp==3.14.4
     # via
     #   langchain
     #   langchain-community
@@ -277,7 +277,7 @@ pandas==2.3.0
     # via
     #   -r ./comps/text2sql/src/requirements.in
     #   docarray
-pillow==11.2.1
+pillow==13.0.0
     # via
     #   docarray
     #   sentence-transformers
