@@ -10,7 +10,7 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 optimum[habana]
-pillow>=11.3.0
+pillow>=13.0.0
 prometheus-fastapi-instrumentator
 pydantic>=2.7.4,<3.0.0
 pydub
