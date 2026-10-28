@@ -220,7 +220,7 @@ nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'li
     # via torch
 open-clip-torch==3.2.0
     # via -r ./comps/third_parties/clip/src/requirements.in
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -263,7 +263,7 @@ packaging==25.0
     #   transformers
 pandas==2.3.3
     # via docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/third_parties/clip/src/requirements.in
     #   docarray

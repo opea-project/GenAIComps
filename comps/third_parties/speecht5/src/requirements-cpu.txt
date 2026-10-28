@@ -173,7 +173,7 @@ numpy==2.3.5 ; python_full_version >= '3.11'
     #   transformers
     #   trimesh
     #   vhacdx
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/third_parties/speecht5/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -213,7 +213,7 @@ packaging==25.0
     #   transformers
 pandas==2.3.3
     # via docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/third_parties/speecht5/src/requirements.in
     #   docarray
