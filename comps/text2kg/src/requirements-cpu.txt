@@ -294,7 +294,7 @@ openai==2.14.0
     # via
     #   llama-index-embeddings-openai
     #   llama-index-llms-openai
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -342,7 +342,7 @@ pandas==2.2.3
     #   -r ./comps/text2kg/src/requirements.in
     #   docarray
     #   llama-index-readers-file
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   docarray

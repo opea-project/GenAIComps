@@ -238,7 +238,7 @@ nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'li
     # via torch
 openai==2.14.0
     # via langchain-openai
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/arb_post_hearing_assistant/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -283,7 +283,7 @@ packaging==24.2
     #   transformers
 pandas==2.3.3
     # via docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/arb_post_hearing_assistant/src/requirements.in
     #   docarray

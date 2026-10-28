@@ -237,7 +237,7 @@ numpy==2.3.5
     #   vhacdx
 omegaconf==2.3.0
     # via hydra-core
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/third_parties/funasr/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -285,7 +285,7 @@ pandas==2.3.3
     # via
     #   datasets
     #   docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   docarray
     #   trimesh

@@ -597,7 +597,7 @@ openpyxl==3.1.5
     # via
     #   docling
     #   unstructured
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   google-cloud-pubsub
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -670,7 +670,7 @@ pi-heif==1.1.1
     # via unstructured
 pikepdf==10.1.0
     # via unstructured
-pillow==11.3.0
+pillow==13.0.0
     # via
     #   bokeh
     #   docling
@@ -1163,7 +1163,7 @@ uuid-utils==0.12.0
     # via langsmith
 uvicorn==0.40.0 ; sys_platform != 'emscripten'
     # via mcp
-virtualenv==20.35.4
+virtualenv==21.14.13
     # via pre-commit
 wcwidth==0.2.14
     # via prompt-toolkit

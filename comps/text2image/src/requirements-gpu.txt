@@ -238,7 +238,7 @@ nvidia-nvshmem-cu12==3.3.20 ; platform_machine == 'x86_64' and sys_platform == '
     # via torch
 nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux'
     # via torch
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/text2image/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -281,7 +281,7 @@ pandas==2.3.3
     # via
     #   datasets
     #   docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/text2image/src/requirements.in
     #   diffusers
