@@ -185,7 +185,7 @@ numpy==2.4.0
     #   shapely
     #   trimesh
     #   vhacdx
-opentelemetry-api==1.39.1
+opentelemetry-api==1.45.1
     # via
     #   -r ./comps/text2graph/src/requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -233,7 +233,7 @@ pandas==2.3.3
     # via
     #   -r ./comps/text2graph/src/requirements.in
     #   docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/text2graph/src/requirements.in
     #   docarray
