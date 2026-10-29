@@ -385,7 +385,7 @@ pandas==2.2.3
     #   -r ./comps/text2kg/src/requirements.in
     #   docarray
     #   llama-index-readers-file
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/text2kg/src/requirements.in
     #   docarray
@@ -435,7 +435,7 @@ pydub==0.25.1
     # via docarray
 pygments==2.19.2
     # via rich
-pypdf==6.5.0
+pypdf==6.21.2
     # via
     #   llama-index-readers-file
     #   neo4j-graphrag
