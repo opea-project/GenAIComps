@@ -7,7 +7,7 @@ mcp>=1.23.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-pillow>=11.3.0
+pillow>=13.0.0
 prometheus-fastapi-instrumentator
 pydantic>=2.11.0,<3.0.0
 pydub

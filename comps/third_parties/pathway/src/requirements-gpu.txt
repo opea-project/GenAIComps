@@ -714,7 +714,7 @@ pi-heif==1.1.1
     # via unstructured
 pikepdf==10.1.0
     # via unstructured
-pillow==11.3.0
+pillow==13.0.0
     # via
     #   bokeh
     #   docling
@@ -861,7 +861,7 @@ pyparsing==3.3.1
     # via
     #   httplib2
     #   matplotlib
-pypdf==6.5.0
+pypdf==6.21.2
     # via
     #   unstructured
     #   unstructured-client

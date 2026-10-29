@@ -9,7 +9,7 @@ openai==1.57.4
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-Pillow>=11.3.0
+Pillow>=13.0.0
 predictionguard
 prometheus-fastapi-instrumentator
 shortuuid
