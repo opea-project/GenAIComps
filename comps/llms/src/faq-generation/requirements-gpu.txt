@@ -280,7 +280,7 @@ packaging==24.2
     #   transformers
 pandas==2.3.3
     # via docarray
-pillow==12.0.0
+pillow==13.0.0
     # via
     #   -r ./comps/llms/src/faq-generation/requirements.in
     #   docarray
