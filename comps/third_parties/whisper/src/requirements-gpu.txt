@@ -65,7 +65,7 @@ exceptiongroup==1.3.1 ; python_full_version < '3.11'
     # via anyio
 fastapi==0.124.4
     # via -r ./comps/third_parties/whisper/src/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   datasets
     #   huggingface-hub
@@ -143,7 +143,7 @@ markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
-mcp==1.24.0
+mcp==1.30.0
     # via -r ./comps/third_parties/whisper/src/requirements.in
 mdurl==0.1.2
     # via markdown-it-py

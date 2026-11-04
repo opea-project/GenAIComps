@@ -197,7 +197,7 @@ faker==39.0.0
     # via polyfactory
 fastapi==0.127.0
     # via -r ./comps/dataprep/src/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   transformers
@@ -648,7 +648,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.17.0
+onnx==1.22.0rc1
     # via
     #   unstructured
     #   unstructured-inference

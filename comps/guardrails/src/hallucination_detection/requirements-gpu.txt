@@ -101,7 +101,7 @@ distro==1.9.0
     # via
     #   anthropic
     #   openai
-dnspython==2.8.0
+dnspython==2.9.0
     # via email-validator
 docarray==0.41.0
     # via -r ./comps/guardrails/src/hallucination_detection/requirements.in
@@ -306,7 +306,7 @@ markupsafe==3.0.3
     # via jinja2
 marshmallow==3.26.2
     # via dataclasses-json
-mcp==1.25.0
+mcp==1.30.0
     # via vllm
 mdurl==0.1.2
     # via markdown-it-py
