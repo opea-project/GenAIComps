@@ -82,7 +82,7 @@ fastapi==0.115.13
     #   ray
 fastrlock==0.8.3 ; sys_platform != 'darwin'
     # via cupy-cuda12x
-filelock==3.18.0
+filelock==4.2.1
     # via
     #   datasets
     #   huggingface-hub

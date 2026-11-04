@@ -193,7 +193,7 @@ fastmcp==2.12.4
     # via pathway
 fastuuid==0.14.0
     # via litellm
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   torch
@@ -609,7 +609,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.22.0
     # via
     #   unstructured
     #   unstructured-inference
