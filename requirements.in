@@ -8,7 +8,7 @@ kubernetes
 langchain
 langchain-community
 langchain-core>=0.3.81
-mcp==1.23.0
+mcp==1.30.0
 motor
 opentelemetry-api
 opentelemetry-exporter-otlp

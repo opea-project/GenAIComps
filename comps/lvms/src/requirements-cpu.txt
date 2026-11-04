@@ -66,7 +66,7 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 fastapi==0.128.0
     # via -r ./comps/lvms/src/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   datasets
     #   diffusers
@@ -158,7 +158,7 @@ markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
-mcp==1.25.0
+mcp==1.30.0
     # via -r ./comps/lvms/src/requirements.in
 mdurl==0.1.2
     # via markdown-it-py
