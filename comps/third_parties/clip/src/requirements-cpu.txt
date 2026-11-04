@@ -49,7 +49,7 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 fastapi==0.128.0
     # via -r ./comps/third_parties/clip/src/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   transformers
