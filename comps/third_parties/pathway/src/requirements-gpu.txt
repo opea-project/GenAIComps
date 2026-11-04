@@ -154,7 +154,7 @@ distlib==0.4.0
     # via virtualenv
 distro==1.9.0
     # via openai
-dnspython==2.8.0
+dnspython==2.9.0
     # via email-validator
 docling==2.66.0
     # via -r ./comps/third_parties/pathway/src/requirements.in
@@ -193,7 +193,7 @@ fastmcp==2.12.4
     # via pathway
 fastuuid==0.14.0
     # via litellm
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   torch
@@ -225,7 +225,7 @@ geopy==2.4.1
     # via pathway
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.2.1
     # via pathway
 google-ai-generativelanguage==0.6.15
     # via google-generativeai
@@ -609,7 +609,7 @@ omegaconf==2.3.0
     # via
     #   effdet
     #   rapidocr
-onnx==1.20.0
+onnx==1.22.0rc1
     # via
     #   unstructured
     #   unstructured-inference
