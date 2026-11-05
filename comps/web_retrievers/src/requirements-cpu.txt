@@ -81,7 +81,7 @@ embreex==2.17.7.post7 ; platform_machine == 'x86_64'
     # via trimesh
 fastapi==0.127.0
     # via -r ./comps/web_retrievers/src/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   transformers
@@ -284,7 +284,7 @@ numpy==2.4.0
     #   transformers
     #   trimesh
     #   vhacdx
-oauthlib==3.3.1
+oauthlib==4.0.0
     # via
     #   kubernetes
     #   requests-oauthlib
