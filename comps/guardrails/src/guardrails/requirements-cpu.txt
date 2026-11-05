@@ -77,7 +77,7 @@ faker==27.4.0
     # via llm-guard
 fastapi==0.127.0
     # via -r ./comps/guardrails/src/guardrails/requirements.in
-filelock==3.20.1
+filelock==4.2.1
     # via
     #   huggingface-hub
     #   tldextract
@@ -211,7 +211,7 @@ mypy-extensions==1.1.0
 networkx==3.6.1
     # via
     #   trimesh
-nltk==3.9.2
+nltk==3.10.4
     # via llm-guard
 numpy==2.4.0
     # via
